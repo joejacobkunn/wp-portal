@@ -1,0 +1,69 @@
+/** SLIM Select Field */
+.x-multiselect .ss-single-selected {
+    height: 39px !important;
+    border-radius: 0.25rem !important;
+    font-size: .875rem;
+    padding: 0.5rem 1rem 0.5rem 1rem !important;
+    border: 1px solid #dce7f1 !important;
+}
+.x-multiselect .ss-multi-selected {
+    padding: 0.35rem 1rem 0.35rem 1rem !important;
+    border-radius: 0.25rem !important;
+    font-size: .875rem;
+    border: 1px solid #dce7f1 !important;
+}
+.x-multiselect .ss-value {
+    padding: 4px 14px !important;
+    margin: 0 !important;
+    margin-right: 6px !important;
+}
+.x-multiselect .ss-content .ss-list {
+    font-size: .875rem;
+}
+.x-multiselect .ss-content .ss-search input {
+    font-size: .875rem !important;
+}
+.x-multiselect .ss-main .ss-single-selected .ss-deselect {
+    margin: 0 10px !important;
+}
+.is-invalid .x-multiselect .ss-main .ss-single-selected,
+.is-invalid .x-multiselect .ss-main .ss-multi-selected  {
+    border-color: #e11d48;
+}
+.x-multiselect .ss-content .ss-list .ss-optgroup .ss-option {
+    padding: 6px 10px;
+}
+.x-multiselect .ss-content .deselect-option {
+    color: #f16666;
+}
+.x-multiselect .ss-content .ss-list .ss-option.ss-disabled {
+    color: #bfb9b9;
+}
+.x-multiselect .placeholder {
+    background: #fff !important;
+}
+/** SLIM Select Ends */
+
+.btn-fab {
+    width: 3.2em;
+    height: 3.2em;
+    position: absolute;
+    right: 26px;
+    top: -32px;
+    border-radius: 50%;
+}
+.btn-fab i {
+    font-size: 1em;
+    text-align: center;
+}
+.sidebar-wrapper .logo {
+    height: 6.2rem;
+    display: block;
+    object-fit: cover;
+    overflow: hidden;
+}
+.sidebar-wrapper .sidebar-header img {
+    width: 100%;
+    height: 100px;
+    object-fit: contain;
+}
