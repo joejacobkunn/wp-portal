@@ -17,6 +17,7 @@
                         <x-forms.input
                             label="Subdomain"
                             model="account.subdomain"
+                            prependText="https://"
                             appendText=".{{ config('app.domain') }}"
                             lazy
                         />

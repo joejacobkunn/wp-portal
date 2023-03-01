@@ -7,6 +7,16 @@
         
         <div class="card-body">
 
+            @if($account->is_active)
+                <div class="alert alert-light-success color-success" role="alert">
+                    <i class="far fa-check-circle"></i> This account is active
+                </div>
+            @else
+                <div class="alert alert-light-danger color-danger" role="alert">
+                    <i class="far fa-times-circle"></i> This account is deactivated
+                </div>
+            @endif
+
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
@@ -17,7 +27,7 @@
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
                         <h3 class="h6 mb-1">Subdomain</h3>
-                        <p class="small pe-4">{{ $account->subdomain }}</p>
+                        <p class="small pe-4"><a href="https://{{ $account->subdomain }}.{{env('APP_DOMAIN_NAME')}}" target="_blank">https://{{ $account->subdomain }}.{{env('APP_DOMAIN_NAME')}}</a></p>
                     </div>
                 </li>
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
