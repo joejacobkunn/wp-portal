@@ -6,6 +6,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use App\Events\User\UserCreated;
+use App\Listeners\User\UserCreatedNotification;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -17,6 +19,14 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+
+        UserCreated::class => [
+            UserCreatedNotification::class,
+        ],
+
+        \App\Events\User\ForgotPassword::class => [
+            \App\Listeners\User\ForgotPasswordListener::class,
         ],
     ];
 

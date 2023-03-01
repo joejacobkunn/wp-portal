@@ -53,9 +53,32 @@ services:
     networks:
       - app-network
 
+  #Local email server
+  mail:
+    image: mailhog/mailhog
+    build:
+      context: .
+      dockerfile: mailhog/Dockerfile
+    container_name: mail
+    restart: always
+    tty: true
+    privileged: true
+    logging:
+      driver: 'none'
+    command: ["-storage=maildir", "-maildir-path=/maildir"]
+    volumes:
+      - maildata:/maildir
+    ports:
+      - ${DOCKER_MAILHOG_SMTP_PORT}:1025 # smtp server
+      - ${DOCKER_MAILHOG_UI_PORT}:8025 # web ui
+    networks:
+      - app-network
+
 #Volumes
 volumes:
   dbdata:
+    driver: local
+  maildata:
     driver: local
 
 #Docker Networks

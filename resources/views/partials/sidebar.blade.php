@@ -3,7 +3,7 @@
         <div class="sidebar-header position-relative">
             <div class="d-block justify-content-between align-items-center">
                 <div class="logo">
-                    <a href="index.html"><img src="https://zuramai.github.io/mazer/demo/assets/images/logo/logo.svg" style="width: 100px" /></a>
+                    <a href="index.html"><img src="/assets/images/logo.png" /></a>
                 </div>
                 <div class="sidebar-toggler  x">
                     <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
@@ -15,22 +15,22 @@
                 <li class="sidebar-title">Menu</li>
 
                 <li class="sidebar-item {{ (request()->is('dashboard*')) ? 'active' : '' }}">
-                    <a href="{{ route('core.dashboard.index') }}" class='sidebar-link'>
+                    <a href="{{ route('core.dashboard.index', ['route_subdomain' => request('route_subdomain')]) }}" class='sidebar-link'>
                         <i class="fas fa-tachometer-alt-fast"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
 
-                @canany(['affiliates.view', 'affiliates.manage'])
-                <li class="sidebar-item {{ (request()->is('affiliates*')) ? 'active' : '' }}">
-                    <a href="{{ route('core.affiliate.index') }}" class='sidebar-link'>
-                        <i class="fas fa-solid fa-circle-nodes"></i>
-                        <span>Affiliates</span>
+                @canany(['accounts.view'])
+                <li class="sidebar-item {{ (request()->is('accounts*')) ? 'active' : '' }}">
+                    <a href="{{ route('core.account.index') }}" class='sidebar-link'>
+                    <i class="fas fa-users"></i>
+                        <span>Accounts</span>
                     </a>
                 </li>
                 @endcan
 
-                @canany(['users.view', 'users.manage'])
+                @canany(['users.view'])
                 <li class="sidebar-item {{ (request()->is('users*')) ? 'active' : '' }}">
                     <a href="{{ route('core.user.index') }}" class='sidebar-link'>
                     <i class="fas fa-users"></i>

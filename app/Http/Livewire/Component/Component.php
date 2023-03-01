@@ -6,9 +6,12 @@ use Livewire\Component as BaseComponent;
 
 abstract class Component extends BaseComponent
 {
+    
     public $breadcrumbs = [];
 
     public $actionButtons = [];
+
+    public $moduleName;
 
     /**
      * Dynamic listener definitions
@@ -34,10 +37,18 @@ abstract class Component extends BaseComponent
             $updatingAttr = array_pop($fieldAttributes);
             $updatingObj = &$this;
             foreach ($fieldAttributes as $fieldAttribute) {
-                $updatingObj = &$updatingObj->{$fieldAttribute};
+                if (is_object($updatingObj)) {
+                    $updatingObj = &$updatingObj->{$fieldAttribute};
+                } elseif (is_array($updatingObj)) {
+                    $updatingObj = &$updatingObj[$fieldAttribute];
+                }
             }
 
-            $updatingObj->{$updatingAttr} = $value;
+            if (is_object($updatingObj)) {
+                $updatingObj->{$updatingAttr} = $value;
+            } elseif (is_array($updatingObj)) {
+                $updatingObj[$updatingAttr] = $value;
+            }
         } else {
             $this->{$name} = $value;
         }
@@ -45,5 +56,10 @@ abstract class Component extends BaseComponent
         if ($recheckValidation && isset($this->getRules()[$name])) {
             $this->validateOnly($name);
         }
+    }
+
+    public function renderView($viewPath, $args = [], $layoutView = 'livewire-app')
+    {
+        return view($viewPath, $args)->extends($layoutView, ['moduleName' => $this->moduleName]);
     }
 }

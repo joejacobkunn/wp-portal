@@ -1,0 +1,32 @@
+[
+    {
+        "group": "Access Control",
+        "roles": ["master-admin"],
+        "items": [
+            {
+                "name": "roles.view",
+                "label": "View Roles",
+                "description": "View Or List Roles"
+            },
+            {
+                "name": "roles.manage",
+                "label": "Manage Roles",
+                "description": "Create/Update/Delete Roles"
+            }
+        ]
+    },
+    {
+        "group": "User",
+        "roles": ["master-admin", "super-admin"],
+        "items": [
+            {
+                "name": "users.view",
+                "label": "View Users"
+            },
+            {
+                "name": "users.manage",
+                "label": "Manage Users"
+            }
+        ]
+    }
+]
