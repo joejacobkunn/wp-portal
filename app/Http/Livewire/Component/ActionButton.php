@@ -7,6 +7,13 @@ use Livewire\Component;
 class ActionButton extends Component
 {
 
+    public bool $loadData = false;
+
+    public function init()
+    {
+        $this->loadData = true;
+    }
+    
     /*
     |--------------------------------------------------------------------------
     | Configurable Attributes 

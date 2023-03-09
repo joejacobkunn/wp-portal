@@ -2,15 +2,17 @@
 
 namespace App\Http\Livewire\Core\Account;
 
+use App\Traits\HasTabs;
 use App\Models\Core\User;
 use App\Models\Core\Account;
+use App\Models\Core\AccountApiKey;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Core\Account\Traits\FormRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
 {
-    use AuthorizesRequests, FormRequest;
+    use AuthorizesRequests, FormRequest, HasTabs;
 
     public Account $account;
     
@@ -42,6 +44,14 @@ class Show extends Component
     ];
 
     public $editRecord = false;
+
+    public $tabs = [
+        'general' => 'General',
+        'credentials' => 'API Credentials',
+    ];
+    public $tab;
+
+    public $queryString = ['tab'];
 
     public function mount()
     {

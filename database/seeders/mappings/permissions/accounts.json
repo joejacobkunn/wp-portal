@@ -10,6 +10,10 @@
             {
                 "name": "accounts.manage",
                 "label": "Manage Accounts"
+            },
+            {
+                "name": "accounts.manage.credentials",
+                "label": "Manage API Credentials"
             }
         ]
     }

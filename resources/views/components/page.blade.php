@@ -28,8 +28,6 @@
 
     </div>
 
-    @include('partials.flash')
-
     <div class="x-page-content">
         @if(!empty($content))
             {{ $content }}

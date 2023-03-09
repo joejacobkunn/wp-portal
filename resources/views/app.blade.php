@@ -17,7 +17,8 @@
 
 
         @include('partials.footer')
-
+        
+        <input class="form-check-input me-0" type="checkbox" id="toggle-dark" style="cursor: pointer">
     </body>
 
 </html>

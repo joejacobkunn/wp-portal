@@ -2,10 +2,12 @@
 
 namespace App\Http\Livewire\Core\User\Traits;
 
-use App\Models\Core\Affiliate;
-use App\Models\Core\User;
 use Carbon\Carbon;
+use App\Models\Core\User;
+use App\Models\Core\Affiliate;
+use App\Events\User\UserCreated;
 use Illuminate\Support\Facades\DB;
+use App\Services\Environment\Domain;
 
 trait FormRequest
 {
@@ -56,9 +58,24 @@ trait FormRequest
     public function store()
     {   
         $this->user->is_active = 1;
-        $this->user->invited_by = auth()->user()->id;
         $this->user->password = "password";
+
+        if (Domain::getClient()) {
+            $this->user->account_id = Domain::getClientId();
+        }
+
         $this->user->save();
+
+        $this->user->metadata()->create([
+            'invited_by' => auth()->user()->id,
+        ]);
+        
+        $this->user->save();
+
+        $this->user->invited_by = auth()->user()->id;
+
+        //send notifications
+        UserCreated::dispatch($this->user);
 
         session()->flash('success', 'User saved!');
         return redirect()->route('core.user.show', [

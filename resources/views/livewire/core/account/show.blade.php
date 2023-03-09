@@ -9,8 +9,6 @@
 
         <x-slot:content>
 
-            @include('partials.flash') 
-
             @if($editRecord)
                 @include('livewire.core.account.partials.form', ['button_text' => 'Update Account'])
             @else

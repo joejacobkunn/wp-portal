@@ -13,6 +13,13 @@ abstract class Component extends BaseComponent
 
     public $moduleName;
 
+    public $loaded = false;
+
+    public function init()
+    {
+        $this->loaded = true;
+    }
+
     /**
      * Dynamic listener definitions
      */
@@ -60,6 +67,18 @@ abstract class Component extends BaseComponent
 
     public function renderView($viewPath, $args = [], $layoutView = 'livewire-app')
     {
-        return view($viewPath, $args)->extends($layoutView, ['moduleName' => $this->moduleName]);
+        return view($viewPath, $args)->extends($layoutView);
+    }
+
+    /**
+     * Dispatch notification
+     */
+    public function sendAlert($type, $message)
+    {
+        session()->flash($type, $message);
+        $this->dispatchBrowserEvent('show:toast', [
+            'type' => $type,
+            'message' => $message
+        ]);
     }
 }

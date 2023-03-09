@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+        <input class="form-check-input me-0 d-none" type="checkbox" id="toggle-dark" style="cursor: pointer">
     @include('partials.head')
     <body>
         <div id="app">
@@ -14,7 +15,7 @@
                 @yield('content')
 
         @include('partials.footer')
-
+        
     </body>
 
 </html>

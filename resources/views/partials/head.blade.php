@@ -11,4 +11,6 @@
     <script src="/assets/js/header.js?v={{ time() }}"></script>
     <link rel="stylesheet" href="/assets/css/main/custom.css">
     <link type="text/css" href="/assets/css/spatiemedia.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
+    <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
 </head>

@@ -27,6 +27,7 @@ trait FormRequest
             'account.subdomain' => 'required|min:3|unique:accounts,subdomain' . ($this->account ? ',' . $this->account->id : ''),
             'account.address' => 'nullable',
             'account.is_active' => 'nullable',
+            'adminEmail' => 'required',
         ];
     }
 
