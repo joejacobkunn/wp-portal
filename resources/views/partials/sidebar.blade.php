@@ -24,7 +24,7 @@
                 @canany(['accounts.view'])
                 <li class="sidebar-item {{ (request()->is('accounts*')) ? 'active' : '' }}">
                     <a href="{{ route('core.account.index') }}" class='sidebar-link'>
-                    <i class="fas fa-users"></i>
+                    <i class="fas fa-building"></i>
                         <span>Accounts</span>
                     </a>
                 </li>

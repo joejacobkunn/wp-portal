@@ -4,7 +4,7 @@
     $title = $title ?? 'Reset Password';
 @endphp
 
-@section('title', $title . ' | Pathways')
+@section('title', $title . ' | W&P Portal')
 
 @section('left_column')
 <div>

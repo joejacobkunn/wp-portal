@@ -66,6 +66,7 @@ class RolePermissionSeeder extends Seeder
 
         $user = User::where('email', config('permission.master_user_email'))->firstOrNew();
         if (!$user->id) {
+            $user->name = 'Master Admin';
             $user->email = config('permission.master_user_email');
             $user->password = "password";
             $user->save();

@@ -34,7 +34,7 @@ class Table extends DataTableComponent
             Column::make("Id", "id")
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('core.account.show', $row->id).'" class="text-info text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('core.account.show', $row->id).'" class="text-primary text-decoration-underline">' . $value . '</a>';
                 })
                 ->html(),
 
@@ -42,7 +42,7 @@ class Table extends DataTableComponent
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('core.account.show', $row->id).'" class="text-info text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('core.account.show', $row->id).'" class="text-primary text-decoration-underline">' . $value . '</a>';
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
@@ -58,12 +58,9 @@ class Table extends DataTableComponent
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return $value ? "Yes" : "No";
-                }),
-
-            Column::make("Address", "address")
-                ->sortable()
-                ->searchable(),
+                    return $value ? '<span style="color:green"><i class="far fa-check-circle"></i></span>' : '<span style="color:red"><i class="far fa-times-circle"></i></span>';
+                })
+                ->html(),
 
             Column::make('Created At', "created_at")
                 ->sortable()->searchable()->deselected()

@@ -14,7 +14,7 @@
                 :account="$account"
                 wire:key="account_cred"
                         />
-                        @endif
+            @endif
         </x-slot>
     </x-tabs>
 </div>

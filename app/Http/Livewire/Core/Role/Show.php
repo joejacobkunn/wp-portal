@@ -40,7 +40,7 @@ class Show extends Component
     public $actionButtons = [
         [
             'icon' => 'fa-edit',
-            'color' => 'info',
+            'color' => 'primary',
             'listener' => 'edit'
         ],
         [

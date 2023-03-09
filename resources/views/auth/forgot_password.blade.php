@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Forgot Password | Pathways')
+@section('title', 'Forgot Password | W&P Portal')
 
 @section('left_column')
 <div>
@@ -20,7 +20,7 @@
 
     <form method="POST" action="/forgot-password">
         @csrf
-        <p>To reset your password type the full email address you use to sign in to pathways account.</p>
+        <p>To reset your password type the full email address you use to sign in to W&P Portal account.</p>
         <div class="form-group position-relative has-icon-left mb-0">
             <input type="email" name="email" class="form-control form-control-xl" placeholder="Email" autocomplete="off" required>
             <div class="form-control-icon">

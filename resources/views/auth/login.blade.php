@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Login | Pathways')
+@section('title', 'Login | W&P Portal')
 
 @section('left_column')
 <div>
@@ -11,7 +11,7 @@
     </div>
     @endif
 
-    <h4 class="auth-title">Sign in.</h4>
+    <h4 class="auth-title">Sign In</h4>
     
     <ul class="text-danger">
             @foreach ($errors->all() as $error)
@@ -38,10 +38,10 @@
                 Keep me logged in
             </label>
         </div>
-        <button class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Log in</button>
+        <button class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Log In</button>
     </form>
     <div class="text-center mt-5 text-lg fs-4">
-        <p><a class="font-bold" href="{{ route('auth.forgot.show') }}">Forgot password?</a>.</p>
+        <p><a class="font-bold" href="{{ route('auth.forgot.show') }}">Forgot password?</a></p>
     </div>
 </div>
 @endsection
