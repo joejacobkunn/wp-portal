@@ -62,10 +62,6 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
-            Column::make("Address", "address")
-                ->sortable()
-                ->searchable(),
-
             Column::make('Created At', "created_at")
                 ->sortable()->searchable()->deselected()
                 ->format(function ($value) {

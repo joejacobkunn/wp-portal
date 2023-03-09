@@ -13,6 +13,10 @@ class Account extends Model
         'is_active',
     ];
 
+    protected $attributes = [
+        'is_active' => 1
+    ];
+
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_user');

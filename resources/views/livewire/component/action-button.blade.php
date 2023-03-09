@@ -4,7 +4,7 @@
     <div class="btn-group float-end" role="group" aria-label="Basic example">
         @foreach ($actionButtons as $button)
             @if(empty($button['hide']))
-            <button wire:click="buttonClicked({{ json_encode($button) }})" type="button" class="btn btn-outline-{{ $button['color'] ?? 'primary' }}"><i class="fa {{ $button['icon'] ?? 'fa-mouse-pointer' }}" aria-hidden="true"></i> {{ $button['title'] ?? '' }}</button>
+            <button wire:click="buttonClicked({{ json_encode($button) }})" type="button" class="btn btn-sm btn-outline-{{ $button['color'] ?? 'primary' }}"><i class="fa {{ $button['icon'] ?? 'fa-mouse-pointer' }}" aria-hidden="true"></i> {{ $button['title'] ?? '' }}</button>
             @endif
         @endforeach
 

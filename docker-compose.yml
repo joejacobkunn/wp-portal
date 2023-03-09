@@ -55,6 +55,7 @@ services:
 
   #Local email server
   mail:
+    user: root
     image: mailhog/mailhog
     build:
       context: .

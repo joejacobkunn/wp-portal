@@ -25,7 +25,6 @@ trait FormRequest
         return [
             'account.name' => 'required|min:3',
             'account.subdomain' => 'required|min:3|unique:accounts,subdomain' . ($this->account ? ',' . $this->account->id : ''),
-            'account.address' => 'nullable',
             'account.is_active' => 'nullable',
         ];
     }
@@ -39,7 +38,6 @@ trait FormRequest
             $this->account = new Account;
             $this->account->name = null;
             $this->account->subdomain = null;
-            $this->account->address = null;
             $this->account->admin_user = null;
         } else {
             $this->adminUser = $this->account->admin()->first();
