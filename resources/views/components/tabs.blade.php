@@ -5,7 +5,7 @@
     @endphp
 
     <div id="{{ $id }}" >
-        <div class="nav nav-tabs nav-tabs-ul mb-3 {{ $class ?? '' }}" id="nav-tab" role="tablist" wire:ignore >
+        <div class="nav nav-pills mb-3 {{ $class ?? '' }}" id="nav-tab" role="tablist" wire:ignore >
             @foreach($tabs as $tabIndex => $tabTitle)
                 <a class="nav-item nav-link {{ $this->{$activeTabIndex} == $tabIndex ? 'active' : '' }}" data-tab="{{ $tabIndex }}" role="tab" aria-controls="nav-pending-approval" aria-selected="false">
                 @if(!empty(${"tab_header_" . $tabIndex}))
@@ -92,7 +92,7 @@
             tabContentDom.classList.add('loading-skeleton');
             el.innerHTML = el.innerHTML + '<i class="fas fa-spinner fa-spin"></i>'
 
-            document.querySelector('#{{ $id }} .nav-tabs').innerHTML += '<div class="div-overlay"></div>'
+            document.querySelector('#{{ $id }} .nav-pills').innerHTML += '<div class="div-overlay"></div>'
             
             @this.processActiveTabChange(status, '{{ $activeTabIndex }}', '{{ $id }}').then(() => {
                 let element = document.querySelector('#{{$id }} [data-tab='+ (el.dataset.tab) +']')
@@ -106,8 +106,8 @@
 
                 tabContentDom.classList.remove('loading-skeleton');
 
-                if (document.querySelector('#{{ $id }} .nav-tabs .div-overlay')) {
-                    document.querySelector('#{{ $id }} .nav-tabs .div-overlay').remove()
+                if (document.querySelector('#{{ $id }} .nav-pills .div-overlay')) {
+                    document.querySelector('#{{ $id }} .nav-pills .div-overlay').remove()
                 }
                 
                 setTimeout(() => {

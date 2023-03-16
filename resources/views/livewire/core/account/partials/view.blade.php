@@ -16,5 +16,29 @@
                         />
             @endif
         </x-slot>
+
+        @can('locations.view')
+            <x-slot:tab_content_locations>
+                @if($tabLoaded)
+                    <livewire:core.location.index
+                        :account="$account"
+                        wire:key="location_index"
+                    />
+                @endif
+            </x-slot>
+        @endcan
+
+        @can('modules.view')
+            <x-slot:tab_content_modules>
+                @if($tabLoaded)
+                    <livewire:core.module.index
+                        :account="$account"
+                        wire:key="module_index"
+                    />
+                @endif
+            </x-slot>
+        @endcan
+
+
     </x-tabs>
 </div>

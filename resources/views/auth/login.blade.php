@@ -12,7 +12,7 @@
     @endif
 
     <h4 class="auth-title">Sign In</h4>
-    
+
     <ul class="text-danger">
             @foreach ($errors->all() as $error)
                 <li>{{$error}}</li>

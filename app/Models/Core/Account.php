@@ -10,7 +10,7 @@ class Account extends Model
     protected $fillable = [
         'name',
         'subdomain',
-        'address', 
+        'address',
         'is_active',
     ];
 
@@ -21,6 +21,11 @@ class Account extends Model
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_user');
+    }
+
+    public function modules()
+    {
+        return $this->belongsToMany(Module::class, 'account-modules', 'account_id', 'module_id');
     }
 
     public function metadata()

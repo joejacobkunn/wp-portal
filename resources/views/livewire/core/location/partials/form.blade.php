@@ -1,13 +1,13 @@
 <div class="row">
     <div class="col-12 col-md-12">
         <div class="card card-body shadow-sm mb-4">
-            <form wire:submit.prevent="{{ (!empty($account->id) ? 'save()' : 'submit()')}}">
+            <form wire:submit.prevent="{{ (!empty($location->id) ? 'save()' : 'submit()')}}">
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <x-forms.input
                             label="Name"
-                            model="account.name"
+                            model="location.name"
                             lazy
                         />
                     </div>
@@ -15,10 +15,9 @@
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <x-forms.input
-                            label="Subdomain"
-                            model="account.subdomain"
-                            prependText="http://"
-                            appendText=".{{ config('app.domain') }}"
+                            label="Phone"
+                            model="location.phone"
+                            prepend-icon="fas fa-phone"
                             lazy
                         />
                     </div>
@@ -26,13 +25,11 @@
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.input
-                            label="Admin Email"
-                            model="adminEmail"
-                            placeholder="Enter Admin Email"
+                        <x-forms.textarea
+                            label="Address"
+                            model="location.address"
                             prepend-icon="fas fa-envelope"
                             lazy
-                            hint="User will be set as Super Admin for accountand will be sent an onboarding email to setup password"
                         />
                     </div>
                 </div>
@@ -40,8 +37,8 @@
                 <div class="row">
                     <div class="col-md-12 mb-1">
                         <x-forms.checkbox
-                            label="Activate Account"
-                            model="account.is_active"
+                            label="Activate Location"
+                            model="location.is_active"
                             lazy
                         />
                     </div>
@@ -51,7 +48,7 @@
 
                 <div class="mt-2 float-end">
 
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-success">
                         <div wire:loading wire:target="{{ (!empty($role->id) ? 'save' : 'submit')}}">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>

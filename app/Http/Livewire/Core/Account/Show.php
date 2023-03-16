@@ -15,7 +15,7 @@ class Show extends Component
     use AuthorizesRequests, FormRequest, HasTabs;
 
     public Account $account;
-    
+
     public $breadcrumbs = [
         [
             'title' => 'Accounts',
@@ -47,6 +47,8 @@ class Show extends Component
 
     public $tabs = [
         'general' => 'General',
+        'locations' => 'Locations',
+        'modules' => 'Modules',
         'credentials' => 'API Credentials',
     ];
     public $tab;

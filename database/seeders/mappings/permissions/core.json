@@ -28,5 +28,34 @@
                 "label": "Manage Users"
             }
         ]
+    },
+    {
+        "group": "Location",
+        "roles": ["master-admin", "super-admin"],
+        "items": [
+            {
+                "name": "locations.view",
+                "label": "View Locations",
+                "description" : "Can view locations"
+            },
+            {
+                "name": "locations.manage",
+                "label": "Manage Locations",
+                "description" : "Can create/update/delete locations"
+            }
+        ]
+    },
+    {
+        "group": "Module",
+        "roles": ["master-admin", "super-admin"],
+        "items": [
+            {
+                "name": "modules.view",
+                "label": "View Modules",
+                "description" : "Can view enabled modules"
+            }
+        ]
     }
+
+
 ]
