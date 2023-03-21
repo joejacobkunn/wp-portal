@@ -22,23 +22,31 @@
                 </li>
 
                 @canany(['accounts.view'])
-                <li class="sidebar-item {{ (request()->is('accounts*')) ? 'active' : '' }}">
-                    <a href="{{ route('core.account.index') }}" class='sidebar-link'>
-                    <i class="fas fa-building"></i>
-                        <span>Accounts</span>
-                    </a>
-                </li>
+                    <li class="sidebar-item {{ (request()->is('accounts*')) ? 'active' : '' }}">
+                        <a href="{{ route('core.account.index') }}" class='sidebar-link'>
+                        <i class="fas fa-building"></i>
+                            <span>Accounts</span>
+                        </a>
+                    </li>
                 @endcan
 
                 @canany(['users.view'])
-                <li class="sidebar-item {{ (request()->is('users*')) ? 'active' : '' }}">
-                    <a href="{{ route('core.user.index') }}" class='sidebar-link'>
-                    <i class="fas fa-users"></i>
-                        <span>Users</span>
-                    </a>
-                </li>
+                    <li class="sidebar-item {{ (request()->is('users*')) ? 'active' : '' }}">
+                        <a href="{{ route('core.user.index') }}" class='sidebar-link'>
+                        <i class="fas fa-users"></i>
+                            <span>Users</span>
+                        </a>
+                    </li>
                 @endcan
 
+                @canany(['vehicle.view'])
+                    <li class="sidebar-item {{ (request()->is('vehicle*')) ? 'active' : '' }}">
+                        <a href="{{ route('vehicle.index') }}" class='sidebar-link'>
+                        <i class="fas fa-truck"></i>
+                            <span>Vehicle</span>
+                        </a>
+                    </li>
+                @endcan
 
             </ul>
         </div>
