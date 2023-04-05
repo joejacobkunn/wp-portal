@@ -23,8 +23,10 @@ class SubdomainMiddleware
             $subdomain = Account::select('id', 'name', 'admin_user', 'is_active')->where('subdomain', $request->route_subdomain)->firstOrFail();
 
             Domain::setEnvironment($subdomain);
-            
+
         }
+
+
 
         return $next($request);
     }

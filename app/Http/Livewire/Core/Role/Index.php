@@ -11,7 +11,7 @@ use App\Http\Resources\Transformers\PermissionGroupCollection;
 class Index extends Component
 {
     use AuthorizesRequests;
-    
+
     public Role $role;
 
     //attributes
@@ -41,7 +41,7 @@ class Index extends Component
         $this->role = new Role;
         $this->role->label = NULL;
         $this->role->reporting_role = NULL;
-        
+
         parent::__construct($id);
     }
 
@@ -80,7 +80,7 @@ class Index extends Component
             'name' => Str::slug($this->role->label),
             'guard_name' => 'web'
         ];
-        
+
         if ($this->role->reporting_role) {
             $reportingRole = Role::find($this->role->reporting_role);
             $roleData['reporting_role'] = $reportingRole->id;

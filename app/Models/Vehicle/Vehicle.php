@@ -25,6 +25,10 @@ class Vehicle extends Model
         'retired_at'
     ];
 
+    protected $casts = [
+        'retired_at' => 'datetime'
+    ];
+
     public function account()
     {
         return $this->belongsTo(Account::class, 'account_id');

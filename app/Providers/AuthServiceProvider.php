@@ -30,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $policies = [];
         $policies += $this->getCorePolicies();
+        $policies += $this->getVehiclePolicies();
 
         return $policies;
     }
@@ -45,6 +46,13 @@ class AuthServiceProvider extends ServiceProvider
             \App\Models\Core\Account::class => \App\Policies\Core\AccountPolicy::class,
             \App\Models\Core\Location::class => \App\Policies\Core\LocationPolicy::class,
             \App\Models\Core\Module::class => \App\Policies\Core\ModulePolicy::class
+        ];
+    }
+
+    private function getVehiclePolicies()
+    {
+        return [
+            \App\Models\Vehicle\Vehicle::class => \App\Policies\Vehicle\VehiclePolicy::class
         ];
     }
 }

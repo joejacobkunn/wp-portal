@@ -16,7 +16,7 @@ class Table extends DataTableComponent
     {
         $this->setPrimaryKey('id');
         $this->setDefaultSort('created_at', 'desc');
-        
+
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
             'class' => 'table table-bordered',

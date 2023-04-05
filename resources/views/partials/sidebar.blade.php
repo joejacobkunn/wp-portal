@@ -48,6 +48,17 @@
                     </li>
                 @endcan
 
+                @canany(['order.view'])
+                    <li class="sidebar-item {{ (request()->is('order*')) ? 'active' : '' }}">
+                        <a href="{{ route('order.index') }}" class='sidebar-link'>
+                        <i class="far fa-list-alt"></i>
+                            <span>Orders</span>
+                        </a>
+                    </li>
+                @endcan
+
+
+
             </ul>
         </div>
     </div>

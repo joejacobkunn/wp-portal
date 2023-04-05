@@ -200,9 +200,12 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        \App\Providers\ComponentServiceProvider::class,
+        App\Providers\ProgressServiceProvider::class,
 
         /** Third party */
         Spatie\Permission\PermissionServiceProvider::class,
+
 
     ],
 

@@ -1,0 +1,16 @@
+[
+    {
+        "group": "Order",
+        "roles": ["super-admin"],
+        "items": [
+            {
+                "name": "order.view",
+                "label": "View Orders"
+            },
+            {
+                "name": "order.manage",
+                "label": "Manage Orders"
+            }
+        ]
+    }
+]

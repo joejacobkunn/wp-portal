@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\ProgressGrammer;
 use Illuminate\Support\Str;
 
 return [
@@ -91,6 +92,17 @@ return [
             'prefix_indexes' => true,
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
+        ],
+
+        'sx' => [
+            'driver' => 'progress',
+            'host' => env('PROGRESS_HOST', 'localhost'),
+            'port' => env('PROGRESS_PORT', 19204),
+            'database' => env('PROGRESS_DATABASE', 'forge'),
+            'username' => env('PROGRESS_USERNAME', 'forge'),
+            'password' => env('PROGRESS_PASSWORD', ''),
+            'codepage' => env('PROGRESS_CODEPAGE', 'ISO_8859_1'),
+            'schema' =>  env('PROGRESS_SCHEMA', 'PUB'),
         ],
 
     ],

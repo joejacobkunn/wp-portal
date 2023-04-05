@@ -8,6 +8,7 @@ use App\Models\Core\Account;
 use App\Models\Core\AccountApiKey;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Core\Account\Traits\FormRequest;
+use App\Models\SX\Order;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component

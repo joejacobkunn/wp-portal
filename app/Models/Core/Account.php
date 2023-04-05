@@ -66,4 +66,9 @@ class Account extends Model
         $key->is_revoked =  1;
         $key->save();
     }
+
+    public function hasModule($module_slug)
+    {
+        return $this->modules()->where('slug', $module_slug)->exists();
+    }
 }
