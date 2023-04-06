@@ -48,7 +48,7 @@ class ProgressGrammer extends Grammar
      */
     protected function compileLimit(Builder $query, $limit)
     {
-        return '';
+        return ' with(nolock)';
     }
 
     /**

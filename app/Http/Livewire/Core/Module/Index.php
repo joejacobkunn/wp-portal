@@ -16,7 +16,10 @@ class Index extends Component
 
     public $modules = [];
 
-    protected $listeners = ['refreshPage' => '$refresh'];
+    protected $listeners = [
+        'refreshPage' => '$refresh',
+        'closeModal'
+    ];
 
     public function render()
     {

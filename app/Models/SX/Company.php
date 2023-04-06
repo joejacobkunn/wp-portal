@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Models\Order;
+namespace App\Models\SX;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Order extends Model
+class Company extends Model
 {
     use HasFactory;
 
     protected $connection = 'sx';
 
-    protected $table = 'oeeh';
+    protected $table = 'sasc';
 
-    protected $primaryKey = 'orderno';
+    protected $primaryKey = 'cono';
 }

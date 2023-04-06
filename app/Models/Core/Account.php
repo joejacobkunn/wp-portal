@@ -33,6 +33,11 @@ class Account extends Model
         return $this->hasOne(AccountMetadata::class);
     }
 
+    public function herohubConfig()
+    {
+        return $this->hasOne(HeroHubConfig::class, 'account_id');
+    }
+
     public function scopeBasicSelect($query)
     {
         return $query->select('id', 'name', 'label');

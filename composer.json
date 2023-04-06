@@ -16,6 +16,7 @@
         "livewire/livewire": "^2.12",
         "rappasoft/laravel-livewire-tables": "^2.11",
         "spatie/laravel-activitylog": "^4.7",
+        "spatie/laravel-ciphersweet": "^1.2",
         "spatie/laravel-permission": "^5.9"
     },
     "require-dev": {

@@ -7,7 +7,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\Account;
 use App\Models\Core\Location;
-use App\Models\Order\Order;
+use App\Models\SX\Order;
 use App\Models\Vehicle\Vehicle;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
