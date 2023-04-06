@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
+    Route::post('oauth/authorize', [\App\Http\Controllers\Api\V1\AuthorizationController::class, 'issueToken'])->name('auth.token');
+
+    Route::group(['middleware' => 'auth.api'], function () {
+        Route::get('vehicles', [\App\Http\Controllers\Api\V1\VehicleController::class, 'index'])->name('vehicle.list');
+        Route::get('vehicles/{id}', [\App\Http\Controllers\Api\V1\VehicleController::class, 'show'])->name('vehicle.get');
+    });
 });

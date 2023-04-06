@@ -60,8 +60,8 @@ trait FormRequest
         $this->user->is_active = 1;
         $this->user->password = "password";
 
-        if (Domain::getClient()) {
-            $this->user->account_id = Domain::getClientId();
+        if (app('domain')) {
+            $this->user->account_id = app('domain')->getClientId();
         }
 
         $this->user->save();

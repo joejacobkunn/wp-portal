@@ -20,7 +20,7 @@ class ResetController extends Controller
 
     public function processForgotPasswordPage(Request $request)
     {
-        $client = Domain::getClient();
+        $client = app('domain')->getClient();
         $user = User::where('email', $request->email)->where('account_id', $client->id)->first();
 
 
