@@ -3,22 +3,28 @@
 namespace App\Services\Environment;
 
 use Exception;
+use Illuminate\Support\Facades\App;
 use Illuminate\Database\Eloquent\Model;
 
 class Domain
 {
-    private static $entity;
+    private $entity;
 
-    private static $logo;
+    private $logo;
 
-    public static function setEnvironment(Model $entity)
+    private function __construct($entity)
     {
-        static::$entity = $entity;
+        $this->entity = $entity;
     }
 
-    public static function getClientId()
+    public static function init(Model $entity)
     {
-        $entity = static::getClient();
+        return new self($entity);
+    }
+
+    public function getClientId()
+    {
+        $entity = $this->getClient();
         if (empty($entity->id)) {
             throw new Exception("Subdomain config error!");
         }
@@ -26,8 +32,8 @@ class Domain
         return $entity->id;
     }
 
-    public static function getClient()
+    public function getClient()
     {
-        return static::$entity;
+        return $this->entity;
     }
 }

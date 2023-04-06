@@ -2,9 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Core\Account;
 use Closure;
+use App\Models\Core\Account;
 use App\Models\Core\Affiliate;
+use Illuminate\Support\Facades\App;
 use App\Services\Environment\Domain;
 
 class SubdomainMiddleware
@@ -22,8 +23,8 @@ class SubdomainMiddleware
         if ($request->route_subdomain && !in_array($request->route_subdomain, config('constants.reserved_subdomain'))) {
             $subdomain = Account::select('id', 'name', 'admin_user', 'is_active')->where('subdomain', $request->route_subdomain)->firstOrFail();
 
-            Domain::setEnvironment($subdomain);
-
+            $domain = Domain::init($subdomain);
+            App::instance('domain', $domain);
         }
 
 

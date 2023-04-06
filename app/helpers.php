@@ -6,10 +6,10 @@ use App\Services\Environment\Domain;
 if (! function_exists('account')) {
     function account() {
 
-        $account_id = Domain::getClientId();
+        $account = app('domain')->getClient();
 
-        if(empty($account_id)) abort(403);
+        if(empty($account)) abort(403);
 
-        return Account::find($account_id);
+        return $account;
     }
 }

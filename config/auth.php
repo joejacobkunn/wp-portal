@@ -112,4 +112,17 @@ return [
 
     'password_timeout' => 10800,
 
+
+    'oauth' => [
+        'rsa' => [
+            'private' => env('OAUTH_PRIVATE_KEY_PATH', 'oauth-private.key'),
+            'public' => env('OAUTH_PUBLIC_KEY_PATH', 'oauth-public.key'),
+        ],
+
+        'expiry' => env('OAUTH_TOKEN_EXPIRY', 360), //in minutes
+        'throttle' => [
+            'count' => env('OAUTH_THROTTLE_COUNT', 5),
+            'decay' => env('OAUTH_THROTTLE_DECAY', 10), //in minutes
+        ]
+    ]
 ];

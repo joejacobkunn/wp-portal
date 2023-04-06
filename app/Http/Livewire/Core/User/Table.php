@@ -80,7 +80,7 @@ class Table extends DataTableComponent
     public function builder(): Builder
     {
         return User::when(!auth()->user()->isMasterAdmin(), function ($query, $role) {
-            $query->where('account_id', Domain::getClientId());
+            $query->where('account_id', app('domain')->getClientId());
         });
     }
 }
