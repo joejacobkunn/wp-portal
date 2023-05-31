@@ -43,6 +43,10 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\ApiMiddleware::class,
         ],
+
+        'webhook' => [
+            \App\Http\Middleware\WebhookMiddleware::class
+        ]
     ];
 
     /**
@@ -63,7 +67,7 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'subdomain' =>  \App\Http\Middleware\SubdomainMiddleware::class,
-        'auth.api' => \App\Http\Middleware\OauthMiddleware::class
+        'subdomain' => \App\Http\Middleware\SubdomainMiddleware::class,
+        'auth.api' => \App\Http\Middleware\OauthMiddleware::class,
     ];
 }

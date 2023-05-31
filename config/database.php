@@ -1,6 +1,5 @@
 <?php
 
-use App\Services\ProgressGrammer;
 use Illuminate\Support\Str;
 
 return [
@@ -102,7 +101,27 @@ return [
             'username' => env('PROGRESS_USERNAME', 'forge'),
             'password' => env('PROGRESS_PASSWORD', ''),
             'codepage' => env('PROGRESS_CODEPAGE', 'ISO_8859_1'),
-            'schema' =>  env('PROGRESS_SCHEMA', 'PUB'),
+            'schema' => env('PROGRESS_SCHEMA', 'PUB'),
+        ],
+
+        'sro' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('SRO_DB_HOST', '127.0.0.1'),
+            'port' => env('SRO_DB_PORT', '3306'),
+            'database' => env('SRO_DB_DATABASE', 'forge'),
+            'username' => env('SRO_DB_USERNAME', 'forge'),
+            'password' => env('SRO_DB_PASSWORD', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
         ],
 
     ],

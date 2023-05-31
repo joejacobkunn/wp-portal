@@ -2,8 +2,8 @@
 
 namespace App\Policies\Core;
 
-use App\Models\Core\User;
 use App\Models\Core\Location;
+use App\Models\Core\User;
 
 class LocationPolicy
 {
@@ -46,6 +46,4 @@ class LocationPolicy
     {
         return $user->can('locations.manage');
     }
-
-
 }

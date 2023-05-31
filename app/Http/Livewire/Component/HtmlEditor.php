@@ -27,15 +27,15 @@ class HtmlEditor extends Component
     public $fieldId;
 
     /**
-     * @var Integer Editor Height
+     * @var int Editor Height
      */
     public $height = 250; //in px
 
     /**
-     * @var Integer Editor Max Height
+     * @var int Editor Max Height
      */
     public $maxHeight = 450; //in px
-    
+
     public function render()
     {
         return view('livewire.component.html-editor');

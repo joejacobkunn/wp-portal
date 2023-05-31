@@ -22,11 +22,11 @@ class Vehicle extends Model
         'model',
         'year',
         'type',
-        'retired_at'
+        'retired_at',
     ];
 
     protected $casts = [
-        'retired_at' => 'datetime'
+        'retired_at' => 'datetime',
     ];
 
     protected $hidden = [
@@ -38,5 +38,4 @@ class Vehicle extends Model
     {
         return $this->belongsTo(Account::class, 'account_id');
     }
-
 }

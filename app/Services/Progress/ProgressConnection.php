@@ -9,10 +9,8 @@ use PDO;
 class ProgressConnection extends Connection
 {
     /**
-     * @param \PDO   $pdo
-     * @param string $database
-     * @param string $tablePrefix
-     * @param array  $config
+     * @param  string  $database
+     * @param  string  $tablePrefix
      */
     public function __construct(PDO $pdo, $database = '', $tablePrefix = '', array $config = [])
     {

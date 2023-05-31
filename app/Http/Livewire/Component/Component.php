@@ -6,7 +6,6 @@ use Livewire\Component as BaseComponent;
 
 abstract class Component extends BaseComponent
 {
-    
     public $breadcrumbs = [];
 
     public $actionButtons = [];
@@ -26,21 +25,21 @@ abstract class Component extends BaseComponent
     public function getListeners()
     {
         $listeners = $this->listeners;
-        
+
         $listeners = array_merge($listeners, [
             'fieldUpdated' => 'fieldUpdated',
         ]);
-        
+
         return $listeners;
     }
-    
+
     /**
      * Set attribute values
      */
     public function fieldUpdated($name, $value, $recheckValidation = true)
     {
         if (str_contains($name, '.')) {
-            $fieldAttributes = explode('.', $name,);
+            $fieldAttributes = explode('.', $name);
             $updatingAttr = array_pop($fieldAttributes);
             $updatingObj = &$this;
             foreach ($fieldAttributes as $fieldAttribute) {
@@ -78,7 +77,7 @@ abstract class Component extends BaseComponent
         session()->flash($type, $message);
         $this->dispatchBrowserEvent('show:toast', [
             'type' => $type,
-            'message' => $message
+            'message' => $message,
         ]);
     }
 }

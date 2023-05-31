@@ -3,10 +3,8 @@
 namespace App\Listeners\User;
 
 use App\Events\User\UserCreated;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\User\SendInvitationEmail;
+use Illuminate\Notifications\Notifiable;
 
 class UserCreatedNotification
 {
@@ -37,7 +35,6 @@ class UserCreatedNotification
     /**
      * Handle the event.
      *
-     * @param  \App\Events\User\UserCreated  $event
      * @return void
      */
     public function handle(UserCreated $event)

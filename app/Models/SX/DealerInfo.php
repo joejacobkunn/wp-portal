@@ -17,5 +17,4 @@ class DealerInfo extends Model
     {
         return $this->belongsTo(Company::class, 'cono');
     }
-
 }

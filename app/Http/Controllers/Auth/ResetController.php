@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Events\User\ForgotPassword;
-use Illuminate\Http\Request;
-use App\Models\Core\UserMetadata;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Session;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\Core\User;
-use App\Services\Environment\Domain;
+use App\Models\Core\UserMetadata;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class ResetController extends Controller
 {
@@ -23,12 +22,11 @@ class ResetController extends Controller
         $client = app('domain')->getClient();
         $user = User::where('email', $request->email)->where('account_id', $client->id)->first();
 
-
-        if ($user && ((empty($client) && empty($user->account_id)) || (!empty($client) && $client->id == $user->account_id))) {
+        if ($user && ((empty($client) && empty($user->account_id)) || (! empty($client) && $client->id == $user->account_id))) {
             //send notifications
             ForgotPassword::dispatch($user);
         }
-        
+
         return redirect()->back()->with(['forgot_success' => true]);
     }
 
@@ -36,7 +34,7 @@ class ResetController extends Controller
     {
         $code = base64_decode($request->c);
 
-        if (!$code) {
+        if (! $code) {
             abort(403);
         }
 
@@ -54,11 +52,12 @@ class ResetController extends Controller
 
         $metadata->user_token = null;
         $metadata->save();
-        
+
         $metadata->user->password = $request->password;
         $metadata->user->save();
-        
-        Session::flash('message', 'Password reset successfully, login to continue..'); 
+
+        Session::flash('message', 'Password reset successfully, login to continue..');
+
         return redirect()->route('auth.login.view')->with(['message' => 'Password reset successfully, please login to continue..']);
     }
 }

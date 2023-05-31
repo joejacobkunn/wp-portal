@@ -2,11 +2,11 @@
 
 namespace App\Http\Livewire\Core\Account;
 
-use Illuminate\Database\Eloquent\Builder;
-use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\Account;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class Table extends DataTableComponent
 {
@@ -31,29 +31,29 @@ class Table extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make("Id", "id")
+            Column::make('Id', 'id')
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('core.account.show', $row->id).'" class="text-primary text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('core.account.show', $row->id).'" class="text-primary text-decoration-underline">'.$value.'</a>';
                 })
                 ->html(),
 
-            Column::make("Name", "name")
+            Column::make('Name', 'name')
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('core.account.show', $row->id).'" class="text-primary text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('core.account.show', $row->id).'" class="text-primary text-decoration-underline">'.$value.'</a>';
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
 
-            Column::make("Subdomain", "subdomain")
+            Column::make('Subdomain', 'subdomain')
                 ->sortable()
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->html(),
 
-            Column::make("Active", "is_active")
+            Column::make('Active', 'is_active')
                 ->sortable()
                 ->searchable()
                 ->excludeFromColumnSelect()
@@ -62,11 +62,12 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
-            Column::make('Created At', "created_at")
+            Column::make('Created At', 'created_at')
                 ->sortable()->searchable()->deselected()
                 ->format(function ($value) {
-                        if ($value)
-                            return  $value->format(config('app.default_datetime_format')) ;
+                        if ($value) {
+                            return $value->format(config('app.default_datetime_format'));
+                        }
                     }),
 
         ];

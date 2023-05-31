@@ -2,8 +2,8 @@
 
 namespace App\Exceptions;
 
-use Throwable;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -22,7 +22,7 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<\Throwable>>
      */
     protected $dontReport = [
-        \Firebase\JWT\SignatureInvalidException::class
+        \Firebase\JWT\SignatureInvalidException::class,
         //
     ];
 
@@ -42,24 +42,24 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->renderable(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException  $e, $request) {
+        $this->renderable(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
             $previousEx = $e->getPrevious();
 
             if ($request->is('api/*')) {
                 return response()->json([
-                    'message' => ($previousEx instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) ? 'Record not found' : 'Not found'
+                    'message' => ($previousEx instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) ? 'Record not found' : 'Not found',
                 ], 404);
             }
         });
 
-        $this->renderable(function (\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException  $e, $request) {
+        $this->renderable(function (\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json([
-                    'message' => "Invalid route/method specified"
+                    'message' => 'Invalid route/method specified',
                 ], 404);
             }
         });
-        
+
         $this->reportable(function (Throwable $e) {
             //
         });

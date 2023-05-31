@@ -3,7 +3,6 @@
 namespace App\Services\Environment;
 
 use Exception;
-use Illuminate\Support\Facades\App;
 use Illuminate\Database\Eloquent\Model;
 
 class Domain
@@ -26,7 +25,7 @@ class Domain
     {
         $entity = $this->getClient();
         if (empty($entity->id)) {
-            throw new Exception("Subdomain config error!");
+            throw new Exception('Subdomain config error!');
         }
 
         return $entity->id;

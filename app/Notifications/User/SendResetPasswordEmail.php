@@ -4,9 +4,8 @@ namespace App\Notifications\User;
 
 use App\Models\Core\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class SendResetPasswordEmail extends Notification
 {
@@ -45,16 +44,16 @@ class SendResetPasswordEmail extends Notification
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
-    {     
+    {
         $subdomain = $this->user->isMasterAdmin() ? 'admin' : $this->account->subdomain;
 
         return (new MailMessage)
-            ->subject("Reset Password")
+            ->subject('Reset Password')
             ->greeting('Hello!')
-            ->line("WP-Portal received a request to reset your password, please click the link below, or copy and paste in your browser.")
+            ->line('WP-Portal received a request to reset your password, please click the link below, or copy and paste in your browser.')
             ->action('Reset', route('auth.password.show_reset', [
                 'route_subdomain' => $subdomain,
-                'c' =>  base64_encode($this->user->metadata->user_token),
+                'c' => base64_encode($this->user->metadata->user_token),
             ]))
             ->line("If you don't want to reset your password, please ignore this message and your password will not be changed.");
     }

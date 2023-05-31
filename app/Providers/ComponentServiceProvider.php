@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Livewire\Livewire;
-use Illuminate\Support\ServiceProvider;
 use Form;
+use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class ComponentServiceProvider extends ServiceProvider
 {
@@ -48,7 +48,7 @@ class ComponentServiceProvider extends ServiceProvider
         Form::component('view', 'components.form.view', ['label', 'value' => null, 'icon' => 'dot-circle']);
         Form::component('filelist', 'components.form.filelist', ['directory', 'label' => 'Files']);
         Form::component('alert', 'components.form.alert', ['message', 'class' => 'info']);
-        Form::component('datepicker', 'components.form.datepicker', ['name', 'value' => NULL, 'attributes' => []]);
+        Form::component('datepicker', 'components.form.datepicker', ['name', 'value' => null, 'attributes' => []]);
 
         return $this;
     }

@@ -2,13 +2,11 @@
 
 namespace App\Http\Livewire\Component;
 
-use App\Traits\Interim\WithData;
 use Rappasoft\LaravelLivewireTables\DataTableComponent as RappasoftDataTableComponent;
 
 /** Extended Datatable Component */
 abstract class DataTableComponent extends RappasoftDataTableComponent
 {
-
     protected $selectedColumnFields;
 
     protected $selectedColumnHeaders;
@@ -18,12 +16,14 @@ abstract class DataTableComponent extends RappasoftDataTableComponent
      */
     public function getSelectedColumnFields()
     {
-        if ($this->selectedColumnFields) return $this->selectedColumnFields;
-        
+        if ($this->selectedColumnFields) {
+        return $this->selectedColumnFields;
+        }
+
         $fields = [];
         foreach ($this->columns as $column) {
             if (in_array($column->getHash(), $this->selectedColumns) && $column->getField()) {
-                
+
                 if ($column->isBaseColumn()) {
                     $fields[] = $column->getColumnSelectName();
                 } else {
@@ -34,13 +34,15 @@ abstract class DataTableComponent extends RappasoftDataTableComponent
 
         return $this->selectedColumnFields = $fields;
     }
-      
+
     /**
      * Get selected columns table headers
      */
     public function getSelectedColumnHeaders()
-    {   
-        if ($this->selectedColumnHeaders) return $this->selectedColumnHeaders;
+    {
+        if ($this->selectedColumnHeaders) {
+        return $this->selectedColumnHeaders;
+        }
 
         $headers = [];
 

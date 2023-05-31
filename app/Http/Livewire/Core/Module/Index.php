@@ -4,9 +4,8 @@ namespace App\Http\Livewire\Core\Module;
 
 use App\Models\Core\Account;
 use App\Models\Core\Module;
-use Livewire\Component;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
+use Livewire\Component;
 
 class Index extends Component
 {
@@ -18,7 +17,7 @@ class Index extends Component
 
     protected $listeners = [
         'refreshPage' => '$refresh',
-        'closeModal'
+        'closeModal',
     ];
 
     public function render()
@@ -33,14 +32,17 @@ class Index extends Component
         $this->modules = Module::get();
     }
 
-    public function toggleModule($module_id,$value)
+    public function toggleModule($module_id, $value)
     {
-        if(!auth()->user()->isMasterAdmin()) abort(403);
+        if (! auth()->user()->isMasterAdmin()) {
+        abort(403);
+        }
 
-        if($value)
+        if ($value) {
             $this->account->modules()->attach([$module_id]);
-        else
-            $this->account->modules()->detach([$module_id]);
+        } else {
+        $this->account->modules()->detach([$module_id]);
+        }
 
         $this->emit('refreshPage');
     }

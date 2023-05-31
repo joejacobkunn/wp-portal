@@ -2,14 +2,14 @@
 
 namespace App\Http\Livewire\Order;
 
-use Illuminate\Database\Eloquent\Builder;
-use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\Account;
 use App\Models\Core\Location;
 use App\Models\SX\Order;
 use App\Models\Vehicle\Vehicle;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class Table extends DataTableComponent
 {
@@ -37,10 +37,10 @@ class Table extends DataTableComponent
     {
         return [
 
-            Column::make("Order Number", "orderno")
-                
+            Column::make('Order Number', 'orderno')
+
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('vehicle.show', $row->orderno).'" class="text-primary text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('vehicle.show', $row->orderno).'" class="text-primary text-decoration-underline">'.$value.'</a>';
                 })
                 ->html(),
 
@@ -52,7 +52,7 @@ class Table extends DataTableComponent
             //     })
             //     ->excludeFromColumnSelect()
             //     ->html(),
-            
+
             // Column::make('Year')
             //     ->sortable()
             //     ->searchable()
@@ -79,7 +79,6 @@ class Table extends DataTableComponent
             //     })
             //     ->html()
             //     ->excludeFromColumnSelect(),
-
 
             // Column::make("VIN#", "vin")
             //     ->sortable()
@@ -119,7 +118,6 @@ class Table extends DataTableComponent
             //             return !$value ? '<span style="color:green"><i class="far fa-check-circle"></i></span>' : '<span style="color:red"><i class="far fa-times-circle"></i></span>';
             //         })
             //         ->html(),
-    
 
         ];
     }
@@ -132,15 +130,22 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Order::where('cono',10)
+        return Order::where('cono', 10)
             ->where('orderno', 10835727);
     }
 
     public function fetchIcon($type)
     {
-        if($type == 'TRAILER') return '<i class="fas fa-trailer"></i> ';
-        if($type == 'TRUCK') return '<i class="fas fa-truck-pickup"></i> ';
-        if($type == 'INCOMPLETE VEHICLE') return '<i class="fas fa-truck"></i> ';
+        if ($type == 'TRAILER') {
+        return '<i class="fas fa-trailer"></i> ';
+        }
+        if ($type == 'TRUCK') {
+        return '<i class="fas fa-truck-pickup"></i> ';
+        }
+        if ($type == 'INCOMPLETE VEHICLE') {
+        return '<i class="fas fa-truck"></i> ';
+        }
+
         return '<i class="fas fa-truck"></i>';
     }
 }

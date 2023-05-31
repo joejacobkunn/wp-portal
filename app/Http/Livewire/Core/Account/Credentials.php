@@ -2,9 +2,9 @@
 
 namespace App\Http\Livewire\Core\Account;
 
-use App\Traits\HasTabs;
-use App\Models\Core\Account;
 use App\Http\Livewire\Component\Component;
+use App\Models\Core\Account;
+use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Credentials extends Component
@@ -32,7 +32,7 @@ class Credentials extends Component
 
     public function mount()
     {
-        
+
     }
 
     public function loadKeys()
@@ -47,7 +47,7 @@ class Credentials extends Component
 
     public function openGenerateKeyModal()
     {
-        $this->keyLabel = "";
+        $this->keyLabel = '';
         $this->generateKeyModal = true;
     }
 

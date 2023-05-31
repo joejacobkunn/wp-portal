@@ -2,12 +2,11 @@
 
 namespace App\Http\Livewire\Core\Location;
 
+use App\Http\Livewire\Core\Location\Traits\FormRequest;
 use App\Models\Core\Account;
 use App\Models\Core\Location;
-use Livewire\Component;
-use App\Http\Livewire\Core\Location\Traits\FormRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
+use Livewire\Component;
 
 class Index extends Component
 {
@@ -31,7 +30,6 @@ class Index extends Component
         $this->location = new Location();
         $this->formInit();
     }
-
 
     public function create()
     {

@@ -15,7 +15,7 @@ class ApiPaginationResponse extends JsonResource
             'count' => $resource->count(),
             'per_page' => $resource->perPage(),
             'current_page' => $resource->currentPage(),
-            'total_pages' => $resource->lastPage()
+            'total_pages' => $resource->lastPage(),
         ];
 
         $resource = $resource->getCollection();
@@ -27,7 +27,7 @@ class ApiPaginationResponse extends JsonResource
     {
         return [
             'data' => parent::toArray($request),
-            'pagination' => $this->pagination
+            'pagination' => $this->pagination,
         ];
     }
 }

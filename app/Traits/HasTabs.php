@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-
 trait HasTabs
 {
     public $tabLoaded = false;
@@ -11,8 +10,8 @@ trait HasTabs
     {
         $this->tabLoaded = false;
         $this->$tabElement = $activeTab;
-        $this->emitSelf($tabId . ':tab:changed', $activeTab);
-        $this->dispatchBrowserEvent($tabId . ':tabContentChanged');
+        $this->emitSelf($tabId.':tab:changed', $activeTab);
+        $this->dispatchBrowserEvent($tabId.':tabContentChanged');
     }
 
     public function initTabs()

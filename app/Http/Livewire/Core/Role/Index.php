@@ -2,11 +2,11 @@
 
 namespace App\Http\Livewire\Core\Role;
 
-use App\Models\Core\Role;
-use Illuminate\Support\Str;
 use App\Http\Livewire\Component\Component;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Resources\Transformers\PermissionGroupCollection;
+use App\Models\Core\Role;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Str;
 
 class Index extends Component
 {
@@ -16,14 +16,17 @@ class Index extends Component
 
     //attributes
     public $addRole = false;
+
     public $roles = [];
+
     public $permissionGroups = [];
+
     public $selectedPermissions = [];
 
     public $breadcrumbs = [
         [
             'title' => 'Roles',
-            'route_name' => 'core.roles.index'
+            'route_name' => 'core.roles.index',
         ],
     ];
 
@@ -39,8 +42,8 @@ class Index extends Component
     public function __construct($id = null)
     {
         $this->role = new Role;
-        $this->role->label = NULL;
-        $this->role->reporting_role = NULL;
+        $this->role->label = null;
+        $this->role->reporting_role = null;
 
         parent::__construct($id);
     }
@@ -53,6 +56,7 @@ class Index extends Component
     public function render()
     {
         $this->authorize('viewAny', Role::class);
+
         return $this->renderView('livewire.core.role.index')->extends('livewire-app', ['moduleName' => $this->moduleName ?? '', 'breadcrumbs' => $this->breadcrumbs]);
     }
 
@@ -78,7 +82,7 @@ class Index extends Component
 
         $roleData = [
             'name' => Str::slug($this->role->label),
-            'guard_name' => 'web'
+            'guard_name' => 'web',
         ];
 
         if ($this->role->reporting_role) {

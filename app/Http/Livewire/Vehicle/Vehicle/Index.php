@@ -7,7 +7,6 @@ use App\Http\Livewire\Vehicle\Vehicle\Traits\FormRequest;
 use App\Models\Core\Account;
 use App\Models\Vehicle\Vehicle;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Services\Environment\Domain;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
@@ -30,7 +29,7 @@ class Index extends Component
         'box-truck' => 'Box Truck',
         'pickup-truck' => 'Pickup Truck',
         'trailer' => 'Trailer',
-        'gooseneck-trailer' => 'Gooseneck Trailer'
+        'gooseneck-trailer' => 'Gooseneck Trailer',
     ];
 
     public $breadcrumbs = [
@@ -53,7 +52,7 @@ class Index extends Component
         $this->formInit();
     }
 
-    public function updated($propertyName,$value)
+    public function updated($propertyName, $value)
     {
         $this->validateOnly($propertyName);
     }
@@ -83,7 +82,11 @@ class Index extends Component
     {
         $this->vehicle->vin = strtoupper($value);
         $vin_details = $this->getVINDetails($this->vehicle->vin);
-        if($vin_details['Make'] && $vin_details['Model']) $this->valid_vin = true; else $this->valid_vin = false;
+        if ($vin_details['Make'] && $vin_details['Model']) {
+        $this->valid_vin = true;
+        } else {
+        $this->valid_vin = false;
+        }
         $this->vehicle->make = trim($vin_details['Make']);
         $this->vehicle->model = trim($vin_details['Model']);
         $this->vehicle->year = trim($vin_details['ModelYear']);
@@ -92,11 +95,10 @@ class Index extends Component
 
     public function updatingVehicleVin($value)
     {
-        if(strlen($value) != 17){
+        if (strlen($value) != 17) {
             $this->valid_vin = false;
         }
     }
-
 
     public function changeVIN()
     {
@@ -108,6 +110,4 @@ class Index extends Component
         $this->valid_vin = false;
 
     }
-
-
 }

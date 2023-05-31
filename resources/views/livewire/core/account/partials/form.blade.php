@@ -5,45 +5,38 @@
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.input
-                            label="Name"
-                            model="account.name"
-                            lazy
-                        />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <x-forms.input
-                            label="Subdomain"
-                            model="account.subdomain"
-                            prependText="http://"
-                            appendText=".{{ config('app.domain') }}"
-                            lazy
-                        />
+                        <x-forms.input label="Name" model="account.name" lazy />
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.input
-                            label="Admin Email"
-                            model="adminEmail"
-                            placeholder="Enter Admin Email"
-                            prepend-icon="fas fa-envelope"
-                            lazy
-                            hint="User will be set as Super Admin for accountand will be sent an onboarding email to setup password"
-                        />
+                        <div class="form-group">
+                            <x-forms.select label="SX Account" model="account.sx_company_number" :options="$sx_accounts"
+                                :selected="$account->sx_company_number ?? null" default-selectable
+                                default-option-label="- None -" label-index="name" value-index="cono" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <x-forms.input label="Subdomain" model="account.subdomain" prependText="http://"
+                            appendText=".{{ config('app.domain') }}" lazy />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <x-forms.input label="Admin Email" model="adminEmail" placeholder="Enter Admin Email"
+                            prepend-icon="fas fa-envelope" lazy
+                            hint="User will be set as Super Admin for account and will be sent an onboarding email to setup password" />
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12 mb-1">
-                        <x-forms.checkbox
-                            label="Activate Account"
-                            model="account.is_active"
-                            lazy
-                        />
+                        <x-forms.checkbox label="Activate Account" model="account.is_active" lazy />
                     </div>
                 </div>
 

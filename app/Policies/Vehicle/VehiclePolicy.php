@@ -49,6 +49,4 @@ class VehiclePolicy
                 $user->can('vehicle.manage');
 
     }
-
-
 }

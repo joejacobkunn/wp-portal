@@ -2,10 +2,10 @@
 
 namespace App\Http\Livewire\Core\Account\Traits;
 
+use App\Events\User\UserCreated;
+use App\Models\Core\Account;
 use App\Models\Core\Role;
 use App\Models\Core\User;
-use App\Models\Core\Account;
-use App\Events\User\UserCreated;
 
 trait FormRequest
 {
@@ -20,19 +20,42 @@ trait FormRequest
         'account.subdomain' => 'Subdomain',
     ];
 
+    public $restricted_subdomains = [
+        'adfs',
+        'disco01',
+        'inforos',
+        'mbg',
+        'mmicollab',
+        'mits01',
+        'pas',
+        'soap',
+        'sx',
+        'testinforos',
+        'testpas',
+        'testsx',
+        'sro',
+        'webhook',
+        'test',
+        'internal',
+        'api',
+        'mits',
+        'rest'
+    ];
+
     protected function rules()
     {
         return [
             'account.name' => 'required|min:3',
-            'account.subdomain' => 'required|min:3|unique:accounts,subdomain' . ($this->account ? ',' . $this->account->id : ''),
+            'account.subdomain' => 'required|min:3|not_in:'.implode(',', $this->restricted_subdomains).'|unique:accounts,subdomain'.($this->account ? ','.$this->account->id : ''),
             'account.is_active' => 'nullable',
+            'account.sx_company_number' => 'required',
             'adminEmail' => 'required',
         ];
     }
 
     /**
      * Initialize form attributes
-     */ 
+     */
     public function formInit()
     {
         if (empty($this->account->id)) {
@@ -54,7 +77,7 @@ trait FormRequest
     {
         $this->validate();
 
-        if (!empty($this->account->id)) {
+        if (! empty($this->account->id)) {
             $this->update();
         } else {
             $this->store();
@@ -73,8 +96,9 @@ trait FormRequest
         $this->setAdminUser();
 
         session()->flash('success', 'Account created!');
+
         return redirect()->route('core.account.show', [
-            'account' => $this->account->id
+            'account' => $this->account->id,
         ]);
     }
 
@@ -92,7 +116,6 @@ trait FormRequest
         session()->flash('success', 'Account updated!');
     }
 
-
     public function setAdminUser()
     {
         $user = User::where('account_id', $this->account->id)
@@ -102,7 +125,7 @@ trait FormRequest
         if (empty($user->id)) {
             $user->email = $this->adminEmail;
             $user->password = uniqid();
-            $user->name = "";
+            $user->name = '';
             $user->is_active = User::ACTIVE;
             $user->account_id = $this->account->id;
             $user->save();

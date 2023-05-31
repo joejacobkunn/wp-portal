@@ -10,23 +10,27 @@ use Livewire\Component;
 class HeroHubConfig extends Component
 {
     use LivewireAlert;
+
     public Account $account;
 
     public $show = false;
+
     public $is_configured = false;
 
     public $client_id;
+
     public $client_key;
+
     public $organization_guid;
 
     protected $rules = [
         'client_id' => 'required',
         'client_key' => 'required',
-        'organization_guid' => 'required'
+        'organization_guid' => 'required',
     ];
 
     protected $listeners = [
-        'closeModal'
+        'closeModal',
     ];
 
     public function mount()
@@ -43,19 +47,17 @@ class HeroHubConfig extends Component
     {
         $this->validate();
 
-
-        if($this->validateCredentials())
-        {
+        if ($this->validateCredentials()) {
             $this->account->herohubConfig()->create([
                 'client_id' => $this->client_id,
                 'client_key' => $this->client_key,
-                'organization_guid' => $this->organization_guid
+                'organization_guid' => $this->organization_guid,
             ]);
-    
+
             $this->show = false;
             $this->is_configured = true;
             $this->alert('success', 'HeroHub has been configured!');
-        }else{
+        } else {
             $this->alert('error', 'Credentials are incorrect, try again!');
         }
 
@@ -66,8 +68,9 @@ class HeroHubConfig extends Component
         $response = Http::post(config('herohub.token_endpoint'), [
             'clientId' => $this->client_id,
             'clientKey' => $this->client_key,
-            'organizationGuid' => $this->organization_guid
+            'organizationGuid' => $this->organization_guid,
         ]);
+
         return $response->successful();
     }
 

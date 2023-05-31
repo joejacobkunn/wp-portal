@@ -28,7 +28,7 @@ class ProgressServiceProvider extends ServiceProvider
 
         // Register the progress driver type.
         foreach (config('database.connections') as $conn => $config) {
-            if (!isset($config['driver']) || $config['driver'] != 'progress') {
+            if (! isset($config['driver']) || $config['driver'] != 'progress') {
                 continue;
             }
 

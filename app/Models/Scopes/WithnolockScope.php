@@ -1,11 +1,11 @@
 <?php
- 
+
 namespace App\Models\Scopes;
- 
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
- 
+
 class WithnolockScope implements Scope
 {
     /**
@@ -13,6 +13,7 @@ class WithnolockScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        $builder->where('created_at', '<', now()->subYears(2000));
+        $model->setConnection('sx');
+        $builder->lock('with(nolock)');
     }
 }

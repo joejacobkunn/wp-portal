@@ -2,8 +2,8 @@
 
 namespace App\Policies\Core;
 
-use App\Models\Core\User;
 use App\Models\Core\Role;
+use App\Models\Core\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class RolePolicy

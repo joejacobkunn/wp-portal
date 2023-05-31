@@ -2,13 +2,13 @@
 
 namespace App\Http\Livewire\Vehicle\Vehicle;
 
-use Illuminate\Database\Eloquent\Builder;
-use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\Account;
 use App\Models\Core\Location;
 use App\Models\Vehicle\Vehicle;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class Table extends DataTableComponent
 {
@@ -36,23 +36,23 @@ class Table extends DataTableComponent
     {
         return [
 
-            Column::make("Id", "id")
+            Column::make('Id', 'id')
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('vehicle.show', $row->id).'" class="text-primary text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('vehicle.show', $row->id).'" class="text-primary text-decoration-underline">'.$value.'</a>';
                 })
                 ->hideIf(1)
                 ->html(),
 
-            Column::make("Name", "name")
+            Column::make('Name', 'name')
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('vehicle.show', ['vehicle' => $row->id,$row]).'" class="text-primary text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('vehicle.show', ['vehicle' => $row->id, $row]).'" class="text-primary text-decoration-underline">'.$value.'</a>';
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
-            
+
             Column::make('Year')
                 ->sortable()
                 ->searchable()
@@ -75,19 +75,18 @@ class Table extends DataTableComponent
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return $this->fetchIcon($row->type). $row->year.' '.$row->make.' '.$row->model;
+                    return $this->fetchIcon($row->type).$row->year.' '.$row->make.' '.$row->model;
                 })
                 ->html()
                 ->excludeFromColumnSelect(),
 
-
-            Column::make("VIN#", "vin")
+            Column::make('VIN#', 'vin')
                 ->sortable()
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->html(),
 
-            Column::make("Type", "type")
+            Column::make('Type', 'type')
                 ->sortable()
                 ->searchable()
                 ->excludeFromColumnSelect()
@@ -97,7 +96,7 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
-            Column::make("License Plate", "license_plate_number")
+            Column::make('License Plate', 'license_plate_number')
                 ->sortable()
                 ->searchable()
                 ->excludeFromColumnSelect()
@@ -106,20 +105,20 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
-            Column::make('Created At', "created_at")
+            Column::make('Created At', 'created_at')
                 ->sortable()->searchable()->deselected()
                 ->format(function ($value) {
-                        if ($value)
-                            return  $value->format(config('app.default_datetime_format')) ;
+                        if ($value) {
+                            return $value->format(config('app.default_datetime_format'));
+                        }
                     }),
 
-            Column::make("Active", "retired_at")
+            Column::make('Active', 'retired_at')
                     ->excludeFromColumnSelect()
                     ->format(function ($value, $row) {
-                        return !$value ? '<span style="color:green"><i class="far fa-check-circle"></i></span>' : '<span style="color:red"><i class="far fa-times-circle"></i></span>';
+                        return ! $value ? '<span style="color:green"><i class="far fa-check-circle"></i></span>' : '<span style="color:red"><i class="far fa-times-circle"></i></span>';
                     })
                     ->html(),
-    
 
         ];
     }
@@ -132,14 +131,21 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Vehicle::where('account_id',$this->account->id);
+        return Vehicle::where('account_id', $this->account->id);
     }
 
     public function fetchIcon($type)
     {
-        if($type == 'TRAILER') return '<i class="fas fa-trailer"></i> ';
-        if($type == 'TRUCK') return '<i class="fas fa-truck-pickup"></i> ';
-        if($type == 'INCOMPLETE VEHICLE') return '<i class="fas fa-truck"></i> ';
+        if ($type == 'TRAILER') {
+        return '<i class="fas fa-trailer"></i> ';
+        }
+        if ($type == 'TRUCK') {
+        return '<i class="fas fa-truck-pickup"></i> ';
+        }
+        if ($type == 'INCOMPLETE VEHICLE') {
+        return '<i class="fas fa-truck"></i> ';
+        }
+
         return '<i class="fas fa-truck"></i>';
     }
 }

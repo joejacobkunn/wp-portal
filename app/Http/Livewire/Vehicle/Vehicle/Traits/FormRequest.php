@@ -2,19 +2,12 @@
 
 namespace App\Http\Livewire\Vehicle\Vehicle\Traits;
 
-use Carbon\Carbon;
 use App\Models\Core\User;
-use App\Models\Core\Affiliate;
-use App\Events\User\UserCreated;
 use App\Models\Vehicle\Vehicle;
-use Illuminate\Support\Facades\DB;
-use App\Services\Environment\Domain;
 use Illuminate\Support\Facades\Http;
-
 
 trait FormRequest
 {
-
     protected $validationAttributes = [
         'vehicle.name' => 'Vehicle Name',
         'vehicle.vin' => 'Vehicle VIN',
@@ -22,7 +15,7 @@ trait FormRequest
         'vehicle.license_plate_number' => 'Vehicle Plate Number',
         'vehicle.make' => 'Vehicle Make',
         'vehicle.model' => 'Vehicle Model',
-        'vehicle.year' => 'Vehicle Year'
+        'vehicle.year' => 'Vehicle Year',
     ];
 
     protected function rules()
@@ -34,10 +27,9 @@ trait FormRequest
             'vehicle.license_plate_number' => 'required',
             'vehicle.make' => 'required',
             'vehicle.model' => 'required',
-            'vehicle.year' => 'required|numeric|digits:4|min:1960|max:2100'
+            'vehicle.year' => 'required|numeric|digits:4|min:1960|max:2100',
         ];
     }
-
 
     /**
      * Initialize form attributes
@@ -53,7 +45,7 @@ trait FormRequest
             $this->vehicle->make = null;
             $this->vehicle->model = null;
             $this->vehicle->year = null;
-        }else{
+        } else {
 
         }
     }
@@ -65,7 +57,7 @@ trait FormRequest
     {
         $this->validate();
 
-        if (!empty($this->vehicle->id)) {
+        if (! empty($this->vehicle->id)) {
             $this->update();
         } else {
             $this->store();
@@ -80,13 +72,12 @@ trait FormRequest
         $this->authorize('store', Vehicle::class);
         $this->vehicle->account_id = $this->account->id;
         $this->vehicle->save();
-        $this->addRecord =false;
+        $this->addRecord = false;
         $this->flash('success', 'Vehicle Created!');
+
         return redirect()->route('vehicle.show', [
-            'vehicle' => $this->vehicle->id
+            'vehicle' => $this->vehicle->id,
         ]);
-
-
 
     }
 
@@ -105,6 +96,7 @@ trait FormRequest
     {
         $response = Http::get($this->nhtsa_api_endpoint.$this->vehicle->vin.'?format=json');
         $data = $response->json();
+
         return $data['Results'][0];
     }
 }

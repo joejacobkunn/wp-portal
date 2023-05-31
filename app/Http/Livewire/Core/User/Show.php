@@ -2,9 +2,9 @@
 
 namespace App\Http\Livewire\Core\User;
 
-use App\Models\Core\User;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Core\User\Traits\FormRequest;
+use App\Models\Core\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
@@ -12,7 +12,7 @@ class Show extends Component
     use AuthorizesRequests, FormRequest;
 
     public User $user;
-    
+
     public $editRecord = false;
 
     public $actionButtons = [];
@@ -27,11 +27,11 @@ class Show extends Component
         return [
             [
                 'title' => 'Users',
-                'href' => route('core.user.index')
+                'href' => route('core.user.index'),
             ],
             [
-                'title' => $this->user->name
-            ]
+                'title' => $this->user->name,
+            ],
         ];
     }
 
@@ -42,18 +42,18 @@ class Show extends Component
         $this->breadcrumbs = $this->breadcrumbs();
 
         if (auth()->user()->can('users.manage')) {
-            $this->actionButtons = [       
+            $this->actionButtons = [
                 [
                     'icon' => 'fa-edit',
                     'color' => 'primary',
-                    'listener' => 'edit'
+                    'listener' => 'edit',
                 ],
                 [
                     'icon' => 'fa-trash',
                     'color' => 'danger',
                     'confirm' => true,
-                    'confirm_header' => "Confirm Delete",
-                    'listener' => 'deleteRecord'
+                    'confirm_header' => 'Confirm Delete',
+                    'listener' => 'deleteRecord',
                 ],
             ];
         }
@@ -65,7 +65,7 @@ class Show extends Component
     }
 
     public function edit()
-    {   
+    {
         $this->authorize('update', $this->user);
         $this->editRecord = true;
     }

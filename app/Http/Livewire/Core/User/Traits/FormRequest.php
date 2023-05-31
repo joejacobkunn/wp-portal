@@ -2,12 +2,8 @@
 
 namespace App\Http\Livewire\Core\User\Traits;
 
-use Carbon\Carbon;
-use App\Models\Core\User;
-use App\Models\Core\Affiliate;
 use App\Events\User\UserCreated;
-use Illuminate\Support\Facades\DB;
-use App\Services\Environment\Domain;
+use App\Models\Core\User;
 
 trait FormRequest
 {
@@ -20,10 +16,9 @@ trait FormRequest
     {
         return [
             'user.name' => 'required',
-            'user.email' => 'required|email|unique:users,email' . ($this->user ? ',' .$this->user->id : ''),
+            'user.email' => 'required|email|unique:users,email'.($this->user ? ','.$this->user->id : ''),
         ];
     }
-    
 
     /**
      * Initialize form attributes
@@ -45,20 +40,20 @@ trait FormRequest
     {
         $this->validate();
 
-        if (!empty($this->user->id)) {
+        if (! empty($this->user->id)) {
             $this->update();
         } else {
             $this->store();
         }
     }
-    
+
     /**
      * Create new user
      */
     public function store()
-    {   
+    {
         $this->user->is_active = 1;
-        $this->user->password = "password";
+        $this->user->password = 'password';
 
         if (app('domain')) {
             $this->user->account_id = app('domain')->getClientId();
@@ -69,7 +64,7 @@ trait FormRequest
         $this->user->metadata()->create([
             'invited_by' => auth()->user()->id,
         ]);
-        
+
         $this->user->save();
 
         $this->user->invited_by = auth()->user()->id;
@@ -78,8 +73,9 @@ trait FormRequest
         UserCreated::dispatch($this->user);
 
         session()->flash('success', 'User saved!');
+
         return redirect()->route('core.user.show', [
-            'user' => $this->user->id
+            'user' => $this->user->id,
         ]);
     }
 

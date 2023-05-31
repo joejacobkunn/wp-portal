@@ -1,9 +1,9 @@
 <?php
 
 return [
-    "reserved_subdomain" => ["admin", "api"],
-    
-    "admin_subdomain" => env('ADMIN_SUBDOMAIN', 'admin'),
+    'reserved_subdomain' => ['admin', 'api'],
 
-    "default_logo_path" => env('APP_LOGO_PATH', '/assets/images/logo.png'),
+    'admin_subdomain' => env('ADMIN_SUBDOMAIN', 'admin'),
+
+    'default_logo_path' => env('APP_LOGO_PATH', '/assets/images/logo.png'),
 ];

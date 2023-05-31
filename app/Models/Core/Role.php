@@ -9,10 +9,10 @@ class Role extends BaseRole
     protected $fillable = [
         'name',
         'label',
-        'reporting_role', 
+        'reporting_role',
         'level',
         'guard_name',
-        'is_preset', 
+        'is_preset',
         'description',
     ];
 
@@ -26,7 +26,7 @@ class Role extends BaseRole
     {
         return $query->select('id', 'name', 'label');
     }
-    
+
     /**
      * A role belongs to some users of the model associated with its guard.
      */

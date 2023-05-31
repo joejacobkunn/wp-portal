@@ -8,8 +8,6 @@ use Illuminate\Database\Connectors\ConnectorInterface;
 class ProgressConnector extends Connector implements ConnectorInterface
 {
     /**
-     * @param array $config
-     *
      * @return \PDO
      */
     public function connect(array $config)
@@ -26,8 +24,6 @@ class ProgressConnector extends Connector implements ConnectorInterface
     }
 
     /**
-     * @param array $config
-     *
      * @return string
      */
     protected function getDsn(array $config)
@@ -61,8 +57,7 @@ class ProgressConnector extends Connector implements ConnectorInterface
     /**
      * Format the schema for the DSN.
      *
-     * @param array|string $schema
-     *
+     * @param  array|string  $schema
      * @return string
      */
     protected function formatSchema($schema)

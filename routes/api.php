@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,6 +17,10 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
     Route::post('oauth/authorize', [\App\Http\Controllers\Api\V1\AuthorizationController::class, 'issueToken'])->name('auth.token');
 
     Route::group(['middleware' => 'auth.api'], function () {
+
+        //order apis
+        Route::post('order/create', [\App\Http\Controllers\Api\V1\OrderController::class, 'create'])->name('order.create');
+
         Route::get('vehicles', [\App\Http\Controllers\Api\V1\VehicleController::class, 'index'])->name('vehicle.list');
         Route::get('vehicles/{id}', [\App\Http\Controllers\Api\V1\VehicleController::class, 'show'])->name('vehicle.get');
     });

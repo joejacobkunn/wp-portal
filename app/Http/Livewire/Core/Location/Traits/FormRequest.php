@@ -2,19 +2,18 @@
 
 namespace App\Http\Livewire\Core\Location\Traits;
 
+use App\Events\User\UserCreated;
+use App\Models\Core\Account;
+use App\Models\Core\Location;
 use App\Models\Core\Role;
 use App\Models\Core\User;
-use App\Models\Core\Account;
-use App\Events\User\UserCreated;
-use App\Models\Core\Location;
 
 trait FormRequest
 {
-
     protected $validationAttributes = [
         'location.name' => 'Location Name',
         'location.phone' => 'Phone',
-        'location.address' => 'Address'
+        'location.address' => 'Address',
     ];
 
     protected function rules()
@@ -23,7 +22,7 @@ trait FormRequest
             'location.name' => 'required|min:3',
             'location.phone' => 'required',
             'location.address' => 'required',
-            'location.is_active' => 'required|boolean'
+            'location.is_active' => 'required|boolean',
         ];
     }
 
@@ -49,7 +48,7 @@ trait FormRequest
     {
         $this->validate();
 
-        if (!empty($this->location->id)) {
+        if (! empty($this->location->id)) {
             $this->update();
         } else {
             $this->store();
@@ -90,7 +89,6 @@ trait FormRequest
         session()->flash('success', 'Account updated!');
     }
 
-
     public function setAdminUser()
     {
         $user = User::where('account_id', $this->location->id)
@@ -100,7 +98,7 @@ trait FormRequest
         if (empty($user->id)) {
             $user->email = $this->adminEmail;
             $user->password = uniqid();
-            $user->name = "";
+            $user->name = '';
             $user->is_active = User::ACTIVE;
             $user->account_id = $this->location->id;
             $user->save();

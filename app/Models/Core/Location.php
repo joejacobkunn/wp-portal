@@ -17,7 +17,7 @@ class Location extends Model
         'account_id',
         'phone',
         'address',
-        'is_active'
+        'is_active',
     ];
 
     public function account()

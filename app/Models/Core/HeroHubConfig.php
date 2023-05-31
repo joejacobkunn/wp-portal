@@ -2,12 +2,11 @@
 
 namespace App\Models\Core;
 
-use Spatie\LaravelCipherSweet\Contracts\CipherSweetEncrypted;
-use Spatie\LaravelCipherSweet\Concerns\UsesCipherSweet;
-use ParagonIE\CipherSweet\EncryptedRow;
-use ParagonIE\CipherSweet\BlindIndex;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use ParagonIE\CipherSweet\EncryptedRow;
+use Spatie\LaravelCipherSweet\Concerns\UsesCipherSweet;
+use Spatie\LaravelCipherSweet\Contracts\CipherSweetEncrypted;
 
 class HeroHubConfig extends Model implements CipherSweetEncrypted
 {
@@ -19,7 +18,7 @@ class HeroHubConfig extends Model implements CipherSweetEncrypted
         'account_id',
         'client_id',
         'client_key',
-        'organization_guid'
+        'organization_guid',
     ];
 
     public function account()

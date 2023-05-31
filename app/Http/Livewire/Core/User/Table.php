@@ -2,14 +2,13 @@
 
 namespace App\Http\Livewire\Core\User;
 
-use App\Models\Core\User;
-use App\Services\Environment\Domain;
-use Illuminate\Database\Eloquent\Builder;
-use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Models\Core\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
+use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Columns\BooleanColumn;
+use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class Table extends DataTableComponent
 {
@@ -29,33 +28,33 @@ class Table extends DataTableComponent
 
     public function boot(): void
     {
-        
+
     }
 
     public function columns(): array
     {
         return [
-            Column::make("ID", "id")
+            Column::make('ID', 'id')
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('core.user.show', $row->id).'" class="text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('core.user.show', $row->id).'" class="text-decoration-underline">'.$value.'</a>';
                 })
                 ->html(),
 
-            Column::make("Name", "name")
+            Column::make('Name', 'name')
                  ->sortable()
                  ->searchable()
                  ->excludeFromColumnSelect()
                  ->format(function ($value, $row) {
-                    return '<a href="'.route('core.user.show', $row->id).'" class="text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('core.user.show', $row->id).'" class="text-decoration-underline">'.$value.'</a>';
                 })
                 ->html(),
 
-            Column::make("Email", "email")
+            Column::make('Email', 'email')
                 ->sortable()
                 ->searchable()
                 ->excludeFromColumnSelect(),
-                
+
             BooleanColumn::make('Is Active', 'is_active')
             ->sortable()
             ->searchable(),
@@ -71,7 +70,7 @@ class Table extends DataTableComponent
                     '0' => 'Active',
                     '1' => 'Deactivated',
                 ])
-                ->filter(function(Builder $builder, string $value) {
+                ->filter(function (Builder $builder, string $value) {
                     $builder->where('is_active', ($value == '1'));
                 }),
         ];
@@ -79,7 +78,7 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return User::when(!auth()->user()->isMasterAdmin(), function ($query, $role) {
+        return User::when(! auth()->user()->isMasterAdmin(), function ($query, $role) {
             $query->where('account_id', app('domain')->getClientId());
         });
     }

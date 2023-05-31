@@ -3,10 +3,8 @@
 namespace App\Listeners\User;
 
 use App\Events\User\ForgotPassword;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\User\SendResetPasswordEmail;
+use Illuminate\Notifications\Notifiable;
 
 class ForgotPasswordListener
 {
@@ -37,7 +35,6 @@ class ForgotPasswordListener
     /**
      * Handle the event.
      *
-     * @param  \App\Events\User\ForgotPassword  $event
      * @return void
      */
     public function handle(ForgotPassword $event)

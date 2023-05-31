@@ -2,8 +2,8 @@
 
 namespace App\Models\Core;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Account extends Model
 {
@@ -11,16 +11,22 @@ class Account extends Model
         'name',
         'subdomain',
         'address',
+        'sx_company_number',
         'is_active',
     ];
 
     protected $attributes = [
-        'is_active' => 1
+        'is_active' => 1,
     ];
 
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_user');
+    }
+
+    public function sxAccount()
+    {
+        return $this->belongsTo(SXAccount::class, 'sx_company_number', 'cono');
     }
 
     public function modules()
@@ -56,7 +62,7 @@ class Account extends Model
             'label' => $label,
             'client_key' => bin2hex(random_bytes(15)),
             'client_secret' => $secretKey,
-            'client_secret_last4' => substr($secretKey, -4)
+            'client_secret_last4' => substr($secretKey, -4),
         ]);
 
         return [
@@ -68,7 +74,7 @@ class Account extends Model
     public function revokeKey($key)
     {
         $key = $this->apiKeys()->where('client_key', $key)->firstOrFail();
-        $key->is_revoked =  1;
+        $key->is_revoked = 1;
         $key->save();
     }
 

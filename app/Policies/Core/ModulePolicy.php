@@ -31,6 +31,4 @@ class ModulePolicy
     {
         return $user->hasRole('master-admin');
     }
-
-
 }

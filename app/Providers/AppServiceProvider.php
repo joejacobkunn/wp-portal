@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-        if (!app()->runningInConsole()) {
+        if (! app()->runningInConsole()) {
             Host::setEnviroment();
 
             app('url')->defaults(['route_subdomain' => Host::getSubdomain()]);

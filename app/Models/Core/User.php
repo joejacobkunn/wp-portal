@@ -3,12 +3,12 @@
 namespace App\Models\Core;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -65,7 +65,7 @@ class User extends Authenticatable
 
     public function scopeBasicSelect($query)
     {
-        return $query->select('id',  'name', 'email');
+        return $query->select('id', 'name', 'email');
     }
 
     public function metadata()
@@ -85,8 +85,8 @@ class User extends Authenticatable
 
     public function getCurrentRoleAttribute()
     {
-        if (!$this->activeRole) {
-            $this->activeRole = $this->roles()->first(); 
+        if (! $this->activeRole) {
+            $this->activeRole = $this->roles()->first();
         }
 
         return $this->activeRole;
@@ -100,8 +100,8 @@ class User extends Authenticatable
     public function setResetToken($reset = true)
     {
         $this->metadata()->updateOrCreate([], []);
-        
-        $this->metadata->user_token =  $reset ? bin2hex(random_bytes(25)) : null;
+
+        $this->metadata->user_token = $reset ? bin2hex(random_bytes(25)) : null;
         $this->metadata->save();
     }
 }

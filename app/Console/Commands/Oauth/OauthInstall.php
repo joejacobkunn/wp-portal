@@ -30,10 +30,11 @@ class OauthInstall extends Command
 
     public function generateKeys(): void
     {
-        if (!$this->option('force') &&
+        if (! $this->option('force') &&
             file_exists(storage_path(config('auth.oauth.rsa.private')))
             && file_exists(storage_path(config('auth.oauth.rsa.public')))) {
-            $this->comment("OAuth Keys already exist!");
+            $this->comment('OAuth Keys already exist!');
+
             return;
         }
 
@@ -44,6 +45,6 @@ class OauthInstall extends Command
         file_put_contents(storage_path(config('auth.oauth.rsa.private')), $privateKeyString);
         file_put_contents(storage_path(config('auth.oauth.rsa.public')), $publicKey);
 
-        $this->comment("OAuth Keys generated");
+        $this->comment('OAuth Keys generated');
     }
 }

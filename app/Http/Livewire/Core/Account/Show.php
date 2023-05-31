@@ -2,13 +2,11 @@
 
 namespace App\Http\Livewire\Core\Account;
 
-use App\Traits\HasTabs;
-use App\Models\Core\User;
-use App\Models\Core\Account;
-use App\Models\Core\AccountApiKey;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Core\Account\Traits\FormRequest;
-use App\Models\SX\Order;
+use App\Models\Core\Account;
+use App\Models\Core\User;
+use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
@@ -20,7 +18,7 @@ class Show extends Component
     public $breadcrumbs = [
         [
             'title' => 'Accounts',
-            'route_name' => 'core.account.index'
+            'route_name' => 'core.account.index',
         ],
     ];
 
@@ -28,14 +26,14 @@ class Show extends Component
         [
             'icon' => 'fa-edit',
             'color' => 'primary',
-            'listener' => 'edit'
+            'listener' => 'edit',
         ],
         [
             'icon' => 'fa-trash',
             'color' => 'danger',
             'confirm' => true,
-            'confirm_header' => "Confirm Delete",
-            'listener' => 'deleteRecord'
+            'confirm_header' => 'Confirm Delete',
+            'listener' => 'deleteRecord',
         ],
     ];
 
@@ -52,6 +50,7 @@ class Show extends Component
         'modules' => 'Modules',
         'credentials' => 'API Credentials',
     ];
+
     public $tab;
 
     public $queryString = ['tab'];
@@ -77,7 +76,7 @@ class Show extends Component
     {
         $this->authorize('delete', $this->account);
 
-        $this->account->subdomain = $this->account->subdomain. "+deleted+" . time();
+        $this->account->subdomain = $this->account->subdomain.'+deleted+'.time();
         $this->account->save();
 
         //delete pivot records

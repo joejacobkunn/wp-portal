@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Core\Module;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ModuleSeeder extends Seeder
@@ -15,25 +14,31 @@ class ModuleSeeder extends Seeder
     {
         $modules = [
             [
+                'name' => 'Customers',
+                'slug' => 'customers',
+                'description' => 'Displays customer information from sx',
+            ],
+
+            [
                 'name' => 'Orders',
                 'slug' => 'orders',
-                'description' => 'Integrates SX to account and lets users see SX Orders'
+                'description' => 'Integrates SX to account and lets users see SX Orders',
             ],
             [
                 'name' => 'Vehicles',
                 'slug' => 'vehicles',
-                'description' => 'Enables Vehicle Management and Inspections'
+                'description' => 'Enables Vehicle Management and Inspections',
             ],
             [
                 'name' => 'POS',
                 'slug' => 'pos',
-                'description' => 'Enables Fortis Point of Sale Management'
+                'description' => 'Enables Fortis Point of Sale Management',
             ],
             [
                 'name' => 'HeroHub',
                 'slug' => 'herohub',
-                'description' => 'Enables HeroHub integration for Orders and Shipping'
-            ]
+                'description' => 'Enables HeroHub integration for Orders and Shipping',
+            ],
         ];
 
         foreach ($modules as $module) {

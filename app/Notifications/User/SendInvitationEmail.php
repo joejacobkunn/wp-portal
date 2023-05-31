@@ -4,9 +4,8 @@ namespace App\Notifications\User;
 
 use App\Models\Core\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class SendInvitationEmail extends Notification
 {
@@ -45,7 +44,7 @@ class SendInvitationEmail extends Notification
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
-    {     
+    {
         if ($this->user->isMasterAdmin()) {
             $accountTitle = 'WP Portal';
             $subdomain = config('constants.admin_subdomain');
@@ -55,12 +54,12 @@ class SendInvitationEmail extends Notification
         }
 
         return (new MailMessage)
-            ->subject("Welcome to W&P Portal")
+            ->subject('Welcome to W&P Portal')
             ->greeting('Hello!')
             ->line("You have been set as the admin for {$accountTitle}, Please finish setting up your account using the link below.")
             ->action('JOIN NOW', route('auth.password.show_reset', [
                 'route_subdomain' => $subdomain,
-                'c' =>  base64_encode($this->user->metadata->user_token),
+                'c' => base64_encode($this->user->metadata->user_token),
             ]));
     }
 }

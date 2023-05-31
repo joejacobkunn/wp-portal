@@ -15,46 +15,54 @@
                 <li class="sidebar-title">Menu</li>
 
                 <li class="sidebar-item {{ (request()->is('dashboard*')) ? 'active' : '' }}">
-                    <a href="{{ route('core.dashboard.index', ['route_subdomain' => request('route_subdomain')]) }}" class='sidebar-link'>
+                    <a href="{{ route('core.dashboard.index', ['route_subdomain' => request('route_subdomain')]) }}"
+                        class='sidebar-link'>
                         <i class="fas fa-tachometer-alt-fast"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
 
                 @canany(['accounts.view'])
-                    <li class="sidebar-item {{ (request()->is('accounts*')) ? 'active' : '' }}">
-                        <a href="{{ route('core.account.index') }}" class='sidebar-link'>
+                <li class="sidebar-item {{ (request()->is('accounts*')) ? 'active' : '' }}">
+                    <a href="{{ route('core.account.index') }}" class='sidebar-link'>
                         <i class="fas fa-building"></i>
-                            <span>Accounts</span>
-                        </a>
-                    </li>
+                        <span>Accounts</span>
+                    </a>
+                </li>
                 @endcan
 
                 @canany(['users.view'])
-                    <li class="sidebar-item {{ (request()->is('users*')) ? 'active' : '' }}">
-                        <a href="{{ route('core.user.index') }}" class='sidebar-link'>
+                <li class="sidebar-item {{ (request()->is('users*')) ? 'active' : '' }}">
+                    <a href="{{ route('core.user.index') }}" class='sidebar-link'>
                         <i class="fas fa-users"></i>
-                            <span>Users</span>
-                        </a>
-                    </li>
+                        <span>Users</span>
+                    </a>
+                </li>
                 @endcan
 
+                <li class="sidebar-item {{ (request()->is('customers*')) ? 'active' : '' }}">
+                    <a href="{{ route('core.customer.index') }}" class='sidebar-link'>
+                        <i class="fas fa-address-card"></i>
+                        <span>Customers</span>
+                    </a>
+                </li>
+
                 @canany(['vehicle.view'])
-                    <li class="sidebar-item {{ (request()->is('vehicle*')) ? 'active' : '' }}">
-                        <a href="{{ route('vehicle.index') }}" class='sidebar-link'>
+                <li class="sidebar-item {{ (request()->is('vehicle*')) ? 'active' : '' }}">
+                    <a href="{{ route('vehicle.index') }}" class='sidebar-link'>
                         <i class="fas fa-truck"></i>
-                            <span>Vehicle</span>
-                        </a>
-                    </li>
+                        <span>Vehicle</span>
+                    </a>
+                </li>
                 @endcan
 
                 @canany(['order.view'])
-                    <li class="sidebar-item {{ (request()->is('order*')) ? 'active' : '' }}">
-                        <a href="{{ route('order.index') }}" class='sidebar-link'>
+                <li class="sidebar-item {{ (request()->is('order*')) ? 'active' : '' }}">
+                    <a href="{{ route('order.index') }}" class='sidebar-link'>
                         <i class="far fa-list-alt"></i>
-                            <span>Orders</span>
-                        </a>
-                    </li>
+                        <span>Orders</span>
+                    </a>
+                </li>
                 @endcan
 
 

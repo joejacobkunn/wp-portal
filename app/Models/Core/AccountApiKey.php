@@ -2,10 +2,8 @@
 
 namespace App\Models\Core;
 
-use Illuminate\Support\Str;
-use App\Models\Core\Account;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 
 class AccountApiKey extends Model
 {
@@ -13,7 +11,7 @@ class AccountApiKey extends Model
         'label',
         'account_id',
         'client_key',
-        'client_secret', 
+        'client_secret',
         'client_secret_last4',
         'is_revoked',
     ];
