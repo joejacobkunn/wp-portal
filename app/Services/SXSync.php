@@ -111,9 +111,11 @@ class SXSync {
 
         //if herohub notification if configured
         if($account->herohubConfig()->exists()){
+            
             $herohub = new HeroHub($account);
-            dd($herohub->send_shipped_notification($data));
-    
+            
+            return response($herohub->send_shipped_notification($data), 200)
+                  ->header('Content-Type', 'application/json');
         }
     }
 

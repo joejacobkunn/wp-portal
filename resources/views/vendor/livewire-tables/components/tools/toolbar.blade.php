@@ -609,6 +609,8 @@
     @endif
 @elseif ($theme === 'bootstrap-5')
     <div class="d-md-flex justify-content-between mb-3">
+                        
+
         <div class="d-md-flex">
             @if ($component->hasConfigurableAreaFor('toolbar-left-start'))
                 @include($component->getConfigurableAreaFor('toolbar-left-start'), $component->getParametersForConfigurableArea('toolbar-left-start'))
@@ -632,6 +634,13 @@
 
             @if ($component->searchIsEnabled() && $component->searchVisibilityIsEnabled())
                 <div class="mb-3 mb-md-0 input-group">
+                    
+                    <div wire:loading>
+                        <div class="spinner-border text-primary spinner-border-sm me-2 my-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
                     <input
                         wire:model{{ $component->getSearchOptions() }}="{{ $component->getTableName() }}.search"
                         placeholder="{{ __('Search') }}"

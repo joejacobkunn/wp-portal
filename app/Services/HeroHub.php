@@ -29,18 +29,13 @@ class HeroHub {
     public function send_shipped_notification($data)
     {
         $line_items = $this->get_line_items_for_order($data['cono'], $data['order_no'], $data['order_suffix']);
+        
+        $response = Http::acceptJson()
+            ->withToken($this->get_token())
+            ->post(config('herohub.hero_hub_cart_url').'/shipments/outbound',$this->generate_shipped_product_payload_for_line_items($line_items));
+        
+            return $response->body();
 
-
-        foreach($line_items as $line_item){
-
-            $response = Http::acceptJson()
-                ->withToken($this->get_token())
-                ->withBody($this->generate_shipped_product_payload_for_line_item($line_item),'application/json')
-                ->post(config('herohub.hero_hub_cart_url').'/shipments/outbound');
-                return $response;
-    
-        }
-       
     }
 
     private function get_line_items_for_order($cono, $order_no, $order_suffix)
@@ -51,7 +46,7 @@ class HeroHub {
                                     l.qtyord,
                                     p.trackerno,
                                     p.shipviaty,
-                                    h.custno AS hero_hub_orderno
+                                    h.custpo AS hero_hub_orderno
                                 FROM
                                     PUB.oeel l
                                     LEFT JOIN PUB.oeehp p ON p.orderno = l.orderno AND p.ordersuf = l.ordersuf AND p.cono = ".$cono."
@@ -59,43 +54,49 @@ class HeroHub {
                                 WHERE
                                     l.cono = ".$cono."
                                     AND l.orderno = " . $order_no . "
+                                    AND l.shipprod <> 'EXSHOPLOCAL'
                             AND l.ordersuf = " . $order_suffix . " WITH(nolock)");
 
     }
 
-    private function generate_shipped_product_payload_for_line_item($line_item)
+    private function generate_shipped_product_payload_for_line_items($line_items)
     {
-        $line_item = (array) $line_item;
-        $hub_hero_order_id = $line_item['HERO_HUB_ORDERNO'];
-        $order_line = [];
+        $order_lines = [];
         $deliveries = [];
 
-        if ($line_item['qtyship'] > 0) {
-            $order_line = [
-                'orderLineNumber' => intval($line_item['lineno']),
-                'material' => preg_replace('/^EX/', '', $line_item['shipprod']),
-                'qty' => number_format($line_item['qtyship'], 2),
-                'deliveries' => [
-                    'orderLineId' => intval($line_item['lineno']),
-                    'delivery' => 1,
-                    'deliveryLineNumber' => intval($line_item['lineno']),
-                    'qty' => number_format($line_item['qtyship'], 1)
-                ]
-            ];
+        foreach($line_items as $order_line_item){
+            $line_item = (array) $order_line_item;
+            $hub_hero_order_id = $line_item['HERO_HUB_ORDERNO'];
+            
+            if ($line_item['qtyship'] > 0) {
+                $order_lines[] = [
+                    'orderLineNumber' => intval($line_item['lineno']),
+                    'material' => preg_replace('/^EX/', '', $line_item['shipprod']),
+                    'qty' => intval($line_item['qtyship']),
+                    'deliveries' => [[
+                        'orderLineId' => intval($line_item['lineno']),
+                        'delivery' => 1,
+                        'deliveryLineNumber' => intval($line_item['lineno']),
+                        'qty' => intval($line_item['qtyship'])
+                    ]]
+                ];
+        
+                $deliveries[] = [
+                    'deliveryNumber' => intval($line_item['lineno']),
+                    'trackings' => [[
+                        'trackingNumber' => $line_item['trackerno']
+                    ]]
+                ];
+            }
 
-            $deliveries = [
-                'deliveryNumber' => intval($line_item['lineno']),
-                'trackings' => [
-                    'trackingNumber' => $line_item['trackerno']
-                ]
-            ];
+
         }
-
-        return json_encode([
+    
+        return [
             'HeroHubId' => $hub_hero_order_id,
-            'orderLines' => $order_line,
+            'orderLines' => $order_lines,
             'deliveries' => $deliveries
-        ]);
+        ];
     }
 
 }
