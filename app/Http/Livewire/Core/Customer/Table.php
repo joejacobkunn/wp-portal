@@ -179,7 +179,7 @@ class Table extends DataTableComponent
                         $builder->where('has_open_order', 0);
                     }
                 }),
-            SelectFilter::make('User Status')
+            SelectFilter::make('Customer Status')
                 ->options([
                     '' => 'All',
                     1 => 'Active',

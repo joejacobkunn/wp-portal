@@ -41,8 +41,8 @@
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
                         <h3 class="h6 mb-1">Subdomain</h3>
-                        <p class="small pe-4"><a href="http://{{ $account->subdomain }}.{{env('APP_DOMAIN_NAME')}}"
-                                target="_blank">https://{{ $account->subdomain }}.{{env('APP_DOMAIN_NAME')}}</a></p>
+                        <p class="small pe-4"><a href="http://{{ $account->subdomain }}.{{config('app.domain')}}"
+                                target="_blank">https://{{ $account->subdomain }}.{{config('app.domain')}}</a></p>
                     </div>
                 </li>
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">

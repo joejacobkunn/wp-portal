@@ -6,8 +6,9 @@ use App\Models\SRO\Customer;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use App\Models\SRO\Equipment;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class CustomerEquipmentExport implements FromQuery
+class CustomerEquipmentExport implements FromQuery, WithHeadings
 {
 
     protected Customer $customer;
@@ -24,6 +25,14 @@ class CustomerEquipmentExport implements FromQuery
     */
     public function query()
     {
-        return Equipment::query()->where('customer_id', $this->customer->id)->whereIn('id',$this->equipment_array);
+        return Equipment::query()
+            ->select(['id', 'sx_equipment_order_no','brand', 'model', 'type', 'serial_no','purchase_date','sales_rep'])
+            ->where('customer_id', $this->customer->id)
+            ->whereIn('id',$this->equipment_array);
+    }
+
+    public function headings(): array
+    {
+        return ['id', 'sx_equipment_order_no','brand', 'model', 'type', 'serial_no','purchase_date','sales_rep'];
     }
 }

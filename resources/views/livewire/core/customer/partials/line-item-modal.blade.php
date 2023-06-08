@@ -1,6 +1,9 @@
 <x-modal :toggle="$open_line_item_modal" size="xl">
     <x-slot name="title">
-        <div class="">Line Items</div>
+        <div class="">Line Items for Order# @if(!empty($this->order_line_items)) {{
+            $this->order_line_items->first()->orderno
+            }}
+            @endif</div>
     </x-slot>
     <div class="row">
         <div class="col-md-12">
@@ -20,8 +23,10 @@
                                     {{$item->user3}} {{$item->shipprod}} {{ rtrim(str_replace(";",",
                                     ",$item->descrip),", ") }}
                                 </h5>
-                                <small><span
-                                        class="badge bg-light-success">{{strtoupper($item->prodcat)}}</span></small>
+                                <small><span class="badge bg-light-success">Category :
+                                        {{strtoupper($item->prodcat)}} / Prod Line :
+                                        {{strtoupper($item->prodline)}}</span>
+                                </small>
                             </div>
                             <small>
                                 <span class="badge bg-light-secondary">Type :
@@ -48,7 +53,7 @@
                                     {{$item->getTied()}}</span>
                             </small>
                             <small>
-                                <span class="badge bg-light-success">Related Order# :
+                                <span class="badge bg-light-warning">Related Order# :
                                     {{strtoupper($item->orderaltno) ?: 'N/A'}}</span>
                             </small>
 
@@ -58,10 +63,6 @@
                                     {{date('M j, Y',strtotime($item->user8)) ?: 'N/A'}}</span>
                             </small>
                             @endif
-                            <small>
-                                <span class="badge bg-light-warning">Prod Line :
-                                    {{strtoupper($item->prodline)}}</span>
-                            </small>
 
                         </a>
                         @empty
