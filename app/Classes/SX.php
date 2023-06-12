@@ -66,7 +66,7 @@ class SX
 
             if(empty($order_id)) 
                 return [
-                    'status' => 'error',
+                    'status' => 'failure',
                     'order_id' => $response_body->response->sxt_func_ack->sxt_func_ack[0]->msg,
                 ];
 
