@@ -69,7 +69,7 @@ class RolePermissionSeeder extends Seeder
         if (! $user->id) {
             $user->name = 'Master Admin';
             $user->email = config('permission.master_user_email');
-            $user->password = 'JYHPx5z9';
+            $user->password = 'BaJDTCCpHLpMph';
             $user->save();
         }
 
