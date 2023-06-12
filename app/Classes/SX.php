@@ -62,6 +62,14 @@ class SX
         if ($response->ok()) {
             $response_body = json_decode($response->body());
 
+            $order_id = $response_body->response->sxt_func_ack->sxt_func_ack[0]->data1;
+
+            if(empty($order_id)) 
+                return [
+                    'status' => 'error',
+                    'order_id' => $response_body->response->sxt_func_ack->sxt_func_ack[0]->msg,
+                ];
+
             return [
                 'status' => 'success',
                 'order_id' => $response_body->response->sxt_func_ack->sxt_func_ack[0]->data1,
