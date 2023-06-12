@@ -16,7 +16,7 @@ class OrderController extends Controller
         $sx_response = $sx_client->create_order(new OrderSXTransfomer($request));
 
         if ($sx_response['status'] == 'success' || $sx_response['status'] == 'failure') {
-            return response()->json(['status' => 'success', 'order_id' => $sx_response['order_id']], 201);
+            return response()->json(['status' => $sx_response['status'], 'order_id' => $sx_response['order_id']], 201);
         } else {
         return response()->json(['status' => 'error', 'message' => $sx_response['message']], 400);
         }
