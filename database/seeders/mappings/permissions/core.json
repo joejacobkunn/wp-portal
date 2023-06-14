@@ -1,0 +1,61 @@
+[
+    {
+        "group": "Access Control",
+        "roles": ["master-admin"],
+        "items": [
+            {
+                "name": "roles.view",
+                "label": "View Roles",
+                "description": "View Or List Roles"
+            },
+            {
+                "name": "roles.manage",
+                "label": "Manage Roles",
+                "description": "Create/Update/Delete Roles"
+            }
+        ]
+    },
+    {
+        "group": "User",
+        "roles": ["master-admin", "super-admin"],
+        "items": [
+            {
+                "name": "users.view",
+                "label": "View Users"
+            },
+            {
+                "name": "users.manage",
+                "label": "Manage Users"
+            }
+        ]
+    },
+    {
+        "group": "Location",
+        "roles": ["master-admin", "super-admin"],
+        "items": [
+            {
+                "name": "locations.view",
+                "label": "View Locations",
+                "description" : "Can view locations"
+            },
+            {
+                "name": "locations.manage",
+                "label": "Manage Locations",
+                "description" : "Can create/update/delete locations"
+            }
+        ]
+    },
+    {
+        "group": "Module",
+        "roles": ["master-admin", "super-admin"],
+        "items": [
+            {
+                "name": "modules.view",
+                "label": "View Modules",
+                "description" : "Can view enabled modules"
+            }
+        ]
+    }
+
+
+]

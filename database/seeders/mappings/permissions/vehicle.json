@@ -1,0 +1,16 @@
+[
+    {
+        "group": "Vehicle",
+        "roles": ["super-admin"],
+        "items": [
+            {
+                "name": "vehicle.view",
+                "label": "View Vehicles"
+            },
+            {
+                "name": "vehicle.manage",
+                "label": "Manage Vehicles"
+            }
+        ]
+    }
+]

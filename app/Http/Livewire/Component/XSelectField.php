@@ -9,7 +9,7 @@ class XSelectField extends Component
 {
     /*
     |--------------------------------------------------------------------------
-    | Configurable Attributes 
+    | Configurable Attributes
     |--------------------------------------------------------------------------
     */
 
@@ -32,7 +32,7 @@ class XSelectField extends Component
      * Check if multiselect
      */
     public $multiple = false;
-    
+
     /**
      * Dropdown placeholder text
      */
@@ -53,12 +53,10 @@ class XSelectField extends Component
      */
     public $defaultOptionSelectable = false;
 
-
     /**
      * Disable select field
      */
     public $disabled = false;
-
 
     /**
      * Listener
@@ -66,17 +64,17 @@ class XSelectField extends Component
     public $listener = 'fieldUpdated';
 
     /**
-     * @var String Label index in options provided
+     * @var string Label index in options provided
      */
     public $labelIndex = 'text';
 
     /**
-     * @var String Value index in options provided
+     * @var string Value index in options provided
      */
     public $valueIndex = 'value';
 
     /**
-     * @var String Value index in options provided
+     * @var string Value index in options provided
      */
     public $selectAllOption = true;
 
@@ -102,7 +100,7 @@ class XSelectField extends Component
 
     /*
     |--------------------------------------------------------------------------
-    | Non-Configurable Attributes 
+    | Non-Configurable Attributes
     |--------------------------------------------------------------------------
     */
 
@@ -110,7 +108,7 @@ class XSelectField extends Component
      * Field DOM ID
      */
     public $fieldDomId;
-    
+
     /**
      * Rendered Options
      */
@@ -131,7 +129,7 @@ class XSelectField extends Component
             if (empty($this->labelIndex)) {
                 throw new Exception('attribute: label-index required');
             }
-            
+
             if (empty($this->valueIndex)) {
                 throw new Exception('attribute: value-index required');
             }
@@ -150,9 +148,9 @@ class XSelectField extends Component
      */
     public function render()
     {
-        $this->fieldDomId = str_replace('.', '--', $this->fieldId) . '_' . uniqid();
+        $this->fieldDomId = str_replace('.', '--', $this->fieldId).'_'.uniqid();
         $this->items = $this->getItems();
-        
+
         if ($this->selected) {
             $this->selectedItem = is_array($this->selected) ? $this->selected : [$this->selected];
         }
@@ -175,7 +173,7 @@ class XSelectField extends Component
                     'value' => $item,
                 ];
             }
-        } elseif (!empty($this->labelIndex) && !empty($this->valueIndex)) {
+        } elseif (! empty($this->labelIndex) && ! empty($this->valueIndex)) {
             foreach ($this->options as $item) {
                 $items[] = [
                     'text' => $item[$this->labelIndex] ?? '',
@@ -184,7 +182,7 @@ class XSelectField extends Component
             }
         }
 
-        if (!$this->multiple && $this->defaultOption) {
+        if (! $this->multiple && $this->defaultOption) {
             array_unshift($items, [
                 'text' => $this->defaultOptionLabel,
                 'value' => null,

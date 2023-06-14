@@ -6,22 +6,27 @@ use Livewire\Component;
 
 class ActionButton extends Component
 {
+    public bool $loadData = false;
+
+    public function init()
+    {
+        $this->loadData = true;
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | Configurable Attributes 
+    | Configurable Attributes
     |--------------------------------------------------------------------------
     */
-    
+
     /**
      * Action button list
      */
     public $actionButtons = [];
 
-
      /*
     |--------------------------------------------------------------------------
-    | Non-Configurable Attributes 
+    | Non-Configurable Attributes
     |--------------------------------------------------------------------------
     */
 
@@ -37,12 +42,13 @@ class ActionButton extends Component
         return view('livewire.component.action-button');
     }
 
-    /** 
+    /**
      * Button click event listener (pre confirmation check)
      * */
-    public function buttonClicked($button) {
-        $listener = $button['listener'] ?? "";
-        if (!empty($button['confirm'])) {
+    public function buttonClicked($button)
+    {
+        $listener = $button['listener'] ?? '';
+        if (! empty($button['confirm'])) {
             $this->activeButton = $button;
             $this->actionConfirm = true;
         } else {
@@ -50,18 +56,20 @@ class ActionButton extends Component
         }
     }
 
-    /** 
+    /**
      * Confirm button listener (applicable if action confirmation required)
      * */
-    public function actionConfirmed() {
+    public function actionConfirmed()
+    {
         $this->actionConfirm = false;
         $this->emit($this->activeButton['listener']);
     }
 
-    /** 
+    /**
      * Cancel button listener (applicable if action confirmation required)
      * */
-    public function actionCancel() {
+    public function actionCancel()
+    {
         $this->actionConfirm = false;
         $this->activeButton = null;
     }

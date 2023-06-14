@@ -2,6 +2,6 @@
     <livewire:component.breadcrumb
         :breadcrumbs="$breadcrumbs"
         :route-params="request()->route()->parameters()"
-        key="{{ $key ?? now() }}"
+        key="bc-{{ $key ?? now() }}"
     >
 </div>

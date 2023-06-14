@@ -1,0 +1,21 @@
+[
+    {
+        "group": "Account",
+        "roles": ["master-admin"],
+        "items": [
+            {
+                "name": "accounts.view",
+                "label": "View Accounts"
+            },
+            {
+                "name": "accounts.manage",
+                "label": "Manage Accounts"
+            },
+            {
+                "name": "accounts.manage.credentials",
+                "label": "Manage API Credentials"
+            }
+
+        ]
+    }
+]

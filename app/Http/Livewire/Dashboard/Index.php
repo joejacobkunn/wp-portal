@@ -2,13 +2,13 @@
 
 namespace App\Http\Livewire\Dashboard;
 
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Livewire\Component\Component;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
-{   
+{
     use AuthorizesRequests;
-    
+
     public $breadcrumbs = [];
 
     public function breadcrumbs()
@@ -16,7 +16,7 @@ class Index extends Component
         return [
             [
                 'title' => 'Dashboard',
-            ]
+            ],
         ];
     }
 

@@ -2,12 +2,12 @@ version: '2.0'
 services:
 
   #PHP Service
-  app:
+  wp_app:
     build:
       context: .
       dockerfile: Dockerfile
     image: php:8.1-fpm
-    container_name: app
+    container_name: wp_app
     restart: unless-stopped
     tty: true
     volumes:
@@ -18,12 +18,12 @@ services:
       SERVICE_TAGS: dev
     working_dir: /var/www/html/
     networks:
-      - app-network
+      - wp-network
 
   #Nginx Service
-  webserver:
+  wp_server:
     image: nginx:alpine
-    container_name: webserver
+    container_name: wp_server
     restart: unless-stopped
     tty: true
     volumes:
@@ -33,32 +33,56 @@ services:
       - "80:80"
       - "443:443"
     networks:
-      - app-network
+      - wp-network
 
   #MySQL Service
-  db:
+  wp_db:
     image: mysql:5.7.32
-    container_name: db
+    container_name: wp_db
     restart: unless-stopped
     tty: true
     ports:
       - "3306:3306"
     volumes:
-      - dbdata:/var/lib/mysql/
+      - wp_dbdata:/var/lib/mysql/
     environment:
       MYSQL_DATABASE: laravel_web
       MYSQL_ROOT_PASSWORD: replace_mysql_root_password
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     networks:
-      - app-network
+      - wp-network
+
+  #Local email server
+  wp_mail:
+    user: root
+    image: mailhog/mailhog
+    build:
+      context: .
+      dockerfile: mailhog/Dockerfile
+    container_name: wp_mail
+    restart: always
+    tty: true
+    privileged: true
+    logging:
+      driver: 'none'
+    command: ["-storage=maildir", "-maildir-path=/maildir"]
+    volumes:
+      - wp_maildata:/maildir
+    ports:
+      - ${DOCKER_MAILHOG_SMTP_PORT}:1025 # smtp server
+      - ${DOCKER_MAILHOG_UI_PORT}:8025 # web ui
+    networks:
+      - wp-network
 
 #Volumes
 volumes:
-  dbdata:
+  wp_dbdata:
+    driver: local
+  wp_maildata:
     driver: local
 
 #Docker Networks
 networks:
-  app-network:
+  wp-network:
     driver: bridge
