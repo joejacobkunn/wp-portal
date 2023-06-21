@@ -45,7 +45,7 @@ class SXSync {
 
         //create customer in mysql table
         
-        Customer::create([
+        $customer = Customer::create([
             'account_id' => $account->id,
             'sx_customer_number' => $sx_customer->custno,
             'name' => $sx_customer->name,
@@ -66,6 +66,8 @@ class SXSync {
             'is_active' => $sx_customer->statustype ?? 1,
 
         ]);
+
+        return response()->json(['status' => 'success', 'customer_id' => $customer->id], 201);
     }
 
     private function updateCustomer($data)
@@ -94,6 +96,8 @@ class SXSync {
             'is_active' => $sx_customer->statustype ?? 1,
         ]);
 
+        return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
+
     }
 
     private function updateCustomerOpenOrderStatus($data)
@@ -103,6 +107,8 @@ class SXSync {
 
         if($no_open_orders > 0) $customer->update(['has_open_order' => 1]);
         else $customer->update(['has_open_order' => 0]);
+
+        return response()->json(['status' => 'success', 'customer_id' => $customer->id, 'has_open_order' => ($no_open_orders == 0) ? 0 : 1], 200);
     }
 
     private function orderShipped($data)
