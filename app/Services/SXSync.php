@@ -30,8 +30,6 @@ class SXSync {
 
         if($this->payload['event'] == 'order.shipped') 
             $this->orderShipped($this->payload['data']);
-
-
         
     }
 
@@ -45,7 +43,14 @@ class SXSync {
 
         //create customer in mysql table
         
-        $customer = Customer::create([
+        $customer = Customer::firstOrCreate(
+        [
+            'account_id' => $account->id,
+            'sx_customer_number' => $sx_customer->custno
+
+        ],
+
+        [
             'account_id' => $account->id,
             'sx_customer_number' => $sx_customer->custno,
             'name' => $sx_customer->name,
