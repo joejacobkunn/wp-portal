@@ -109,7 +109,9 @@ class SXSync {
 
     private function updateCustomerOpenOrderStatus($data)
     {
-        $customer = Customer::where('cono', $data['cono'])->where('sx_customer_number',$data['sx_customer_number'])->first();
+        $account = Account::where('sx_company_number', $data['cono'])->first();
+
+        $customer = Customer::where('account_id', $account->id)->where('sx_customer_number',$data['sx_customer_number'])->first();
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();
 
         if($no_open_orders > 0) $customer->update(['has_open_order' => 1]);
