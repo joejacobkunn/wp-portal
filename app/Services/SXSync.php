@@ -77,8 +77,10 @@ class SXSync {
 
     private function updateCustomer($data)
     {
+        $account = Account::where('sx_company_number', $data['cono'])->first();
+
         $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->first();
-        $customer = Customer::where('cono', $data['cono'])->where('sx_customer_number',$data['sx_customer_number'])->first();
+        $customer = Customer::where('account_id', $account->id)->where('sx_customer_number',$data['sx_customer_number'])->first();
 
         $address = $this->split_address($sx_customer->addr);
 
