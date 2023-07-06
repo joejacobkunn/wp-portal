@@ -17,6 +17,7 @@ php artisan key:generate
 
 echo "Running Permission seeder"
 php artisan db:seed --class=RolePermissionSeeder
+php artisan db:seed --class=ModuleSeeder
 
 echo "Set symlinks"
 php artisan storage:link
