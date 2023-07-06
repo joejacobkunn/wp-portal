@@ -23,7 +23,9 @@ RUN apt-get update && apt-get install -y \
     git \
     libonig-dev \
     unixodbc unixodbc-dev \
-    curl
+    curl \
+    xdotool \
+    expect
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -44,6 +46,9 @@ RUN getent passwd www || useradd -u 1000 -ms /bin/bash -g www www
 # Copy existing application directory permissions
 COPY --chown=www:www . /var/www/html/
 COPY --chown=www:www-data . /var/www/html/storage/logs
+
+# Copy all scripts into working directory
+COPY ./docker/php/scripts /usr/scripts/
 
 # Expose port 9000 and start php-fpm server (for FastCGI Process Manager)
 EXPOSE 9000

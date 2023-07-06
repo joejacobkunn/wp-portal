@@ -1,0 +1,3516 @@
+# The Protermcap File
+#
+# This file contains definition entries for Progress supported terminals
+# as well as terminal entries that are not supported by Progress. These
+# unsupported terminals are provided as a courtesy to our customers because
+# it is usually much better to have an unsupported terminal entry than
+# no entry at all. If you find you need to use one of these unsupported
+# terminal entries, please completely test your application on the terminal
+# itself before putting it into production use.
+#
+# The character interface was completely rewritten between version 6 and
+# version 7. Versions 7 and up use a modified version of the Vermont Views
+# character library to control output to the terminal. Consequently, many
+# of the capability mnemonics and values have changed. 
+#
+#  NOTE:  The Vermont Views key-function capabilities and key label
+#  capabilities are those that are used by HyperHelp. They are not an
+#  exhaustive set of all of the Vermont Views capabilities. 
+#  Please see the Progress documentation for how these capabilities are
+#  used.
+#
+# Note that if you assign a PROGRESS key-function more than once, the FIRST
+# label is taken and all of the key-sequences are taken as
+# alternates.
+#
+# A label is assigned to a key-function by enclosing it in parentheses after
+# the key-function name and before the equal sign.  Since the labels are used
+# in messages and help facilities, they should be a succinct description
+# of the key on the keyboard, e.g., "CURSOR UP".
+#
+# PLEASE NOTE THAT SOME OF THE ENTRIES SHOW WHAT VALUES SHOULD BE
+# ASSIGNED IN THE TERMINAL "SETUP", e.g.,
+#
+#	HELP(F2)=^AA\r
+#
+# MEANS THAT THE FUNCTION KEY F2 SHOULD BE SET UP TO OUTPUT THE
+# STRING  "^AA\r".
+#
+# NOTE: At the bottom of each major terminal type is a tc= to the 
+# version 7 key function bindings(v7kf). If you want to use the 
+# version 6 key function bindings(v6kf) then change the 7 to a 6.
+#
+# Color 0, version 6 color name - NORMAL, is set in the 'is' string.
+# Color 1, version 6 color name - INPUT, is set and cleared by the ue and us
+# terminal capabilities. Color 2, version 6 color name - MESSAGE, 
+# is set and cleared by the so and se terminal capabilities. Color 3,
+# generally known as high intensity, is set and cleared by HS and HR.
+# Color 4, generally known as blink, is set and cleared by BB and BR.
+# The largest color number is 127. The glitch field is no longer needed.
+#
+# System Administrators: Making a site specific version of the PROTERMCAP
+# file that only includes the terminals at your site and resetting the 
+# $PROTERMCAP environment variable to point to that file may significantly
+# reduce the start-up time of Progress.
+#
+# WARNING: Capabilities and colors are stored in NULL terminated strings.
+# If you put a \000 in the middle of a sting (e.g. :cm=\EG%i%+\000%+ H:)
+# then the string will be truncated before you intended it to be. In the
+# above example it would be truncated before the third % . The sting in
+# this example should instead be :cm=\EG%i%.%+ H: . If you need to put a 
+# NULL into a string because you want it to be output to the terminal
+# (e.g. :GS=^o\000G:) then you should instead us a \200 
+# (e.g. :GS=^o\200G:). A \200 is converted to a NULL just before it is
+# output to the terminal. Consequently, a \200 would not work in the
+# above example with a :cm=...: string where the use of \200
+# would have added 128 to the row position instead of 0.
+#
+# Not all key sequences are available on all terminals. For instance,
+# on terminals that use control keys for the arrow keys we cannot use
+# the key sequence ESC-UP-ARROW for the key-function PAGE-UP without it
+# conflicting with another key-function. 
+# In general, we try to do the following for version 7 key function bindings:
+#
+#	:EDITOR-BACKTAB(CTRL-B)=^b:\
+#	:STOP(CTRL-C)=^c:\
+#	:DELETE-LINE(CTRL-D)=^d:\
+#	:END-ERROR(F4)=:\
+#	:END-ERROR(CTRL-E)=^e:\
+#	:FIND(CTRL-F)=^f:\
+#	:EDITOR-TAB(CTRL-G)=^g:\
+#	:BACKSPACE(CTRL-H)=^h:\
+#	:TAB(CTRL-I)=^i:\
+#	:CURSOR-DOWN(CTRL-J)=^j:\
+#	:CURSOR-UP(CTRL-K)=^k:\
+#	:CURSOR-RIGHT(CTRL-L)=^l:\
+#	:RETURN(CTRL-M)=^m:\
+#	:NEW-LINE(CTRL-N)=^n:\
+#	:CURSOR-LEFT(CTRL-O)=^o:\
+#	:PREV-WORD(CTRL-P)=^p:\
+#	:RESUME-DISPLAY(CTRL-Q)=^q:\
+#	:RECALL(F7)=:\
+#	:RECALL(CTRL-R)=^r:\
+#	:STOP-DISPLAY(CTRL-S)=^s:\
+#	:INSERT-MODE(INS)=:\
+#	:INSERT-MODE(F9)=:\
+#	:INSERT-MODE(CTRL-T)=^t:\
+#	:INSERT-MODE(CTRL-@)=^@:\
+#	:BACK-TAB(CTRL-U)=^u:\
+#	:BLOCK(CTRL-V)=^v:\
+#	:NEXT-WORD(CTRL-W)=^w:\
+#	:GO(F1)=:\
+#	:GO(CTRL-X)=^x:\
+#	:CLEAR(F8)=:\
+#	:CLEAR(CTRL-Z)=^z:\
+#	:UNIX-END(CTRL-\)=:\
+#	:DELETE(DELETE)=\177:\
+#	:SAVE-AS(ESC-A)=\Ea:\
+#	:BREAK-LINE(ESC-B)=\Eb:\
+#	:COPY(F11)=:\
+#	:COPY(ESC-C)=\Ec:\
+#	:DELETE-WORD(ESC-D)=\Ed:\
+#	:NEXT-ERROR(ESC-E)=\Ee:\
+#	:FIND-NEXT(ESC-F)=\Ef:\
+#	:GOTO(ESC-G)=\Eg:\
+#	:FIND-PREVIOUS(ESC-I)=\Ei:\
+#	:DELETE-END-LINE(ESC-K)=\Ek:\
+#	:OPEN-LINE-ABOVE(ESC-L)=\El:\
+#	:ENTER-MENUBAR(F3)=:\
+#	:ENTER-MENUBAR(ESC-M)=\Em:\
+#	:NEW(ESC-N)=\En:\
+#	:GET(F5)=:\
+#	:GET(ESC-O)=\Eo:\
+#	:COMPILE(ESC-P)=\Ep:\
+#	:EXIT(ESC-Q)=\Eq:\
+#	:REPLACE(ESC-R)=\Er:\
+#	:PUT(F6)=:\
+#	:PUT(ESC-S)=\Es:\
+#	:SCROLL-MODE(ESC-T)=\Et:\
+#	:DEFAULT-POP-UP(ESC-U)=\Eu:\
+#	:PASTE(F12)=:\
+#	:PASTE(ESC-V)=\Ev:\
+#	:PAGE-LEFT(ESC-W)=\Ew:\
+#	:CUT(F10)=:\
+#	:CUT(ESC-X)=\Ex:\
+#	:PAGE-RIGHT(ESC-Y)=\Ey:\
+#	:CLOSE(ESC-Z)=\Ez:\
+#	:HELP(F2)=:\
+#	:HELP(ESC-?)=\E?:\
+#	:HOME(HOME)=:\
+#	:HOME(ESC-<)=\E<:\
+#	:HOME(ESC-,)=\E,:\
+#	:END(END)=:\
+#	:END(ESC->)=\E>:\
+#	:END(ESC-.)=\E.:\
+#	:REPORTS(ESC-CTRL-A)=\E^a:\
+#	:BOTTOM-COLUMN(ESC-CTRL-B)=\E^b:\
+#	:DELETE-FIELD(ESC-CTRL-D)=\E^d:\
+#	:INSERT-FIELD-LABEL(ESC-CTRL-E)=\E^e:\
+#	:INSERT-FIELD-DATA(ESC-CTRL-F)=\E^f:\
+#	:INSERT-FIELD(ESC-CTRL-G)=\E^g:\
+#	:CHOICES(ESC-CTRL-H)=\E^h:\
+#	:NEXT-FRAME(ESC-CTRL-I)=\E^i:\
+#	:PAGE-RIGHT-TEXT(ESC-CTRL-J)=\E^j:\
+#	:SCROLL-LEFT(ESC-CTRL-L)=\E^l:\
+#	:MAIN-MENU(ESC-CTRL-M)=\E^m:\
+#	:INSERT-COLUMN(ESC-CTRL-N)=\E^n:\
+#	:OPTIONS(ESC-CTRL-O)=\E^o:\
+#	:PICK(ESC-CTRL-P)=\E^p:\
+#	:PICK-BOTH(ESC-CTRL-Q)=\E^q:\
+#	:SCROLL-RIGHT(ESC-CTRL-R)=\E^r:\
+#	:SETTINGS(ESC-CTRL-@)=\E^@:\
+#	:TOP-COLUMN(ESC-CTRL-T)=\E^t:\
+#	:PREV-FRAME(ESC-CTRL-U)=\E^u:\
+#	:MOVE(ESC-CTRL-V)=\E^v:\
+#	:PICK-AREA(ESC-CTRL-W)=\E^w:\
+#	:CANCEL-PICK(ESC-CTRL-X)=\E^x:\
+#	:DELETE-COLUMN(ESC-CTRL-Z)=\E^z:\
+#	:PAGE-UP(PAGE-UP)=:\
+#	:PAGE-UP(ESC-UP-ARROW)=:\
+#	:PAGE-DOWN(PAGE-DOWN)=:\
+#	:PAGE-DOWN(ESC-DOWN-ARROW)=:\
+#	:RIGHT-END(ESC-RIGHT-ARROW)=:\
+#	:LEFT-END(ESC-LEFT-ARROW)=:\
+#
+#
+v7kf|version 7 key functions:\
+	:NEXT-WORD(CTRL-W)=^w:\
+	:HELP(ESC-?)=\E?:\
+	:COPY(ESC-C)=\Ec:\
+	:CHOICES(ESC-CTRL-H)=\E^h:\
+	:OPTIONS(ESC-CTRL-O)=\E^o:\
+	:GET(ESC-O)=\Eo:\
+	:MAIN-MENU(ESC-CTRL-M)=\E^m:\
+	:ENTER-MENUBAR(ESC-M)=\Em:\
+	:EDITOR-TAB(CTRL-G)=^g:\
+	:PREV-WORD(CTRL-P)=^p:\
+	:PUT(ESC-S)=\Es:\
+	:EDITOR-BACKTAB(CTRL-B)=^b:\
+	:DELETE-LINE(CTRL-D)=^d:\
+	:END-ERROR(CTRL-E)=^e:\
+	:FIND(CTRL-F)=^f:\
+	:BACKSPACE(CTRL-H)=^h:\
+	:TAB(CTRL-I)=^i:\
+	:CURSOR-DOWN(CTRL-J)=^j:\
+	:CURSOR-UP(CTRL-K)=^k:\
+	:CURSOR-RIGHT(CTRL-L)=^l:\
+	:RETURN(CTRL-M)=^m:\
+	:NEW-LINE(CTRL-N)=^n:\
+	:CURSOR-LEFT(CTRL-O)=^o:\
+	:RESUME-DISPLAY(CTRL-Q)=^q:\
+	:RECALL(CTRL-R)=^r:\
+	:STOP-DISPLAY(CTRL-S)=^s:\
+	:INSERT-MODE(CTRL-T)=^t:\
+	:BACK-TAB(CTRL-U)=^u:\
+	:BLOCK(CTRL-V)=^v:\
+	:GO(CTRL-X)=^x:\
+	:CLEAR(CTRL-Z)=^z:\
+	:SAVE-AS(ESC-A)=\Ea:\
+	:BREAK-LINE(ESC-B)=\Eb:\
+	:DELETE-WORD(ESC-D)=\Ed:\
+	:NEXT-ERROR(ESC-E)=\Ee:\
+	:FIND-NEXT(ESC-F)=\Ef:\
+	:GOTO(ESC-G)=\Eg:\
+	:FIND-PREVIOUS(ESC-I)=\Ei:\
+	:DELETE-END-LINE(ESC-K)=\Ek:\
+	:OPEN-LINE-ABOVE(ESC-L)=\El:\
+	:NEW(ESC-N)=\En:\
+	:COMPILE(ESC-P)=\Ep:\
+	:EXIT(ESC-Q)=\Eq:\
+	:REPLACE(ESC-R)=\Er:\
+	:SCROLL-MODE(ESC-T)=\Et:\
+	:DEFAULT-POP-UP(ESC-U)=\Eu:\
+	:PASTE(ESC-V)=\Ev:\
+	:PAGE-LEFT(ESC-W)=\Ew:\
+	:CUT(ESC-X)=\Ex:\
+	:PAGE-RIGHT(ESC-Y)=\Ey:\
+	:CLOSE(ESC-Z)=\Ez:\
+	:HOME(HOME)=:\
+	:HOME(ESC-<)=\E<:\
+	:HOME(ESC-,)=\E,:\
+	:END(END)=:\
+	:END(ESC->)=\E>:\
+	:END(ESC-.)=\E.:\
+	:REPORTS(ESC-CTRL-A)=\E^a:\
+	:BOTTOM-COLUMN(ESC-CTRL-B)=\E^b:\
+	:DELETE-FIELD(ESC-CTRL-D)=\E^d:\
+	:INSERT-FIELD-LABEL(ESC-CTRL-E)=\E^e:\
+	:INSERT-FIELD-DATA(ESC-CTRL-F)=\E^f:\
+	:INSERT-FIELD(ESC-CTRL-G)=\E^g:\
+	:NEXT-FRAME(ESC-CTRL-I)=\E^i:\
+	:SCROLL-LEFT(ESC-CTRL-L)=\E^l:\
+	:INSERT-COLUMN(ESC-CTRL-N)=\E^n:\
+	:PICK(ESC-CTRL-P)=\E^p:\
+	:PICK-BOTH(ESC-CTRL-Q)=\E^q:\
+	:SCROLL-RIGHT(ESC-CTRL-R)=\E^r:\
+	:SETTINGS(ESC-CTRL-@)=\E^@:\
+	:TOP-COLUMN(ESC-CTRL-T)=\E^t:\
+	:PREV-FRAME(ESC-CTRL-U)=\E^u:\
+	:MOVE(ESC-CTRL-V)=\E^v:\
+	:PICK-AREA(ESC-CTRL-W)=\E^w:\
+	:CANCEL-PICK(ESC-CTRL-X)=\E^x:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E^o:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E^l:\
+	:PAGE-UP(ESC-UP-ARROW)=\E^k:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E^j:\
+	:APPEND-LINE(CTRL-A)=^a:\
+	:DELETE-COLUMN(ESC-CTRL-Z)=\E^z:
+#
+#Version 6 key functions
+v6kf|version 6 key functions:\
+	:HELP(CTRL-W)=^w:\
+	:NEXT-WORD(ESC-?)=\E?:\
+	:CHOICES(ESC-C)=\Ec:\
+	:COPY(ESC-CTRL-H)=\E^h:\
+	:OPTIONS(ESC-O)=\Eo:\
+	:ENTER-MENUBAR(ESC-CTRL-M)=\E^m:\
+	:MAIN-MENU(ESC-M)=\Em:\
+	:EDITOR-TAB(ESC-CTRL-O)=\E^o:\
+	:GET(CTRL-G)=^g:\
+	:PUT(CTRL-P)=^p:\
+	:PREV-WORD(ESC-S)=\Es:\
+	:EDITOR-BACKTAB(CTRL-B)=^b:\
+	:DELETE-LINE(CTRL-D)=^d:\
+	:END-ERROR(CTRL-E)=^e:\
+	:FIND(CTRL-F)=^f:\
+	:BACKSPACE(CTRL-H)=^h:\
+	:TAB(CTRL-I)=^i:\
+	:CURSOR-DOWN(CTRL-J)=^j:\
+	:CURSOR-UP(CTRL-K)=^k:\
+	:CURSOR-RIGHT(CTRL-L)=^l:\
+	:RETURN(CTRL-M)=^m:\
+	:NEW-LINE(CTRL-N)=^n:\
+	:CURSOR-LEFT(CTRL-O)=^o:\
+	:RESUME-DISPLAY(CTRL-Q)=^q:\
+	:RECALL(CTRL-R)=^r:\
+	:STOP-DISPLAY(CTRL-S)=^s:\
+	:INSERT-MODE(CTRL-T)=^t:\
+	:BACK-TAB(CTRL-U)=^u:\
+	:BLOCK(CTRL-V)=^v:\
+	:GO(CTRL-X)=^x:\
+	:CLEAR(CTRL-Z)=^z:\
+	:SAVE-AS(ESC-A)=\Ea:\
+	:BREAK-LINE(ESC-B)=\Eb:\
+	:DELETE-WORD(ESC-D)=\Ed:\
+	:NEXT-ERROR(ESC-E)=\Ee:\
+	:FIND-NEXT(ESC-F)=\Ef:\
+	:GOTO(ESC-G)=\Eg:\
+	:FIND-PREVIOUS(ESC-I)=\Ei:\
+	:DELETE-END-LINE(ESC-K)=\Ek:\
+	:OPEN-LINE-ABOVE(ESC-L)=\El:\
+	:NEW(ESC-N)=\En:\
+	:COMPILE(ESC-P)=\Ep:\
+	:EXIT(ESC-Q)=\Eq:\
+	:REPLACE(ESC-R)=\Er:\
+	:SCROLL-MODE(ESC-T)=\Et:\
+	:DEFAULT-POP-UP(ESC-U)=\Eu:\
+	:PASTE(ESC-V)=\Ev:\
+	:PAGE-LEFT(ESC-W)=\Ew:\
+	:CUT(ESC-X)=\Ex:\
+	:PAGE-RIGHT(ESC-Y)=\Ey:\
+	:CLOSE(ESC-Z)=\Ez:\
+	:HOME(HOME)=:\
+	:HOME(ESC-<)=\E<:\
+	:HOME(ESC-,)=\E,:\
+	:END(END)=:\
+	:END(ESC->)=\E>:\
+	:END(ESC-.)=\E.:\
+	:REPORTS(ESC-CTRL-A)=\E^a:\
+	:BOTTOM-COLUMN(ESC-CTRL-B)=\E^b:\
+	:DELETE-FIELD(ESC-CTRL-D)=\E^d:\
+	:INSERT-FIELD-LABEL(ESC-CTRL-E)=\E^e:\
+	:INSERT-FIELD-DATA(ESC-CTRL-F)=\E^f:\
+	:INSERT-FIELD(ESC-CTRL-G)=\E^g:\
+	:NEXT-FRAME(ESC-CTRL-I)=\E^i:\
+	:SCROLL-LEFT(ESC-CTRL-L)=\E^l:\
+	:INSERT-COLUMN(ESC-CTRL-N)=\E^n:\
+	:PICK(ESC-CTRL-P)=\E^p:\
+	:PICK-BOTH(ESC-CTRL-Q)=\E^q:\
+	:SCROLL-RIGHT(ESC-CTRL-R)=\E^r:\
+	:SETTINGS(ESC-CTRL-@)=\E^@:\
+	:TOP-COLUMN(ESC-CTRL-T)=\E^t:\
+	:PREV-FRAME(ESC-CTRL-U)=\E^u:\
+	:MOVE(ESC-CTRL-V)=\E^v:\
+	:PICK-AREA(ESC-CTRL-W)=\E^w:\
+	:CANCEL-PICK(ESC-CTRL-X)=\E^x:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E^o:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E^l:\
+	:PAGE-UP(ESC-UP-ARROW)=\E^k:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E^j:\
+	:APPEND-LINE(CTRL-A)=^a:\
+	:DELETE-COLUMN(ESC-CTRL-Z)=\E^z:
+#
+# note that we are assuming auto-wrap mode.
+# If you are experiencing problems with cursor flashing,
+# you should try copying the CO, CN and CF strings from
+# the vt220 entry to this entry.  These strings are
+# used to turn the cursor on and off, but not all
+# terminals that reference this entry (e.g., xterm)
+# support this capability, so they are not included
+# here by default.  Note that PROGRESS assumes that
+# your terminal is capable of turning the cursor on
+# and off if these strings are present, so if your
+# terminal does not support this then you will see
+# erratic cursor behavior (e.g., cursor left in the
+# middle of the screen when it should be placed in
+# the lower right corner).
+# This terminal is Supported by PROGRESS.
+V1|vt100|VT100|vt100-80|vt100_series|DEC VT-100:\
+        :START-RESIZE(ESC-1)=\E1:\
+        :GO(F1)=\E[11:\
+	:GO(CTRL-X)=^x:\
+        :HELP(F2)=\E[12:\
+        :ENTER-MENUBAR(F3)=\E[13:\
+        :END-ERROR(F4)=\E[14:\
+	:GET(F5)=\E[15:\
+	:PUT(F6)=\E[17:\
+        :RECALL(F7)=\E[18:\
+        :CLEAR(F8)=\E[19:\
+	:CLEAR(CTRL-Z)=^z:\
+	:INSERT-MODE(CTRL-T)=^t:\
+        :CUT(F10)=\E[21:\
+        :COPY(F11)=\E[23:\
+        :PASTE(F12)=\E[24:\
+        :BACKSPACE(DEL-CHAR)=\EW:\
+	:BLOCK(CTRL-V)=^v:\
+	:HOME(ESC-<)=\E<:\
+	:END(ESC->)=\E>:\
+	:is=\E>\E[?3l\E[?4l\E[m\E[?7h\E[?8h\E(B\E)0:\
+	:nd=2\E[C:\
+	:do=\E[B:\
+	:cl=50\E[;H\E[2J:\
+	:cm=5\E[%i%d;%dH:\
+	:so=2\E[7m:\
+	:DELETE-COLUMN(ESC-CTRL-Z)=\E[4:\
+        :END(END)=\E[5:\
+	:se=2\E[m:\
+	:us=2\E[4m:\
+	:ue=2\E[m:\
+	:GS=^N:\
+	:GE=^O:\
+	:G1=k:\
+	:G2=l:\
+	:G3=m:\
+	:G4=j:\
+	:GC=n:\
+	:GD=w:\
+	:GH=q:\
+	:GL=u:\
+	:GR=t:\
+	:GU=v:\
+	:GV=x:\
+	:HS=2\E[1m:\
+	:HR=2\E[m:\
+	:BB=2\E[5m:\
+	:BR=2\E[m:\
+	:ks=\E[?1h\E=:\
+	:ke=\E[?1l\E>:\
+	:cd=10\E[J:\
+	:ce=10\E[K:\
+	:co#80:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:kr=\E[C:\
+	:ku=\E[A:\
+	:li#24:\
+	:up=\E[A:\
+	:xi:\
+	:cs=\E[%i%d;%dr:\
+	:sr=\EM:\
+	:sf=\n:\
+	:GO(PF1)=\EOP:\
+	:HELP(PF2)=\EOQ:\
+	:ENTER-MENUBAR(PF3)=\EOR:\
+	:END-ERROR(PF4)=\EOS:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:bc=\177:       :.L_bc:\
+	:kh=\Eh:	:L_kh=<ESC> h:\
+	:EN=\Ee:	:L_EN=<ESC> e:\
+	:PU=^U: 	:L_PU=<CTRL-U>:\
+	:PD=^K: 	:L_PD=<CTRL-D>:\
+	:ki=\Ei:	:L_ki=<ESC> i:\
+	:DL=^X: 	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\Eb:	:L_bt=<ESC> b:\
+	:fk4=\EOP:	:L_fk4=<PF1>:\
+	:fk1=\EOQ:	:L_fk1=<PF2>:\
+	:fk2=\EOR:	:L_fk2=<PF3>:\
+	:fk3=\EOS:	:L_fk3=<PF4>:\
+	:fk5=\E6:	:L_fk5=<ESC> 6:\
+	:fk6=\E7:	:L_fk6=<ESC> 7:\
+	:fk7=\E8:	:L_fk7=<ESC> 8:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+#
+# Sun 3 console
+#
+# This Terminal Is Supported By Progress
+Mu|sun|Sun Microsystems 3/50 Workstation console:\
+	:cl=^L:\
+	:so=\E[7m:\
+	:se=\E[m:\
+	:us=\E[7m:\
+	:ue=\E[m:\
+	:GV=|:\
+	:GH=-:\
+	:G1=+:\
+	:G2=+:\
+	:G3=+:\
+	:G4=+:\
+	:ws:\
+	:li#34:\
+	:co#80:\
+	:cl=^L:\
+	:cm=\E[%i%d;%dH:\
+	:nd=\E[C:\
+	:up=\E[A:\
+	:am:bs:km:mi:ms:pt:\
+	:ce=\E[K:\
+	:cd=\E[J:\
+	:so=\E[7m:\
+	:se=\E[m:\
+	:us=\E[4m:\
+	:ue=\E[m:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:ku=\E[A:\
+	:kr=\E[C:\
+	:kh=\E[H:\
+	:al=\E[L:\
+	:dl=\E[M:\
+	:ic=\E[@:\
+	:dc=\E[P:\
+	:HOME(HOME)=\E[214z:\
+ 	:END(END)=\E[220z:\
+	:INSERT-MODE(INS)=\000:\
+	:PAGE-UP(PAGE-UP)=\E[216z:\
+	:PAGE-DOWN(PAGE-DOWN)=\E[222z:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:GO(F1)=\E[202z:\
+	:HELP(F2)=\E[225z:\
+	:ENTER-MENUBAR(F3)=\E[226z:\
+	:END-ERROR(F4)=\E[227z:\
+	:GET(F5)=\E[228z:\
+	:PUT(F6)=\E[229z:\
+	:RECALL(F7)=\E[230z:\
+	:CLEAR(F8)=\E[231z:\
+	:INSERT-MODE(F9)=\E[232z:\
+	:CUT(F10)=\E[233z:\
+	:COPY(F11)=\E[234z:\
+	:PASTE(F12)=\E[235z:\
+	:HOME(F27)=\E[214z:\
+	:PAGE-UP(F29)=\E[216z:\
+	:END(F33)=\E[220z:\
+	:PAGE-DOWN(F35)=\E[222z:\
+	:HOME(PF7)=\E[214z:\
+	:PAGE-UP(PF9)=\E[216z:\
+	:END(PF13)=\E[220z:\
+	:PAGE-DOWN(PF15)=\E[222z:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:bt=^u:	:L_bt=<CTRL-U>:\
+	:kh=\E[214z:	:L_kh=<Home>:\
+	:EN=\E[220z:	:L_EN=<End>:\
+	:PU=\E[216z:	:L_PU=<PgUp>:\
+	:PD=\E[222z:	:L_PD=<PgDn>:\
+	:ki=\E[247z:	:L_ki=<Ins>:\
+	:DL=\E[249z:	:L_DL=<Del>:\
+	:ESC=\E\E:	:L_ESC=<ESC><ESC>:\
+	:fk1=\E[225z:	:L_fk1=<F2>:\
+	:fk2=\E[226z:	  :L_fk2=<F3>:\
+	:fk3=\E[227z:	  :L_fk3=<F4>:\
+	:fk4=\E[228z:	  :L_fk4=<F5>:\
+	:fk5=\E[229z:	  :L_fk5=<F6>:\
+	:fk6=\E[230z:	  :L_fk6=<F7>:\
+	:fk7=\E[231z:	  :L_fk7=<F8>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:k39=:	:L_k39=Ctrl-D:\
+	:k38=:	:L_k38=Ctrl-P:\
+	:k37=:	:L_k37=Ctrl-D:\
+	:k36=:	:L_k36=Ctrl-V:\
+	:k35=\Ec:	:L_k35=ESC-C:\
+	:k34=\Eq:	:L_k34=ESC-Q:\
+	:tc=v7kf:
+#
+# note that we are assuming auto-wrap mode.
+# The :COLOR statement has been modified from version 6. A color number
+# is now required. You do not have to specify a color name. The color
+# name is included for version 6 compatibility. The first five colors, 
+# color 0 through color 4, are not set using the :COLOR statement.
+# Color 0, version 6 color name - NORMAL, is set in the is string.
+# Color 1, version 6 color name - INPUT, is set and cleared by the ue, us,
+# and ug terminal capabilities. Color 2, version 6 color name - MESSAGE, 
+# is set and cleared by the so, se, and sg terminal capabilities. Color 3,
+# generally known a high intensity, is set and cleared by HS and HR.
+# Color 4, generally known as blink, is set and cleared by BB and BR.
+# The largest color number is currently 128. The glitch field is 
+# no longer needed.
+# This Terminal Is Supported By Progress
+wy370|wyse370|wyse_370|wyse 370 running in native mode:\
+	:is=\E[?3l\E[90;1"p\E(B\E)0\E[63;0w:\
+	:do=\E[B:\
+	:cl=\E[2J\E[H:\
+	:GC=n:\
+	:GD=w:\
+	:GL=u:\
+	:GR=t:\
+	:GU=v:\
+	:BB=\E[5m:\
+	:BR=\E[m:\
+	:ct:\
+	:xi:\
+	:CO=\E[?25h:\
+	:CN=\E[?25h:\
+	:CF=\E[?25l:\
+	:so=\E[7m:\
+	:se=\E[m:\
+	:HS=\E[1m:\
+	:HR=\E[m:\
+	:cd=\E[J:\
+	:ce=\E[K:\
+	:cm=\E[%i%d;%dH:\
+	:co#80:\
+	:cs=\E[%i%d;%dr:\
+	:ei=\E[4l:\
+	:im=\E[4h:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:kr=\E[C:\
+	:ku=\E[A:\
+	:li#24:\
+	:nd=\E[C:\
+	:se=\E[m:\
+	:so=\E[7m:\
+	:sr=\EM:\
+	:sf=\n:\
+	:Si=\E)0:\
+	:Se=:\
+	:ue=\E[m:\
+	:up=\E[A:\
+	:us=\E[4m:\
+	:GS=^N:\
+	:GE=^O:\
+	:G1=k:\
+	:G2=l:\
+	:G3=m:\
+	:G4=j:\
+	:GH=q:\
+	:GV=x:\
+	:GO(F1)=\E[?5i:\
+	:HELP(F2)=\E[?3i:\
+	:ENTER-MENUBAR(F3)=\E[2i:\
+	:END-ERROR(F4)=\E[@:\
+	:GET(F5)=\E[M:\
+	:PUT(F6)=\E[17~:\
+	:RECALL(F7)=\E[18~:\
+	:CLEAR(F8)=\E[19~:\
+	:INSERT-MODE(F9)=\E[20~:\
+	:CUT(F10)=\E[21~:\
+	:COPY(F11)=\E[23~:\
+	:PASTE(F12)=\E[24~:\
+	:FIND(F13)=\E[25~:\
+	:BLOCK(F14)=\E[26~:\
+	:PAGE-UP(F15)=\E[28~:\
+	:PAGE-DOWN(F16)=\E[29~:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:COLOR 5 RED/BLACK=\E[31;40m:\E[m:\
+	:COLOR 6 GREEN/BLACK=\E[32;40m:\E[m:\
+	:COLOR 7 YELLOW/BLACK=\E[33;40m:\E[m:\
+	:COLOR 8 BLUE/BLACK=\E[34;40m:\E[m:\
+	:COLOR 9 MAGENTA/BLACK=\E[35;40m:\E[m:\
+	:COLOR 10 CYAN/BLACK=\E[36;40m:\E[m:\
+	:COLOR 11 WHITE/BLACK=\E[37;40m:\E[m:\
+	:COLOR 12 RED/BLUE=\E[31;44m:\E[m:\
+	:COLOR 13 RED/GREEN=\E[31;42m:\E[m:\
+	:COLOR 14 RED/YELLOW=\E[31;43m:\E[m:\
+	:COLOR 15 RED/MAGENTA=\E[31;45m:\E[m:\
+	:COLOR 16 RED/CYAN=\E[31;46m:\E[m:\
+	:COLOR 17 RED/WHITE=\E[31;47m:\E[m:\
+	:COLOR 18 GREEN/BLUE=\E[32;44m:\E[m:\
+	:COLOR 19 GREEN/RED=\E[32;41m:\E[m:\
+	:COLOR 20 GREEN/YELLOW=\E[32;43m:\E[m:\
+	:COLOR 21 GREEN/MAGENTA=\E[32;45m:\E[m:\
+	:COLOR 22 GREEN/CYAN=\E[32;46m:\E[m:\
+	:COLOR 23 GREEN/WHITE=\E[32;47m:\E[m:\
+	:COLOR 24 YELLOW/BLUE=\E[33;44m:\E[m:\
+	:COLOR 25 YELLOW/RED=\E[33;41m:\E[m:\
+	:COLOR 26 YELLOW/GREEN=\E[33;42m:\E[m:\
+	:COLOR 27 YELLOW/MAGENTA=\E[33;45m:\E[m:\
+	:COLOR 28 YELLOW/CYAN=\E[33;46m:\E[m:\
+	:COLOR 29 YELLOW/WHITE=\E[33;47m:\E[m:\
+	:COLOR 30 BLUE/YELLOW=\E[34;43m:\E[m:\
+	:COLOR 31 BLUE/RED=\E[34;41m:\E[m:\
+	:COLOR 32 BLUE/GREEN=\E[34;42m:\E[m:\
+	:COLOR 33 BLUE/MAGENTA=\E[34;45m:\E[m:\
+	:COLOR 34 BLUE/CYAN=\E[34;46m:\E[m:\
+	:COLOR 35 BLUE/WHITE=\E[34;47m:\E[m:\
+	:COLOR 36 MAGENTA/YELLOW=\E[35;43m:\E[m:\
+	:COLOR 37 MAGENTA/RED=\E[35;41m:\E[m:\
+	:COLOR 38 MAGENTA/GREEN=\E[35;42m:\E[m:\
+	:COLOR 39 MAGENTA/BLUE=\E[35;44m:\E[m:\
+	:COLOR 40 MAGENTA/CYAN=\E[35;46m:\E[m:\
+	:COLOR 41 MAGENTA/WHITE=\E[35;47m:\E[m:\
+	:COLOR 42 CYAN/YELLOW=\E[36;43m:\E[m:\
+	:COLOR 43 CYAN/RED=\E[36;41m:\E[m:\
+	:COLOR 44 CYAN/GREEN=\E[36;42m:\E[m:\
+	:COLOR 45 CYAN/BLUE=\E[36;44m:\E[m:\
+	:COLOR 46 CYAN/MAGENTA=\E[36;45m:\E[m:\
+	:COLOR 47 CYAN/WHITE=\E[36;47m:\E[m:\
+	:COLOR 48 WHITE/YELLOW=\E[37;43m:\E[m:\
+	:COLOR 49 WHITE/RED=\E[37;41m:\E[m:\
+	:COLOR 50 WHITE/GREEN=\E[37;42m:\E[m:\
+	:COLOR 51 WHITE/BLUE=\E[37;44m:\E[m:\
+	:COLOR 52 WHITE/MAGENTA=\E[37;45m:\E[m:\
+	:COLOR 53 WHITE/CYAN=\E[37;46m:\E[m:\
+	:COLOR 54 BLACK/YELLOW=\E[30;43m:\E[m:\
+	:COLOR 55 BLACK/RED=\E[30;41m:\E[m:\
+	:COLOR 56 BLACK/GREEN=\E[30;42m:\E[m:\
+	:COLOR 57 BLACK/BLUE=\E[30;44m:\E[m:\
+	:COLOR 58 BLACK/MAGENTA=\E[30;45m:\E[m:\
+	:COLOR 59 BLACK/CYAN=\E[30;46m:\E[m:\
+	:COLOR 60 BLACK/WHITE=\E[30;47m:\E[m:\
+	:COLOR 61 GREEN/DKBL=\E[14;3x:\E[63;0w:\
+	:COLOR 62 BROWN/WHITE=\E[37;64x:\E[63;0w:\
+	:COLOR 63 BROWN/CYAN=\E[37;16x:\E[63;0w:\
+	:COLOR 64=\E[16;8x:\E[63;0w:\
+	:COLOR 65=\E[54;8x:\E[63;0w:\
+	:COLOR 66 DKRD/BLACK=\E[33;1x:\E[63;0w:\
+	:COLOR 67=\E[64;8x:\E[63;0w:\
+	:COLOR 68 CYAN/PURPLE=\E[16;18x:\E[63;0w:\
+	:COLOR 69 BLACK/PURPLE=\E[1;18x:\E[63;0w:\
+	:COLOR 70 WHITE/PURPLE=\E[64;18x:\E[63;0w:\
+	:COLOR 71 ORANGE/PURPLE=\E[54;18x:\E[63;0w:\
+	:COLOR 72 GREEN/PURPLE=\E[13;18x:\E[63;0w:\
+	:COLOR 73 BLINKRED=\E[54;1;2x:\E[63;0w:\
+	:COLOR 74 ORANGE/BLACK=\E[54;1x:\E[63;0w:\
+	:COLOR 75 CYAN/FOREST=\E[16;5x:\E[63;0w:\
+	:COLOR 76 ORANGE/FOREST=\E[54;5x:\E[63;0w:\
+	:COLOR 77 WHITE/FOREST=\E[64;5x:\E[63;0w:\
+	:COLOR 78 GREEN/FOREST=\E[14;5x:\E[63;0w:\
+	:COLOR 79 BLACK/FOREST=\E[1;5x:\E[63;0w:\
+	:COLOR 80 LTGR/FOREST=\E[9;5x:\E[63;0w:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:bt=\E[Z:	:L_bt=<SHIFT-Tab>:\
+	:kh=\E[H:	:L_kh=<Home>:\
+	:EN=\Ee:	:L_EN=<ESC> e:\
+	:PU=\E[V:	:L_PU=<PgUp>:\
+	:PD=\E[U:	:L_PD=<PgDn>:\
+	:ki=\Ei:	:L_ki=<ESC> i:\
+	:DL=^X: 	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:fk0=\EOP:	:L_fk0=<F1>:\
+	:fk1=\EOQ:	:L_fk1=<F2>:\
+	:fk2=\EOR:	:L_fk2=<F3>:\
+	:fk3=\EOS:	:L_fk3=<F4>:\
+	:fk4=\E[M:	:L_fk4=<F5>:\
+	:fk5=\E[17~:	:L_fk5=<F6>:\
+	:fk6=\E[18~:	:L_fk6=<F7>:\
+	:fk7=\E[19~:	:L_fk7=<F8>:\
+	:fk8=\E[20~:	:L_fk8=<F9>:\
+	:fk9=\E[21~:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+# It may take a second for the terminal to competely setup. If you notice
+# that the first ten or so lines are messed up when you do a term= and 
+# then output, you should try putting in a "PAUSE 1." statement.
+# This Terminal Is Supported By Progress
+wy370-132:Wyse 370 in 132 column mode:\
+	:is=\E[?3h\E[90;1"p\E(B\E)0\E[63;0w:\
+	:co#132:	:tc=wy370:
+#
+# ^A is used as a lead in sequence and ^J is used for down arrow
+#
+#  Make sure that your function keys are set up as follows:
+#    F1 = ^A@\r  F7 = ^AF\r
+#    F2 = ^AA\r  F8 = ^AG\r
+#    F3 = ^AB\r  F9 = ^AH\r
+#    F4 = ^AC\r  F10 = ^AI\r
+#    F5 = ^AD\r  F11 = ^AJ\r
+#    F6 = ^AE\r  F12 = ^AK\r (NOTE: Ctrl-M same as \r.)
+#
+#    Also have the following settings:
+#
+#    BLK END = US / CR
+#    AUTO NL = ON
+#    CR      = CR
+#    AUTO SCRL = ON
+#    SCRL = JUMP
+#
+# This Terminal Is Not Supported By Progress
+w5|wy50|wyse50|Wyse 50+ terminal:\
+	:is=\EA21\E`6:\
+	:HR=\EG0:\
+	:HG#1:\
+	:HS=\EG4:\
+	:CO=\E`1:\
+	:GG#0:\
+	:so=\E):\
+	:se=\E(:\
+	:sg#0:\
+	:us=\E):\
+	:ue=\E(:\
+	:ug#0:\
+	:al=5\EE:\
+	:am:\
+	:bw:\
+	:ce=\Et:\
+	:cd=5\Ey:\
+	:cl=50\E*:\
+	:co#80:\
+	:cm=%i\Ea%2R%2C:\
+	:dl=\ER:\
+	:ei=\Er:\
+	:im=\Eq:\
+	:kd=^j:\
+	:kl=^h:\
+	:kr=^l:\
+	:ku=^k:\
+	:li#24:\
+	:up=5\Ej:\
+	:GS=\EH^B:\
+	:GE=\EH^C:\
+	:GH=\072:\
+	:GV=6:\
+	:G1=3:\
+	:G2=2:\
+	:G3=1:\
+	:G4=5:\
+	:CN=\E`1:\
+	:CF=\E`0:\
+	:GO(F1)=^A@\r:\
+	:HELP(F2)=^AA\r:\
+	:ENTER-MENUBAR(F3)=^AB\r:\
+	:END-ERROR(F4)=^AC\r:\
+	:GET(F5)=^AD\r:\
+	:PUT(F6)=^AE\r:\
+	:RECALL(F7)=^AF\r:\
+	:CLEAR(F8)=^AG\r:\
+	:INSERT-MODE(F9)=^AH\r:\
+	:CUT(F10)=^AI\r:\
+	:COPY(F11)=^AJ\r:\
+	:PASTE(F12)=^AK\r:\
+	:FIND(F13)=^AL\r:\
+	:BLOCK(F14)=^AM\r:\
+	:HOME(HOME)=^^:\
+	:HOME(ESC-H)=\Eh:\
+	:PAGE-UP(PREV-PAGE)=\EJ:\
+	:PAGE-DOWN(NEXT-PAGE)=\EK:\
+	:BACKSPACE(DEL-CHAR)=\EW:\
+	:ku=^K: 	:L_ku=<Up>:\
+	:kd=^J: 	:L_kd=<Down>:\
+	:kr=^L: 	:L_kr=<Right>:\
+	:kl=^H: 	:L_kl=<Left>:\
+	:bc=\Er:	:L_bc=<Repl>:\
+	:kh=\036:	:L_kh=<Home>:\
+	:EN=\E{:	:L_EN=<SHIFT-Home>:\
+	:PU=\EJ:	:L_PU=<Page Prev>:\
+	:PD=\EK:	:L_PD=<Page Next>:\
+	:ki=\Eq:	:L_ki=<Insert>:\
+	:DL=\EW:	:L_DL=<Delete>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\EI:	:L_bt=<SHIFT-Tab>:\
+	:fk0=^A@\r:	:L_fk0=<F1>:\
+	:fk1=^AA\r:	:L_fk1=<F2>:\
+	:fk2=^AB\r:	:L_fk2=<F3>:\
+	:fk3=^AC\r:	:L_fk3=<F4>:\
+	:fk4=^AD\r:	:L_fk4=<F5>:\
+	:fk5=^AE\r:	:L_fk5=<F6>:\
+	:fk6=^AF\r:	:L_fk6=<F7>:\
+	:fk7=^AG\r:	:L_fk7=<F8>:\
+	:fk8=^AH\r:	:L_fk8=<F9>:\
+	:fk9=^AI\r:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+# Wyse 50 terminal, 25 rows by 80 cols.  If you want to return to 24
+# lines when exiting PROGRESS, remove the :te=: line and remove
+# the period from the :.te=...: line.
+# This Terminal Is Not Supported By Progress
+wy50f|wyse50full:\
+	:ti=\Ee):\
+	:te=:\
+	:.te=\Ee(:\
+	:li#25:\
+	:tc=wy50:
+#
+# ^A is used as a lead in sequence and ^J is used for down arrow
+#
+#  Make sure that your function keys are set up as follows:
+#    F1 = ^A@\r  F7 = ^AF\r
+#    F2 = ^AA\r  F8 = ^AG\r
+#    F3 = ^AB\r  F9 = ^AH\r
+#    F4 = ^AC\r  F10 = ^AI\r
+#    F5 = ^AD\r  F11 = ^AJ\r
+#    F6 = ^AE\r  F12 = ^AK\r (NOTE: Ctrl-M same as \r.)
+#
+#    Also have the following settings:
+#
+#    BLK END = US / CR
+#    AUTO NL = ON
+#    CR      = CR
+#    AUTO SCRL = ON
+#    SCRL = JUMP
+#
+# Wyse 60 terminal, normal size 24 rows by 80 cols
+# This Terminal Is Supported By Progress
+w6|wy60|wyse60:\
+	:so=\EG0\EG4:\
+	:se=\EG0:\
+	:CO=\E`1:\
+	:CN=\E`1:\
+	:CF=\E`0:\
+	:GG#0:\
+        :am:cd=\Ey:cl=\E*:cm=%i\Ea%dR%dC:\
+        :co#80:cr=^M:.dc=\EW:dl=\ER:ei=\Er:im=\Eq:\
+        :kr=^L:kl=^o:ku=^K:kd=^J:li#24:us=\EG0\EG8:\
+        :nd=^L:nl=^J:ue=\EG0:up=^K:\
+        :Si=\EZ0-^o\177:Se=\EZ0-^H\177:\
+	:is=\E`\072\Ee(:\
+	:HS=\EG4:\
+	:HR=\EG0:\
+	:HG#0:\
+	:al=5\EE:\
+	:bw:\
+	:ce=\Et:\
+	:GS=\EH^B:\
+	:GE=\EH^C:\
+	:GH=\072:\
+	:GV=6:\
+	:G1=3:\
+	:G2=2:\
+	:G3=1:\
+	:G4=5:\
+	:GO(F1)=^A@\r:\
+	:HELP(F2)=^AA\r:\
+	:ENTER-MENUBAR(F3)=^AB\r:\
+	:END-ERROR(F4)=^AC\r:\
+	:GET(F5)=^AD\r:\
+	:PUT(F6)=^AE\r:\
+	:RECALL(F7)=^AF\r:\
+	:CLEAR(F8)=^AG\r:\
+	:INSERT-MODE(F9)=^AH\r:\
+	:CUT(F10)=^AI\r:\
+	:COPY(F11)=^AJ\r:\
+	:PASTE(F12)=^AK\r:\
+	:FIND(F13)=^AL\r:\
+	:BLOCK(F14)=^AM\r:\
+	:BACKSPACE(BACKSPACE)=^H:\
+	:BACK-TAB(SHIFT-TAB)=\EI:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E^y:\
+	:HOME(HOME)=^^:\
+	:HOME(ESC-H)=\Eh:\
+	:PAGE-UP(PREV-PAGE)=\EJ:\
+	:PAGE-DOWN(NEXT-PAGE)=\EK:\
+	:BACKSPACE(DEL-CHAR)=\EW:\
+	:ku=^K: 	:L_ku=<Up>:\
+	:kd=^J: 	:L_kd=<Down>:\
+	:kr=^L: 	:L_kr=<Right>:\
+	:kl=^o: 	:L_kl=<Left>:\
+	:bc=\Er:	:L_bc=<Repl>:\
+	:kh=\036:	:L_kh=<Home>:\
+	:EN=\E{:	:L_EN=<SHIFT-Home>:\
+	:PU=\EJ:	:L_PU=<Page Prev>:\
+	:PD=\EK:	:L_PD=<Page Next>:\
+	:ki=\Eq:	:L_ki=<Insert>:\
+	:DL=\EW:	:L_DL=<Delete>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\EI:	:L_bt=<SHIFT-Tab>:\
+	:fk0=^A@\r:	:L_fk0=<F1>:\
+	:fk1=^AA\r:	:L_fk1=<F2>:\
+	:fk2=^AB\r:	:L_fk2=<F3>:\
+	:fk3=^AC\r:	:L_fk3=<F4>:\
+	:fk4=^AD\r:	:L_fk4=<F5>:\
+	:fk5=^AE\r:	:L_fk5=<F6>:\
+	:fk6=^AF\r:	:L_fk6=<F7>:\
+	:fk7=^AG\r:	:L_fk7=<F8>:\
+	:fk8=^AH\r:	:L_fk8=<F9>:\
+	:fk9=^AI\r:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+# Wyse 60 terminal, 25 rows by 80 cols.  If you want to return to 24
+# lines when exiting PROGRESS, remove the :te=: line and remove
+# the period from the :.te=...: line.
+# This Terminal Is Supported By Progress
+wy60f|wyse60full:\
+	:ti=\Ee):\
+	:te=:\
+	:.te=\Ee(:\
+	:li#25:\
+	:tc=wy60:
+# Wyse 60 terminal, 43 rows by 80 cols.  If you want to return to 
+# normal size when exiting PROGRESS, remove the :te=: line and remove
+# the period from the :.te=...: line.
+# This Terminal Is Supported By Progress
+wy60t|wyse60tall:\
+	:ti=\Ee+:\
+	:te=:\
+	:.te=\Ee(:\
+	:li#43:\
+	:tc=wy60:
+# Wyse 60 terminal, 24 rows by 132 cols.  If you want to return to 
+# normal size when exiting PROGRESS, remove the :te=: line and remove
+# the period from the :.te=...: line.
+# This Terminal Is Supported By Progress
+wy60w|wyse60wide:\
+	:ti=\E`\073:\
+	:te=:\
+	:.te=\E`\072:\
+	:co#132:\
+	:tc=wy60:
+# Wyse 60 terminal, 43 rows by 132 cols.  If you want to return to 
+# normal size when exiting PROGRESS, remove the :te=: line and remove
+# the period from the :.te=...: line.
+# This Terminal Is Supported By Progress
+wy60tw|wyse60tall+wide:\
+	:ti=\Ee+\E`\073:\
+	:te=:\
+	:.te=\E`\072\Ee(:\
+	:co#132:\
+	:li#43:\
+	:tc=wy60:
+#
+# SCO and XENIX AT console ANSI entry. 
+# 6-20-96: READ THIS - If you are installing the PROTERMCAP as a patch or 
+# a new version of PROGRESS then there is a bug in the SCO OS 3 ansi emulation 
+# software that PROGRESS seems to stumble over. The ansi terminal under
+# SCO OS 3 is unable to set the function keys to a shorter key-sequence
+# length and trying to do so causes additional characters (often i or 2i) to
+# be appended to the key-sequence. If you are using SCO OS 3 then REBOOT your 
+# machine after installing this new ansi PROTERMCAP entry. This new ansi
+# entry will leave the function keys as your other applications expect them.
+# If you are using SCO OS 5 then you should not need to reboot your machine.
+# After running PROGRESS at least once you could comment out the Si and Se 
+# capabilities by putting a dot between the colon and S (e.g. :.Si=...). 
+# This entry implements a graphics mode by using the extended ASCII 
+# character set supported by the IBM PC. After receipt of start graphic 
+# rendition (SGR) escape sequence - this corresponds to GS in termcap 
+# lingo - the driver will turn on the high bit of any character sent 
+# to the screen, thereby mapping normal ASCII characters into the 
+# 128-256 graphics character range. This presents a problem for 
+# our box painting, which uses backspaces and line feeds while 
+# in graphics mode. Consequently, I've nulled out the GS and GE 
+# entries, and put in the actual octal values for horizontal
+# and vertical bar, and the corner characters. The actual values for GS
+# and GE are as follows :GS=\E[12m:GE=\E[10m:
+# This Terminal Is Supported By Progress
+li|ansi|Ansi standard crt:\
+	:BB=\E[5m:\
+	:BR=\E[m:\
+	:CA:\
+	:HS=\E[1m:\
+	:HR=\E[m:\
+	:al=\E[L:\
+	:am:\
+	:bs:\
+	:cd=\E[J:\
+	:ce=\E[K:\
+	:cl=\E[2J\E[H:\
+	:cm=\E[%i%d;%dH:\
+	:co#80:\
+	:dc=\E[P:\
+	:dl=\E[M:\
+	:dn=\E[B:\
+	:ei=:\
+	:ho=\E[H:\
+	:ic=\E[@:\
+	:li#25:\
+	:nd=\E[C:\
+	:ms:\
+	:pt:\
+	:so=\E[7m:\
+	:se=\E[m:\
+	:us=\E[7m:\
+	:ue=\E[m:\
+	:up=\E[A:\
+	:kb=^h:\
+	:ku=\E[A:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:kr=\E[C:\
+	:eo:\
+	:GR=\064:\
+	:RT=^J:\
+	:GH=\304:\
+	:G1=\277:\
+	:G2=\332:\
+	:G3=\300:\
+	:G4=\331:\
+	:GS=\000:\
+	:GE=\000:\
+	:GV=\263:\
+	:GD=\302:\
+	:GC=\305:\
+	:GL=\264:\
+        :Si=\EQ0"\E[M"\EQ1"\E[N"\EQ2"\E[O"\EQ3"\E[P"\EQ4"\E[Q"\EQ5"\E[R"\EQ6"\E[S"\EQ7"\E[T"\EQ8"\E[U"\EQ9"\E[V":\
+	:Se=\EQ0"^[[M"\EQ1"^[[N"\EQ2"^[[O"\EQ3"^[[P"\EQ4"^[[Q"\EQ6"^[[R"\EQ7"^[[S"\EQ7"^[[T"\EQ8"^[[U"\EQ9"^[[V":\
+	:GO(F1)=\E[M:\
+	:HELP(F2)=\E[N:\
+	:ENTER-MENUBAR(F3)=\E[O:\
+	:END-ERROR(F4)=\E[P:\
+	:GET(F5)=\E[Q:\
+	:PUT(F6)=\E[R:\
+	:RECALL(F7)=\E[S:\
+	:CLEAR(F8)=\E[T:\
+	:INSERT-MODE(F9)=\E[U:\
+	:CUT(F10)=\E[V:\
+	:COPY(F11)=\E[W:\
+	:PASTE(F12)=\E[X:\
+        :HOME(HOME)=\E[H:\
+        :END(END)=\E[F:\
+        :INSERT-MODE(INSERT)=\E[L:\
+	:PAGE-UP(PAGE-UP)=\E[I:\
+	:PAGE-DOWN(PAGE-DOWN)=\E[G:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:kh=\E[H:	:L_kh=<Home>:\
+	:EN=\E[F:	:L_EN=<End>:\
+	:PU=\E[I:	:L_PU=<PgUp>:\
+	:PD=\E[G:	:L_PD=<PgDn>:\
+	:ki=\E[L:	:L_ki=<Insert>:\
+	:DL=^X: 	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\E[Z:	:L_bt=<SHIFT-Tab>:\
+	:fk0=\E[?5i:	:L_fk0=<F1>:\
+	:fk1=\E[?3i:	:L_fk1=<F2>:\
+	:fk2=\E[?2i:	:L_fk2=<F3>:\
+	:fk3=\E[@:	:L_fk3=<F4>:\
+	:fk4=\E[M:	:L_fk4=<F5>:\
+	:fk5=\E[17~:	:L_fk5=<F6>:\
+	:fk6=\E[18~:	:L_fk6=<F7>:\
+	:fk7=\E[19~:	:L_fk7=<F8>:\
+	:fk8=\E[20~:	:L_fk8=<F9>:\
+	:fk9=\E[21~:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+# 6-20-96: READ THIS - If you are installing the PROTERMCAP as a patch or 
+# a new version of PROGRESS then there is a bug in the SCO OS 3 ansi emulation 
+# software that PROGRESS seems to stumble over. REBOOT your machine and set
+# your TERM equal to ansi. You should not have a problem with the F5 and F4
+# keys any more.
+# Use this terminal entry if you do an F5 in the Progress editor and get a
+# 2i in the filename field. 
+# This Terminal Is Supported By Progress
+ansid|ansi terminal for DEC running SCO OS 3|\
+	:END-ERROR(F4)=\E[@2i:\
+	:GET(F5)=\E[M2i:\
+        :tc=ansi:
+#
+# XENIX AT COLOR console ANSI driver entry. 
+# 6-20-96: READ THIS - If you are installing the PROTERMCAP as a patch or 
+# a new version of PROGRESS then there is a bug in the SCO OS 3 ansi emulation 
+# software that PROGRESS seems to stumble over. The ansi terminal under
+# SCO OS 3 is unable to set the function keys to a shorter key-sequence
+# length and trying to do so causes additional characters (often i or 2i) to
+# be appended to the key-sequence. If you are using SCO OS 3 then REBOOT your 
+# machine after installing this new ansi PROTERMCAP entry. This new ansi
+# entry will leave the function keys as your other applications expect them.
+# If you are using SCO OS 5 then you should not need to reboot your machine.
+# After running PROGRESS at least once you could comment out the Si and Se 
+# capabilities by putting a dot between the colon and S (e.g. :.Si=...). 
+# This driver implements a graphics mode by using the extended
+# ASCII character set supported by the IBM
+# PC. After receipt of start graphic rendition (SGR) escape sequence
+# - this corresponds to GS in termcap lingo - the driver will turn on
+# the high bit of any character sent to the screen, thereby mapping
+# normal ASCII characters into the 128-256 graphics character range. This
+# presents a problem for our box painting, which uses backspaces and
+# line feeds while in graphics mode. Consequently, I've nulled out the
+# GS and GE entries, and put in the actual octal values for horizontal
+# and vertical bar, and the corner characters. The actual values for GS
+# and GE are as follows :GS=\E[12m:GE=\E[10m:
+# NOTE: With CGA card on the XENIX console, the \E[4m sequence fails
+# to modify the screen in any way, so we use \E[7m instead.
+# Color 0, version 6 color name - NORMAL, is set in the 'is' string.
+# Color 1, version 6 color name - INPUT, is set and cleared by the ue and us
+# terminal capabilities. Color 2, version 6 color name - MESSAGE, 
+# is set and cleared by the so and se terminal capabilities. Color 3,
+# generally known as high intensity, is set and cleared by HS and HR.
+# Color 4, generally known as blink, is set and cleared by BB and BR.
+# The largest color number is 127. The glitch field is no longer needed.
+# This Terminal Is Supported By Progress
+lc|ansic|cansi|Ansi standard crt with CGA color names:\
+        :cd=\E[J:\
+        :up=\E[A:\
+	:CA:\
+	:BR=\E[m:\
+	:BB=\E[5m:\
+	:HS=\E[1m:\
+	:HR=\E[m:\
+        :co#80:\
+        :li#25:\
+        :ce=\E[K:\
+        :cl=\E[2J\E[H:\
+        :cm=\E[%i%d;%dH:\
+	:ct:\
+        :so=\E[7m:\
+        :se=\E[m:\
+        :us=\E[7m:\
+        :ue=\E[m:\
+        :G1=\277:\
+        :G2=\332:\
+        :G3=\300:\
+        :G4=\331:\
+	:GS=\000:\
+        :GE=\000:\
+        :GV=\263:\
+        :GH=\304:\
+        :Si=\EQ0"\E[M"\EQ1"\E[N"\EQ2"\E[O"\EQ3"\E[P"\EQ4"\E[Q"\EQ5"\E[R"\EQ6"\E[S"\EQ7"\E[T"\EQ8"\E[U"\EQ9"\E[V":\
+	:Se=\EQ0"^[[M"\EQ1"^[[N"\EQ2"^[[O"\EQ3"^[[P"\EQ4"^[[Q"\EQ6"^[[R"\EQ7"^[[S"\EQ7"^[[T"\EQ8"^[[U"\EQ9"^[[V":\
+	:GO(F1)=\E[M:\
+	:HELP(F2)=\E[N:\
+	:ENTER-MENUBAR(F3)=\E[O:\
+	:END-ERROR(F4)=\E[P:\
+	:GET(F5)=\E[Q:\
+	:PUT(F6)=\E[R:\
+	:RECALL(F7)=\E[S:\
+	:CLEAR(F8)=\E[T:\
+	:INSERT-MODE(F9)=\E[U:\
+	:CUT(F10)=\E[V:\
+	:COPY(F11)=\E[W:\
+	:PASTE(F12)=\E[X:\
+	:HOME(HOME)=\E[H:\
+	:INSERT-MODE(INSERT)=\E[L:\
+	:END(END)=\E[F:\
+	:BACK-TAB(SHIFT-TAB)=\E[Z\E[Z:\
+	:PAGE-UP(PAGE-UP)=\E[I:\
+	:PAGE-DOWN(PAGE-DOWN)=\E[G:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+        :ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:bc=^h:         :L_bc=<Back Space>:\
+	:kh=\E[H:	:L_kh=<Home>:\
+	:EN=\E[F:	:L_EN=<End>:\
+	:PU=\E[I:	:L_PU=<Page Up>:\
+	:PD=\E[G: 	:L_PD=<Page Down>:\
+	:ki=\E[L:	:L_ki=<Insert>:\
+	:DL=\177: 	:L_DL=<Del>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\E[Z\E[Z:	:L_bt=<Shift-Tab>:\
+	:fk0=\E[?5i:	:L_fk0=<F1>:\
+	:fk1=\E[?3i:	:L_fk1=<F2>:\
+	:fk2=\E[?2i:	:L_fk2=<F3>:\
+	:fk3=\E[@2i:	:L_fk3=<F4>:\
+	:fk4=\E[M2i:	:L_fk4=<F5>:\
+	:fk5=\E[17~:	:L_fk5=<F6>:\
+	:fk6=\E[18~:	:L_fk6=<F7>:\
+	:fk7=\E[19~:	:L_fk7=<F8>:\
+	:fk8=\E[20~:	:L_fk8=<F9>:\
+	:fk9=\E[21~:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:COLOR 5 BLACK=\E[37m\E[40m:\E[37m\E[40m:\
+        :COLOR 6 RED=\E[37m\E[41m:\E[37m\E[40m:\
+        :COLOR 7 GREEN=\E[37m\E[42m:\E[37m\E[40m:\
+        :COLOR 8 BROWN=\E[37m\E[43m:\E[37m\E[40m:\
+        :COLOR 9 BLUE=\E[37m\E[44m:\E[37m\E[40m:\
+        :COLOR 10 MAGENTA=\E[37m\E[45m:\E[37m\E[40m:\
+        :COLOR 11 CYAN=\E[37m\E[46m:\E[37m\E[40m:\
+        :COLOR 12 BLK/RED=\E[30m\E[41m:\E[37m\E[40m:\
+        :COLOR 13 BLK/GRE=\E[30m\E[42m:\E[37m\E[40m:\
+        :COLOR 14 BLK/BRN=\E[30m\E[43m:\E[37m\E[40m:\
+        :COLOR 15 BLK/BLU=\E[30m\E[44m:\E[37m\E[40m:\
+        :COLOR 16 BLK/MGT=\E[30m\E[45m:\E[37m\E[40m:\
+        :COLOR 17 BLK/CYN=\E[30m\E[46m:\E[37m\E[40m:\
+        :COLOR 18 BLK/WHT=\E[30m\E[47m:\E[37m\E[40m:\
+        :COLOR 19 RED/BLK=\E[31m\E[40m:\E[37m\E[40m:\
+        :COLOR 20 RED/GRE=\E[31m\E[42m:\E[37m\E[40m:\
+        :COLOR 21 RED/BRN=\E[31m\E[43m:\E[37m\E[40m:\
+        :COLOR 22 RED/BLU=\E[31m\E[44m:\E[37m\E[40m:\
+        :COLOR 23 RED/MGT=\E[31m\E[45m:\E[37m\E[40m:\
+        :COLOR 24 RED/CYN=\E[31m\E[46m:\E[37m\E[40m:\
+        :COLOR 25 RED/WHT=\E[31m\E[47m:\E[37m\E[40m:\
+        :COLOR 26 GRE/BLK=\E[32m\E[40m:\E[37m\E[40m:\
+        :COLOR 27 GRE/RED=\E[32m\E[41m:\E[37m\E[40m:\
+        :COLOR 28 GRE/BRN=\E[32m\E[43m:\E[37m\E[40m:\
+        :COLOR 29 GRE/BLU=\E[32m\E[44m:\E[37m\E[40m:\
+        :COLOR 30 GRE/MGT=\E[32m\E[45m:\E[37m\E[40m:\
+        :COLOR 31 GRE/CYN=\E[32m\E[46m:\E[37m\E[40m:\
+        :COLOR 32 GRE/WHT=\E[32m\E[47m:\E[37m\E[40m:\
+        :COLOR 33 BRN/BLK=\E[33m\E[40m:\E[37m\E[40m:\
+        :COLOR 34 BRN/RED=\E[33m\E[41m:\E[37m\E[40m:\
+        :COLOR 35 BRN/GRE=\E[33m\E[42m:\E[37m\E[40m:\
+        :COLOR 36 BRN/BLU=\E[33m\E[44m:\E[37m\E[40m:\
+        :COLOR 37 BRN/MGT=\E[33m\E[45m:\E[37m\E[40m:\
+        :COLOR 38 BRN/CYN=\E[33m\E[46m:\E[37m\E[40m:\
+        :COLOR 39 BRN/WHT=\E[33m\E[47m:\E[37m\E[40m:\
+        :COLOR 40 BLU/BLK=\E[34m\E[40m:\E[37m\E[40m:\
+        :COLOR 41 BLU/RED=\E[34m\E[41m:\E[37m\E[40m:\
+        :COLOR 42 BLU/GRE=\E[34m\E[42m:\E[37m\E[40m:\
+        :COLOR 43 BLU/BRN=\E[34m\E[43m:\E[37m\E[40m:\
+        :COLOR 44 BLU/MGT=\E[34m\E[45m:\E[37m\E[40m:\
+        :COLOR 45 BLU/CYN=\E[34m\E[46m:\E[37m\E[40m:\
+        :COLOR 46 BLU/WHT=\E[34m\E[47m:\E[37m\E[40m:\
+        :COLOR 47 MGT/BLK=\E[35m\E[40m:\E[37m\E[40m:\
+        :COLOR 48 MGT/RED=\E[35m\E[41m:\E[37m\E[40m:\
+        :COLOR 49 MGT/GRE=\E[35m\E[42m:\E[37m\E[40m:\
+        :COLOR 50 MGT/BRN=\E[35m\E[43m:\E[37m\E[40m:\
+        :COLOR 51 MGT/BLU=\E[35m\E[44m:\E[37m\E[40m:\
+        :COLOR 52 MGT/CYN=\E[35m\E[46m:\E[37m\E[40m:\
+        :COLOR 53 MGT/WHT=\E[35m\E[47m:\E[37m\E[40m:\
+        :COLOR 54 CYN/BLK=\E[36m\E[40m:\E[37m\E[40m:\
+        :COLOR 55 CYN/RED=\E[36m\E[41m:\E[37m\E[40m:\
+        :COLOR 56 CYN/GRE=\E[36m\E[42m:\E[37m\E[40m:\
+        :COLOR 57 CYN/BRN=\E[36m\E[43m:\E[37m\E[40m:\
+        :COLOR 58 CYN/BLU=\E[36m\E[44m:\E[37m\E[40m:\
+        :COLOR 59 CYN/MGT=\E[36m\E[45m:\E[37m\E[40m:\
+        :COLOR 60 CYN/WHT=\E[36m\E[47m:\E[37m\E[40m:\
+        :COLOR 61 NORMAL=\E[37m\E[40m:\E[37m\E[40m:\
+	:tc=v7kf:
+#
+# vanilla xterm client under the X Window System (no -sf)
+#
+# GE is provided here to circumvent an problem with the v6 termcap processing.
+#
+# This Terminal Is Supported By Progress
+xterm|a vanilla X Window System xterm client:\
+        :ws:\
+        :cd=\E[J:\
+        :ce=\E[K:\
+        :cl=\E[H\E[J:\
+        :cm=\E[%i%d;%dH:\
+	:GE=^O:\
+        :GO(F1)=\E[11~:\
+        :BACKSPACE:\
+        :HELP(F2)=\E[12~:\
+        :ENTER-MENUBAR(F3)=\E[13~:\
+        :END-ERROR(F4)=\E[14~:\
+        :GET(F5)=\E[15~:\
+        :PUT(F6)=\E[17~:\
+        :RECALL(F7)=\E[18~:\
+        :CLEAR(F8)=\E[19~:\
+        :INSERT-MODE(F9)=\E[20~:\
+	:CUT(F10)=\E[21~:\
+	:COPY(F11)=\E[23~:\
+	:PASTE(F12)=\E[24~:\
+	:INSERT-MODE(INS)=\E[2~:\
+	:fk0=\E[11~:	:L_fk0=<F1>:\
+	:fk1=\E[12~:	:L_fk1=<F2>:\
+	:fk2=\E[13~:	:L_fk2=<F3>:\
+	:fk3=\E[14~:	:L_fk3=<F4>:\
+	:fk4=\E[15~:	:L_fk4=<F5>:\
+	:fk5=\E[17~:	:L_fk5=<F6>:\
+	:fk6=\E[18~:	:L_fk6=<F7>:\
+	:fk7=\E[19~:	:L_fk7=<F8>:\
+	:fk8=\E[20~:	:L_fk8=<F9>:\
+	:fk9=\E[21~:	:L_fk9=<F10>:\
+        :tc=vt100:
+#
+dtterm|CDE dtterm type (xterm equiv):\
+        :tc=xterm:
+#
+#
+#  Entry for DEC vt100 series in 132 column mode.
+#
+# This Terminal Is Supported By Progress
+vt100-132|VT100-132|vt100w|vt100w_series|DEC VT-100w:\
+        :ti=\E[?3h:\
+        :te=\E[?3l:\
+        :co#132:\
+        :tc=vt100:
+#  Entry for DEC vt200 series, vt220, vt240, vt241 in 80 column mode.
+#
+#  Use the vt220v7kf and vt220v6kf with the tc= function for the 
+#  Version 7 or Version 6 set of Progress key functions respectively.
+#
+#  This Terminal Is Supported By Progress
+V2|vt200|VT200|vt200-80|vt220|vt220-80|vt240|vt241|vt200_series|DEC VT-220 :\
+	:is=\E>\E[?3l\E[?4l\E[m\E[?7h\E[?8h\E(B\E)0:\
+	:xi:\
+	:cs=\E[%i%d;%dr:\
+	:sr=\EM:\
+	:sf=\n:\
+	:nd=\E[C:	:do=\E[B:	:cl=\E[2J:	:cm=\E[%i%d;%dH:\
+	:so=\E[7m:	:se=\E[m:	:us=\E[4m:	:ue=\E[m:\
+	:GS=^N: 	:GE=^O:\
+	:G1=k:		:G2=l:		:G3=m:		:G4=j:\
+	:GC=n:		:GD=w:		:GH=q:		:GL=u:\
+	:GR=t:		:GU=v:		:GV=x:\
+	:HS=\E[1m:	:HR=\E[m:	:BB=\E[5m:	:BR=\E[m:\
+	:CO=\E[?25h:\
+	:CN=\E[?25h:\
+	:CF=\E[?25l:\
+	:cd=10\E[J:\
+	:ce=10\E[K:\
+	:co#80:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:kr=\E[C:\
+	:ku=\E[A:\
+	:li#24:\
+	:up=\E[A:\
+	:ks=\E=:	:ke=\E>:\
+	:k0=\EOp:	:k1=\EOq:\
+	:k2=\EOr:	:k3=\EOs:\
+	:k4=\EOt:	:k5=\EOu:\
+	:k6=\EOv:	:k7=\EOw:\
+	:k8=\EOx:	:k9=\EOy:\
+	:k.=\EOn:	:k,=\EOl:\
+	:k-=\EOm:\
+	:ws:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:bc=\177:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:kh=\E[23~h:	:L_kh=<F11> h:\
+	:EN=\E[23~e:	:L_EN=<F11> e:\
+	:PU=\E[5~:	:L_PU=<Prev Screen>:\
+	:PD=\E[6~:	:L_PD=<Next Screen>:\
+	:PR=^R: 	:L_PR=<CTRL-R>:\
+	:PL=^L: 	:L_PL=<CTRL-L>:\
+	:ki=\E[23~i:	:L_ki=<F11> i:\
+	:DL=^X: 	:L_DL=<CTRL-X>:\
+	:bc=\177:\
+	:ESC=\E[23~\E[23~:	:L_ESC=<F11> <F11>:\
+	:bt=\E[23~b:	:L_bt=<F11> b:\
+	:ZM=^Z: 	:L_ZM=<CTRL-Z>:\
+	:SPD=\E[23~d:	:L_SPD=<F11> d:\
+	:SPU=\E[23~u:	:L_SPU=<F11> u:\
+	:SXD=\E[23~xd:	:L_SXD=<F11> xd:\
+	:SXU=\E[23~xu:	:L_SXU=<F11> xu:\
+	:fk4=\EOP:	:L_fk4=<PF1>:\
+	:fk1=\EOQ:	:L_fk1=<PF2>:\
+	:fk2=\EOR:	:L_fk2=<PF3>:\
+	:fk3=\EOS:	:L_fk3=<PF4>:\
+	:fk5=\E[17~:	:L_fk5=<F6>:\
+	:fk6=\E[18~:	:L_fk6=<F7>:\
+	:fk7=\E[19~:	:L_fk7=<F8>:\
+	:fk8=\E[20~:	:L_fk8=<F9>:\
+	:fk9=\E[21~:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\E[23~m:      :L_Aku=<F11>M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=vt220v7kf
+#
+#  Entry for DEC vt200 series, vt220, vt240, vt241 in 132 column mode.
+#
+# This Terminal Is Supported By Progress
+vt220-132|VT200-132|V2w|vt200w|vt220w|vt200-132|vt200w_series|DEC VT-220w:\
+        :ti=\E[?3h:\
+        :te=\E[?3l:\
+        :co#132:\
+        :tc=vt220:
+#
+# F11 has been hijacked as the Escape-Key, since there is no
+# natural escape key and it is awkward to type Ctrl-[ in its place.
+# There is also a tradition in earlier vt terminals of using F11
+# as the Escape-Key. It is assumed that the function keys F1 
+# through F5 are not available for use by Progress. In their 
+# place PF1 through PF4 have been substituted.
+#
+vt220v7kf| Version 7 keyfunctions for VT220
+	:GO(PF1)=\EOP:\
+	:HELP(PF2)=\EOQ:\
+	:ENTER-MENUBAR(PF3)=\EOR:\
+	:END-ERROR(PF4)=\EOS:\
+	:NEXT-WORD(CTRL-W)=^w:\
+	:HELP(ESC-?)=\E[23~?:\
+	:COPY(ESC-C)=\E[23~c:\
+	:CHOICES(ESC-CTRL-H)=\E[23~^h:\
+	:OPTIONS(ESC-CTRL-O)=\E[23~^o:\
+	:GET(ESC-O)=\E[23~o:\
+	:MAIN-MENU(ESC-CTRL-M)=\E[23~^m:\
+	:ENTER-MENUBAR(ESC-M)=\E[23~m:\
+	:EDITOR-TAB(CTRL-G)=^g:\
+	:PREV-WORD(CTRL-P)=^p:\
+	:PUT(ESC-S)=\E[23~s:\
+	:INSERT-MODE(F9)=\E[20~:\
+	:(F17)=\E[31~:\
+	:(F18)=\E[32~:\
+	:(F19)=\E[33~:\
+	:(F20)=\E[34~:\
+	:GO(DO)=\E[29~:\
+	:HELP(HELP-KEY)=\E[28~:\
+	:HOME(ESC-H)=\EH:\
+	:HOME(ESC-h)=\Eh:\
+	:END-ERROR(PF4)=\EOS:\
+	:DELETE-LINE(REMOVE)=\E[3~:\
+	:CUT(F10)=\E[21~:\
+	:PASTE(F12)=\E[24~:\
+	:PUT(F6)=\E[17~:\
+	:RECALL(F7)=\E[18~:\
+	:CLEAR(F8)=\E[19~:\
+	:NEW-LINE(INSERT-HERE)=\E[2~:\
+	:FIND(FIND)=\E[1~:\
+	:FIND(F13)=\E[25~:\
+	:BLOCK(SELECT)=\E[4~:\
+	:BLOCK(F14)=\E[26~:\
+	:PAGE-UP(PREV-SCRN)=^[[5~:\
+	:PAGE-DOWN(NEXT-SCRN)=^[[6~:\
+        :LEFT-END(ESC-LEFT-ARROW)=\E[23~\E[D:\
+        :RIGHT-END(ESC-RIGHT-ARROW)=\E[23~\E[C:\
+        :PAGE-DOWN(ESC-DOWN-ARROW)=\E[23~\E[B:\
+        :PAGE-UP(ESC-UP-ARROW)=\E[23~\E[A:\
+	:EDITOR-BACKTAB(CTRL-B)=^b:\
+	:DELETE-LINE(CTRL-D)=^d:\
+	:END-ERROR(CTRL-E)=^e:\
+	:FIND(CTRL-F)=^f:\
+	:EDITOR-TAB(CTRL-G)=^g:\
+	:BACKSPACE(CTRL-H)=^h:\
+	:TAB(CTRL-I)=^i:\
+	:CURSOR-DOWN(CTRL-J)=^j:\
+	:CURSOR-UP(CTRL-K)=^k:\
+	:CURSOR-RIGHT(CTRL-L)=^l:\
+	:RETURN(CTRL-M)=^m:\
+	:NEW-LINE(CTRL-N)=^n:\
+	:CURSOR-LEFT(CTRL-O)=^o:\
+	:PREV-WORD(CTRL-P)=^p:\
+	:RESUME-DISPLAY(CTRL-Q)=^q:\
+	:RECALL(CTRL-R)=^r:\
+	:STOP-DISPLAY(CTRL-S)=^s:\
+	:INSERT-MODE(CTRL-T)=^t:\
+	:INSERT-MODE(CTRL-@)=^@:\
+	:BACK-TAB(CTRL-U)=^u:\
+	:BLOCK(CTRL-V)=^v:\
+	:GO(CTRL-X)=^x:\
+	:CLEAR(CTRL-Z)=^z:\
+	:SAVE-AS(ESC-A)=\E[23~a:\
+	:BREAK-LINE(ESC-B)=\E[23~b:\
+	:DELETE-WORD(ESC-D)=\E[23~d:\
+	:NEXT-ERROR(ESC-E)=\E[23~e:\
+	:FIND-NEXT(ESC-F)=\E[23~f:\
+	:GOTO(ESC-G)=\E[23~g:\
+	:FIND-PREVIOUS(ESC-I)=\E[23~i:\
+	:DELETE-END-LINE(ESC-K)=\E[23~k:\
+	:OPEN-LINE-ABOVE(ESC-L)=\E[23~l:\
+	:NEW(ESC-N)=\E[23~n:\
+	:COMPILE(ESC-P)=\E[23~p:\
+	:EXIT(ESC-Q)=\E[23~q:\
+	:REPLACE(ESC-R)=\E[23~r:\
+	:SCROLL-MODE(ESC-T)=\Et:\
+	:DEFAULT-POP-UP(ESC-U)=\E[23~u:\
+	:PASTE(ESC-V)=\E[23~v:\
+	:PAGE-LEFT(ESC-W)=\E[23~w:\
+	:CUT(ESC-X)=\E[23~x:\
+	:PAGE-RIGHT(ESC-Y)=\Ey:\
+	:CLOSE(ESC-Z)=\E[23~z:\
+	:HOME(ESC-<)=\E[23~<:\
+	:HOME(ESC-,)=\E[23~,:\
+	:END(ESC->)=\E[23~>:\
+	:END(ESC-.)=\E[23~.:\
+	:REPORTS(ESC-CTRL-A)=\E[23~^a:\
+	:BOTTOM-COLUMN(ESC-CTRL-B)=\E[23~^b:\
+	:DELETE-FIELD(ESC-CTRL-D)=\E[23~^d:\
+	:INSERT-FIELD-LABEL(ESC-CTRL-E)=\E[23~^e:\
+	:INSERT-FIELD-DATA(ESC-CTRL-F)=\E[23~^f:\
+	:INSERT-FIELD(ESC-CTRL-G)=\E[23~^g:\
+	:NEXT-FRAME(ESC-CTRL-I)=\E[23~^i:\
+	:PAGE-RIGHT-TEXT(ESC-CTRL-J)=\E[23~^j:\
+	:SCROLL-LEFT(ESC-CTRL-L)=\E[23~^l:\
+	:INSERT-COLUMN(ESC-CTRL-N)=\E[23~^n:\
+	:PICK(ESC-CTRL-P)=\E[23~^p:\
+	:PICK-BOTH(ESC-CTRL-Q)=\E[23~^q:\
+	:SCROLL-RIGHT(ESC-CTRL-R)=\E[23~^r:\
+	:SETTINGS(ESC-CTRL-@)=\E[23~^@:\
+	:TOP-COLUMN(ESC-CTRL-T)=\E[23~^t:\
+	:PREV-FRAME(ESC-CTRL-U)=\E[23~^u:\
+	:MOVE(ESC-CTRL-V)=\E[23~^v:\
+	:PICK-AREA(ESC-CTRL-W)=\E[23~^w:\
+	:CANCEL-PICK(ESC-CTRL-X)=\E[23~^x:\
+	:DELETE-COLUMN(ESC-CTRL-Z)=\E[23~^z:\
+	:tc=v7kf
+#
+vt220v6kf| Version 6 keyfunctions for VT220
+	:HELP(CTRL-W)=^w:\
+	:NEXT-WORD(ESC-?)=\E[23~?:\
+	:CHOICES(ESC-C)=\E[23~c:\
+	:COPY(ESC-CTRL-H)=\E[23~^h:\
+	:OPTIONS(ESC-O)=\E[23~o:\
+	:ENTER-MENUBAR(ESC-CTRL-M)=\E[23~^m:\
+	:MAIN-MENU(ESC-M)=\E[23~m:\
+	:EDITOR-TAB(ESC-CTRL-O)=\E[23~^o:\
+	:GET(CTRL-G)=^g:\
+	:PUT(CTRL-P)=^p:\
+	:PREV-WORD(ESC-S)=\E[23~s:\
+	:INSERT-MODE(PF3)=\EOR:\
+	:ENTER-MENUBAR(F9)=\E[20~:\
+	:(F17)=\E[31~:\
+	:(F18)=\E[32~:\
+	:(F19)=\E[33~:\
+	:(F20)=\E[34~:\
+	:GO(DO)=\E[29~:\
+	:GO(PF1)=\EOP:\
+	:HELP(HELP-KEY)=\E[28~:\
+	:HELP(PF2)=\EOQ:\
+	:HOME(ESC-H)=\EH:\
+	:HOME(ESC-h)=\Eh:\
+	:END-ERROR(PF4)=\EOS:\
+	:DELETE-LINE(REMOVE)=\E[3~:\
+	:CUT(F10)=\E[21~:\
+	:PASTE(F12)=\E[24~:\
+	:PUT(F6)=\E[17~:\
+	:RECALL(F7)=\E[18~:\
+	:CLEAR(F8)=\E[19~:\
+	:NEW-LINE(INSERT-HERE)=\E[2~:\
+	:FIND(FIND)=\E[1~:\
+	:FIND(F13)=\E[25~:\
+	:BLOCK(SELECT)=\E[4~:\
+	:BLOCK(F14)=\E[26~:\
+	:PAGE-UP(PREV-SCRN)=^[[5~:\
+	:PAGE-DOWN(NEXT-SCRN)=^[[6~:\
+        :LEFT-END(ESC-LEFT-ARROW)=\E[23~\E[D:\
+        :RIGHT-END(ESC-RIGHT-ARROW)=\E[23~\E[C:\
+        :PAGE-DOWN(ESC-DOWN-ARROW)=\E[23~\E[B:\
+        :PAGE-UP(ESC-UP-ARROW)=\E[23~\E[A:\
+	:EDITOR-BACKTAB(CTRL-B)=^b:\
+	:DELETE-LINE(CTRL-D)=^d:\
+	:END-ERROR(CTRL-E)=^e:\
+	:FIND(CTRL-F)=^f:\
+	:EDITOR-TAB(CTRL-G)=^g:\
+	:BACKSPACE(CTRL-H)=^h:\
+	:TAB(CTRL-I)=^i:\
+	:CURSOR-DOWN(CTRL-J)=^j:\
+	:CURSOR-UP(CTRL-K)=^k:\
+	:CURSOR-RIGHT(CTRL-L)=^l:\
+	:RETURN(CTRL-M)=^m:\
+	:NEW-LINE(CTRL-N)=^n:\
+	:CURSOR-LEFT(CTRL-O)=^o:\
+	:PREV-WORD(CTRL-P)=^p:\
+	:RESUME-DISPLAY(CTRL-Q)=^q:\
+	:RECALL(CTRL-R)=^r:\
+	:STOP-DISPLAY(CTRL-S)=^s:\
+	:INSERT-MODE(CTRL-T)=^t:\
+	:INSERT-MODE(CTRL-@)=^@:\
+	:BACK-TAB(CTRL-U)=^u:\
+	:BLOCK(CTRL-V)=^v:\
+	:GO(CTRL-X)=^x:\
+	:CLEAR(CTRL-Z)=^z:\
+	:SAVE-AS(ESC-A)=\E[23~a:\
+	:BREAK-LINE(ESC-B)=\E[23~b:\
+	:DELETE-WORD(ESC-D)=\E[23~d:\
+	:NEXT-ERROR(ESC-E)=\E[23~e:\
+	:FIND-NEXT(ESC-F)=\E[23~f:\
+	:GOTO(ESC-G)=\E[23~g:\
+	:FIND-PREVIOUS(ESC-I)=\E[23~i:\
+	:DELETE-END-LINE(ESC-K)=\E[23~k:\
+	:OPEN-LINE-ABOVE(ESC-L)=\E[23~l:\
+	:NEW(ESC-N)=\E[23~n:\
+	:COMPILE(ESC-P)=\E[23~p:\
+	:EXIT(ESC-Q)=\E[23~q:\
+	:REPLACE(ESC-R)=\E[23~r:\
+	:SCROLL-MODE(ESC-T)=\Et:\
+	:DEFAULT-POP-UP(ESC-U)=\E[23~u:\
+	:PASTE(ESC-V)=\E[23~v:\
+	:PAGE-LEFT(ESC-W)=\E[23~w:\
+	:CUT(ESC-X)=\E[23~x:\
+	:PAGE-RIGHT(ESC-Y)=\Ey:\
+	:CLOSE(ESC-Z)=\E[23~z:\
+	:HOME(ESC-<)=\E[23~<:\
+	:HOME(ESC-,)=\E[23~,:\
+	:END(ESC->)=\E[23~>:\
+	:END(ESC-.)=\E[23~.:\
+	:REPORTS(ESC-CTRL-A)=\E[23~^a:\
+	:BOTTOM-COLUMN(ESC-CTRL-B)=\E[23~^b:\
+	:DELETE-FIELD(ESC-CTRL-D)=\E[23~^d:\
+	:INSERT-FIELD-LABEL(ESC-CTRL-E)=\E[23~^e:\
+	:INSERT-FIELD-DATA(ESC-CTRL-F)=\E[23~^f:\
+	:INSERT-FIELD(ESC-CTRL-G)=\E[23~^g:\
+	:NEXT-FRAME(ESC-CTRL-I)=\E[23~^i:\
+	:PAGE-RIGHT-TEXT(ESC-CTRL-J)=\E[23~^j:\
+	:SCROLL-LEFT(ESC-CTRL-L)=\E[23~^l:\
+	:INSERT-COLUMN(ESC-CTRL-N)=\E[23~^n:\
+	:PICK(ESC-CTRL-P)=\E[23~^p:\
+	:PICK-BOTH(ESC-CTRL-Q)=\E[23~^q:\
+	:SCROLL-RIGHT(ESC-CTRL-R)=\E[23~^r:\
+	:SETTINGS(ESC-CTRL-@)=\E[23~^@:\
+	:TOP-COLUMN(ESC-CTRL-T)=\E[23~^t:\
+	:PREV-FRAME(ESC-CTRL-U)=\E[23~^u:\
+	:MOVE(ESC-CTRL-V)=\E[23~^v:\
+	:PICK-AREA(ESC-CTRL-W)=\E[23~^w:\
+	:CANCEL-PICK(ESC-CTRL-X)=\E[23~^x:\
+	:DELETE-COLUMN(ESC-CTRL-Z)=\E[23~^z:\
+	:tc=v6kf
+#
+#
+#  Entry for DEC vt300 series, vt320, vt330, vt340 in 80 column mode.
+#
+#  It is assumed that the <X] key above the Return key is set
+#  to Delete (also known as CTRL-? or \177) in the terminal 
+#  setup (use F3 to get to setup). 
+#
+#  Assumes vt300 mode with 7 bit controls.
+#
+#  The :COLOR statements are included for terminal emulators that emulate
+#  VT300 Series terminals AND ANSI color.  The first five colors, color 0 
+#  through color 4, are not set using the :COLOR statement.
+#  Color 0 (version 6 color name NORMAL) is set in the is string.
+#  Color 1 (version 6 color name INPUT) is set and cleared by the ue, us,
+#	and ug terminal capabilities. 
+#  Color 2 (version 6 color name MESSAGE) is set and cleared by the so, se, 
+#	and sg terminal capabilities. 
+#  Color 3 (bold or high intensity) is set and cleared by HS and HR.
+#  Color 4 (blink) is set and cleared by BB and BR.
+#
+#  The largest color number is currently 128.
+#
+# This Terminal Is Supported By Progress
+v3|vt300|VT300|vt320|vt330|vt340|vt-300|vt300-80vms|pt300|pt-100|vt300_series|DEC VT300:\
+        :COLOR 5 RED/BLACK=\E[31;40m:\E[m:\
+        :COLOR 6 GREEN/BLACK=\E[32;40m:\E[m:\
+        :COLOR 7 YELLOW/BLACK=\E[33;40m:\E[m:\
+        :COLOR 8 BLUE/BLACK=\E[34;40m:\E[m:\
+        :COLOR 9 MAGENTA/BLACK=\E[35;40m:\E[m:\
+        :COLOR 10 CYAN/BLACK=\E[36;40m:\E[m:\
+        :COLOR 11 WHITE/BLACK=\E[37;40m:\E[m:\
+        :COLOR 12 RED/BLUE=\E[31;44m:\E[m:\
+        :COLOR 13 RED/GREEN=\E[31;42m:\E[m:\
+        :COLOR 14 RED/YELLOW=\E[31;43m:\E[m:\
+        :COLOR 15 RED/MAGENTA=\E[31;45m:\E[m:\
+        :COLOR 16 RED/CYAN=\E[31;46m:\E[m:\
+        :COLOR 17 RED/WHITE=\E[31;47m:\E[m:\
+        :COLOR 18 GREEN/BLUE=\E[32;44m:\E[m:\
+        :COLOR 19 GREEN/RED=\E[32;41m:\E[m:\
+        :COLOR 20 GREEN/YELLOW=\E[32;43m:\E[m:\
+        :COLOR 21 GREEN/MAGENTA=\E[32;45m:\E[m:\
+        :COLOR 22 GREEN/CYAN=\E[32;46m:\E[m:\
+        :COLOR 23 GREEN/WHITE=\E[32;47m:\E[m:\
+        :COLOR 24 YELLOW/BLUE=\E[33;44m:\E[m:\
+        :COLOR 25 YELLOW/RED=\E[33;41m:\E[m:\
+        :COLOR 26 YELLOW/GREEN=\E[33;42m:\E[m:\
+        :COLOR 27 YELLOW/MAGENTA=\E[33;45m:\E[m:\
+        :COLOR 28 YELLOW/CYAN=\E[33;46m:\E[m:\
+        :COLOR 29 YELLOW/WHITE=\E[33;47m:\E[m:\
+        :COLOR 30 BLUE/YELLOW=\E[34;43m:\E[m:\
+        :COLOR 31 BLUE/RED=\E[34;41m:\E[m:\
+        :COLOR 32 BLUE/GREEN=\E[34;42m:\E[m:\
+        :COLOR 33 BLUE/MAGENTA=\E[34;45m:\E[m:\
+        :COLOR 34 BLUE/CYAN=\E[34;46m:\E[m:\
+        :COLOR 35 BLUE/WHITE=\E[34;47m:\E[m:\
+        :COLOR 36 MAGENTA/YELLOW=\E[35;43m:\E[m:\
+        :COLOR 37 MAGENTA/RED=\E[35;41m:\E[m:\
+        :COLOR 38 MAGENTA/GREEN=\E[35;42m:\E[m:\
+        :COLOR 39 MAGENTA/BLUE=\E[35;44m:\E[m:\
+        :COLOR 40 MAGENTA/CYAN=\E[35;46m:\E[m:\
+        :COLOR 41 MAGENTA/WHITE=\E[35;47m:\E[m:\
+        :COLOR 42 CYAN/YELLOW=\E[36;43m:\E[m:\
+        :COLOR 43 CYAN/RED=\E[36;41m:\E[m:\
+        :COLOR 44 CYAN/GREEN=\E[36;42m:\E[m:\
+        :COLOR 45 CYAN/BLUE=\E[36;44m:\E[m:\
+        :COLOR 46 CYAN/MAGENTA=\E[36;45m:\E[m:\
+        :COLOR 47 CYAN/WHITE=\E[36;47m:\E[m:\
+        :COLOR 48 WHITE/YELLOW=\E[37;43m:\E[m:\
+        :COLOR 49 WHITE/RED=\E[37;41m:\E[m:\
+        :COLOR 50 WHITE/GREEN=\E[37;42m:\E[m:\
+        :COLOR 51 WHITE/BLUE=\E[37;44m:\E[m:\
+        :COLOR 52 WHITE/MAGENTA=\E[37;45m:\E[m:\
+        :COLOR 53 WHITE/CYAN=\E[37;46m:\E[m:\
+        :COLOR 54 BLACK/YELLOW=\E[30;43m:\E[m:\
+        :COLOR 55 BLACK/RED=\E[30;41m:\E[m:\
+        :COLOR 56 BLACK/GREEN=\E[30;42m:\E[m:\
+        :COLOR 57 BLACK/BLUE=\E[30;44m:\E[m:\
+        :COLOR 58 BLACK/MAGENTA=\E[30;45m:\E[m:\
+        :COLOR 59 BLACK/CYAN=\E[30;46m:\E[m:\
+        :COLOR 60 BLACK/WHITE=\E[30;47m:\E[m:\
+        :COLOR 61 RED=\E[31m:\E[m:\
+        :COLOR 62 GREEN=\E[32m:\E[m:\
+        :COLOR 63 YELLOW=\E[33m:\E[m:\
+        :COLOR 64 BLUE=\E[34m:\E[m:\
+        :COLOR 65 MAGENTA=\E[35m:\E[m:\
+        :COLOR 66 CYAN=\E[36m:\E[m:\
+        :COLOR 67 WHITE=\E[37m:\E[m:\
+        :COLOR 68 BLACK=\E[30m:\E[m:\
+	:tc=vt200:
+#
+#  Entry for DEC vt300 series, vt320, vt330, vt340 in 132 column mode.
+#  Assumes vt300 mode with 7 bit controls.
+#  This Terminal Is Supported By Progress
+vt300-132|VT300-132|vt300-132vms:\
+        :ti=\E[?3h:\
+        :te=\E[?3l:\
+        :co#132:tc=vt300:
+#
+#  Entry for DEC vt400 series, vt420 in 80 column mode
+#  Assumes vt420 mode with 7 bit controls.
+#  This Terminal Is Supported By Progress
+v4|vt400|VT400|vt-400|vt420|vt400-80|vt400-80vms|vt400_series|DEC VT-420:\
+        :tc=vt300:
+#
+#  Entry for DEC vt400 series, vt420 in 132 column mode
+#  Assumes vt420 mode with 7 bit controls.
+#  This Terminal Is Supported By Progress
+vt400-132|VT400-132|vt420-132|vt400-132vms:\
+        :ti=\E[?3h:\
+        :te=\E[?3l:\
+        :co#132:tc=vt400:
+#
+#  Entry for DEC vt500 series, vt510, vt520, vt525 in 80 column mode.
+#  Assumes vt500 mode with 7 bit controls.
+#  This Terminal Is Supported By Progress
+v5|vt500|VT500|vt510|vt520|vt525|vt500-80|vt500-80vms|vt500_series|DEC VT-500:\
+        :tc=vt300:
+#
+#  Entry for DEC vt500 series, vt510, vt520, vt525 in 132 column mode.
+#  Assumes vt500 mode with 7 bit controls.
+#  This Terminal Is Supported By Progress
+vt500-132|VT500-132|vt500-132vms:\
+        :ti=\E[?3h:\
+        :te=\E[?3l:\
+        :co#132:tc=vt500:
+
+#
+#
+# WARNING: To use this termcap entry, the DG terminal must have autowrap mode
+# set to disable (enable is the default).  When set to DISABLE, this allows
+# full UNIX cursor addressing. Use CMD-N/C to get to terminal setup.
+# REMEMBER to do "stty tabs" to TURN OFF the tab3 setting
+# NOTE: These terminals do not support a high intensity mode but
+# they do support a dim mode. HS and HR have been set to use this dim
+# mode instead of high intensity. If this is not what you want you can
+# comment them out by inserting a period before them or you could 
+# substitute one of the other attributes such a MESSAGE(reverse) by
+# copying the so string to HS and the se string to HR.
+# NOTE: The NEW-LINE key on the 107 key keyboard transmits a ^j. Since
+# the NEW-LINE key is in the RETURN key position we assigned the RETURN
+# key-function the additional key-sequence of ^j. CURSOR-DOWN has been
+# reassigned the spare key-sequence of ^y.
+# 'is' - set to unix mode, protected mode disable, protect mode off,
+# erase screen, normal spacing, horizontal scroll disabled, blinking
+# enabled.
+# For 'so' and 'se' we use the longer commands because the shorter 
+# reverse video commands do not always work.
+# Akm is a Vermont Views key-function capability used by the Data General
+# terminals to specify what key-sequence to use for the Return Key in 
+# ttyhelp and the install program. L_Akm is the key-label for Akm.
+# This Terminal Is Supported By Progress
+dg|d413|d463|dg413|d413-unix|Data General D413 in Unix mode:\
+        :cd=\036FF:\
+        :up=\036PA:\
+        :is=\036P@1\036FW\036FM\036FE\036FJ\036F]\003:\
+        :co#80:\
+        :li#24:\
+        :bc=^h:\
+        :ce=\036PE:\
+        :cl=\036FE:\
+        :cm=^P%r%+\200%+\200:\
+        :so=\036D:\
+        :se=\036E:\
+        :al=\036FH:\
+        :dl=\036FI:\
+        :us=^T:\
+        :ue=^U:\
+        :xi:\
+        :BB=\036PI:\
+        :BR=\036PJ:\
+        :CA:\
+        :G1=":\
+        :G2=!:\
+        :G3=#:\
+        :G4=$:\
+        :GH=+:\
+        :GV=*:\
+        :GS=\036FS11:\
+        :GE=\036FS00:\
+        :HS=\034:\
+        :HR=\035:\
+        :HOME(HOME)=^^\\:\
+        :HOME(HOME)=^^PF:\
+        :END(END)=^^\^:\
+	:INSERT-MODE(INS)=^^PH:\
+	:DELETE-END-LINE(ESC-K)=^^PE:\
+        :GO(F1)=^^q:\
+        :HELP(F2)=^^r:\
+        :ENTER-MENUBAR(F3)=^^s:\
+        :END-ERROR(F4)=^^t:\
+        :GET(F5)=^^u:\
+        :PUT(F6)=^^v:\
+        :RECALL(F7)=^^w:\
+        :CLEAR(F8)=^^x:\
+        :INSERT-MODE(F9)=^^y:\
+        :INSERT-MODE(INS)=\036PH:\
+        :CUT(F10)=^^z:\
+        :COPY(F11)=^^{:\
+        :PASTE(F12)=^^|:\
+        :FIND(F13)=^^}:\
+        :BLOCK(F14)=^^~:\
+        :BREAK-LINE(F15)=^^p:\
+        :PAGE-UP(PAGE-UP)=^^]:\
+        :PAGE-DOWN(PAGE-DOWN)=^^_:\
+        :RETURN(RETURN)=^j:\
+	:CURSOR-DOWN(CTRL-Y)=^y:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\036PA:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\036PB:\
+        :LEFT-END(ESC-LEFT-ARROW)=\E\036PD:\
+        :RIGHT-END(ESC-RIGHT-ARROW)=\E\036PC:\
+        :ku=\036PA:     :L_ku=<Up>:\
+        :kd=\036PB:     :L_kd=<Down>:\
+        :kl=\036PD:     :L_kl=<Left>:\
+        :kr=\036PC:     :L_kr=<Right>:\
+        :kh=\036\\:     :L_kh=<Home>\
+        :ki=\036PH:     :L_ki=<INS>\
+        :DL=\177:     :L_DL=<DEL>\
+        :bt=^u:     :L_bt=<CTRL-U>\
+        :EN=\036\^:     :L_EN=<END>\
+        :ESC=\E\E:     :L_ESC=<ESC-ESC>\
+        :PU=\036]:    :L_PU=<PGUP>:\
+        :PD=\036_:    :L_PD=<PGDN>:\
+        :fk1=\036r:    :L_fk1=<F2>:\
+        :fk2=\036s:    :L_fk2=<F3>:\
+        :fk3=\036t:    :L_fk3=<F4>:\
+        :fk4=\036u:    :L_fk4=<F5>:\
+        :fk5=\036v:    :L_fk5=<F6>:\
+        :fk6=\036w:    :L_fk6=<F7>:\
+        :fk7=\036x:    :L_fk7=<F8>:\
+        :Akm=^j:      :L_Akm=Enter:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+        :tc=v7kf:
+# Data General D413 in 135 column mode. This terminal is only supported
+# in Progress Version 7.3C or later. Prior versions do not know how to 
+# interpret %x in the cursor motion string. %x is equilivent to %0.2x for
+# printf(), it gives a zero padded two nibble hex value as two chars. The 
+# cm string uses the longer Write Screen Address terminal command instead
+# of Write Window Address used in the d413 entry (7 bytes instead of 3 bytes)
+# but it is necessary in order to move the cursor beyond column 127. A work 
+# around for prior versions of Progress is to comment out cm and co with a '.'
+# and uncomment the .co#127 line. This will give you a screen with 127 columns.
+# This Terminal Is Supported By Progress
+d413w|Data General D413 with 135 columns in Unix mode:\
+        :is=\036P@1\036FW\036FM\036FE\036FK\036F]\003\036FX0086:\
+        :cm=\036FP%r%x%x:\
+        :Se=\036FJ\036FX0050:\
+        :co#135:\
+        :.co#127:\
+        :tc=d413:
+#
+# This Terminal Is Supported By Progress
+d413f|Data General D413 with 25 rows in Unix mode:\
+        :is=\036P@1\036FW\036FM\036FE\036FJ\036F]\003\036Fz2:\
+        :Se=\036Fz0:\
+        :li#25:\
+        :tc=d413:
+#
+# Data General Color Terminal D430C in Unix mode. Set this terminal
+# up just like the D413. The only major differences between this terminal
+# and the D413 are the color support and the labeling of the BACKSPACE
+# and DELETE keys. Use Ctrl-Scroll Lock to get to setup on some keyboards.
+# The DAC on this terminal can only support about 15 color pairs at a time.
+# This means that the color.p test will not work. Keep this in mind if 
+# you are using many colors and some of them do not look correct. In the
+# COLOR statements this entry uses foreground/background pairs instead 
+# of ACM direct mapping. The following table gives the values for both
+# the foreground and background colors as used in this entry.
+#   0 Black
+#   1 Red
+#   2 Green
+#   3 Yellow
+#   4 Blue
+#   5 Magenta
+#   6 Cyan
+#   7 White
+# This Terminal Is Supported By Progress
+d430|d430c|dg430|Data General Color D430c in Unix mode:\
+	:BACKSPACE(BACKSPACE)=^?:\
+	:DELETE(DELETE)=^^PE:\
+        :COLOR 5 RED/BLACK=\036A4\036B0:\036A2\036B0:\
+	:COLOR 6 GREEN/BLACK=\036A2\036B0:\036A2\036B0:\
+	:COLOR 7 YELLOW/BLACK=\036A6\036B0:\036A2\036B0:\
+	:COLOR 8 BLUE/BLACK=\036A1\036B0:\036A2\036B0:\
+	:COLOR 9 MAGENTA/BLACK=\036A5\036B0:\036A2\036B0:\
+	:COLOR 10 CYAN/BLACK=\036A3\036B0:\036A2\036B0:\
+	:COLOR 11 WHITE/BLACK=\036A7\036B0:\036A2\036B0:\
+	:COLOR 12 RED/BLUE=\036A4\036B1:\036A2\036B0:\
+	:COLOR 13 RED/GREEN=\036A4\036B2:\036A2\036B0:\
+	:COLOR 14 RED/YELLOW=\036A4\036B6:\036A2\036B0:\
+	:COLOR 15 RED/MAGENTA=\036A4\036B5:\036A2\036B0:\
+	:COLOR 16 RED/CYAN=\036A4\036B3:\036A2\036B0:\
+	:COLOR 17 RED/WHITE=\036A4\036B7:\036A2\036B0:\
+	:COLOR 18 GREEN/BLUE=\036A2\036B1:\036A2\036B0:\
+	:COLOR 19 GREEN/RED=\036A2\036B4:\036A2\036B0:\
+	:COLOR 20 GREEN/YELLOW=\036A2\036B6:\036A2\036B0:\
+	:COLOR 21 GREEN/MAGENTA=\036A2\036B5:\036A2\036B0:\
+	:COLOR 22 GREEN/CYAN=\036A2\036B3:\036A2\036B0:\
+	:COLOR 23 GREEN/WHITE=\036A2\036B7:\036A2\036B0:\
+	:COLOR 24 YELLOW/BLUE=\036A6\036B1:\036A2\036B0:\
+	:COLOR 25 YELLOW/RED=\036A6\036B4:\036A2\036B0:\
+	:COLOR 26 YELLOW/GREEN=\036A6\036B2:\036A2\036B0:\
+	:COLOR 27 YELLOW/MAGENTA=\036A6\036B5:\036A2\036B0:\
+	:COLOR 28 YELLOW/CYAN=\036A6\036B3:\036A2\036B0:\
+	:COLOR 29 YELLOW/WHITE=\036A6\036B7:\036A2\036B0:\
+	:COLOR 30 BLUE/YELLOW=\036A1\036B6:\036A2\036B0:\
+	:COLOR 31 BLUE/RED=\036A1\036B4:\036A2\036B0:\
+	:COLOR 32 BLUE/GREEN=\036A1\036B2:\036A2\036B0:\
+	:COLOR 33 BLUE/MAGENTA=\036A1\036B5:\036A2\036B0:\
+	:COLOR 34 BLUE/CYAN=\036A1\036B3:\036A2\036B0:\
+	:COLOR 35 BLUE/WHITE=\036A1\036B7:\036A2\036B0:\
+	:COLOR 36 MAGENTA/YELLOW=\036A5\036B6:\036A2\036B0:\
+	:COLOR 37 MAGENTA/RED=\036A5\036B4:\036A2\036B0:\
+	:COLOR 38 MAGENTA/GREEN=\036A5\036B2:\036A2\036B0:\
+	:COLOR 39 MAGENTA/BLUE=\036A5\036B1:\036A2\036B0:\
+	:COLOR 40 MAGENTA/CYAN=\036A5\036B3:\036A2\036B0:\
+	:COLOR 41 MAGENTA/WHITE=\036A5\036B7:\036A2\036B0:\
+	:COLOR 42 CYAN/YELLOW=\036A3\036B6:\036A2\036B0:\
+	:COLOR 43 CYAN/RED=\036A3\036B4:\036A2\036B0:\
+	:COLOR 44 CYAN/GREEN=\036A3\036B2:\036A2\036B0:\
+	:COLOR 45 CYAN/BLUE=\036A3\036B1:\036A2\036B0:\
+	:COLOR 46 CYAN/MAGENTA=\036A3\036B5:\036A2\036B0:\
+	:COLOR 47 CYAN/WHITE=\036A3\036B7:\036A2\036B0:\
+	:COLOR 48 WHITE/YELLOW=\036A7\036B6:\036A2\036B0:\
+	:COLOR 49 WHITE/RED=\036A7\036B4:\036A2\036B0:\
+	:COLOR 50 WHITE/GREEN=\036A7\036B2:\036A2\036B0:\
+	:COLOR 51 WHITE/BLUE=\036A7\036B1:\036A2\036B0:\
+	:COLOR 52 WHITE/MAGENTA=\036A7\036B5:\036A2\036B0:\
+	:COLOR 53 WHITE/CYAN=\036A7\036B3:\036A2\036B0:\
+	:COLOR 54 BLACK/YELLOW=\036A0\036B6:\036A2\036B0:\
+	:COLOR 55 BLACK/RED=\036A0\036B4:\036A2\036B0:\
+	:COLOR 56 BLACK/GREEN=\036A0\036B2:\036A2\036B0:\
+	:COLOR 57 BLACK/BLUE=\036A0\036B1:\036A2\036B0:\
+	:COLOR 58 BLACK/MAGENTA=\036A0\036B5:\036A2\036B0:\
+	:COLOR 59 BLACK/CYAN=\036A0\036B3:\036A2\036B0:\
+	:COLOR 60 BLACK/WHITE=\036A0\036B7:\036A2\036B0:\
+        :tc=d413:
+#
+# This Terminal Is Supported By Progress
+d430w|Data General D430c with 135 columns in Unix mode:\
+        :is=\036P@1\036FW\036FM\036FE\036FK\036F]\003\036FX0086:\
+        :cm=\036FP%r%x%x:\
+        :Se=\036FJ\036FX0050:\
+        :co#135:\
+        :tc=d430:
+#
+# This Terminal Is Unsupported by Progress.
+d217|Data General D217 in Unix mode:\
+        :cl=\036PH:\
+        :tc=d413:
+#
+#
+# This entry is for the IBM model 3151 terminal.
+# Note: Because the function keys use \Ea through \El these keys cannot
+# be used for their default key-functions (e.g. SAVE-AS, BRAKE-LINE, etc.).
+# The key-sequences \E0 through \E9 have been substituted in their place.
+# This Terminal Is Supported By Progress
+m3|ibm3151|3151:\
+	:is=\E!L:\
+	:co#80:	:li#24:\
+	:nd=\EC:\
+	:do=\EB:\
+	:cl=\EK:\
+	:so=\E4A:\
+	:cm=20\EY%+\040%+\040:\
+	:se=\E4@:\
+	:us=\E4B:\
+	:ue=\E4@:\
+	:HS=\E4H:\
+	:HR=\E4@:\
+	:BB=\E4D:\
+	:BR=\E4@:\
+	:GS=\E<A:\
+	:GE=\E<@:\
+	:GV=x:	:GH=q:\
+	:G1=k:	:G2=l:	:G3=m:	:G4=j:\
+	:co#80:\
+	:li#24:\
+	:al=\EX\067\040\EO\E\040Z\EN:\
+	:am:\
+	:cl=\EK:\
+	:bs:\
+	:cm=\EY%+ %+ :\
+	:nd=\EC:\
+	:up=\EA:\
+	:do=\EB:\
+	:ce=\EI:\
+	:cd=\EJ:\
+	:dl=\EO:\
+	:ic=\EP:\
+	:dc=\EQ:\
+	:sf=\E\040M:\
+	:sr=\E!M:\
+	:so=\E4\101:\
+	:se=\E4\100:\
+	:us=\E4\102:\
+	:ue=\E4\100:\
+	:kl=\ED:\
+	:kr=\EC:\
+	:kd=\EB:\
+	:ku=\EA:\
+	:GS=\E<A:\
+	:GE=\E<@:\
+	:GH=q:\
+	:GV=x:\
+	:G1=k:\
+	:G2=l:\
+	:G3=m:\
+	:G4=j:\
+	:BACK-TAB(BACK-TAB)=^[2:\
+	:DELETE(DELETE)=^[Q:\
+	:HELP(HELP-KEY)=^[H:\
+	:CLEAR(CTRL-Z)=^[L^m:\
+	:DELETE-END-LINE(ERASE)=^[I:\
+	:INSERT-MODE(INSERT)=^[P ^h:\
+	:GO(F1)=^[a^M:\
+	:HELP(F2)=^[b^M:\
+	:ENTER-MENUBAR(F3)=^[c^M:\
+	:END-ERROR(F4)=^[d^M:\
+	:GET(F5)=^[e^M:\
+	:PUT(F6)=^[f^M:\
+	:RECALL(F7)=^[g^M:\
+	:CLEAR(F8)=^[h^M:\
+	:INSERT-MODE(F9)=^[i^M:\
+	:CUT(F10)=^[j^M:\
+	:COPY(F11)=^[k^M:\
+	:PASTE(F12)=^[l^M:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\EA:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\EB:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\ED:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\EC:\
+	:SAVE-AS(ESC-1)=\E1:\
+	:BREAK-LINE(ESC-0)=\E0:\
+	:DELETE-WORD(ESC-3)=\E3:\
+	:NEXT-ERROR(ESC-4)=\E4:\
+	:FIND-NEXT(ESC-5)=\E5:\
+	:GOTO(ESC-6)=\E6:\
+	:FIND-PREVIOUS(ESC-7)=\E7:\
+	:DELETE-END-LINE(ESC-8)=\E8:\
+	:OPEN-LINE-ABOVE(ESC-9)=\E9:\
+	:ku=\EA:\	:L_ku=<Up>:\
+	:kd=\EB:\	:L_kd=<Down>:\
+	:kr=\EC:\	:L_kr=<Right>:\
+	:kl=\ED:\	:L_kl=<Left>:\
+	:kh=\EH:\	:L_kh=<ESC> H:\
+	:PU=^P:\	:L_PU=<CTRL-P>:\
+	:PD=^D:\	:L_PD=<CTRL-D>:\
+	:ki=\EP:\	:L_ki=<ESC> P:\
+	:DL=^X:\	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:\	:L_ESC=<ESC> <ESC>:\
+	:bt=\E2:\	:L_bt=<ESC> 2:\
+	:fk0=\Eb1:	:L_fk0=<F1>:\
+	:fk1=\Eb2:	:L_fk1=<F2>:\
+	:fk2=\Eb3:	:L_fk2=<F3>:\
+	:fk3=\Eb4:	:L_fk3=<F4>:\
+	:fk4=\Eb5:	:L_fk4=<F5>:\
+	:fk5=\Eb6:	:L_fk5=<F6>:\
+	:fk6=\Eb7:	:L_fk6=<F7>:\
+	:fk7=\Eb8:	:L_fk7=<F8>:\
+	:fk8=\Eb9:	:L_fk8=<F9>:\
+	:fk9=\Eb0:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+# IBM 3151 in 132 column mode. Returns to 80 column mode when done.
+# This terminal is only supported in Progress Version 7.3C or later.
+# Prior versions do not know how to interpret %M in the cursor motion 
+# string. %Mx%Mx translates to p1 = row / x + x, p2 = row mod x + x,
+# p3 = col / x + x, p4 = col mod x + 2x, where p1 - p4 are sent to the 
+# terminal as chars. Lets hope this works on other IBM terminals. 
+# This Terminal Is Supported By Progress
+ibm3151-132:\
+	:cm=20\Ey%M\040%M\040:\
+        :co#132:\
+        :ti=\E r!! 8$D:\
+        :te=\E r!! 9"P:\
+        :tc=ibm3151:
+#
+#
+# This Terminal Is Unsupported By Progress.
+m2|3163|ibm3163:\
+	:is=\E!L:\
+	:co#80:	:li#24:\
+	:nd=\EC:\
+	:do=\EB:\
+	:cl=\EK:\
+	:so=\E4A:\
+	:cm=20\EY%+\040%+\040:\
+	:se=\E4@:\
+	:us=\E4B:\
+	:ue=\E4@:\
+	:HS=\E4H:\
+	:HR=\E4@:\
+	:BB=\E4D:\
+	:BR=\E4@:\
+	:GS=\E<A:\
+	:GE=\E<@:\
+	:GV=x:	:GH=q:\
+	:G1=k:	:G2=l:	:G3=m:	:G4=j:\
+	:co#80:\
+	:li#24:\
+	:al=\EX\067\040\EO\E\040Z\EN:\
+	:am:\
+	:cl=\EK:\
+	:bs:\
+	:cm=\EY%+ %+ :\
+	:nd=\EC:\
+	:up=\EA:\
+	:do=\EB:\
+	:ce=\EI:\
+	:cd=\EJ:\
+	:dl=\EO:\
+	:ic=\EP:\
+	:dc=\EQ:\
+	:sf=\E\040M:\
+	:sr=\E!M:\
+	:so=\E4\101:\
+	:se=\E4\100:\
+	:us=\E4\102:\
+	:ue=\E4\100:\
+	:kl=\ED:\
+	:kr=\EC:\
+	:kd=\EB:\
+	:ku=\EA:\
+	:GS=\E<A:\
+	:GE=\E<@:\
+	:GH=q:\
+	:GV=x:\
+	:G1=k:\
+	:G2=l:\
+	:G3=m:\
+	:G4=j:\
+	:BACK-TAB(BACK-TAB)=\E2:\
+	:GO(F1)=\Ea\r:\
+	:HELP(F2)=\Eb\r:\
+	:ENTER-MENUBAR(F3)=\Ec\r:\
+	:END-ERROR(F4)=\Ed\r:\
+	:GET(F5)=\Ee\r:\
+	:PUT(F6)=\Ef\r:\
+	:RECALL(F7)=\Eg\r:\
+	:CLEAR(F8)=\Eh\r:\
+	:INSERT-MODE(F9)=\Ei\r:\
+	:CUT(F10)=\Ej\r:\
+	:COPY(F11)=\Ek\r:\
+	:PASTE(F12)=\El\r:\
+	:FIND(F13)=\E!a\r:\
+	:BLOCK(F14)=\E!b\r:\
+	:PAGE-UP(F15)=\E!c\r:\
+	:PAGE-DOWN(F16)=\E!d\r:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:ku=\EA:\	:L_ku=<Up>:\
+	:kd=\EB:\	:L_kd=<Down>:\
+	:kr=\EC:\	:L_kr=<Right>:\
+	:kl=\ED:\	:L_kl=<Left>:\
+	:kh=\EH:\	:L_kh=<ESC> H:\
+	:PU=^P:\	:L_PU=<CTRL-P>:\
+	:PD=^D:\	:L_PD=<CTRL-D>:\
+	:ki=\EP:\	:L_ki=<ESC> P:\
+	:DL=^X:\	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:\	:L_ESC=<ESC> <ESC>:\
+	:bt=\E2:\	:L_bt=<ESC> 2:\
+	:fk0=\Eb1:	:L_fk9=<F1>:\
+	:fk1=\Eb2:	:L_fk9=<F2>:\
+	:fk2=\Eb3:	:L_fk9=<F3>:\
+	:fk3=\Eb4:	:L_fk9=<F4>:\
+	:fk4=\Eb5:	:L_fk9=<F5>:\
+	:fk5=\Eb6:	:L_fk9=<F6>:\
+	:fk6=\Eb7:	:L_fk9=<F7>:\
+	:fk7=\Eb8:	:L_fk9=<F8>:\
+	:fk8=\Eb9:	:L_fk9=<F9>:\
+	:fk9=\Eb0:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+#
+#
+#
+# This Terminal Is Unsupported By Progress.
+m4|3164|ibm3164:\
+	:is=\E!L:\
+	:co#80:	:li#24:\
+	:nd=\EC:\
+	:do=\EB:\
+	:cl=\EK:\
+	:so=\E4A:\
+	:cm=20\EY%+\040%+\040:\
+	:se=\E4@:\
+	:us=\E4B:\
+	:ue=\E4@:\
+	:HS=\E4H:\
+	:HR=\E4@:\
+	:BB=\E4D:\
+	:BR=\E4@:\
+	:GS=\E<A:\
+	:GE=\E<@:\
+	:GV=x:	:GH=q:\
+	:G1=k:	:G2=l:	:G3=m:	:G4=j:\
+	:co#80:\
+	:li#24:\
+	:al=\EX\067\040\EO\E\040Z\EN:\
+	:am:\
+	:cl=\EK:\
+	:bs:\
+	:cm=\EY%+ %+ :\
+	:nd=\EC:\
+	:up=\EA:\
+	:do=\EB:\
+	:ce=\EI:\
+	:cd=\EJ:\
+	:dl=\EO:\
+	:ic=\EP:\
+	:dc=\EQ:\
+	:sf=\E\040M:\
+	:sr=\E!M:\
+	:so=\E4\101:\
+	:se=\E4\100:\
+	:us=\E4\102:\
+	:ue=\E4\100:\
+	:kl=\ED:\
+	:kr=\EC:\
+	:kd=\EB:\
+	:ku=\EA:\
+	:GS=\E<A:\
+	:GE=\E<@:\
+	:GH=q:\
+	:GV=x:\
+	:G1=k:\
+	:G2=l:\
+	:G3=m:\
+	:G4=j:\
+	:Si=\E!9\044\100:\
+	:Se=\E!9\040\100:\
+	:BACK-TAB(BACK-TAB)=\E2:\
+	:GO(F1)=\Ea\r:\
+	:HELP(F2)=\Eb\r:\
+	:ENTER-MENUBAR(F3)=\Ec\r:\
+	:END-ERROR(F4)=\Ed\r:\
+	:GET(F5)=\Ee\r:\
+	:PUT(F6)=\Ef\r:\
+	:RECALL(F7)=\Eg\r:\
+	:CLEAR(F8)=\Eh\r:\
+	:INSERT-MODE(F9)=\Ei\r:\
+	:CUT(F10)=\Ej\r:\
+	:COPY(F11)=\Ek\r:\
+	:PASTE(F12)=\El\r:\
+	:FIND(F13)=\E!a\r:\
+	:BLOCK(F14)=\E!b\r:\
+	:PAGE-UP(F15)=\E!c\r:\
+	:PAGE-DOWN(F16)=\E!d\r:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:COLOR 5 NORMAL=\E4\040\042\100:\E4\040\042\100:0:\
+	:COLOR 6 RED/BLK=\E4\040\044\100:\E4\040\042\100:0:\
+	:COLOR 7 BLU/BLK=\E4\040\041\100:\E4\040\042\100:0:\
+	:COLOR 8 WHT/RED=\E4\040\047\104:\E4\040\042\100:0:\
+	:COLOR 9 WHT/BLU=\E4\040\047\101:\E4\040\042\100:0:\
+	:COLOR 10 YEL/BLK=\E4\040\046\100:\E4\040\042\100:0:\
+	:COLOR 11 WHT/YEL=\E4\040\047\106:\E4\040\042\100:0:\
+	:ku=\EA:\	:L_ku=<Up>:\
+	:kd=\EB:\	:L_kd=<Down>:\
+	:kr=\EC:\	:L_kr=<Right>:\
+	:kl=\ED:\	:L_kl=<Left>:\
+	:kh=\EH:\	:L_kh=<ESC> H:\
+	:PU=^P:\	:L_PU=<CTRL-P>:\
+	:PD=^D:\	:L_PD=<CTRL-D>:\
+	:ki=\EP:\	:L_ki=<ESC> P:\
+	:DL=^X:\	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:\	:L_ESC=<ESC> <ESC>:\
+	:bt=\E2:\	:L_bt=<ESC> 2:\
+	:ZM=^Z:\	:L_ZM=<CTRL-Z>:\
+	:fk0=\Eb1:	:L_fk9=<F1>:\
+	:fk1=\Eb2:	:L_fk9=<F2>:\
+	:fk2=\Eb3:	:L_fk9=<F3>:\
+	:fk3=\Eb4:	:L_fk9=<F4>:\
+	:fk4=\Eb5:	:L_fk9=<F5>:\
+	:fk5=\Eb6:	:L_fk9=<F6>:\
+	:fk6=\Eb7:	:L_fk9=<F7>:\
+	:fk7=\Eb8:	:L_fk9=<F8>:\
+	:fk8=\Eb9:	:L_fk9=<F9>:\
+	:fk9=\Eb0:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+#
+#  Protermcap entries for foreign alphabet representation
+#  on the Wyse 60 terminal
+ger|german|wy60 in german mode:\
+	:IN(\176)=\341:\
+	:IN(\133)=\216:\
+	:IN(\173)=\204:\
+	:IN(\134)=\231:\
+	:IN(\174)=\224:\
+	:IN(\135)=\232:\
+	:IN(\175)=\201:
+dan|danish|wy60 in danish mode:\
+	:IN(\135)=\217:\
+	:IN(\175)=\206:\
+	:IN(\133)=\222:\
+	:IN(\173)=\221:\
+	:IN(\134)=\235:\
+	:IN(\174)=\233:
+swe|swedish|wy60 in swedish mode:\
+	:IN(\135)=\217:\
+	:IN(\175)=\206:\
+	:IN(\133)=\216:\
+	:IN(\173)=\204:\
+	:IN(\134)=\231:\
+	:IN(\174)=\224:\
+	:IN(\140)=\202:\
+	:IN(\100)=\220:
+interleaf|sun in interleaf or sunview or suntools or openwin mode:\
+	:IN(\304)=\216:\
+	:IN(\305)=\217:\
+	:IN(\306)=\222:\
+	:IN(\323)=\235:\
+	:IN(\326)=\231:\
+	:IN(\334)=\232:\
+	:IN(\337)=\341:\
+	:IN(\340)=\205:\
+	:IN(\344)=\204:\
+	:IN(\345)=\206:\
+	:IN(\346)=\221:\
+	:IN(\347)=\207:\
+	:IN(\350)=\212:\
+	:IN(\351)=\202:\
+	:IN(\352)=\210:\
+	:IN(\356)=\214:\
+	:IN(\363)=\233:\
+	:IN(\364)=\223:\
+	:IN(\366)=\224:\
+	:IN(\371)=\227:\
+	:IN(\373)=\226:\
+	:IN(\374)=\201:
+#
+# ibm hft       February 12th, 1994
+# Underline did not work at our site so I changed us from \E[4m to 
+# reverse video \E[7m. The old us is commented out. High intensity and
+# blink also did not work. The second (commented out) set of graphics
+# characters are double line.
+# This Terminal Is Unsupported By Progress.
+hft|ibm8503|HFT MONO Display Device:\
+        :cd=\E[J:\
+        :up=\E[A:\
+        :is=\Eb\E[m^O\E[?7h:\
+        :ce=\E[K:\
+        :co#80:         :li#25:\
+        :bc=^H:\
+        :cl=\E[H\E[J:   :cm=\E[%i%d;%dH:\
+        :so=\E[7m:      :se=\E[m:\
+        :us=\E[7m:.us=\E[4m:      :ue=\E[m:\
+        :GV=\263:       :GH=\304:\
+        :G1=\277:       :G2=\332:       :G3=\300:       :G4=\331:\
+        :.GV=\272:      :.GH=\315:\
+        :.G1=\273:      :.G2=\311:      :.G3=\310:      :.G4=\274:\
+        :HS=\E[1m:      :HR=\E[0m:      :BB=\E[5m:      :BR=\E[0m:\
+	:GO(F1)=\E[001q:\
+	:HELP(F2)=\E[002q:\
+	:ENTER-MENUBAR(F3)=\E[003q:\
+	:END-ERROR(F4)=\E[004q:\
+	:GET(F5)=\E[005q:\
+	:PUT(F6)=\E[006q:\
+	:RECALL(F7)=\E[007q:\
+	:CLEAR(F8)=\E[008q:\
+	:INSERT-MODE(F9)=\E[009q:\
+	:CUT(F10)=\E[010q:\
+	:COPY(F11)=\E[011q:\
+	:PASTE(F12)=\E[012q:\
+        :HOME(HOME)=\E[H:\
+        :END(END)=\E[146q:\
+        :INSERT-MODE(INSERT)=\E[139q:\
+        :DELETE(DELETE)=\E[P:\
+	:BACK-TAB(SHIFT-TAB)=\E[Z:\
+	:PAGE-UP(PAGE-UP)=\E[150q:\
+	:PAGE-DOWN(PAGE-DOWN)=\E[154q:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+        :LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+        :RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+        :ku=\E[A:       :L_ku=<Up>:\
+        :kd=\E[B:       :L_kd=<Down>:\
+        :kr=\E[C:       :L_kr=<Right>:\
+        :kl=\E[D:       :L_kl=<Left>:\
+        :kh=\E[H:       :L_kh=<Home>:\
+        :EN=\E[146q:    :L_EN=<End>:\
+        :PU=\E[155q:    :L_PU=<PgUp>:\
+        :PD=\E[151q:    :L_PD=<PgDn>:\
+        :ki=\E[139q:    :L_ki=<Insert>:\
+        :ESC=\E\E:   :L_ESC=<ESC><ESC>:\
+        :bt=\E[Z:       :L_bt=<SHIFT-Tab>:\
+        :fk1=\E[002q:    :L_fk1=<F2>:\
+        :fk2=\E[003q:    :L_fk2=<F3>:\
+        :fk3=\E[004q:    :L_fk3=<F4>:\
+        :fk4=\E[005q:    :L_fk4=<F5>:\
+        :fk5=\E[006q:    :L_fk5=<F6>:\
+        :fk6=\E[007q:    :L_fk6=<F7>:\
+        :fk7=\E[008q:    :L_fk7=<F8>:\
+        :fk8=\E[009q:    :L_fk8=<F9>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+        :tc=v7kf:
+#
+# 'is' - local edit off, enable full duplex mode, conversational mode,
+# dark background, normal attr, display user message 1 on bottom line,
+# replace mode, line edit mode, protect mode off, write protect off,
+# graphics mode off, auto page mode off, monitor mode off, load 
+# replacement character = space, X-On/X-Off ON -
+# 'is' 2nd line - load editing key, load editing key, reprogram send
+# delimiters for field separator, end of line, start of protected field, 
+# 'is' 3rd line - reprogram send delimiters for end of protected field, 
+# and end of message, clear all tabs, ESC enabled, set ^y as back space,
+# turn off top line, select attribute type as character.
+# This Terminal Is Unsupported By Progress.
+tvi965|tvi950:\
+        :cd=\EY:up=^K:\
+	:is=\El\EDF\EC\Ed\EG0\Eg\Er\EO\E\047\E(\E%\Ew\EX\Ee ^O\
+\E016\E004\Ex0\200\200\Ex1\200\200\Ex2\200\200\
+\Ex3\200\200\Ex4\r\200\E3\E[=12h\E0F^y\200\200\200\200\E.c\EF2:\
+        :te=\E0F^h\200\200\200\200:\
+	:so=\EG4:\
+	:se=\EG0:\
+	:CN=\E.1:\
+        :CF=\E.0:\
+        :cl=\E+:\
+        :cm=\E=%+ %+ :\
+        :li#24:\
+        :co#80:\
+        :xi:\
+        :us=\EG8:\
+        :ue=\EG0:\
+	:HS=\EG4:\
+	:HR=\EG0:\
+	:BB=\EG2:\
+	:BR=\EG0:\
+	:ce=\Et:\
+	:GS=\E$:\
+	:GE=\E%:\
+	:GH=K:\
+	:GV=J:\
+	:G1=G:\
+	:G2=F:\
+	:G3=E:\
+	:G4=H:\
+	:GO(F1)=^A@\r:\
+	:HELP(F2)=^AA\r:\
+	:ENTER-MENUBAR(F3)=^AB\r:\
+	:END-ERROR(F4)=^AC\r:\
+	:GET(F5)=^AD\r:\
+	:PUT(F6)=^AE\r:\
+	:RECALL(F7)=^AF\r:\
+	:CLEAR(F8)=^AG\r:\
+	:INSERT-MODE(F9)=^AH\r:\
+	:CUT(F10)=^AI\r:\
+	:COPY(F11)=^AJ\r:\
+	:PASTE(F12)=^AK\r:\
+	:FIND(F13)=^AL\r:\
+	:BLOCK(F14)=^AM\r:\
+	:BACKSPACE(BACKSPACE)=^y:\
+	:BACK-TAB(SHIFT-TAB)=\EI:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E^y:\
+	:HOME(HOME)=^^:\
+	:HOME(ESC-H)=\Eh:\
+	:PAGE-UP(PREV-PAGE)=\EJ:\
+	:PAGE-DOWN(NEXT-PAGE)=\EK:\
+	:BACKSPACE(DEL-CHAR)=\EW:\
+	:ku=^K: 	:L_ku=<Up>:\
+	:kd=^V: 	:L_kd=<Down>:\
+	:kr=^L: 	:L_kr=<Right>:\
+	:kl=^H: 	:L_kl=<Left>:\
+	:kh=\036:	:L_kh=<Home>:\
+	:EN=\E{:	:L_EN=<SHIFT-Home>:\
+	:PU=\EJ:	:L_PU=<Page Prev>:\
+	:PD=\EK:	:L_PD=<Page Next>:\
+	:ki=\Eq:	:L_ki=<Insert>:\
+	:DL=\EW:	:L_DL=<Delete>:\
+	:bc=^y:	:L_bc=<Back Space>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\EI:	:L_bt=<SHIFT-Tab>:\
+	:fk0=^A@\r:	:L_fk0=<F1>:\
+	:fk1=^AA\r:	:L_fk1=<F2>:\
+	:fk2=^AB\r:	:L_fk2=<F3>:\
+	:fk3=^AC\r:	:L_fk3=<F4>:\
+	:fk4=^AD\r:	:L_fk4=<F5>:\
+	:fk5=^AE\r:	:L_fk5=<F6>:\
+	:fk6=^AF\r:	:L_fk6=<F7>:\
+	:fk7=^AG\r:	:L_fk7=<F8>:\
+	:fk8=^AH\r:	:L_fk8=<F9>:\
+	:fk9=^AI\r:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+#
+# TeleVideo 965 in 132 column mode. It assumes that when Progress
+# exits that it should return to 80 column mode. If you want to
+# remain in 132 column mode when Progress exits then put a dot
+# in front of the first 'te' and delete the dot before the second
+# 'te'.
+# This Terminal Is Unsupported By Progress.
+tvi965-132|tvi950-132|TeleVideo 965 in 132 column mode:\
+	:is=\El\EDF\EC\Ed\EG0\Eg\Er\EO\E\047\E(\E%\Ew\EX\Ee ^O\
+\E016\E004\Ex0\200\200\Ex1\200\200\Ex2\200\200\
+\Ex3\200\200\Ex4\r\200\E3\E[=12h\E0F^y\200\200\200\200\E.c\EF2\
+\E[=24l\E=3h\E.;:\
+	:cm=\E[%i%d;%dH:\
+        :te=\E0F^h\200\200\200\200\E[=24h:\
+        :.te=\E0F^h\200\200\200\200:\
+        :co#132:\
+        :tc=tvi965:
+#
+# ATT7300 monitor termcap entry. UNIXPC (ATT 3B1)
+# by Ron Cline
+#
+#
+# Notes:  Load font 'ELD.ft' into slot #1 for Views single line borders.
+#	  A full set of double borders doesn't appear to be available
+#	  in the ELD.ft or other fonts under /usr/lib/wfont. 
+#
+#
+#	Entry for /etc/profile:
+#	cd /usr/lib/wfont
+#	sfont ELD.ft 1
+#	echo "LOADED ELD.ft into slot 1"
+#	cd /
+# Note that the graphics characters entries (Gx) entries below
+# are commented out by using a period, e.g., :.G1=.
+# To get graphics, you must:
+#  a) more /etc/.fontload
+#     If there is just one line (ending in a zero) then add the
+#     following line:
+#         sfont -s /usr/lib/wfont/ELD.ft 1
+#     else
+#         add :
+#          sfont -s /usr/lib/wfont/ELD.ft <n>
+#         where <n> is one bigger than the last entry.
+#  b) Delete the periods before the 8 Gx entries below.
+#  c) Adjust the second digit in the GS entry to match the
+#     ending digit in the ELD.ft entry in /etc/.fontload        
+#  d) Reboot, which causes the kernel to look at /etc/.fontload
+#     and load in the requisite fonts.
+#        -----The above instructions are courtesy of Mike Barton
+#
+# This Terminal Is Unsupported By Progress.
+s4|PC7300|unixpc|pc7300|3b1|Safari 4:\
+	:is=\E[m\E[2J\E[H:\
+	:co#80: 	:li#25: 	:CA:\
+	:nd=\E[C:	:do=\E[B:	:cl=\E[2J\E[H:	:cm=\E[%i%d;%dH:\
+	:so=\E[7m:	:se=\E[m:	:us=\E[4m:	:ue=\E[m:\
+	:HS=\E[1m:	:HR=\E[m:	:BB=\E[5m:	:BR=\:\
+	:al=\E[1L:\
+	:am:\
+	:bs:\
+	:cd=\E[0J:\
+	:ce=\E[0K:\
+	:cl=\E[2J\E[H:\
+	:cm=\E[%i%2;%2H:\
+	:co#80:\
+	:dc=\E[1P:\
+	:dl=\E[1M:\
+	:do=\E[B:\
+	:ei=:\
+	:ho=\E[H:\
+	:ic=\E[1@:\
+	:kb=\010:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:kr=\E[C:\
+	:ku=\E[A:\
+	:li#24:\
+	:nd=\E[C:\
+	:se=\E[m:\
+	:so=\E[1;7m:\
+	:ue=\E[m:\
+	:up=\E[A:\
+	:us=\E[4m:\
+	:GO(F1)=\EOc:\
+	:HELP(F2)=\EOd:\
+	:ENTER-MENUBAR(F3)=\EOe:\
+	:END-ERROR(F4)=\EOf:\
+	:GET(F5)=\EOg:\
+	:PUT(F6)=\EOh:\
+	:RECALL(F7)=\EOi:\
+	:CLEAR(F8)=\EOj:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:EE=\E[m:BO=\E[0;7m:CV=\E[=C:CI=\E[=1C:KM=/usr/lib/ua/kmap.s4:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:kh=\E9:	:L_kh=<Home>:\
+	:EN=\E0:	:L_EN=<End>:\
+	:PU=\ENg:	:L_PU=<PgUp>:\
+	:PD=\ENh:	:L_PD=<PgDn>:\
+	:ki=\ENj:	:L_ki=<Insert>:\
+	:DL=\ENf:	:L_DL=<CTRL-X>:\
+	:ESC=\EOw:	:L_ESC=<ESC>:\
+	:bt=\E[Z:	:L_bt=<SHIFT-Tab>:\
+	:fk0=\EOc:	:L_fk0=<F1>:\
+	:fk1=\EOd:	:L_fk1=<F2>:\
+	:fk2=\EOe:	:L_fk2=<F3>:\
+	:fk3=\EOf:	:L_fk3=<F4>:\
+	:fk4=\EOg:	:L_fk4=<F5>:\
+	:fk5=\EOh:	:L_fk5=<F6>:\
+	:fk6=\EOi:	:L_fk6=<F7>:\
+	:fk7=\EOj:	:L_fk7=<F8>:\
+	:fk8=\EOi:	:L_fk8=<F9>:\
+	:fk9=\EOk:	:L_fk9=<F10>: \
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:\
+#
+# sun-cmd is used under openwindows, and has 1 more line than "sun"
+# This Terminal Is Unsupported By Progress.
+sun-cmd:\
+	:te=\E[>4h:ti=\E[>4l:tc=sun:
+#
+# Sun 3 xterm under the X Window System (run xterm -sf)
+#
+# GE is provided here to circumvent an problem with the v6 termcap processing.
+#
+# This Terminal Is Unsupported By Progress.
+sun-xterm|Xsun:\
+        :cd=\E[J:\
+        :ce=\E[K:\
+        :cl=\E[H\E[J:\
+        :cm=\E[%i%d;%dH:\
+	:GE=^O:\
+        :BACKSPACE:\
+        :GO(F1)=\E[224z:\
+        :HELP(F2)=\E[225z:\
+        :INSERT-MODE(F3)=\E[226z:\
+        :END-ERROR(F4)=\E[227z:\
+        :GET(F5)=\E[228z:\
+        :PUT(F6)=\E[229z:\
+        :RECALL(F7)=\E[230z:\
+        :CLEAR(F8)=\E[231z:\
+        :NEW-LINE(F9)=\E[232z:\
+	:DELETE-LINE(F10)=\E[233z:\
+	:BREAK-LINE(F11)=\E[192z:\
+	:APPEND-LINE(F12)=\E[193z:\
+        :HOME(PF7)=\E[214z:\
+        :PAGE-UP(PF9)=\E[216z:\
+        :HOME(PF13)=\E[220z:\
+        :PAGE-DOWN(PF15)=\E[222z:\
+	:fk1=\E[225z	:L_fk1=<F2>:\
+	:fk2=\E[226z:	:L_fk2=<F3>:\
+	:fk3=\E[227z:	:L_fk3=<F4>:\
+	:fk4=\E[228z:	:L_fk4=<F5>:\
+	:fk5=\E[229z:	:L_fk5=<F6>:\
+	:fk6=\E[230z:	:L_fk6=<F7>:\
+	:fk7=\E[231z:	:L_fk7=<F8>:\
+        :tc=vt100:
+#AT386 same as ansi but F11 and F12 did not work
+# This Terminal Is Unsupported By Progress.
+AT386|at386:\
+        :BR=\E[m:\
+        :CA:\
+        :HS=\E[1m:\
+        :HR=\E[m:\
+        :al=\E[L:\
+        :am:\
+        :bs:\
+        :cd=\E[J:\
+        :ce=\E[K:\
+        :cl=\E[2J\E[H:\
+        :cm=\E[%i%d;%dH:\
+        :co#80:\
+        :dc=\E[P:\
+        :dl=\E[M:\
+        :dn=\E[B:\
+        :ei=:\
+        :ho=\E[H:\
+        :ic=\E[@:\
+        :li#25:\
+        :nd=\E[C:\
+        :ms:\
+        :pt:\
+        :so=\E[7m:\
+        :se=\E[m:\
+        :us=\E[4m:\
+        :ue=\E[m:\
+        :up=\E[A:\
+        :kb=^h:\
+        :ku=\E[A:\
+        :kd=\E[B:\
+        :kl=\E[D:\
+        :kr=\E[C:\
+        :eo:\
+        :GR=\064:\
+        :RT=^J:\
+        :GH=\304:\
+        :G1=\277:\
+        :G2=\332:\
+        :G3=\300:\
+        :G4=\331:\
+        :GS=\000:\
+        :GE=\000:\
+        :GV=\263:\
+        :GD=\302:\
+        :GC=\305:\
+        :GL=\303:\
+        :Si=\EQ0"\E[?5i"\EQ1"\E[?3i"\EQ2"\E[?2i"\EQ3"\E[@"\EQ4"\E[M"\EQ5"\E[17~"\EQ6"\E[18~"\EQ7"\E[19~"\EQ8"\E[20~"\EQ9"\E[21~":\
+        :GO(F1)=\E[?5i:\
+        :HELP(F2)=\E[?3i:\
+        :ENTER-MENUBAR(F3)=\E[?2i:\
+        :END-ERROR(F4)=\E[@:\
+        :GET(F5)=\E[M:\
+        :PUT(F6)=\E[17~:\
+        :RECALL(F7)=\E[18~:\
+        :CLEAR(F8)=\E[19~:\
+        :INSERT-MODE(F9)=\E[20~:\
+        :CUT(F10)=\E[21~:\
+        :BREAK-LINE(F11)=^[OZ:\
+        :APPEND-LINE(F12)=^[OA:\
+        :HOME(HOME)=\E[H:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+        :LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+        :RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+        :ku=\E[A:       :L_ku=<Up>:\
+        :kd=\E[B:       :L_kd=<Down>:\
+        :kr=\E[C:       :L_kr=<Right>:\
+        :kl=\E[D:       :L_kl=<Left>:\
+        :kh=\E[H:       :L_kh=<Home>:\
+        :EN=\E[F:       :L_EN=<End>:\
+        :PU=\E[I:       :L_PU=<PgUp>:\
+        :PD=\E[G:       :L_PD=<PgDn>:\
+        :ki=\E[L:       :L_ki=<Insert>:\
+        :DL=^X:         :L_DL=<CTRL-X>:\
+        :ESC=\E\E:      :L_ESC=<ESC> <ESC>:\
+        :bt=\E[Z:       :L_bt=<SHIFT-Tab>:\
+        :fk0=\E[M:      :L_fk0=<F1>:\
+        :fk1=\E[N:      :L_fk1=<F2>:\
+        :fk2=\E[O:      :L_fk2=<F3>:\
+        :fk3=\E[P:      :L_fk3=<F4>:\
+        :fk4=\E[Q:      :L_fk4=<F5>:\
+        :fk5=\E[R:      :L_fk5=<F6>:\
+        :fk6=\E[S:      :L_fk6=<F7>:\
+        :fk7=\E[T:      :L_fk7=<F8>:\
+        :fk8=\E[U:      :L_fk8=<F9>:\
+        :fk9=\E[V:      :L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+        :tc=v7kf:
+#
+#
+# This Terminal Is Unsupported By Progress.
+s3|sco386|sco 386 ansi entry:\
+        :sf=\E[S:\
+        :sr=\E[T:\
+        :do=\E[1e:\
+        :bc=\E[1D:\
+	:BR=\E[m:\
+	:CA:\
+	:so=\E[7m:\
+	:se=\E[m:\
+	:HS=\E[1m:\
+	:HR=\E[m:\
+	:al=\E[L:\
+	:am:\
+	:bs:\
+	:cd=\E[J:\
+	:ce=\E[K:\
+	:cl=\E[2J\E[H:\
+	:cm=\E[%i%d;%dH:\
+	:co#80:\
+	:dc=\E[P:\
+	:dl=\E[M:\
+	:dn=\E[B:\
+	:ei=:\
+	:ho=\E[H:\
+	:ic=\E[@:\
+	:li#25:\
+	:nd=\E[C:\
+	:ms:\
+	:pt:\
+	:so=\E[7m:\
+	:se=\E[m:\
+	:us=\E[4m:\
+	:ue=\E[m:\
+	:up=\E[A:\
+	:kb=^h:\
+	:ku=\E[A:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:kr=\E[C:\
+	:eo:\
+        :GS=\E[12m:\
+        :GE=\E[10m:\
+        :GV=\263:\
+        :GH=D:\
+        :bc=\E[1D:\
+        :GC=E:\
+        :GL=\264:\
+        :GR=C:\
+	:RT=^J:\
+        :G1=?:\
+        :G2=Z:\
+        :G3=@:\
+        :G4=Y:\
+        :GU=A:\
+        :GD=B:\
+        :is=\EQ0"\E[?5i"\EQ1"\E[?3i"\EQ2"\E[?2i"\EQ3"\E[@"\EQ4"\E[M"\EQ5"\E[17~"\EQ6"\E[18~"\EQ7"\E[19~"\EQ8"\E[20~"\EQ9"\E[21~":\
+	:GO(F1)=\E[?5i:\
+	:HELP(F2)=\E[?3i:\
+	:ENTER-MENUBAR(F3)=\E[?2i:\
+	:END-ERROR(F4)=\E[@:\
+	:GET(F5)=\E[M:\
+	:PUT(F6)=\E[17~:\
+	:RECALL(F7)=\E[18~:\
+	:CLEAR(F8)=\E[19~:\
+	:INSERT-MODE(F9)=\E[20~:\
+	:CUT(F10)=\E[21~:\
+	:HOME(HOME)=\E[H:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:kh=\E[H:	:L_kh=<Home>:\
+	:EN=\E[F:	:L_EN=<End>:\
+	:PU=\E[I:	:L_PU=<PgUp>:\
+	:PD=\E[G:	:L_PD=<PgDn>:\
+	:ki=\E[L:	:L_ki=<Insert>:\
+	:DL=^X: 	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\E[Z:	:L_bt=<SHIFT-Tab>:\
+	:fk0=\E[?5i:	:L_fk0=<F1>:\
+	:fk1=\E[?3i:	:L_fk1=<F2>:\
+	:fk2=\E[?2i:	:L_fk2=<F3>:\
+	:fk3=\E[@:	:L_fk3=<F4>:\
+	:fk4=\E[M:	:L_fk4=<F5>:\
+	:fk5=\E[17~:	:L_fk5=<F6>:\
+	:fk6=\E[18~:	:L_fk6=<F7>:\
+	:fk7=\E[19~:	:L_fk7=<F8>:\
+	:fk8=\E[20~:	:L_fk8=<F9>:\
+	:fk9=\E[21~:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+#
+# Sco386 entry for 2.2.3 and later version of Xenix
+# This Terminal Is Unsupported By Progress.
+s9|sco386b|sco 386 ansi entry:\
+	:GV=\E[12m3:\
+	:tc=sco386:
+#
+# HPterm terminal emulator (part of X windows) 
+# Progress does not support this terminal entry and does not recommend
+# using it in a production situation.
+# PUT SCREENs may not work properly with this terminal.
+# The 'End' key does not send any characters at all. 
+# Note that there is a binary flag xhp that must be used with any Hewlett
+# Packard terminal.
+# Do not use 'xi' because the terminal will scroll on the last char cell.
+# uses Term0 control codes. 
+# is - HP compatible mode, Inhibit End-of-Line Wrap, Display Functions Off,
+# Turn off menu, Transmit Functions to host, reset the function keys.
+# This Terminal Is Unsupported By Progress.
+hpterm|hpterm terminal emulator under motif:\
+        :cd=\EY:up=^K:\
+        :cm=\E&a%dy%dX:\
+        :is=\E&k0\E&s1C\EZ\E&j@\E&s1A\E&f1k0d3L\E[p\E&f2k0d3L\E[q\E&f3k0d3L\E[r\E&f4k0d3L\E[s\E&f5k0d3L\E[t\E&f6k0d3L\E[u\E&f7k0d3L\E[v\E&f8k0d3L\E[w\E&f9k0d3L\E[x\E&f10k0d3L\E[y\E&f11k0d3L\E[z\E&f12k0d3L\E[1:\
+        :.ws:\
+        :xhp:\
+        :co#80:\
+        :li#24:\
+        :CN=\E*dQ:\
+        :CF=\E*dR:\
+        :ce=\EK:\
+        :cl=\Eh\EJ:\
+        :so=\E&dB:\
+        :se=\E&d@:\
+        :us=\E&dD:\
+        :ue=\E&d@:\
+        :HS=\E&dH:\
+        :HR=\E&d@:\
+        :GS=:\
+        :GE=:\
+        :GH=-:\
+        :GV=|:\
+        :G1=+:\
+        :G2=+:\
+        :G3=+:\
+        :G4=+:\
+	:GO(F1)=\E[p:\
+	:HELP(F2)=\E[q:\
+	:ENTER-MENUBAR(F3)=\E[r:\
+	:END-ERROR(F4)=\E[s:\
+	:GET(F5)=\E[t:\
+	:PUT(F6)=\E[u:\
+	:RECALL(F7)=\E[v:\
+	:CLEAR(F8)=\E[w:\
+	:INSERT-MODE(F9)=\E[x:\
+	:CUT(F10)=\E[y:\
+	:COPY(F11)=\E[z:\
+	:PASTE(F12)=\E[1:\
+	:INSERT-MODE(INSERT)=\EQ:\
+	:HOME(HOME)=\E[h:\
+	:PAGE-UP(PAGE-UP)=\EV:\
+	:PAGE-DOWN(PAGE-DOWN)=\EU:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\EA:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\EB:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\ED:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\EC:\
+	:ku=\EA:\	:L_ku=<Up>:\
+	:kd=\EB:\	:L_kd=<Down>:\
+	:kr=\EC:\	:L_kr=<Right>:\
+	:kl=\ED:\	:L_kl=<Left>:\
+	:kh=\E[h:\	:L_kh=<HOME>:\
+	:PU=^P:\	:L_PU=<CTRL-P>:\
+	:PD=^D:\	:L_PD=<CTRL-D>:\
+	:ki=\EP:\	:L_ki=<ESC> P:\
+	:DL=^X:\	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:\	:L_ESC=<ESC> <ESC>:\
+	:bt=\E2:\	:L_bt=<ESC> 2:\
+	:fk0=:	:L_fk9=<F9>:\
+	:fk1=\E[q:	:L_fk9=<F2>:\
+	:fk2=\E[r:	:L_fk9=<F3>:\
+	:fk3=\E[s:	:L_fk9=<F4>:\
+	:fk4=\E[t:	:L_fk9=<F5>:\
+	:fk5=\E[u:	:L_fk9=<F6>:\
+	:fk6=\E[v:	:L_fk9=<F7>:\
+	:fk7=\E[w:	:L_fk9=<F8>:\
+	:fk8=\E[p:	:L_fk9=<F1>:\
+	:fk9=:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+#
+# HP 2392 and 700 series
+#
+# June 1, 1994.
+#
+# Note that there is a binary flag xhp that must be used with any Hewlett
+# Packard terminal that is a block mode terminal.  Function keys are
+# defined in the Initialization string (is).  Function key labels
+# are defined in the Si and appear in the blocks at the base of the
+# terminal screen.
+#
+# is:  the \EH\EJ is the command to clear the screen.
+# is:  Has \E&jB - Enable function keys and function key label display
+# is & Se: Has \E&j@ - Turn off PROGRESS fn key label on the way out.
+#
+# This Terminal Is Unsupported By Progress.
+hp|2392|2392a|2392A|hp2392|hp2392A|hp 2392|2622 series:\
+        :co#80:\
+        :li#24:\
+        :cl=\EH\EJ:\
+        :up=\EA:\
+        :is=\EH\EJ\E&j@\E&jB:\
+        :Si=\E&f2a1k2d2LGO\Ep\
+            \E&f2a2k4d2LHELP\Eq\
+            \E&f2a3k4d2LMENU\Er\
+            \E&f2a4k3d2LEND\Es\
+            \E&f2a5k4d2LOPEN\Et\
+            \E&f2a6k4d2LSAVE\Eu\
+            \E&f2a7k6d2LRECALL\Ev\
+            \E&f2a8k5d2LCLOSE\Ew\
+            \Ek\E&jB\E&s1A\E&s1g1H:\
+        :Se=\E&j@:\
+        :CA:\
+        :xs:\
+        :xhp:\
+        :ug#1:\
+        :sg#1:\
+        :cd=\EJ:ce=\EK:\
+        :cv=\E&a%dY:\
+        :ch=\E&a%dC:\
+        :cm=\E&a%dy%dC:\
+        :im=\EQ:ml=\El:mu=\Em:\
+        :ue=\E&d@:us=\E&dD:\
+        :al=\EL:am:bs:\
+        :da:db:\
+        :dc=\EP:\
+        :dl=\EM:\
+        :do=\EB:\
+        :ei=\ER:\
+        :ke=\E&s0A:ks=\E&s1A:\
+        :kb=^H:\
+        :kh=\Eh:\
+        :kd=\EB:kl=\ED:\
+        :kr=\EC:ku=\EA:\
+        :mi:nd=\EC:pt:\
+        :se=\E&d@:so=\E&dB:\
+        :BACKSPACE(BACKSPACE)=\010:\
+        :GO(F1)=\Ep\r:\
+        :HELP(F2)=\Eq\r:\
+        :ENTER-MENUBAR(F3)=\Er\r:\
+        :END-ERROR(F4)=\Es\r:\
+        :GET(F5)=\Et\r:\
+        :PUT(F6)=\Eu\r:\
+        :RECALL(F7)=\Ev\r:\
+        :CLEAR(F8)=\Ew\r:\
+        :PAGE-UP(PREV-SCRN)=\005:\
+        :PAGE-DOWN(NEXT-SCRN)=\014:\
+        :RETURN(RETURN)=\012:\
+        :DELETE-CHARACTER(DELETE)=\177:\
+        :DELETE-CHARACTER(DELETE-CHAR)=\EP:\
+        :STOP(CANCEL)=\177:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\EA:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\EB:\
+        :LEFT-END(ESC-LEFT-ARROW)=\E\ED:\
+        :RIGHT-END(ESC-RIGHT-ARROW)=\E\EC:\
+        :BE=^G:\
+        :GS=^n:         :GE=^o:\
+        :G1=W:          :G2=Q:\
+        :G3=A:          :G4=S:\
+        :GV=\072:       :GH=;:\
+        :G5=W:          :G6=Q:\
+        :G7=A:          :G8=S:\
+        :GDH=9:         :GDV=):\
+        :HS=\E&d@:      :HR=\E&d@:\
+        :BB=\E&dA:      :BR=\E&d@:\
+        :PU=^P:         :L_PU=<CTRL-P>:\
+        :PD=^D:         :L_PD=<CTRL-D>:\
+        :kh=\Eh:        :L_kh=<ESC-h>:\
+        :EN=\Ee:        :L_EN=<ESC-e>:\
+        :ki=\EQ:        :L_ki=<Insert>:\
+        :DL=\EP:        :L_DEL=<ESC-P>:\
+        :bc=^r:         :L_bc=<CTRL-r>:\
+        :bt=\Eb:        :L_bt=<ESC-b>:\
+	:fk1=\Eq\r:	:L_fk1=<F2>:\
+	:fk2=\Er\r:	:L_fk2=<F3>:\
+	:fk3=\Es\r:	:L_fk3=<F4>:\
+	:fk4=\Et\r:	:L_fk4=<F5>:\
+	:fk5=\Eu\r:	:L_fk5=<F6>:\
+	:fk6=\Ev\r:	:L_fk6=<F7>:\
+	:fk7=\Ew\r:	:L_fk7=<F8>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^y:      :L_Akp=Ctrl-Y:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+        :tc=v7kf:
+#
+# Unix 386 console
+# This entry will work with the console on ISC UNIX and most PC type
+# machines running unix or xenix for the 80386 chip.  Other ANSI devices
+# will support some subset of the output strings.  Key strings will vary
+# from device to device.
+# This Terminal Is Unsupported By Progress.
+u386|unix386:\
+	:is=\E[5m\E[m:\
+	:co#80: 	:li#25: 	:CA:\
+	:nd=\E[C:	:do=\E[B:	:cl=\E[2J\E[H:	:cm=\E[%i%d;%dH:\
+	:so=\E[7m:	:se=\E[m:	:us=\E[4m:	:ue=\E[m:\
+	:GS=\E[12m:	:GE=\E[10m:\
+	:G1=?:		:G2=Z:		:G3=@:		:G4=Y:\
+	:GC=E:		:GD=B:		:GH=D:		:GL=\064:\
+	:GR=C:		:GU=A:		:GV=\063:\
+	:G5=;: 		:G6=I: 		:G7=H: 		:G8=<:\
+	:Gc=N:		:Gd=K:		:Gh=M:		:Gl=9:\
+	:Gr=L:		:Gu=J:		:Gv=\072:\
+	:HS=\E[1m:	:HR=\E[m:	:BB=\E[5m:	:BR=\E[m:\
+	:al=\E[L:\
+	:am:\
+	:bs:\
+	:cd=\E[J:\
+	:ce=\E[K:\
+	:cl=\E[H\E[J:\
+	:cm=\E[%i%d;%dH:\
+	:co#80:\
+	:dc=\E[P:\
+	:dl=\E[M:\
+	:dn=\E[B:\
+	:ho=\E[H:\
+	:ic=\E[@:\
+	:li#25:\
+	:nd=\E[C:\
+	:ms:\
+	:pt:\
+	:so=\E[7m:\
+	:se=\E[m:\
+	:us=\E[7m:\
+	:ue=\E[m:\
+	:up=\E[A:\
+	:kb=^h:\
+	:ku=\E[A:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:kr=\E[C:\
+	:GS=\E[12m:\
+	:GE=\E[10m:\
+	:GV=\263:\
+	:GH=D:\
+	:G1=?:\
+	:G2=Z:\
+	:G3=\@:\
+	:G4=Y:\
+	:COLOR 5=\E[30m\E[44m:\E[37m\E[40m:\
+	:COLOR 6=\E[34m\E[47m:\E[37m\E[40m:\
+	:COLOR 7=\E[32m\E[44m:\E[37m\E[40m:\
+	:COLOR 8=\E[36m\E[44m:\E[37m\E[40m:\
+	:COLOR 9=\E[31m\E[44m:\E[37m\E[40m:\
+	:COLOR 10=\E[35m\E[44m:\E[37m\E[40m:\
+	:COLOR 11=\E[33m\E[44m:\E[37m\E[40m:\
+	:COLOR 12=\E[37m\E[44m:\E[37m\E[40m:\
+	:COLOR 13=\E[37m\E[40m:\E[37m\E[40m:\
+	:COLOR 14=\E[37m\E[44m:\E[37m\E[40m:\
+	:COLOR 15=\E[34m\E[47m:\E[37m\E[40m:\
+	:COLOR 16=\E[37m\E[44m\E[1m:\E[37m\E[40m\E[m:\
+	:COLOR 17=\E[31m\E[40m\E[5m:\E[37m\E[40m\E[m:\
+	:COLOR 18=\E[31m\E[40m:\E[37m\E[40m:\
+	:COLOR 19=\E[36m\E[44m:\E[37m\E[40m:\
+	:COLOR 20=\E[30m\E[46m:\E[37m\E[40m:\
+	:GO(F1)=^[OP:\
+	:HELP(F2)=^[OQ:\
+	:BACKSPACE(BACKSPACE)=^H:\
+	:ENTER-MENUBAR(F3)=^[OR:\
+	:END-ERROR(F4)=^[OS:\
+	:GET(F5)=^[OT:\
+	:PUT(F6)=^[OU:\
+	:RECALL(F7)=^[OV:\
+	:CLEAR(F8)=^[OW:\
+	:INSERT-MODE(F9)=^[OX:\
+	:CUT(F10)=^[OY:\
+	:COPY(F11)=^[OZ:\
+	:PASTE(F12)=^[OA:\
+	:FIND(F13)=^F:\
+	:BLOCK(F14)=^V:\
+	:HOME(HOME)=^[[H:\
+	:PAGE-UP(PREV-SCRN)=^Y:\
+	:INSERT-MODE(INSERT)=^T:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:kh=\E[H:	:L_kh=<Home>:\
+	:EN=\E[Y:	:L_EN=<End>:\
+	:PU=\E[V:	:L_PU=<PgUp>:\
+	:PD=\E[U:	:L_PD=<PgDn>:\
+	:ki=\E[@:	:L_ki=<Insert>:\
+	:DL=^X: 	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\E[z:	:L_bt=<SHIFT-Tab>:\
+	:fk0=\EOP:	:L_fk0=<F1>:\
+	:fk1=\EOQ:	:L_fk1=<F2>:\
+	:fk2=\EOR:	:L_fk2=<F3>:\
+	:fk3=\EOS:	:L_fk3=<F4>:\
+	:fk4=\EOT:	:L_fk4=<F5>:\
+	:fk5=\EOU:	:L_fk5=<F6>:\
+	:fk6=\EOV:	:L_fk6=<F7>:\
+	:fk7=\EOW:	:L_fk7=<F8>:\
+	:fk8=\EOX:	:L_fk8=<F9>:\
+	:fk9=\EOY:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
+#
+#
+#
+# Graphics characters are controlled by GV,GH (Vertical and Horizontal)
+# HS and HR are the highlight ON and highlight OFF.
+# BB and BR are the Blink ON and Blink OFF.
+# Updated 11-28-1994	RPT
+#
+# This Terminal Is Unsupported By Progress.
+aixterm|This is for the ibm6091 19inch bitmapped terminal:\
+        :al=\E[L:cr=^M:do=^J:sf=^J:bl=^G:am:le=^H:cd=\E[J:\
+        :ce=\E[K:cl=\E[H\E[2J:cm=\E[%i%d;%dH:co#80:li#24:\
+        :dc=\E[P:dl=\E[M:ho=\E[H:kn=\r:\
+        :ic=\E[@:im=\E6:ei=\E6:\
+        :md=\E[1m:mr=\E[7m:mb=\E[5m:mk=\E[8m:me=\E[0m:\
+        :ku=\E[A:kd=\E[B:kl=\E[D:kr=\E[C:kh=\E[H:kb=^H:\
+        :nd=\E[C:ta=^I:up=\E[A:xo:\
+        :ue=\E[m:us=\E[4m:se=\E[m:so=\E[7m:\
+        :GV=\263:       :GH=\304:\
+        :G1=\277:       :G2=\332:       :G3=\300:       :G4=\331:\
+        :GDV=\272:      :GDH=\315:\
+        :GD1=\273:      :GD2=\311:      :GD3=\310:      :GD4=\274:\
+        :HS=\E[1m:      :HR=\E[0m:      :BB=\E[5m:      :BR=\E[0m:\
+        :GO(F1)=\E[001q:\
+        :HELP(F2)=\E[002q:\
+        :ENTER-MENUBAR(F3)=\E[003q:\
+        :END-ERROR(F4)=\E[004q:\
+        :GET(F5)=\E[005q:\
+        :PUT(F6)=\E[006q:\
+        :RECALL(F7)=\E[007q:\
+        :CLEAR(F8)=\E[008q:\
+        :INSERT-MODE(F9)=\E[009q:\
+	:CUT(F10)=\E[010q:\
+	:COPY(F11)=\E[011q:\
+	:PASTE(F12)=\E[012q:\
+        :HOME(HOME)=\E[H:\
+        :END(END)=\E[146q:\
+        :DELETE(DELETE)=\E[P:\
+        :INSERT-MODE(INSERT)=\E[139q:\
+	:BACK-TAB(SHIFT-TAB)=\E[Z:\
+	:PAGE-UP(PAGE-UP)=\E[150q:\
+	:PAGE-DOWN(PAGE-DOWN)=\E[154q:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:fk0=\E[001q:	:L_fk0=<F1>:\
+	:fk1=\E[002q:	:L_fk1=<F2>:\
+	:fk2=\E[003q:	:L_fk2=<F3>:\
+	:fk3=\E[004q:	:L_fk3=<F4>:\
+	:fk4=\E[005q:	:L_fk4=<F5>:\
+	:fk5=\E[006q:	:L_fk5=<F6>:\
+	:fk6=\E[007q:	:L_fk6=<F7>:\
+	:fk7=\E[008q:	:L_fk7=<F8>:\
+	:fk8=\E[009q:	:L_fk8=<F9>:\
+	:fk9=\E[010q:	:L_fk9=<F10>:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+        :tc=v7kf:
+#
+#
+#
+# Somehow the Ansi definition for graphics characters has changed
+# between SCO v3.2 and SCO OpenServer5.  The following attempts to
+# correct these differences, however, there are still some issues:
+#	- the underscore character doesn't work but it never did
+#	  for ansi terminals.
+#	- the SCO terminal emulator doesn't seem to only allow anything
+#	  but blinking when the graphics mode is on.  This is probably
+#	  a SCO OpenServer5 ansi console terminal emulation bug.
+#
+# For OpenServer5 customers, the following can be done as an alternative
+# to having to change "TERM=ansi" to "TERM="ansi-os5" every time they
+# log in:
+#	- rename "ansi" to "ansi-old"
+#	- rename "ansi-os5" to "ansi"
+#	- rename ":tc=ansi:", which appears under the original "ansi-os5"
+#	  list, to ":tc=ansi-old:".
+# These fixes will allow OpenServer5 customers to use TERM=ansi on the console.
+#
+ansi-os5|ansi entry for SCO OpenServer5:\
+ 	:BB=\E[5m:\
+ 	:G1=?:\
+ 	:G2=Z:\
+ 	:G3=@:\
+ 	:G4=Y:\
+ 	:GV=\E[12m3:\
+ 	:GH=D:\
+ 	:GS=\E[12m:\
+ 	:GE=\E[10m:\
+	:tc=ansi:
+#
+#linux
+linux|linux-lat|linux console:\
+        :START-RESIZE(ESC-1)=\E1:\
+        :GO(F1)=\E[[A:\
+	:GO(CTRL-X)=^x:\
+        :HELP(F2)=\E[[B:\
+        :ENTER-MENUBAR(F3)=\E[[C:\
+        :END-ERROR(F4)=\E[[D:\
+	:GET(F5)=\E[[E:\
+	:PUT(F6)=\E[17~:\
+        :RECALL(F7)=\E[18~:\
+        :CLEAR(F8)=\E[19~:\
+	:CLEAR(CTRL-Z)=^z:\
+	:INSERT-MODE(CTRL-T)=^t:\
+        :CUT(F10)=\E[21:\
+        :COPY(F11)=\E[23:\
+        :PASTE(F12)=\E[24:\
+	:BACKSPACE(BACKSPACE)=^?:\
+	:HOME(HOME)=\E[1~:\
+	:DELETE(DELETE)=\E[3~:\
+	:END(END)=\E[4~:\
+	:PAGE-UP(PAGE-UP)=\E[5~:\
+	:PAGE-DOWN(PAGE-DOWN)=\E[6~:\
+	:BLOCK(CTRL-V)=^v:\
+	:HOME(ESC-<)=\E<:\
+	:END(ESC->)=\E>:\
+	:is=\E>\E[?3l\E[?4l\E[m\E[?7h\E[?8h\E(B\E)0:\
+	:nd=2\E[C:\
+	:do=\E[B:\
+	:cl=50\E[;H\E[2J:\
+	:cm=5\E[%i%d;%dH:\
+	:so=2\E[7m:\
+	:DELETE-COLUMN(ESC-CTRL-Z)=\E[4:\
+	:se=2\E[m:\
+	:us=2\E[7m:\
+	:ue=2\E[m:\
+	:GS=^N:\
+	:GE=^O:\
+	:G1=k:\
+	:G2=l:\
+	:G3=m:\
+	:G4=j:\
+	:GC=n:\
+	:GD=w:\
+	:GH=q:\
+	:GL=u:\
+	:GR=t:\
+	:GU=v:\
+	:GV=x:\
+	:HS=2\E[1m:\
+	:HR=2\E[m:\
+	:BB=2\E[5m:\
+	:BR=2\E[m:\
+	:ks=\E[?1h\E=:\
+	:ke=\E[?1l\E>:\
+	:cd=10\E[J:\
+	:ce=10\E[K:\
+	:co#80:\
+	:kd=\E[B:\
+	:kl=\E[D:\
+	:kr=\E[C:\
+	:ku=\E[A:\
+	:li#24:\
+	:up=\E[A:\
+	:xi:\
+	:cs=\E[%i%d;%dr:\
+	:sr=\EM:\
+	:sf=\n:\
+	:GO(PF1)=\EOP:\
+	:HELP(PF2)=\EOQ:\
+	:ENTER-MENUBAR(PF3)=\EOR:\
+	:END-ERROR(PF4)=\EOS:\
+	:PAGE-UP(ESC-UP-ARROW)=\E\E[A:\
+	:PAGE-DOWN(ESC-DOWN-ARROW)=\E\E[B:\
+	:LEFT-END(ESC-LEFT-ARROW)=\E\E[D:\
+	:RIGHT-END(ESC-RIGHT-ARROW)=\E\E[C:\
+	:ku=\E[A:	:L_ku=<Up>:\
+	:kd=\E[B:	:L_kd=<Down>:\
+	:kr=\E[C:	:L_kr=<Right>:\
+	:kl=\E[D:	:L_kl=<Left>:\
+	:bc=\177:       :.L_bc:\
+	:kh=\Eh:	:L_kh=<ESC> h:\
+	:EN=\Ee:	:L_EN=<ESC> e:\
+	:PU=^U: 	:L_PU=<CTRL-U>:\
+	:PD=^K: 	:L_PD=<CTRL-D>:\
+	:ki=\Ei:	:L_ki=<ESC> i:\
+	:DL=^X: 	:L_DL=<CTRL-X>:\
+	:ESC=\E\E:	:L_ESC=<ESC> <ESC>:\
+	:bt=\Eb:	:L_bt=<ESC> b:\
+	:fk4=\EOP:	:L_fk4=<PF1>:\
+	:fk1=\EOQ:	:L_fk1=<PF2>:\
+	:fk2=\EOR:	:L_fk2=<PF3>:\
+	:fk3=\EOS:	:L_fk3=<PF4>:\
+	:fk5=\E6:	:L_fk5=<ESC> 6:\
+	:fk6=\E7:	:L_fk6=<ESC> 7:\
+	:fk7=\E8:	:L_fk7=<ESC> 8:\
+        :Aka=^k:      :L_Aka=Ctrl-K:\
+        :Akd=^z:      :L_Akd=Ctrl-Z:\
+        :Akp=^r:      :L_Akp=Ctrl-R:\
+        :Aks=^l:      :L_Aks=Ctrl-L:\
+        :Aku=\Em:      :L_Aku=Esc-M:\
+        :Akw=^g:      :L_Akw=Ctrl-G:\
+        :Aki=^e:      :L_Aki=Ctrl-E:\
+	:tc=v7kf:
