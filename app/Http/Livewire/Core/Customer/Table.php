@@ -209,7 +209,9 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Customer::where('account_id', $this->account->id);
+        return Customer::where('account_id', $this->account->id)
+                        ->orderBy('has_open_order', 'DESC')
+                        ->orderBy('name', 'ASC');
     }
 
     private function format_phone(string $phone_no)
