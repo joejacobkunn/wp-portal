@@ -1,0 +1,103 @@
+#!/bin/sh
+# /*************************************************************/
+# /* Copyright (c) 1993-2011 by Progress Software Corporation  */
+# /*                                                           */
+# /* All rights reserved.  No part of this program or document */
+# /* may be  reproduced in  any form  or by  any means without */
+# /* permission in writing from Progress Software Corporation. */
+# /*************************************************************/
+#
+# proinst - file to initiate CDROM installation by copying all scripts
+# from the CDROM filesystem to the users current directory.
+#
+
+# Assign args if they exist
+option1=$1
+option2=$2
+option3=$3
+option4=$4
+option5=$5
+
+# set home location
+home=`pwd`;export home
+
+mountdir=`dirname $0`;export mountdir
+
+# Convert mountdir to an absolute path if it is a relative path
+FULLPATH=`echo $mountdir | grep "^/"`
+if [ "x$FULLPATH" = "x" ]
+then
+    prevdir=`pwd`
+    cd $mountdir
+    mountdir=`pwd`
+    cd $prevdir
+fi
+
+cfg_file=`ls $mountdir/*.cfg|head -1`
+cfg_file=`basename $cfg_file`
+if [ "$mountdir" = "." ]
+then
+ echo "You may not run this installation from $home.  Change to another"
+ echo "directory and type $home/proinst to start the installation."
+ exit
+elif [ -f *.cfg ]
+then
+ echo "A version of `ls *.cfg` has been detected in your current"
+ echo "working directory. You may not run this installation from a"
+ echo "directory containing a Progress installation. Change to another"
+ echo "directory and type $mountdir/proinst to start the installation."
+exit
+else
+ cp $mountdir/proinst .
+ cp $mountdir/_ovrly .
+ cp $mountdir/install.tab .
+ cp $mountdir/*.cfg .
+ cp $mountdir/itermcap .
+ cp $mountdir/installd.ini . 
+ cp $mountdir/intlsets.txt .
+ cp $mountdir/proupdt .
+ if test -r $mountdir/Readme.txt
+    then
+        cp $mountdir/Readme.txt ./README.TXT
+    else
+        cp $mountdir/README.TXT .
+ fi
+ cp $mountdir/inst_hlp .
+fi
+
+#list of temporary files to remove should we need to
+tempfiles="proinst _ovrly installd.ini install.tab $cfg_file Readme.txt README.TXT itermcap intlsets.txt proupdt inst_hlp";export tempfiles
+
+# set up a trap to remove all temporary installation files 
+trap 'sig=$?
+ if [ $sig -ne 0 ]
+ then
+  echo "Cleaning up temporary files..."
+  cd $home
+  rm -rf $tempfiles
+ else
+  cd $home
+  rm -rf $tempfiles
+ fi
+ exit
+' 0 1 2 3 10 13 15
+
+# setup PROTERMCAP to point at local protermcap
+PROTERMCAP=$home/itermcap;export PROTERMCAP
+
+# setup HHPATH for Help
+HHPATH=$home;export HHPATH
+HOHPATH=$home;export HOHPATH
+
+# run the installation executable
+#
+# NOTE: $mountdir command line argument to the installation
+# executable is needed to find the archives on the CDROM disk.
+
+# Unload all object files with load and use counts of zero on AIX systems
+machid=`uname`
+cmd=/usr/sbin/slibclean
+[ "x$machid" = "xAIX" ] && [ -f $cmd ] && $cmd > /dev/null 2>&1
+
+$mountdir/_ovrly $mountdir $option1 $option2 $option3 $option4 $option5
+

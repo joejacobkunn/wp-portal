@@ -48,7 +48,7 @@ class Order extends Model
 
     public function scopeOpenOrders(Builder $query)
     {
-        $query->whereIn('stagecd', [1, 2, 3]);
+        $query->whereIn('stagecd', [1, 2]);
     }
 
     public function getStageCode($stage_code)

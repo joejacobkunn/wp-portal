@@ -12,7 +12,7 @@ services:
     tty: true
     volumes:
         - ./:/var/www/html/
-        - ./php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
+        - ./docker/php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
@@ -28,7 +28,7 @@ services:
     tty: true
     volumes:
         - ./:/var/www/html/
-        - ./nginx/conf.d/:/etc/nginx/conf.d/
+        - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     ports:
       - "80:80"
       - "443:443"
@@ -46,8 +46,8 @@ services:
     volumes:
       - wp_dbdata:/var/lib/mysql/
     environment:
-      MYSQL_DATABASE: laravel_web
-      MYSQL_ROOT_PASSWORD: replace_mysql_root_password
+      MYSQL_DATABASE: wp_portal
+      MYSQL_ROOT_PASSWORD: root_password
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     networks:
@@ -59,7 +59,7 @@ services:
     image: mailhog/mailhog
     build:
       context: .
-      dockerfile: mailhog/Dockerfile
+      dockerfile: docker/mailhog/Dockerfile
     container_name: wp_mail
     restart: always
     tty: true

@@ -30,8 +30,6 @@ class SXSync {
 
         if($this->payload['event'] == 'order.shipped') 
             $this->orderShipped($this->payload['data']);
-
-
         
     }
 
@@ -45,7 +43,14 @@ class SXSync {
 
         //create customer in mysql table
         
-        Customer::create([
+        $customer = Customer::firstOrCreate(
+        [
+            'account_id' => $account->id,
+            'sx_customer_number' => $sx_customer->custno
+
+        ],
+
+        [
             'account_id' => $account->id,
             'sx_customer_number' => $sx_customer->custno,
             'name' => $sx_customer->name,
@@ -66,12 +71,16 @@ class SXSync {
             'is_active' => $sx_customer->statustype ?? 1,
 
         ]);
+
+        return response()->json(['status' => 'success', 'customer_id' => $customer->id], 201);
     }
 
     private function updateCustomer($data)
     {
+        $account = Account::where('sx_company_number', $data['cono'])->first();
+
         $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->first();
-        $customer = Customer::where('cono', $data['cono'])->where('sx_customer_number',$data['sx_customer_number'])->first();
+        $customer = Customer::where('account_id', $account->id)->where('sx_customer_number',$data['sx_customer_number'])->first();
 
         $address = $this->split_address($sx_customer->addr);
 
@@ -94,15 +103,30 @@ class SXSync {
             'is_active' => $sx_customer->statustype ?? 1,
         ]);
 
+        return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
+
     }
 
     private function updateCustomerOpenOrderStatus($data)
     {
-        $customer = Customer::where('cono', $data['cono'])->where('sx_customer_number',$data['sx_customer_number'])->first();
+        $account = Account::where('sx_company_number', $data['cono'])->first();
+
+        $customer = Customer::where('account_id', $account->id)->where('sx_customer_number',$data['sx_customer_number'])->first();
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();
 
         if($no_open_orders > 0) $customer->update(['has_open_order' => 1]);
         else $customer->update(['has_open_order' => 0]);
+
+        $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->first();
+        
+        $customer->update([
+            'last_sale_date' => $sx_customer->lastsaledt,
+            'sales_rep_in' => $sx_customer->slsrepin,
+            'sales_rep_out' => $sx_customer->slsrepout,
+            'is_active' => $sx_customer->statustype ?? 1
+        ]);
+
+        return response()->json(['status' => 'success', 'customer_id' => $customer->id, 'has_open_order' => ($no_open_orders == 0) ? 0 : 1], 200);
     }
 
     private function orderShipped($data)

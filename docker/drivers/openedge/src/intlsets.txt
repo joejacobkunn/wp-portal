@@ -1,0 +1,134 @@
+[NLSDATA]
+#Language Country date number -cpinternal -cpcoll -cpcase prolang
+#
+American Canada dmy 44 46 ISO8859-1 Basic Basic ame
+American Canada dmy 44 46 ISO8859-15 Basic Basic ame
+American Canada dmy 44 46 1252 Basic Basic ame
+American United_States mdy 44 46 ISO8859-1 Basic Basic ame
+American United_States mdy 44 46 ISO8859-15 Basic Basic ame
+American United_States mdy 44 46 1252 Basic Basic ame
+American United_States mdy 44 46 UTF-8 Basic Basic utf
+Arabic Middle_East dmy 44 46 1256 Basic Basic arb
+Arabic Middle_East dmy 44 46 1256 Arabic9 Basic arb
+Croatian Croatia dmy 46 44 1250 Croatian Basic hrv
+Czech Czech_Republic dmy 46 44 1250 Czech Basic cze
+Danish Denmark dmy 44 46 ISO8859-1 Danish Basic dan
+Danish Denmark dmy 44 46 ISO8859-15 Danish Basic dan
+Danish Denmark dmy 44 46 1252 Danish Basic dan
+Dutch Belgium dmy 46 44 ISO8859-1 Basic Basic dut
+Dutch Belgium dmy 46 44 ISO8859-15 Basic Basic dut
+Dutch Belgium dmy 46 44 1252 Basic Basic dut
+Dutch Netherlands dmy 46 44 ISO8859-1 Basic Basic dut
+Dutch Netherlands dmy 46 44 ISO8859-15 Basic Basic dut
+Dutch Netherlands dmy 46 44 1252 Basic Basic dut
+English-Intl Australia dmy 44 46 ISO8859-1 Basic Basic eng
+English-Intl Australia dmy 44 46 ISO8859-15 Basic Basic eng
+English-Intl Australia dmy 44 46 1252 Basic Basic eng
+English-Intl Canada dmy 44 46 ISO8859-1 Basic Basic eng
+English-Intl Canada dmy 44 46 ISO8859-15 Basic Basic eng
+English-Intl Canada dmy 44 46 1252 Basic Basic eng
+English-Intl United_Kingdom dmy 44 46 ISO8859-1 Basic Basic eng
+English-Intl United_Kingdom dmy 44 46 ISO8859-15 Basic Basic eng
+English-Intl United_Kingdom dmy 44 46 1252 Basic Basic eng
+English-Intl United_States mdy 44 46 ISO8859-1 Basic Basic eng
+English-Intl United_States mdy 44 46 ISO8859-15 Basic Basic eng
+English-Intl United_States mdy 44 46 1252 Basic Basic eng
+Finnish Finland dmy 44 46 ISO8859-1 Finnish Basic fin
+Finnish Finland dmy 44 46 ISO8859-15 Finnish Basic fin
+Finnish Finland dmy 44 46 1252 Finnish Basic fin
+French Belgium dmy 46 44 ISO8859-1 Basic French fre
+French Belgium dmy 46 44 ISO8859-15 Basic French fre
+French Belgium dmy 46 44 1252 Basic French fre
+French Canada dmy 46 44 ISO8859-1 Basic Basic fre
+French Canada dmy 46 44 ISO8859-15 Basic Basic fre
+French Canada dmy 46 44 1252 Basic Basic fre
+French France  dmy 46 44 ISO8859-1 Basic French fre
+French France  dmy 46 44 ISO8859-15 Basic French fre
+French France  dmy 46 44 1252 Basic French fre
+French Switzerland dmy 46 44 ISO8859-1 Basic Basic fre
+French Switzerland dmy 46 44 ISO8859-15 Basic Basic fre
+French Switzerland dmy 46 44 1252 Basic Basic fre
+German Austria dmy 46 44 ISO8859-1 German-Library Basic ger
+German Austria dmy 46 44 ISO8859-1 German9 Basic ger
+German Austria dmy 46 44 ISO8859-15 German9 Basic ger
+German Austria dmy 46 44 1252 German-Library Basic ger
+German Austria dmy 46 44 1252 German9 Basic ger
+German Germany dmy 46 44 ISO8859-1 German-Library Basic ger
+German Germany dmy 46 44 ISO8859-1 German9 Basic ger
+German Germany dmy 46 44 ISO8859-15 German9 Basic ger
+German Germany dmy 46 44 1252 German9 Basic ger
+German Germany dmy 46 44 1252 German-Library Basic ger
+German Switzerland dmy 46 44 ISO8859-1 German-Library Basic ger
+German Switzerland dmy 46 44 ISO8859-1 German9 Basic ger
+German Switzerland dmy 46 44 ISO8859-15 German9 Basic ger
+German Switzerland dmy 46 44 1252 German-Library Basic ger
+German Switzerland dmy 46 44 1252 German9 Basic ger
+Greek Greece dmy 44 46 1253 Greek Basic gre
+Hebrew Israel dmy 44 46 ISO8859-8 Hebrew Basic hbr
+Hungarian Hungary ymd 46 44 1250 Hungarian Basic hun
+Icelandic Iceland ymd 44 46 ISO8859-1 Icelandic Basic isl
+Icelandic Iceland ymd 44 46 ISO8859-15 Icelandic Basic isl
+Icelandic Iceland ymd 44 46 1252 Icelandic Basic isl
+Italian Italy dmy 46 44 ISO8859-1 Basic Basic ita
+Italian Italy dmy 46 44 ISO8859-15 Basic Basic ita
+Italian Italy dmy 46 44 1252 Basic Basic ita
+Italian Switzerland dmy 46 44 ISO8859-1 Basic Basic ita
+Italian Switzerland dmy 46 44 ISO8859-15 Basic Basic ita
+Italian Switzerland dmy 46 44 1252 Basic Basic ita
+Japanese Japan ymd 44 46 SHIFT-JIS Basic Basic jpn
+Korean Korea ymd 44 46 CP949 Basic Basic kor
+Lithuanian Lithuania ymd 46 44 1257 Lithuanian Basic lit
+Norwegian Norway dmy 44 46 ISO8859-1 Norwegian Basic nor
+Norwegian Norway dmy 44 46 ISO8859-15 Norwegian Basic nor
+Norwegian Norway dmy 44 46 1252 Norwegian Basic nor
+Persian Iran dmy 44 46 1256 Basic Basic per
+Polish Poland ymd 46 44 1250 Polish Basic pol
+Portuguese Brazil dmy 44 46 ISO8859-1 Basic Basic brz
+Portuguese Brazil dmy 44 46 ISO8859-15 Basic Basic brz
+Portuguese Brazil dmy 44 46 1252 Basic Basic brz
+Portuguese Portugal dmy 46 44 ISO8859-1 Basic Basic por
+Portuguese Portugal dmy 46 44 ISO8859-15 Basic Basic por
+Portuguese Portugal dmy 46 44 1252 Basic Basic por
+Romanian Romania dmy 46 44 1250 Romanian Basic rom
+Russian Russia dmy 44 46 1251 Russian Basic rus
+Serbian Serbia dmy 46 44 1250 Czech Basic srb
+Simplified-Chinese PRC dmy 44 46 CP936 Basic Basic sch
+Spanish Latin_America dmy 44 46 ISO8859-1 Spanish9 Basic spl
+Spanish Latin_America dmy 44 46 ISO8859-1 Basic Basic spl
+Spanish Latin_America dmy 44 46 ISO8859-15 Basic Basic spl
+Spanish Latin_America dmy 44 46 ISO8859-15 Spanish9 Basic spl
+Spanish Latin_America dmy 44 46 1252 Spanish9 Basic spl
+Spanish Latin_America dmy 44 46 1252 Basic Basic spl
+Spanish Spain dmy 46 44 ISO8859-1 Spanish9 Basic spa
+Spanish Spain dmy 46 44 ISO8859-1 Basic Basic spa
+Spanish Spain dmy 46 44 ISO8859-15 Basic Basic spa
+Spanish Spain dmy 46 44 ISO8859-15 Spanish9 Basic spa
+Spanish Spain dmy 46 44 1252 Basic Basic spa
+Spanish Spain dmy 46 44 1252 Spanish9 Basic spa
+Slovak Slovakia dmy 46 44 1250 Czech Basic svk
+Slovenian Slovenia dmy 46 44 1250 Slovenian Basic svn
+Swedish Sweden ymd 44 46 ISO8859-1 Swedish Basic swe
+Swedish Sweden ymd 44 46 ISO8859-15 Swedish Basic swe
+Swedish Sweden ymd 44 46 1252 Swedish Basic swe
+Thai Thailand dmy 44 46 620-2533 Basic Basic tai
+Traditional-Chinese Taiwan dmy 44 46 CP950 Basic Basic tch
+Traditional-Chinese Hong-Kong dmy 44 46 CP950-HKSCS Basic Basic tch
+Turkish Turkey dmy 44 46 1254 Turkish Basic tur
+#
+[NUMBERFORMATS]
+# Field delimiter = '|'
+# Field1 = Display Format
+# Field2 = Description
+# Field3 = Value used for -numsep
+# Field4 = Value used for -numdec
+#
+1'234,56|(apostrophe, comma)|39|44|
+1'234.56|(apostrophe, period)|39|46|
+1,234$56|(comma, dollar)|44|36|
+1,234.56|(comma, period)|44|46|
+1.234,56|(period, comma)|46|44|
+1.234$56|(period, dollar)|46|36|
+1 234,56|(space, comma)|32|44|
+1 234.56|(space, period)|32|46|
+1 234,56|(non-breaking space, comma)|160|44|
+1 234.56|(non-breaking space, period)|160|46|

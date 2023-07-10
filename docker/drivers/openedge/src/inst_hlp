@@ -1,0 +1,1397 @@
+##############################################################################
+#                             Install Help File                              #
+##############################################################################
+*10010*A JVM has not been detected Help
+
+The Installation Utility cannot find a Java Virtual Machine (JVM) on the
+platform to which you are installing. You can proceed with the installation
+process, but you can only install products that do not require a JVM.
+
+Note: This situation will not occur if you are installing on a platform
+for which Progress Software Corporation automatically ships a JVM. For
+details about these platforms and others for which the JVM is not shipped,
+see the OpenEdge Getting Started: Installation and Configuration guide.
+
+
+*10020*Detected JVM version does not match the supported version Help
+
+The Installation Utility did not detect the currently supported JVM on the
+platform to which you are installing. Your options to proceed are:
+
+- Continue with the current installation, proceeding with the unsupported
+  JVM version on your system. However, unpredicatable results might occur.
+
+- Type N to exit the current install at this time. Obtain the supported
+  JVM version and install it. Ensure you install it at the beginning of
+  the search path ($Path). After you complete these tasks, you must
+  re-install.
+
+If you are performing a batch installation, you can add an entry in
+the .ini file to permit a batch install to override this warning. See
+the chapter "Performing an OpenEdge Installation on UNIX," in the
+OpenEdge Getting Started: Installation and Configuration guide.
+
+Note: Progress Software Corporation recommends that you install the
+supported JVM version to ensure full functionality.
+
+*10030*Product Configuration Data Help
+
+Requires your company name, and the serial number and associated
+control code for each OpenEdge product you plan to install.
+
+Refer to your License Addendum or completed "Preinstallation Checklist
+for UNIX" documents for serial and control code numbers.
+
+Note: The License Addendum is available for download from the
+      Progress Download Center (http://www.progress.com/esd).
+      Also, if you have not completed the
+      "Preinstallation Checklist for UNIX," complete it before you
+      continue the installation. Obtain the checklist from an
+      appendix of the OpenEdge Getting Started: Installation and
+      Configuration guide.
+
+Procedure for this dialog box
+
+To identify the products you plan to install:
+
+1. Type your company name in the Company Name field and press TAB.
+
+2. Type the nine-digit serial number in the Serial Number field and press TAB.
+
+3. Type the series of three, five-digit product numbers
+   associated with a product in the Control Number field.
+   (Press TAB to advance from one series to the next.)
+
+Note: This information is not case sensitive. The Installation Utility
+      automatically converts all letters to uppercase.
+
+4. Press ENTER. The Utility confirms and accepts valid control numbers.
+
+5. Repeat Steps 2 through 4 for each product you want to install.
+
+6. Press CTRL-E, or the appropriate key combination for your terminal type,
+   after you enter the final control code number. You will be prompted to
+   confirm that you have finished entering values on this dialog box.
+
+The following table describes the menu options for this dialog box:
+
+Option             Function
+-----------------  ----------------------------------------------------------
+ENTER              Confirms that the product information entered is correct
+(Additional)       and clears the input fields for additional information for
+                   another OpenEdge product.
+
+CTRL-E (Done)      Confirms all product information is entered and continues
+                   to the next step in the installation. The actual key you
+                   use to indicate you are done varies by terminal type.
+                   Refer to the Product Configuration Data dialog box for the
+                   appropriate key combination for your terminal.
+
+CTRL-T (Quit)      Quits the Installation Utility. The Quit Confirmation
+                   dialog box appears. Type Y to quit or N to continue the
+                   installation.  (When you quit the installation process,
+                   the Installation Utility and all the installation files
+                   you copied into your working directory are deleted.)
+
+CTRL-N             Displays the online Release Notes.
+(Release Notes)
+
+CTRL-V (View)      Displays the selected OpenEdge products for which you
+                   entered control numbers.
+
+TAB (Next Field)   Moves to the next field in the dialog box.
+
+CTRL-P (Help)      Displays the help topic for this dialog box.
+
+CTRL-A (License    A License Addendum File contains the serial numbers and 
+Addendum File)     product control codes for the OpenEdge software license you
+                   purchased.  Enter the complete path to your file.
+
+                   A License Addendum File is acquired from the Progress
+                   Software Download Celnter.  See OpenEdge Getting Started:
+                   Installation and Configuration for information and 
+                   instructions for obtaining a License Addendum File.
+
+
+*10035*Specifying Serial Numbers and Controls Codes from an Electronic File
+
+To facilitate the installation process, you can automatically enter serial
+numbers and product control codes using a License Addendum File accessible
+from the Progress Software Download Center. This file contains the serial
+numbers and control codes for the OpenEdge software license you purchased.
+
+To enter the serial number and control code for your product automatically:
+
+1.  In the License Addendum File field, enter the name and path of the
+    License Addendum file.
+
+    Once the license addendum file is validated, the Product(s) to be
+    installed list is automatically populated.
+
+2.  Type CTRL-V to view the products loaded from the License Addendum.
+
+
+Accessing the License Addendum File from the Progress Software Download Center
+
+To retrieve the License Addendum file from the download center:
+
+1.  Access the Progress Software Download Center at
+    http://www.progress.com/esd.
+
+    Note: You must be a registered user to download the License Addendum
+    File. To become a registered user, goto
+    http://www.progress.com/cgi-bin/custprofile.cgi/esd/index_reg.w
+
+2.  From the Download Center Login page, enter your username and password.
+    The Administration page appears.
+
+3.  On the Administration page, select Download software.
+
+4.  Select the appropriate product catalog for your OpenEdge product. For
+    example, Progress OpenEdge Release. The Software page appears.
+
+5.  On the Software page, select the OpenEdge product. The Platforms page
+    appears.
+
+    Note: The Software page may display a suite of OpenEdge products. Select
+    the product for which you want the License Addendum File.
+
+6.  The Platforms page displays all of the platforms and software releases
+    for which you are entitled. Right-click the License Addendum field for the
+    appropriate platform.
+
+    In the pop-up menu, select Save Target As. A Save As download window
+    appears.
+
+7.  The download window displays the License Addendum file (or files) for the
+    selected OpenEdge product. Select the .HTM file and save it to a local
+    directory.
+
+
+    Note: The dload_serialNum.htm file is selected by default. If you want to
+    save multiple license addendum files for future ePack installations,
+    rename the file.
+
+Once the License Addendum File is saved locally, you can access it from the
+Serial Numbers and Control Codes dialog.
+
+*10040*Select Server Engine Help
+
+The SQL Server database engine supports queries written in the SQL language.
+This option is selected by default.
+
+Note: When you install a database product, the Installation Program by
+default installs the ABL database server connection needed to support
+queries written in ABL.
+
+To indicate whether you want to use the SQL database server connection
+option:
+
+1. Retain the check mark to accept the option or remove the check mark
+   to deselect the option.
+
+2. Choose Continue with Install to advance to the next dialog box. 
+
+
+*10050*JavaHome Pathname Help
+
+About this dialog box
+
+The Installation Utility searches for the correct version of the JRE/JDK
+before continuing the installation. If the program does not find the correct
+version, the JavaHome Pathname dialog box appears in which you must specify
+the location of your system's Java installation directory.
+
+Note: The Installation Utility does not automatically install the Java
+      Runtime Environment (JRE) and the Java Development Kit (JDK) on all
+      UNIX platforms. For details about the conditions that govern whether
+      the JRE and/or JDK are installed for a specific platform, see
+      OpenEdge Getting Started: Installation and Configuration guide.
+
+About this dialog box
+
+To define where the existing Java installation directory is located on your
+target system:
+
+1. Type the absolute pathname associated with your Java installation
+   directory in the Enter JavaHome Path field. (The Java installation
+   directory must be in your search path when you install and then run
+   OpenEdge.)
+
+2. Press ENTER to continue the installation.
+
+*10060*Sonic ESB Properties Help
+
+About this dialog box
+
+Products such as the OpenEdge Application Server Enterprise and 4GL 
+Development System recommend the use of the Sonic ESB Container feature. 
+However, they do not install the container by default.  If you are installing 
+the OpenEdge Adapter for Sonic ESB, either as a stand-alone product or as a 
+component of another OpenEdge product, complete this dialog box to identify 
+the Sonic ESB Container properties.
+
+Note: If you decide not to specify a local Sonic ESB installation directory
+      during the installation, the OpenEdge Sonic ESB Adapter configuration
+      files will not be tailored or installed into the Sonic ESB environment.
+      You must manually perform this task as a postinstallation activity.
+
+Procedure for this dialog box
+
+To identify the values to use for your OpenEdge Adapter for Sonic ESB to 
+install the adapter configuration files: 
+
+1. Do one of the following:
+
+ - Accept the host name that appears as the default container name value
+   in the Container Name field.
+
+ - Define a different container name that is unique to the the management
+   broker. (Required if your product already has a <hostname>Container
+   defined.)
+
+2. Accept Domain1, the default value that appears in the Domain Name field,
+   or type a new value that is associated with the value you entered for the
+   Container Name field in Step 1.
+
+3. Accept tcp://localhost:2506, the default value that appears in
+   the Connection URL field, or type a new value.
+
+4. Accept Administrator, the default value that appears in the User Name
+   field, or type a new value.
+
+5. Accept Administrator, the default value that appears in the Password
+   field, or type a new value.
+
+6. Proceed according to the type of OpenEdge Adapter for Sonic ESB install
+   you want to perform:
+
+    -  To complete a local installation of the adapter:
+
+       Browse to select the directory location for the SonicESB Home
+       Directory. The Adapter for Sonic ESB configuration files are
+       installed under the Domain Manager directory structure.
+
+       Press ENTER to continue the installation.
+
+    -  To complete a remote installation of the adapter:
+
+       Leave the SonicESB Home Directory field blank and press ENTER.
+       An Attention message box appears, stating that you must manually
+       configure the remote system's Sonic Management Console. For
+       information about manually install the OpenEdge Sonic ESB Adapter,
+       see "OpenEdge Application Server: Administration."
+
+       Press ENTER to continue the installation.
+
+*10070*Install Type and Destination Help
+
+About this dialog box
+
+The Install Type and Destination dialog box supports selecting the
+installation type, and choosing installation destination and working path
+directories. You can also perform optional tasks such as view Release Notes.
+
+This dialog box is comprised of two main functional areas: the interactive
+menu selection box at the top and the display-only area that summarizes
+the selections you make.
+
+Procedure for this dialog box
+
+The following procedure describes how to select an option in the menu
+selection box; the table that follows identifies and describes each option
+you can perform.
+
+To select an option:
+
+1. Highlight the option using the SPACEBAR key, the TAB key, the CURSOR
+   keys.
+
+2. Press ENTER to execute the selected option.
+
+3. On the dialog box associated with the selection option, accept a selection
+   or enter values, as needed.
+
+4. Repeat Steps 1 and 3 for each option, as needed.
+
+5. Choose Continue with Installation. The dialog box that appears depends on
+   the products you are installing and/or the type of installation you
+   selected.
+
+The following table describes the menu options for this dialog box:
+
+Option                Description
+--------------------  --------------------------------------------------------
+Select Type of        Allows you to select the type of installation you want
+Installation          to perform: Complete or Custom.
+
+Select Destination    Allows you to change the default destination pathname
+Pathname              (/usr/dlc) and work directory (/usr/wrk) pathname.
+                      (The Installation Utility determines if there is
+                      enough disk space on the destination location to
+                      recieve the install. The Utility prompts you to define a
+                      different destination if there are disk space problems
+                      associated with your installation's size.)
+
+Select Management     Allows you to change the default destination pathname
+Pathname              (/usr/oemgmt) and work directory (/usr/oemgmt_wrk) 
+                      pathname for OpenEdge Management.
+                      (The Installation Utility determines if there is
+                      enough disk space on the destination location to
+                      recieve the install. The Utility prompts you to define a
+                      different destination if there are disk space problems
+                      associated with your installation's size.)
+
+Continue the          Displays the next dialog box based on the products
+Installation          you are installing and/or the type of installation
+                      you selected.
+
+View Release Notes    View the latest release notes using the vi or
+                      emacs editor. When you select this option, the
+                      Installation Utility launches the editor.  To exit vi
+                      after reading the Release Notes, type :q!. To exit
+                      emacs, press CTRL-X and the CRTL-C.
+
+Cancel                Cancels any previous selections associated with this
+                      dialog box and displays the Product Configuration
+                      Data dialog box.
+
+
+Quit Installation     Quits the Installation Utility.  The Quit
+                      Confirmation dialog box appears.  Type Y to quit or N
+                      to continue the installation. (When you quit the
+                      installation process, the Installation Utility prompts
+                      you to delete all installation files already copied into
+                      your working directory.)
+
+*10080*Select Type of Installation Help
+
+Identifies the type of installation to perform.
+
+Procedure for this dialog box
+
+1. Select one of the two options:
+
+- Complete - Installs all mandatory, recommended, and optional components and
+             subcomponents of the products you are installing. (default)
+
+- Custom   - Installs all mandatory components, and only those recommended
+             and/or optional components that you select from the
+             Custom-Select Products dialog box.
+
+             Progress Software Corporation only recommends the Custom
+             installation approach for advanced users who plan to selectively
+             install product components and subcomponents on a
+             product-by-product basis.
+
+2. Press ENTER. The Type and Destination dialog box reappears.  The
+   type of installation you selected appears in the Type field in the display
+   box that appears below the main dialog box.
+
+Caution: Progress Software Corporation recommends that you proceed with
+         caution if you intend to deselect any recommended components or
+         subcomponents. Product features and functionality might not work
+         properly if recommended elements are not present.
+
+See OpenEdge Getting Started: Installation and Configuration guide for
+a complete list of OpenEdge product components and subcomponents.
+
+*10090*Select Destination Pathname Help
+
+About this dialog box
+
+The Select Destination Pathname dialog box determines the directory path for
+and location of these OpenEdge installation files:
+
+ - Destination Path  - Identifies where to install the OpenEdge product.
+                       For example, /usr1/OpenEdge/110/dlc.
+
+ - Working Directory - Contains your applications, your databases, and your
+                       log files. The Working Directory also serves as the
+                       default working directory for OpenEdge clients and
+                       WebSpeed Agents.
+                       For example, /usr1/OpenEdge/wrk.
+
+Consider the following points before you select directories:
+
+ - Do not make your OpenEdge working directory a subdirectory under the
+   OpenEdge installation path. If you uninstall OpenEdge, the working
+   directory is deleted along with the destination directory. Additionally,
+   you cannot start a server for a database that has been installed in a
+   subdirectory of OpenEdge.
+
+ - If you have other versions of Progress or OpenEdge products installed,
+   do not enter the pathname where these products reside. You must specify
+   a different destination path for OpenEdge. This ensures that you do not
+   overwrite any of your existing product directories and files.
+
+ - If you want to add OpenEdge products to the most recently installed
+   version, the installation program assumes that you are adding these
+   products to this install location. For more information, see the
+   section that addresses how to install additional products in "OpenEdge
+   Getting Started: Installation and Configuration."
+
+Caution: Never run OpenEdge products from the directory in which you
+         installed them. If you do, you could damage the OpenEdge software
+         files.
+
+Procedure for this dialog box
+
+To select destination and work path directories:
+
+1. Accept the Destination Directory path /usr/dlc (default) or enter an
+   alternate directory.
+
+2. Accept the Work Directory path /usr/wrk (default) or enter an alternate
+   directory.
+
+3. Press ENTER.  The Type and Destination dialog box reappears.
+   The directories you selected appear in the Destination pathname and Working
+   Dir pathname fields in the display box that appears below the main dialog
+   box.
+
+   Note: The actual key you use to accept the default varies by terminal
+         type. The Select Destination Pathname dialog box shows the
+         appropriate key combination for your terminal.
+
+The following table describes the menu options for this dialog box:
+
+
+Option                  Description
+----------------------  ---------------------------------------------------
+ENTER=OK                Confirms the values you accepted or entered.
+
+CTRL-E=Default Dest     Redisplays the Destination Path default value
+                        /usr/dlc.
+
+CTRL-G=Default Work     Redisplays the Work Directory default value
+                        /usr/wrk.
+
+CTRL-N=Cancel           Does not commit a choice you made.
+
+*10100*Destination Pathname Exists Help
+
+Select an alternative path to define for the Destination Path because the
+Destination Pathname you identified on the Select Destinataion Pathname
+dialog box already exists.
+
+Procedure for this dialog box
+
+To select an option:
+
+1. Highlight an option, using the SPACEBAR key, the TAB key, or the CURSOR
+   keys.
+
+2. Press ENTER to execute the selected option and continue the installation.
+
+The following table describes the menu options for this dialog box:
+
+Option                  Description
+----------------------  -----------------------------------------------------
+Select an alternative   Allows you to select another destination path.  This
+destination path        option redisplays the Select Destination Pathname
+                        dialog box.
+
+Erase the current       Deletes the contents and subdirectories of the named
+destination pathname    directory and reinstalls in the same directory.
+
+Install the OpenEdge    Installs OpenEdge products in the named directory.
+products in the         If the name of a file being installed matches the
+pre-existing            name of an existing file, the Installation Utility
+destination path        overwrites the existing file.  The Installation
+                        Utility does not, however, overwrite the progress.cfg
+                        file.
+
+*10110*Custom - Select Products Help
+
+A Custom installation automatically installs all mandatory product components
+and subcomponents, but allows you to selectively install the optional and
+recommended components and subcomponents on a product-by-product basis.
+
+To customize products, you make choices at the following levels:
+
+- Product level:       Choose a product.
+
+- Component level:     Based on the product you have chosen, select
+                       recommended and/or optional components to install.
+
+- Subcomponent level:  Based on the component you have chosen, select
+                       recommended and/or optional subcomponents to install.
+
+About this dialog box
+
+The Custom - Select Products dialog box is the first of three dialog boxes in
+the customization process. Depending on the product you select on this dialog
+box, the Installation Utility launches the other two customization dialog
+boxes - Select Components and Select Subcomponents - in which you can further
+refine the individual product elements to install.
+
+On the Select Products dialog box, products are listed by product name in the
+order in which you entered their individual product codes. An asterisk (*)
+initially appears by default to indicate that you can install the entire
+product; you are not required to customize the component and subcomponent
+levels.
+
+Procedure on this dialog box
+
+To deselect/reselect each product at the product level:
+
+1. Choose (highlight) a product name.
+
+2. Do one of the following, as needed:
+
+   - Press ENTER once to deselect the entire product. The product will not be
+     installed.
+
+   - Press ENTER twice to reselect the entire product. (If the product
+     contains optional and/or required components, these elements are listed
+     on the Select Components dialog box.  Press Help on this dialog box for
+     details about how to select individual components.)
+
+3. Review the product status information as presented in Step 2 of this
+   procedure.
+
+4. Repeat Steps 1 through 3 for each product listed.
+
+5. Once you have made all your product, component, and subcomponent
+   selections, select Install Selected Products. If you are installing any
+   product that requires a Web server, the ATTENTION dialog box appears,
+   asking you if you are installing OpenEdge on the system where your Web
+   server is installed. Otherwise, the Language Selection dialog box
+   appears.
+
+The following table describes the menu options for this dialog box:
+
+Option                Description
+------------------    --------------------------------------------------------
+<Specific Product     Review install options for each product. You can choose
+Name>                 to select or deselect an entire product.  Also, if
+                      there are components and/or subcomponents associated
+                      with a product, you can display and select these
+                      elements from the Custom - Select Components or
+                      Custom - Select Subcomponents dialog boxes.  (Select
+                      the Help option on these dialog boxes for details.)
+
+Install Selected      Select after you have made all your product,
+Products              component, and subcomponent selections.
+
+                      Note: This option does not install or commit product
+                            selections at this time. Press CANCEL on the
+                            Language Selection dialog box, which appears later
+                            in the Installation Utility, to return to the
+                            Custom - Select Products dialog box and make
+                            changes.
+
+Change destination    Changes the default destination pathname (/usr/dlc) and
+pathname              work directory (/usrs/wrk) pathname.
+
+Cancel                Cancels the previous selections and the Type
+                      and Destination dialog box appears.  Allows you to
+                      reselect installation type and continue the
+                      installation, selecting new options.
+
+Help                  Displays Help for this dialog box.
+
+Disk Space Required   Provides numeric totals about disk space for:
+<details>              - Only OpenEdge products.
+                       - The entire install program (including products).
+                       - Disk space available post installation.
+
+*10120*Custom - Select Components Help
+
+About this dialog box
+
+The Custom - Select Components dialog box, the second of three dialog boxes
+you can use to customize an OpenEdge product, allows you to deselect and
+reselect optional and recommended product elements at the
+component level.
+
+The components list is based on the product you selected on the Select
+Products dialog box. Optional and recommended components, which have
+selectable subcomponents, initially appear with an asterisk (*) to indicate
+that the component is preselected for installation, by default. However, you
+can deselect each component.
+
+The Custom - Select Component dialog box appears only if there are components
+for a product you selected on the Custom - Select Product dialog box.
+
+Procedure for this dialog box
+
+To deselect/reselect product elements at the component level:
+
+1. Choose (hightlight) a component.
+
+   Note: Recommended components are identified by an (r) after the
+         component's name. All other components are considered optional by
+         default. (Note that the word "optional" after a component is
+         actually part of the component's name and not a status indicator.)
+
+2. To deselect an entire component that has an asterisk (*), highlight the
+   component and press ENTER once. The component will not be installed.
+
+   Repeat Steps 1 and 2 for each component you want to remove from the
+   installation.
+
+3. To select a component and review its subcomponent details, highlight the
+   component and press ENTER twice. Note these results:
+
+   - If a component contains selectable (optional and/or recommended)
+     subcomponents, they are listed on the Select Subcomponents dialog box.
+     Each subcomponent is preselected by default, as indicated by an
+     asterisk (*). Highlight the subcomponent and press ENTER once to deselect
+     a subcomponent, or press ENTER twice to reselect a component. You can
+     also select Help on the Select Subcomponent dialog box for more details
+     about how to select individual subcomponents. Press Previous Menu to
+     return to the Select Components dialog box.)
+
+   - If a component contains only mandatory subcomponents, the message "This
+     component does not contain any selectable subcomponents" appears. Press
+     ENTER to close the message. You can only select or deselect the
+     component by alternating between pressing ENTER once or twice.
+
+   - If a component does not contain any subcomponents, no message appears.
+     You can only reselect or deselect the component by alternating between
+     pressing ENTER once or twice.
+
+4. Repeat Steps 1 and 3 for each component you want to review on the Select
+   Components dialog box.
+
+5. Choose Previous Menu to return to the Select Products dialog box and
+   select another product, as needed. When you have finished customizing,
+   choose Install Selected Products.If you are installing any product that
+   requires a Web server, the ATTENTION dialog box appears,
+   asking you about your Web Server location. Otherwise, the Language
+   Selection dialog box appears.
+
+The following table describes the menu options for this dialog box:
+
+Option                Description
+--------------------  --------------------------------------------------------
+<Specific component   Reviews component options for each product.  Use the
+name and status>      procedure previously described in this help topic to
+                      select component and/or associated subcomponent
+                      elements.
+
+Previous Menu         Closes the Select Components dialog box and redisplays
+                      the Select Products dialog box.
+
+Cancel                Cancels the previous selections and the Custom -
+                      Select Products dialog box appears.
+
+Help                  Displays Help for this dialog box.
+
+Disk Space Required   Provides numeric totals about disk space for:
+<details>              - Only OpenEdge products.
+                       - The entire install program (including products).
+                       - Disk space available post installation.
+
+*10130*Custom - Select Subcomponents Help
+
+About this dialog box
+
+The Custom - Select Subcomponents dialog box, the last of three dialog boxes
+you can use to customize an OpenEdge product, allows you to deselect and
+reselect optional and recommended product elements at the
+subcomponent level.
+
+The subcomponents list is based on the component you selected on the Select
+Components dialog box. Subcomponents initially appear with an asterisk (*)
+to indicate that the subcomponent is preselected for installation, by default.
+However, you can deselect each subcomponent.
+
+The Custom - Select Subcomponents dialog box only appears if there are
+subcomponents associated with a component that you selected on the
+Custom - Select Components dialog box.
+
+Procedure for this dialog box
+
+To deselect/reselect product elements at the subcomponent level:
+
+1. Choose (hightlight) a subcomponent.
+
+   Note: Recommended subcomponents are identified by an (r) after the
+         subcomponent's name. All other subcomponents are optional by default.
+         (Note that the word "optional" after a component is not a status
+         indicator, but actually part of the component's name.)
+
+2. To deselect a subcomponent which has an asterisk (*), highlight the
+    subcomponent and press ENTER once. The subcomponent will not be installed.
+
+   Repeat Steps 1 and 2 for each component you want to remove from the
+   installation.
+
+3. To reselect a subcomponent, hightlight the subcomponent and press ENTER
+   twice.
+
+4. Repeat Steps 1 and 3, as appropriate, for each subcomponent.
+
+5. Choose Previous Menu to return to the Select Components dialog box and
+   select another component, as needed. When you have finished customizing,
+   choose Install Selected Products on the Select Products dialog box.
+   If you are installing any product that requires a Web server,
+   the ATTENTION dialog box appears. Otherwise, the Language Selection dialog
+   box appears.
+
+The following table describes the menu options for this dialog box:
+
+Option                Description
+--------------------  --------------------------------------------------------
+<Specific component   Reviews component options for each product.  Use the
+name and status>      procedure previously described in this help topic to
+                      select component and/or associated subcomponent
+                      elements.
+
+Previous Menu         Closes the Select Components dialog box and redisplays
+                      the Select Products dialog box.
+
+Cancel                Cancels the previous selection(s) and the Custom -
+                      Select Products dialog box appears.
+
+Help                  Displays Help for this dialog box.
+
+Disk Space Required   Provides numeric totals about disk space for:
+<details>              - Only OpenEdge products.
+                       - The entire install program (including products).
+                       - Disk space available post installation.
+
+*10140*ATTENTION - WebSpeed
+
+About this dialog box
+
+This message appears when you are installing WebSpeed as a component or
+subcomponent of another OpenEdge product.
+
+WebSpeed supports developing and/or deploying Web browser-based Online
+Transaction Processing (OLTP)applications. For example, WebSpeed Workshop
+uses WebSpeed functionality to build OLTP applications.
+
+Procedure on this dialog box
+
+Do one of the following:
+
+     - Choose Yes to display the Web Server Type dialog box in which
+       you will be asked to make Web server choices.
+
+     - Choose No to bypass the Web Server Type dialog box and
+       continue with the installation.
+
+*10150*Web Server Menu Help
+
+The following table describes the menu options to perform:
+
+Option                  Description
+----------------------  ---------------------------------------------------
+
+Select a Web Server     Select either the Sun Web Server (default) a Web
+Type                    server that is CGI-compatible.
+
+Select Web Server       Define the pathname of your Web Script directory
+                        server's script directory. The script for the CGI
+                        Messenger must reside in your Web server's script
+                        directory.(Required only if you are installing a CGI
+                        Messenger.)
+
+Copy the static HTML    Define the pathname of your Web server's document
+to docroot              root directory. Required if you want the Installation
+                        Utility to copy the static files, that the WebSpeed
+                        Workshop OpenEdge product needs, into your Web
+                        server's document root directory.
+
+Continue with           Confirms your selections and continues with the
+Installation            installation.
+
+Cancel                  Does not commit a choice you made.
+
+Quit Installation       The Quit Confirmation dialog box appears, allowing
+                        you to type Y to quit or N to continue the
+                        installation. (This Quit activity deletes all
+                        install-related files previously copied into your
+                        working directory.)
+
+*10160*Web Server Type Help
+
+To install an OpenEdge product that requires a Web server:
+
+1. Select one of the following Web server-supported types:
+
+   - Sun Web Server - NSAPI Compatible: Supports an "in memory" messenger
+     and the CGI messenger.
+
+   - CGI-compatible - Supports the CGI (Common Gateway Interface)
+     messenger that all Web servers support.
+
+2. Choose ENTER to continue the installation.  The Web Server Type dialog box
+   reappears.
+
+*10165*Installing an Apache Tomcat Web Server
+For OpenEdge development products (such as Progress Developer's Studio 
+for OpenEdge), Progress provides a script for installing a Java Servlet
+Engine (JSE) and an associated web server.  When invoked, this script 
+automatically installs an Apache Tomcat web server (version 5.5.23) and 
+a JSE on your local machine.
+
+To install a JSE and the Apache Tomcat web server on UNIX:
+
+1.  Untar the apache-tomcat-5.5.23.zip file located in the [install-dir]/bin
+    directory. For example, tar xvof apache-tomcat-5.5.23.
+
+    Note: You can alternately unzip the file using the gunzip
+    apache-tomcat-5.5.23.gz command.
+
+2.  Install the JSE by double clicking the jdk-1_5_0_10-nb5_5-win.exe file
+    located in the [install-dir]/bin directory.
+
+3.  Locate the batch file (OE_TC.bat) containing the installation script.
+    This file is located in the /[install-dir]/bin.
+
+4.  Run the batch file (OE_TC.bat) and answer the questions prompted by the
+    installation script.
+
+To test the configuration:
+
+1.  Start the Apache Tomcat web server. Locate the installation directory,
+    and browse to /bin. Enter the following command: catalina.sh start.
+
+    Note: Once you invoke the catalina.sh start command, you can view server
+    startup information using the tail - f [installdir]/logs/Catalina.out
+    command.
+
+2.  Open a browser window.
+
+3.  In the URL field of the browser, enter the default address and port
+    number for the web server, for example, http:localhost:8080.
+
+    Note: The default address and port number of your web server varies.
+
+4.  Verify connectivity to the AIA servlet: enter the default address and
+    port number for the web server, followed by the path to the AIA servlet
+    engine, for example, http:localhost:8080/aia/Aia.
+
+5.  Test the WSA servlet: enter the default address and port number for the
+    web server, followed by the path to the WSA servlet engine, for example,
+    http:localhost:8080/wsa/wsa1.
+
+
+*10170*Select Web Server Scripts Directory Help
+
+If you are installing a CGI Messenger, you must define the pathname of your
+Web server's script directory. To do this:
+
+1. Type the pathname of your Web server's script directory in the Enter
+   Destination Path field. The script for the CGI Messenger must reside in
+   your Web server's script directory.
+
+2. Choose ENTER to continue the installation. The Web Server Type dialog
+   box reappears.
+
+*10180*Select Web Server Document Root directory Help
+
+To enter the root directory to which WebSpeed will add files needed for
+WebSpeed development
+
+1. Type the pathname of your Web server's document root directory in the
+   Enter Destination Path field.
+
+   The files will be copied from install-path/webspeed to the directory you
+   specify. You must perform this step if you want the Installation Utility
+   to copy static files, as required by WebSpeed Workshop, into your Web
+   server's document root directory.
+
+2. Press ENTER to continue the installation. The Web Server Type dialog
+   box reappears.
+
+*10190*Language Selection Help
+
+The Language Selection dialog box allows you to identify the default language
+in which the Progress Messages file (PROMSGS) appears. PROMSGS provide error
+and informational messages that can appear when you are working in OpenEdge.
+
+Note: Supplemental languages are also available to download from the
+      Progress Download Center at http://www.progress.com/esd.  OpenEdge
+      supports the languages listed as supplemental languages, but new
+      messages are not translated and appear in English only.  (Contact your
+      sales representative for a valid login and password to log into the
+      Progress Download Center.)
+
+Procedure for this dialog box
+
+To identify one language in which PROMSGS appear by default, and to optionally
+choose additional languages:
+
+1. Select (highlight) the language that you want to identify as your
+   default language.
+
+2. Press ENTER. An asterisk (*) appears before the selected language.
+
+3. Press M to select the Make Default option. The default symbol (d) appears
+   after the selected language. (To deselect a language as the default,
+   hightlight it and press ENTER. The (d) is removed.)
+
+3. Repeat Steps 1 and 2 for each language you want to select.  (To deselect
+   a language, hightlight it and press ENTER. The asterisk is removed.)
+
+4. When you finish selecting languages, choose Continue with Installation.
+   The " Settings dialog box appears.
+
+   Note: Press CANCEL to redisplay the Type and Destination dialog box
+   and remove any languages you made on the Language Selection dialog box.
+
+*10200*International Settings Help
+
+About this dialog box
+
+The International Settings dialog box allows you to determine the character
+set, date, and number format settings, or conventions, that your OpenEdge
+software will use. The conventions are used to tailor your OpenEdge startup
+parameter (start.pf) file to ensure that these settings are automatically
+used.
+
+For more information about international conventions, see "OpenEdge
+Development: Internationalizing Applications."
+
+Procedure for this dialog box
+
+1. Choose (Highlight) any of the following settings to display
+   its associated options:
+
+   - Select CharacterSet, Collation, Case
+   - Select a Date Format
+   - Select a Number Format
+
+   You can choose the settings in any order. Once you select an option
+   for a setting, it appears in the summary box.
+
+2. From the drop-down list, select one of the attributes listed.
+
+3. Press ENTER. The selected option appears in the summary box.
+
+4. Repeat Steps 1 through 3 for each setting listed in Step 1 of this
+   procedure.
+
+   You must select attributes for each setting.
+
+5. Choose one of the following options:
+
+   - Continue with Installation to confirm your selections and continue.
+
+   - Cancel to remove any selections you have made and return to the
+     Language Selection dialog box.
+
+   - Quit Installation. The Quit Confirmation dialog box appears.
+
+*10210*Web Services Adapter URL Help
+
+The Web Services Adapter (WSA) allows you to deploy and enable Web service
+applications. WSA is a Java servlet that runs in a Java Server Engine(JRE)
+which can then be run stand-alone or be configured with a Web Server.
+
+If you are installing a WSA as a stand-alone product, or as a component of an
+OpenEdge product such as the OpenEdge Application Server Basic, 4GL
+Development System, or WebSpeed Workshop, review and, as needed, change the
+Web Services Adapter settings you use to manage your WSA instances.
+
+To set your Web Services Adapter settings:
+
+1. Accept or change the default URL values that appear in the URL (Universal
+   Resource Locator) field. Determine your choice based on your WSA
+   configuration, your Web Server, or your Java Servlet engine. The URL
+   field defines the default values associated with the protocol, host,
+   port, and instance reference for the sample Web Services Adapter's wsa1.
+
+Note: When you deploy a Web service, you deploy it to a WSA instance, which
+      defines the root URL used to access the Web service and handles all of
+      its client communications. Each WSA instance manages its own set of
+      deployed Web services.
+
+2. Press ENTER to continue the installation.
+
+*10220*WSA Authentication Help
+
+Determine whether you will use the Web Services Adapter's administration user
+authentication option.
+
+The Web Services Adapter's administration option defaults automatically to a
+security setting to indicate that authorization is required to perform
+administrative tasks; a valid username and password pair must be entered each
+time an administration request is sent to a WSA instance.
+
+Procedure for this dialog box
+
+Choose one of the following options:
+
+   - Type Y to disable the default security setting. This option removes the
+     default authorization requirement to administer the WSA.
+
+   - Type N to retain the default security setting. A valid username and
+     password pair must be entered each time an administration request is
+     sent to a WSA instance.
+
+*10306*Business Business Process JBOSS Server Details Help
+
+About this dialog box
+
+The Business Process JBOSS Server Details dialog box lets you select the JBoss server type that you want to use with OpenEdge to host the Business Process Server. 
+
+Procedure for this dialog box
+
+1. Select the JBOSS Community Edition option to install the JBoss Community Edition server that this installer provides or select the JBOSS Enterprise Edition option to point OpenEdge to the JBOSS Enterprise Edition server that you have installed for your production environment.
+
+2. If you selected the JBOSS Enterprise Edition option, type the path in Location to enter the location of the destination folder that contains the JBOSS Enterprise Edition installation.  
+
+3. Press Enter to continue the installation. The Business Process Application Server Details dialog box appears. 
+  
+
+*10301*Business Process Application Server Details Help
+
+About this dialog box
+
+The Business Process Application Server Details dialog box lets you set the 
+JBOSS application server's location and ports. 
+
+Procedure for this dialog box
+
+1. Retain the default port numbers or specify other, unused numbers for 
+   EJB JNDI Port, Portal Server HTTP Port, and Remote Ant Port.
+   
+   You must not enter duplicate port numbers or leave the port fields empty. 
+   The range for the port numbers is 1024 to 49151.
+
+2. Enter the other EJB and Portal details.
+
+3. Press Enter to continue the installation. The Business Process Server Portal 
+   URL dialog box appears. 
+
+
+*10300*Business Process Server Portal URL Help
+
+About this dialog box
+
+The Business Process Server Portal URL dialog box lets you change the 
+Business Server Portal URL if you do not want to use the default URL.  
+
+Procedure for this dialog box
+
+1. Review the Portal URL and change it if required. 
+
+   OpenEdge generates the Portal URL using the host name and the domain name of 
+   your machine where you are installing Business Process Server. The valid format 
+   of the URL is http://<host_name>.<domain_name>:<port_number>. 
+   For example, http://localhost.apac.progress.com:18256.
+
+3. Press Enter to continue the installation. The Business Process Server Database 
+   Configuration dialog box appears. 
+
+*10303*Business Process Server Database Configuration Help
+
+About this dialog box
+
+The Business Process Server Database Configuration dialog box lets you set up the 
+database that you want to install with the Business Process Server.  
+
+Procedure for this dialog box
+
+1. Enter the Host Name and Port Numbers for the business process server. 
+
+   Database Name displays oebps because the name of the OpenEdge database you use 
+   during development is oebps.db. 
+   
+   We recommend that you not to change the Database Name.
+
+2. Enter the User Name and Password of the database administrator  
+   for Business Process Server. 
+
+3. Retain the default Database Location path or specify a new location for storing 
+   database files.
+
+   We recommend you not to change the Database Location.
+
+4. Press Enter to continue the installation. The Create Database dialog
+   box appears.
+
+
+*10304*Create Database Help
+
+The Create Database dialog box lets you create the database. Enter Y. The 
+Business Process Server Email Configuration dialog box appears. 
+
+*10302*Business Process Server Email Configuration Help
+
+About this dialog box
+
+The Business Process Server Email Configuration dialog box lets you set up 
+the details of the email server that you want to use with the Business 
+Process Server.  
+
+Procedure for this dialog box
+
+1. Enter the following details:
+
+   Outgoing Server: the address of the email server from which Business 
+   Process Server is to send emails.
+
+   Administrator Email: the email ID of Business Process Server’s administrator.  
+   
+   Incoming Server:  the address of the email server on which Business Process 
+   Server is to receive emails, if you want different email servers for 
+   incoming and outgoing email. 
+
+2. Press Enter to continue the installation. The Pacific Application Server Details dialog
+   box appears.
+   
+   
+*10305*Pacific Application Server Details Help
+ 
+About this dialog box
+ 
+The Pacific Application Server Details dialog box lets you set the default network 
+port numbers that are assigned to new Pacific Application Server for OpenEdge instances.
+ 
+Procedure for this dialog box
+ 
+1. Accept the default port numbers or specify other unused port numbers for the 
+HTTP and HTTPS fields based on your security needs and the protocol you want 
+to communicate through.  
+ 
+2. Accept the default port numbers or specify other unused port numbers for 
+the Shutdown port that is used to shutdown the Pacific Application Server instance. 
+You may optionally set it to '-1' to disable the server Shutdown port and 
+prevents the server from being opened and remotely shut down. 
+ 
+3. Click Next to continue the installation. 
+   
+*10308*OpenEdge Authentication Gateway Details Help
+
+About this dialog box
+
+The OpenEdge Authentication Gateway Details dialog box lets you set the configuration details for the OpenEdge Authentication Gateway to be used with Progress Application Server for OpenEdge. 
+
+Procedure for this dialog box
+
+1. Specify a name for the OpenEdge Authentication Gateway instance in the Instance Name field. The default value is oeauthserver
+
+2. Specify a port to be used for HTTPS in the Port field.  
+Note: The HTTP and Shutdown ports are disabled for the OpenEdge Authentication Gateway instance.
+
+3. Specify the user name to be used to log into the server as an administrator in the User Name field.
+
+4. Specify the password for the administrator user name in the Password field.
+
+5. Validate the password in the Confirm Password field.
+
+6. Specify the directory the OpenEdge Authentication Gateway instance is unzipped to in the Instance Location field.
+
+5. Press Enter to continue the installation. 
+
+
+*10230*Complete Installation Help
+
+About the dialog box
+
+The Complete Installation dialog box highlights the following installation
+details:
+
+- The OpenEdge products you are installing.
+
+- The disk space required on your machine to support the products and the
+  installation program. It also identifies the disk space available on your
+  machine after the products and installation program are installed.
+
+- The destination path of your install that you set up earlier in this
+  installation process.
+
+Procedure for this dialog box
+
+To install your OpenEdge products in the specified destination path and to
+accept the disk space assessments that display:
+
+Choose one of the following options:
+
+   - Type Y to commit your choices and begin the OpenEdge Installation
+     Utility. The Installing Files dialog box appears and presents a status
+     meter to inform you about the installation's progress.  The Tailoring
+     OpenEdge Files dialog box appears. If you are installing a product that
+     supports a WebSpeed component, the To Configure OpenEdge dialog box
+     appears. Otherwise, the Copy Scripts? dialog box appears.
+
+   - Type N to reconsider your choices; your choices, as presented, will not
+     be committed at this time.
+
+Note: The Installation Utility determines if there is enough disk space on
+      the destination location you originally chose to install. You will be
+      prompted to define a different destination on the Select Destination
+      Pathname dialog box if the install determines space problems exist.
+
+*10240*Copy Scripts? Help
+
+About this dialog box
+
+The Copy Scripts dialog box prompts you to copy OpenEdge product scripts and
+program modules to the default location /usr/bin.  Copying scripts into this
+default location allows you to provide your company site's users access to
+these scripts.
+
+Caution: If you are maintaining two versions of OpenEdge on the same machine,
+         type N to answer this question so that you do not override files.
+
+Procedure for this dialog box
+
+Choose one of the following options:
+
+1. Type Y to allow all users on your system to run products for which you are
+   installing scripts and program modules. When prompted, copy the scripts to
+   the /usr/bin sub-directory. Type Y, again, to instruct the Installation
+   Utility to place OpenEdge scripts in the /usr/bin subdirectory and in the
+   destination pathname you specified earlier in the installation process.
+
+   Caution: If you already have scripts in the /usr/bin subdirectory, this
+            step might overwrite these existing scripts.
+
+2. Type N to instruct the Installation Utility to place OpenEdge scripts only
+   in the destination pathname you specified earlier in the installation
+   process.
+
+*10250*Link exists Help
+
+About this dialog box
+
+The Installation Utility determined that a file, identical to the one you
+expected to copy into this location, already exists in the installation
+directory. The Link Exists dialog box prompts you to resolve the file
+contention.
+
+Procedure for this dialog box
+
+Choose one of the following options:
+
+- Type Y to delete the file that currently exists in the path specified. The
+  newer version of the file will be installed in this path and a new link
+  will be set up to the OpenEdge Release that you are currently
+  installing.
+
+- Type N to retain the file that currently exists in the path specified.
+
+*10260*Configuring WebSpeed Help
+
+About this dialog box
+
+The To Configure OpenEdge dialog box identifies postinstallation tasks you
+must perform to start and run your Web Server.
+
+Among the choices you made during the Installation Utility, you selected a
+Web server type and specified where it was to be installed. However, the
+Installation Utility cannot start a Web Server, run brokers, or start a
+WebSpeed Messenger.  These are postinstallation tasks you must perform.
+
+Consider taking a screen shot of this dialog box so you can easily reference
+the tasks. Or, access the entire contents of the Installation Utility help
+from the root directory of the installation CD, save it to a local drive, and
+refer to this information as needed.
+
+The following table briefly identifies the Web server postinstallation tasks
+and identifies some documentation resources you can use to help you to
+complete these tasks:
+
+Post-install Task      For more information
+---------------------  -------------------------------------------------------
+a. Set up and start    - As needed, manually copy static HTML files to your
+   your Web server.      Document Root directory.
+
+                       - For the Sun Web server (NSAPI compatible) Messenger
+                         task, see "OpenEdge Application Server:
+                         Administration" for details about the obj.conf and
+                         start files.
+
+b. Set up the broker   - To set environment variables, edit the
+   machine.              ubroker.properties files, and then start the broker,
+                         see "OpenEdge Application Server:
+                         Administration."
+
+c. To validate your    - See "OpenEdge Application Server: Administration."
+   configuration
+   through the
+   Messenger
+   Administration
+   page.
+
+*10270*Installation of selected OpenEdge products is complete.
+
+Displays when the online installation is complete.
+
+Do one of the following:
+
+1. Select End the OpenEdge installation. You will exit the installation
+   program. OpenEdge returns you to the UNIX prompt.
+
+   - Set up your user environment to run OpenEdge. This task includes
+     setting or customizing environment variables, as needed, to meet
+     your preferences. Also, if you installed an OpenEdge SQL product,
+     you must set the related environment variables. See OpenEdge
+     Getting Started: Installation and Configuration guide.
+
+   - To create customized product executables, see the information
+     on building executables in the OpenEdge Deployment:
+     Managing ABL Applications. Note that creating executables might
+     be required to support and run certain product configurations.
+
+2. Select View Release Notes to view the OpenEdge online Release
+   Notes using either vi editor or emacs editor. The Installation Utility
+   launches the editor. To exit vi after reading the Releas Notes, type
+   :q!. To exit emacs, press CTRL-X then CRTL-C.
+
+*10280*Attention - OpenEdge Adapter for Sonic ESB
+
+About this dialog box
+
+This message appears when the OpenEdge Adapter for Sonic ESB is being
+installed as a component of another OpenEdge product that you are
+installing.
+
+Procedure on this dialog box
+
+Do one of the following:
+
+     - Choose Yes to display the Sonic ESB Properties dialog box to
+       define properties for the Sonic ESB container.
+
+     - Choose No to bypass the Sonic ESB Properties dialog box and
+       continue with the installation.
+
+*10290*Previous Installation Settings
+
+This dialog box appears only if the Installation Utility detects
+at least one OpenEdge Release 10 installation already resides
+on the machine to which you are installing OpenEdge. 
+
+From the Previous Settings dialog box, you can
+
+- Choose to use field values previously established in a
+  Release 10 installation as the default values when
+  performing the current installation.
+
+- Identify the previous Releaes 10 installation to use as the default value
+  source.
+
+Procedure on this dialog box
+
+To select the previous installation settings options:
+
+1. Highlight the Use Settings From a Previous Version As Defaults
+   option and press Enter. An asterisk (*) appears to indicate
+   the selection. (To deselect this option, press Enter again.
+   The asterisk is removed.)
+
+2. Highlight the Select Path To The Previous Version option and
+   press Enter. The Available Installation Paths dialog box appears.
+
+3. Highlight an OpenEdge Release 10 installation path from those
+   listed on the Available Installation Paths dialog box and press
+   Enter. The selected path appears in the Selected Path field in the
+   display box that appears below the dialog boxes.
+
+Note: The contents of the installation path list is dynamic. It
+      depends on the availability of existing OpenEdge Release 10
+      installations on the machine to which you are installing 
+      OpenEdge.
+
+4. Highlight Continue with Installation to continue.
+
