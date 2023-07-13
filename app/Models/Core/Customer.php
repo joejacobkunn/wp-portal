@@ -45,13 +45,13 @@ class Customer extends Model
 
     public function getFullAddress()
     {
-        $address = $this->address;
+        $address = ucwords(strtolower($this->address));
 
         if ($this->address2) {
-        $address .= ', '.$this->address2;
+        $address .= ', '.ucwords(strtolower($this->address2));
         }
 
-        $address .= ', '.$this->city;
+        $address .= ', '.ucwords(strtolower($this->city));
 
         $address .= ', '.$this->state;
 

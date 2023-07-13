@@ -53,7 +53,7 @@ class SXSync {
         [
             'account_id' => $account->id,
             'sx_customer_number' => $sx_customer->custno,
-            'name' => $sx_customer->name,
+            'name' => trim($sx_customer->name),
             'customer_type' => $sx_customer->custtype,
             'phone' => $sx_customer->phoneno,
             'email' => $sx_customer->email,

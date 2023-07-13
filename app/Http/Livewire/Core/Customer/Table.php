@@ -72,7 +72,7 @@ class Table extends DataTableComponent
                     }
 
                     if ($row->has_open_order) {
-                        $display .= '<span class="badge bg-light-warning float-end"><i class="fas fa-sync"></i></span>';
+                        $display .= '<span class="badge bg-light-warning float-end"><i class="fas fa-exchange-alt"></i></span>';
                     }
 
                     return $display;
@@ -109,7 +109,7 @@ class Table extends DataTableComponent
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return $this->format_phone($value);
+                    return format_phone($value);
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
@@ -118,7 +118,7 @@ class Table extends DataTableComponent
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return '<a href="mailto:'.$value.'">'.$value.'</a>';
+                    return '<a href="mailto:'.$value.'">'.strtolower($value).'</a>';
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
@@ -214,12 +214,4 @@ class Table extends DataTableComponent
                         ->orderBy('name', 'ASC');
     }
 
-    private function format_phone(string $phone_no)
-    {
-        return preg_replace(
-            "/.*(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4})/",
-            '($1) $2-$3',
-            $phone_no
-        );
-    }
 }

@@ -27,12 +27,16 @@
                             <i class="fas fa-history"></i>
                         </div>
                     </div>
-                    @if(!empty($customer->last_sale_date))
                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                         <h6 class="text-muted font-semibold">Last Sale Date</h6>
-                        <h6 class="font-extrabold mb-0">{{$customer->last_sale_date->toFormattedDateString()}}</h6>
+                        <h6 class="font-extrabold mb-0">
+                            @if(empty($customer->last_sale_date))
+                            N/A
+                            @else
+                            {{$customer->last_sale_date->toFormattedDateString()}}
+                            @endif
+                        </h6>
                     </div>
-                    @endif
                 </div>
             </div>
         </div>
