@@ -117,15 +117,6 @@ class SXSync {
         if($no_open_orders > 0) $customer->update(['has_open_order' => 1]);
         else $customer->update(['has_open_order' => 0]);
 
-        $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->first();
-        
-        $customer->update([
-            'last_sale_date' => $sx_customer->lastsaledt,
-            'sales_rep_in' => $sx_customer->slsrepin,
-            'sales_rep_out' => $sx_customer->slsrepout,
-            'is_active' => $sx_customer->statustype ?? 1
-        ]);
-
         return response()->json(['status' => 'success', 'customer_id' => $customer->id, 'has_open_order' => ($no_open_orders == 0) ? 0 : 1], 200);
     }
 

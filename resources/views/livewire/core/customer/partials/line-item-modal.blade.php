@@ -1,7 +1,7 @@
 <x-modal :toggle="$open_line_item_modal" size="xl">
     <x-slot name="title">
         <div class="">Line Items for Order# @if(!empty($this->order_line_items)) {{
-            $this->order_line_items->first()->orderno
+            @if(!is_null($this->order_line_items->first())) $this->order_line_items->first()->orderno @endif
             }}
             @endif</div>
     </x-slot>
@@ -14,7 +14,7 @@
             <div class="card border-secondary collapse-icon accordion-icon-rotate">
                 <div class="card-body">
                     <div class="list-group">
-                        @if(!empty($this->order_line_items))
+                        @if(!empty($this->order_line_items) and !is_null($this->order_line_items->first()))
                         @forelse ($this->order_line_items as $item)
                         <a href="https://weingartz.com//searchPage.action?keyWord={{$item->shipprod}}" target="_blank"
                             class="list-group-item list-group-item-action" aria-current="true">
