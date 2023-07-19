@@ -54,6 +54,7 @@ class Show extends Component
         'transtype',
         'takenby',
         'totqtyshp',
+        'user1 as is_sro'
     ];
 
     public $required_line_item_columns = [
@@ -143,7 +144,6 @@ class Show extends Component
             ->where('custno', $this->customer->sx_customer_number)
             ->where('cono', $this->customer->account->sx_company_number)
             ->whereIn('enterdt', $this->getDatesFromRange(now()->subYear(5)->format('Y-m-d'), now()->format('Y-m-d'), $format = 'Y-m-d'))
-            ->whereNot('user1', 'sro')
             ->orderBy('enterdt', 'desc')
             ->get();
     }

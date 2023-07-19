@@ -1,6 +1,7 @@
 <x-modal :toggle="$open_line_item_modal" size="xl">
     <x-slot name="title">
-        <div class="">Line Items for Order# @if(!empty($this->order_line_items)) {{
+        <div class="">Line Items for Order# @if(!empty($this->order_line_items) &&
+            !is_null($this->order_line_items->first())) {{
             $this->order_line_items->first()->orderno
             }}
             @endif</div>

@@ -5,10 +5,6 @@
 
     <div class="card-body">
 
-        <div class="alert alert-secondary">
-            <i class="fas fa-info-circle"></i> Does not include Service Request Orders
-        </div>
-
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill"
@@ -37,6 +33,8 @@
                         class="list-group-item list-group-item-action" aria-current="true">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">Order# {{$order->orderno}}-{{$order->ordersuf}}
+                                @if($order->is_sro) <span class="badge bg-light-danger"><i class="fas fa-tools"></i>
+                                    SRO</span> @endif
                             </h5>
                             <small><span
                                     class="badge bg-light-secondary">{{$order->getStageCode($order->stagecd)}}</span></small>
