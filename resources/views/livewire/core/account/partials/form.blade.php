@@ -42,7 +42,7 @@
 
                 <hr>
 
-                <div class="mt-2 float-end">
+                <div class="mt-2 float-start">
 
                     <button type="submit" class="btn btn-primary">
                         <div wire:loading wire:target="{{ (!empty($role->id) ? 'save' : 'submit')}}">

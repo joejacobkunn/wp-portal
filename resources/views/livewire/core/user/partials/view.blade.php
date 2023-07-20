@@ -8,29 +8,34 @@
         <div class="card-body">
 
             @if(!$user->is_inactive)
-            <div class="alert alert-success" role="alert">
+                <div class="alert alert-light-success color-success" role="alert">
 
-                @can('users.manage')
-                <button wire:click="$toggle('deactivate_modal')" type="button" class="btn btn-outline-danger float-end my-n1" wire:key="is_active_{{ now() }}">
-                    <div wire:loading wire:target="$toggle('deactivate_modal')">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </div>
-                    Deactivate
-                </button>
-                @endcan
-                
-                <i class="fa fa-check" aria-hidden="true"></i> This User is Active
-            </div>
+                    @can('users.manage')
+                        <button wire:click="$toggle('deactivate_modal')" type="button" class="btn btn-sm btn-outline-danger float-end mt-n1"
+                        wire:key="is_active_{{ now() }}">
+                            <div wire:loading wire:target="$toggle('deactivate_modal')">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                            Deactivate
+                        </button>
+                    @endcan
+
+                    <i class="far fa-check-circle"></i> This User is Active
+                </div>
             @else
-            <div class="alert alert-danger" role="alert">
-                <button wire:click="activate()" type="button" class="btn btn-outline-success float-end my-n1" wire:key="is_active_{{ now() }}">
-                    <div wire:loading wire:target="activate">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </div>
-                    Activate
-                </button>
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This User is Deactivated
-            </div>
+                <div class="alert alert-light-danger color-danger" role="alert">
+                     @can('users.manage')
+                        <button wire:click="activate()" type="button" class="btn btn-sm btn-outline-success float-end mt-n1"
+                            wire:key="is_active_{{ now() }}">
+                            <div wire:loading wire:target="activate">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                            Activate
+                        </button>
+                    @endif
+
+                    <i class="far fa-times-circle"></i> This User is Deactivated
+                </div>
             @endif
 
             <ul class="list-group list-group-flush">
@@ -60,7 +65,7 @@
                     <div>
                 </li>
 
-                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                     <div>
                         <h3 class="h6 mb-1">Affiliate</h3>
                         <p class="small pe-4">{{ $user->email }}</p>

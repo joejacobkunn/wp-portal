@@ -1,33 +1,49 @@
 <div class="x-page">
 
     @if(!empty($sidebar))
-    @section('sidebar')
-    {{ $sidebar }}
-    @endsection
+        @section('sidebar')
+            {{ $sidebar }}
+        @endsection
     @endif
 
-    <div class="x-page-title d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-5">
-        <div class="page-title-div d-block mb-4 mb-md-0 mt-3">
+    <div class="page-heading">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-first">
+                    @if(!empty($title))
+                    <h3 class="x-page-title">
+                        {{ $title }}
+                    </h3>
+                    @endif
 
-            @if(!empty($breadcrumbs))
-            <livewire:component.breadcrumb :breadcrumbs="$breadcrumbs" :route-params="request()->route()->parameters()" key="{{ 'bc-'. now() }}">
-                @endif
+                    @if(!empty($description))
+                    <p class="text-subtitle text-muted">
+                        {{ $description }}
+                    </p>
+                    @endif
+                </div>
 
-                @if(!empty($title))
-                <h2 class="h4">{{ $title }}</h2>
-                @endif
-
-                @if(!empty($description))
-                <p class="mb-0">{{ $description }}</p>
-                @endif
-
+                    <div class="col-12 col-md-6 order-md-2 order-last">
+                        @if(!empty($breadcrumbs))
+                            <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
+                        @endif
+                    </div>
+            </div>
         </div>
 
+        <section id="basic-horizontal-layouts">
+            <div class="row match-height">
+                <div class="col-md-12 col-12">
+
+                    <div class="x-page-content">
+                        @if(!empty($content))
+                        {{ $content }}
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <div class="x-page-content">
-        @if(!empty($content))
-        {{ $content }}
-        @endif
-    </div>
 </div>
+

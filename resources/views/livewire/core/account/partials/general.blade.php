@@ -16,7 +16,7 @@
             </div>
             @else
             <div class="alert alert-light-danger color-danger" role="alert">
-                <i class="far fa-times-circle"></i> This account is deactivated
+                <i class="far fa-times-circle"></i> This account is Deactivated
                 <button class="btn btn-sm btn-outline-success float-end mt-n1">Activate</button>
             </div>
             @endif
@@ -48,10 +48,10 @@
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
                         <h3 class="h6 mb-1">Admin</h3>
-                        <p class="small pe-4">{{ $account->admin->email ?: 'Not Set' }}</p>
+                        <p class="small pe-4">{{ $account->admin?->email ?: 'Not Set' }}</p>
                     </div>
                 </li>
-                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                     <div>
                         <h3 class="h6 mb-1">Created At</h3>
                         <p class="small pe-4">{{ $account->created_at->format(config('app.default_datetime_format')) ;

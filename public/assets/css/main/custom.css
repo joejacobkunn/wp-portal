@@ -3,6 +3,14 @@
     height:50px
 }
 
+.layout-horizontal .main-navbar .menu-item.active .menu-link {
+    font-weight:900;
+    color: white !important;
+}
+.container {
+    max-width: 95vw !important;
+}
+
 /** SLIM Select Field */
 .x-multiselect .ss-single-selected {
     height: 39px !important;
