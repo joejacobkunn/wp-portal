@@ -27,7 +27,6 @@ class Table extends DataTableComponent
             return '_self';
         });
 
-        $this->setDefaultSort('last_sale_date', 'desc');
 
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
@@ -222,7 +221,7 @@ class Table extends DataTableComponent
                 'maxlength' => '25',
             ])
             ->filter(function(Builder $builder, string $value) {
-                $builder->where('phone', 'like', $value.'%');
+                $builder->where('phone', 'like', '%'.$value.'%');
             }),
 
             TextFilter::make('Email')
@@ -232,7 +231,7 @@ class Table extends DataTableComponent
                 'maxlength' => '25',
             ])
             ->filter(function(Builder $builder, string $value) {
-                $builder->where('email', 'like', $value.'%');
+                $builder->where('email', 'like', '%'.$value.'%');
             }),
 
 
