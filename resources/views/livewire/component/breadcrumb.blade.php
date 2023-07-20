@@ -1,6 +1,6 @@
 <div class="x-breadcrumb">
     @if(!empty($breadcrumbs))
-    <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
         <ol class="breadcrumb breadcrumb-dark">
             @php
                 if(!empty($showRootBreadcrumb) && !empty($rootBreadcrumb))  {

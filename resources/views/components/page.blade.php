@@ -10,8 +10,7 @@
         <div class="page-title-div d-block mb-4 mb-md-0 mt-3">
 
             @if(!empty($breadcrumbs))
-            <livewire:component.breadcrumb :breadcrumbs="$breadcrumbs" :route-params="request()->route()->parameters()"
-                key="{{ 'bc-'. now() }}">
+            <livewire:component.breadcrumb :breadcrumbs="$breadcrumbs" :route-params="request()->route()->parameters()" key="{{ 'bc-'. now() }}">
                 @endif
 
                 @if(!empty($title))

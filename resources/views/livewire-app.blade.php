@@ -3,7 +3,7 @@
 
 @include('partials.head')
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <div id="app">
         <div id="main" class="layout-horizontal">
             @include('partials.header')
@@ -16,10 +16,10 @@
                 @yield('content')
             </div>
 
-            @include('partials.footer')
 
         </div>
     </div>
+    @include('partials.footer')
 
     @include('partials.scripts')
 

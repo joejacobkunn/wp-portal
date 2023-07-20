@@ -1,20 +1,32 @@
-<div>
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+             <div class="col-12 col-md-6 order-md-1 order-last">
+                 <h3>Dashboard</h3>
+                 <p class="text-subtitle text-muted">
 
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
-        
-        <div class="d-block mb-4 mb-md-0 mt-2">
+                 </p>
+             </div>
+             <div class="col-12 col-md-6 order-md-2 order-first">
+                <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
 
-            <x-breadcrumbs
-                :breadcrumbs="$breadcrumbs"
-            />
-
-            <h2 class="h4">Dashboard</h2>
+             </div>
         </div>
-
     </div>
 
-    @include('partials.flash')
-
-    <p>Dashboard Content</p>
-
+    <section id="basic-horizontal-layouts">
+        <div class="row match-height">
+            <div class="col-md-12 col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Dashboard Content</h4>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
