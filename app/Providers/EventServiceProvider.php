@@ -22,7 +22,7 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         UserCreated::class => [
-            UserCreatedNotification::class,
+            // UserCreatedNotification::class,
         ],
 
         \App\Events\User\ForgotPassword::class => [

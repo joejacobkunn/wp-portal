@@ -12,7 +12,7 @@
         integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="/assets/js/header.js?v={{ time() }}"></script>
-    <link rel="stylesheet" href="/assets/css/main/custom.css">
+    <link rel="stylesheet" href="/assets/css/main/custom.css?v=0.0.1">
     <link type="text/css" href="/assets/css/spatiemedia.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>

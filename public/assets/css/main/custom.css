@@ -1,3 +1,8 @@
+/** Horizontal Logo Custom CSS */
+.layout-horizontal .header-top .logo img{
+    height:50px
+}
+
 /** SLIM Select Field */
 .x-multiselect .ss-single-selected {
     height: 39px !important;

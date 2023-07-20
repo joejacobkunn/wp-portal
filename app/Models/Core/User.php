@@ -104,4 +104,15 @@ class User extends Authenticatable
         $this->metadata->user_token = $reset ? bin2hex(random_bytes(25)) : null;
         $this->metadata->save();
     }
+
+    public function abbreviate()
+    {
+        $abbreviation = "";
+        $string = ucwords($this->name);
+        $words = explode(" ", "$this->name");
+        foreach ($words as $word) {
+            $abbreviation .= $word[0];
+        }
+        return $abbreviation;
+    }
 }

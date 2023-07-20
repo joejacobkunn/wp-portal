@@ -15,11 +15,11 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">
-                                {{$module->name}} 
+                                {{$module->name}}
                             </h3>
-                            
+
                             @if($module->slug == 'herohub')
-                                <livewire:core.module.hero-hub-config :account="$account" />
+                                {{-- <livewire:core.module.hero-hub-config :account="$account" /> --}}
                             @endif
 
                             <p class="small pe-4">{{$module->description}}</p>
