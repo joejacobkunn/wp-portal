@@ -2,6 +2,6 @@
 
 return [
 
-    'url' => env('SRO_URL')
-    
+    'url' => env('SRO_URL'),
+
 ];

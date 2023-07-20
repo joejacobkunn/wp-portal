@@ -38,16 +38,16 @@ class ValidCustomer implements ValidationRule
                 $fail('The :attribute is not found in our system');
             }
 
-         } else {
+        } else {
 
             $customer = Customer::where('cono', $account->sx_company_number)
-                        ->where('custno', $customer_number)->first();
+                ->where('custno', $customer_number)->first();
 
             if (is_null($customer)) {
                 $fail('The :attribute is not found in our system');
             }
 
-         }
+        }
 
     }
 }

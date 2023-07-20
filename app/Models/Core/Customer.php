@@ -48,7 +48,7 @@ class Customer extends Model
         $address = ucwords(strtolower($this->address));
 
         if ($this->address2) {
-        $address .= ', '.ucwords(strtolower($this->address2));
+            $address .= ', '.ucwords(strtolower($this->address2));
         }
 
         $address .= ', '.ucwords(strtolower($this->city));

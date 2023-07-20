@@ -54,7 +54,7 @@ class Show extends Component
         'transtype',
         'takenby',
         'totqtyshp',
-        'user1 as is_sro'
+        'user1 as is_sro',
     ];
 
     public $required_line_item_columns = [
@@ -124,7 +124,7 @@ class Show extends Component
             $sx_client = new SX();
             $this->credit_status = $sx_client->check_credit_status(['request' => ['companyNumber' => $this->customer->account->sx_company_number, 'customerNumber' => $this->customer->sx_customer_number, 'operatorInit' => 'wpa']]);
             if ($this->credit_status['message'] == 'NO SALES ALLOWED!' || str_contains($this->credit_status['message'], 'HOLD')) {
-            $this->customer_has_good_credit_status = false;
+                $this->customer_has_good_credit_status = false;
             }
         }
 
@@ -152,22 +152,21 @@ class Show extends Component
     {
         $this->open_line_item_modal = true;
         $this->order_line_items = OrderLineItem::select($this->required_line_item_columns)
-        ->leftJoin('icsp', function (JoinClause $join) {
-            $join->on('oeel.shipprod', '=', 'icsp.prod')
-                 ->where('icsp.cono', $this->customer->account->sx_company_number);
-        })
-        ->leftJoin('icsl', function (JoinClause $join) {
-            $join->on('oeel.vendno', '=', 'icsl.vendno')
-                 ->where('icsl.cono', $this->customer->account->sx_company_number)
-                 ->whereColumn('icsl.whse', '=', 'oeel.whse')
-                 ->whereColumn('oeel.prodline', '=', 'icsl.prodline');
-        })
-        ->where('oeel.orderno', $order_no)->where('oeel.ordersuf', $order_suffix)
-        ->where('oeel.cono', $this->customer->account->sx_company_number)
-        ->orderBy('oeel.lineno', 'asc')
-        ->get();
+            ->leftJoin('icsp', function (JoinClause $join) {
+                $join->on('oeel.shipprod', '=', 'icsp.prod')
+                    ->where('icsp.cono', $this->customer->account->sx_company_number);
+            })
+            ->leftJoin('icsl', function (JoinClause $join) {
+                $join->on('oeel.vendno', '=', 'icsl.vendno')
+                    ->where('icsl.cono', $this->customer->account->sx_company_number)
+                    ->whereColumn('icsl.whse', '=', 'oeel.whse')
+                    ->whereColumn('oeel.prodline', '=', 'icsl.prodline');
+            })
+            ->where('oeel.orderno', $order_no)->where('oeel.ordersuf', $order_suffix)
+            ->where('oeel.cono', $this->customer->account->sx_company_number)
+            ->orderBy('oeel.lineno', 'asc')
+            ->get();
     }
-
 
     public function closeModal()
     {
@@ -179,25 +178,26 @@ class Show extends Component
         $this->alert('success', 'Copied!');
     }
 
-    private function getDatesFromRange($start, $end, $format = 'Y-m-d') {
-      
+    private function getDatesFromRange($start, $end, $format = 'Y-m-d')
+    {
+
         // Declare an empty array
-        $array = array();
-          
+        $array = [];
+
         // Variable that store the date interval
         // of period 1 day
         $interval = new DateInterval('P1D');
-      
+
         $realEnd = new DateTime($end);
         $realEnd->add($interval);
-      
+
         $period = new DatePeriod(new DateTime($start), $interval, $realEnd);
-      
+
         // Use loop to store date into array
-        foreach($period as $date) {                 
-            $array[] = $date->format($format); 
+        foreach ($period as $date) {
+            $array[] = $date->format($format);
         }
-      
+
         // Return the array elements
         return $array;
     }

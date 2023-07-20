@@ -32,20 +32,19 @@ class SXLastSaleDateSync extends Command
         $cust_numbers = [];
 
         $invoiced_orders = Order::select('custno', 'invoicedt')
-                    ->where('cono',10)
-                    ->whereIn('whse',['ann','ceda','farm','livo','utic','wate'])
-                    ->where('invoicedt', now()->format('Y-m-d'))
-                    ->get();
+            ->where('cono', 10)
+            ->whereIn('whse', ['ann', 'ceda', 'farm', 'livo', 'utic', 'wate'])
+            ->where('invoicedt', now()->format('Y-m-d'))
+            ->get();
 
         $account = Account::where('subdomain', 'weingartz')->first();
 
-        foreach($invoiced_orders as $invoiced_order)
-        {
+        foreach ($invoiced_orders as $invoiced_order) {
             $cust_numbers[] = $invoiced_order->custno;
-            $customer = Customer::where('sx_customer_number', $invoiced_order->custno)->where('account_id',$account->id)->first();
+            $customer = Customer::where('sx_customer_number', $invoiced_order->custno)->where('account_id', $account->id)->first();
             $customer->update(['last_sale_date' => Carbon::parse($invoiced_order->invoicedt)->format('Y-m-d')]);
         }
 
-        echo "Synced customers are SX# ".implode(", ",$cust_numbers);
+        echo 'Synced customers are SX# '.implode(', ', $cust_numbers);
     }
 }

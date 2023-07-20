@@ -16,26 +16,29 @@ class OrderLineItem extends Model
     private $types = [
         'l' => 'Lost',
         's' => 'Special',
-        'n' => 'Non Stock'
+        'n' => 'Non Stock',
     ];
 
     private $tied = [
         'p' => 'PO',
-        't' => 'Warehouse Transfer'
+        't' => 'Warehouse Transfer',
     ];
 
     public function getSpecType()
     {
-        if(empty($this->specnstype)) return 'Stocked';
+        if (empty($this->specnstype)) {
+            return 'Stocked';
+        }
 
         return $this->types[strtolower($this->specnstype)];
     }
 
     public function getTied()
     {
-        if(empty($this->ordertype)) return 'N/A';
+        if (empty($this->ordertype)) {
+            return 'N/A';
+        }
 
         return $this->tied[strtolower($this->ordertype)];
     }
-
 }

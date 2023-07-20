@@ -65,10 +65,10 @@ class Table extends DataTableComponent
             Column::make('Created At', 'created_at')
                 ->sortable()->searchable()->deselected()
                 ->format(function ($value) {
-                        if ($value) {
-                            return $value->format(config('app.default_datetime_format'));
-                        }
-                    }),
+                    if ($value) {
+                        return $value->format(config('app.default_datetime_format'));
+                    }
+                }),
 
         ];
     }
