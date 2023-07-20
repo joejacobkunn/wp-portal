@@ -145,11 +145,11 @@ class EquipmentTable extends DataTableComponent
                     }
                 }),
 
-            SelectFilter::make('Purchase Date')
-                ->options(['' => 'All', 7 => 'Last Week', 30 => 'Last Month', 90 => 'Last 3 Months', 180 => 'Last 6  Months', 360 => 'Last Year'])
+            SelectFilter::make('Purchase Date Year')
+                ->options(['' => 'All Years'] + array_combine(range(date('Y'), now()->subYear(11)->format('Y')), range(date('Y'), now()->subYear(11)->format('Y'))))
                 ->filter(function (Builder $builder, string $value) {
                     if ($value) {
-                        $builder->whereBetween('purchase_date', [now()->subDay($value + 1), now()->addDay(1)]);
+                        $builder->whereYear('purchase_date', $value);
                     }
                 }),
 

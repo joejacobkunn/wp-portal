@@ -30,8 +30,6 @@ class HeroHub
     {
         $line_items = $this->get_line_items_for_order($data['cono'], $data['order_no'], $data['order_suffix']);
 
-        dd($this->generate_shipped_product_payload_for_line_items($line_items));
-
         $response = Http::acceptJson()
             ->withToken($this->get_token())
             ->post(config('herohub.hero_hub_cart_url').'/shipments/outbound', $this->generate_shipped_product_payload_for_line_items($line_items));

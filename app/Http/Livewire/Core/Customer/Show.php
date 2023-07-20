@@ -55,6 +55,7 @@ class Show extends Component
         'takenby',
         'totqtyshp',
         'user1 as is_sro',
+        'refer',
     ];
 
     public $required_line_item_columns = [
@@ -148,24 +149,29 @@ class Show extends Component
             ->get();
     }
 
-    public function fetchOrderDetails($order_no, $order_suffix)
+    public function fetchOrderDetails($order_no, $order_suffix, $sro_number = null)
     {
         $this->open_line_item_modal = true;
-        $this->order_line_items = OrderLineItem::select($this->required_line_item_columns)
-            ->leftJoin('icsp', function (JoinClause $join) {
-                $join->on('oeel.shipprod', '=', 'icsp.prod')
-                    ->where('icsp.cono', $this->customer->account->sx_company_number);
-            })
-            ->leftJoin('icsl', function (JoinClause $join) {
-                $join->on('oeel.vendno', '=', 'icsl.vendno')
-                    ->where('icsl.cono', $this->customer->account->sx_company_number)
-                    ->whereColumn('icsl.whse', '=', 'oeel.whse')
-                    ->whereColumn('oeel.prodline', '=', 'icsl.prodline');
-            })
-            ->where('oeel.orderno', $order_no)->where('oeel.ordersuf', $order_suffix)
-            ->where('oeel.cono', $this->customer->account->sx_company_number)
-            ->orderBy('oeel.lineno', 'asc')
-            ->get();
+        if ($sro_number) {
+            $this->order_line_items = $sro_number;
+        } else {
+            $this->order_line_items = OrderLineItem::select($this->required_line_item_columns)
+                ->leftJoin('icsp', function (JoinClause $join) {
+                    $join->on('oeel.shipprod', '=', 'icsp.prod')
+                        ->where('icsp.cono', $this->customer->account->sx_company_number);
+                })
+                ->leftJoin('icsl', function (JoinClause $join) {
+                    $join->on('oeel.vendno', '=', 'icsl.vendno')
+                        ->where('icsl.cono', $this->customer->account->sx_company_number)
+                        ->whereColumn('icsl.whse', '=', 'oeel.whse')
+                        ->whereColumn('oeel.prodline', '=', 'icsl.prodline');
+                })
+                ->where('oeel.orderno', $order_no)->where('oeel.ordersuf', $order_suffix)
+                ->where('oeel.cono', $this->customer->account->sx_company_number)
+                ->orderBy('oeel.lineno', 'asc')
+                ->get();
+
+        }
     }
 
     public function closeModal()
