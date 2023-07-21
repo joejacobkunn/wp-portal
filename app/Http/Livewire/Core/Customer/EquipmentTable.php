@@ -4,14 +4,14 @@ namespace App\Http\Livewire\Core\Customer;
 
 use App\Exports\CustomerEquipmentExport;
 use App\Http\Livewire\Component\DataTableComponent;
-use App\Models\Core\Customer;
 use App\Models\SRO\Customer as SROCustomer;
 use App\Models\SRO\Equipment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Maatwebsite\Excel\Facades\Excel;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Rappasoft\LaravelLivewireTables\Views\Filters\DateFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectDropdownFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class EquipmentTable extends DataTableComponent
@@ -23,12 +23,12 @@ class EquipmentTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id')
-        ->setTableRowUrl(function($row) {
-            return config('sro.url').'dashboard/equipment/'.$row->id;
-        })
-        ->setTableRowUrlTarget(function($row) {
-            return '_blank';
-        });
+            ->setTableRowUrl(function ($row) {
+                return config('sro.url').'dashboard/equipment/'.$row->id;
+            })
+            ->setTableRowUrlTarget(function ($row) {
+                return '_blank';
+            });
 
         $this->setPerPageAccepted([25, 50, 100]);
 
@@ -132,27 +132,28 @@ class EquipmentTable extends DataTableComponent
         return [
 
             SelectFilter::make('Type')
-            ->options(Equipment::distinct('type')->where('customer_id', $this->customer->id)->pluck('type', 'type')->prepend('All', '')->toArray())
-            ->filter(function (Builder $builder, string $value) {
-                if ($value) {
-                    $builder->where('type', $value);
-                }
-            }),
+                ->options(Equipment::distinct('type')->where('customer_id', $this->customer->id)->pluck('type', 'type')->prepend('All', '')->toArray())
+                ->filter(function (Builder $builder, string $value) {
+                    if ($value) {
+                        $builder->where('type', $value);
+                    }
+                }),
 
             SelectFilter::make('Brand')
-            ->options(Equipment::distinct('brand')->where('customer_id', $this->customer->id)->pluck('brand', 'brand')->prepend('All', '')->toArray())
-            ->filter(function (Builder $builder, string $value) {
-                if ($value) {
-                    $builder->where('brand', $value);
-                }
-            }),
+                ->options(Equipment::distinct('brand')->where('customer_id', $this->customer->id)->pluck('brand', 'brand')->prepend('All', '')->toArray())
+                ->filter(function (Builder $builder, string $value) {
+                    if ($value) {
+                        $builder->where('brand', $value);
+                    }
+                }),
 
-            DateFilter::make('Purchase Date')
-            ->filter(function (Builder $builder, string $value) {
-                if ($value) {
-                    $builder->where('purchase_date', $value);
-                }
-            }),
+                SelectFilter::make('Purchase Date Year')
+                ->options(['' => 'All Years'] + array_combine(range(date('Y'), now()->subYear(11)->format('Y')), range(date('Y'), now()->subYear(11)->format('Y'))))
+                ->filter(function (Builder $builder, string $value) {
+                    if ($value) {
+                        $builder->whereYear('purchase_date', $value);
+                    }
+                }),
 
         ];
     }

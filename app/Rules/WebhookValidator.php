@@ -2,11 +2,10 @@
 
 namespace App\Rules;
 
-
 use Illuminate\Http\Request;
 use Spatie\WebhookClient\Exceptions\InvalidConfig;
+use Spatie\WebhookClient\SignatureValidator\SignatureValidator;
 use Spatie\WebhookClient\WebhookConfig;
-use \Spatie\WebhookClient\SignatureValidator\SignatureValidator;
 
 class WebhookValidator implements SignatureValidator
 {
@@ -23,7 +22,6 @@ class WebhookValidator implements SignatureValidator
         if (empty($signingSecret)) {
             throw InvalidConfig::signingSecretNotSet();
         }
-
 
         return $signature == $signingSecret;
     }

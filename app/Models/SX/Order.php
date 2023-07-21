@@ -48,7 +48,7 @@ class Order extends Model
 
     public function scopeOpenOrders(Builder $query)
     {
-        $query->whereIn('stagecd', [1, 2, 3]);
+        $query->whereIn('stagecd', [1, 2]);
     }
 
     public function getStageCode($stage_code)
@@ -58,7 +58,10 @@ class Order extends Model
 
     public function getShippingStage($stage_code)
     {
-        if($stage_code > 3) return "Delivered";
+        if ($stage_code > 3) {
+            return 'Delivered';
+        }
+
         return $this->shipping_stages[$stage_code];
     }
 }

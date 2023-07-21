@@ -5,10 +5,6 @@
 
     <div class="card-body">
 
-        <div class="alert alert-secondary">
-            <i class="fas fa-info-circle"></i> Does not include Service Request Orders
-        </div>
-
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill"
@@ -33,10 +29,14 @@
                 <div class="list-group overflow-scroll" style="height:600px">
                     @if(!empty($this->orders))
                     @forelse ($this->orders->whereIn('stagecd',[1,2,3]) as $order)
-                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})"
+                    @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
+                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}')"
                         class="list-group-item list-group-item-action" aria-current="true">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">Order# {{$order->orderno}}-{{$order->ordersuf}}
+                                @if($order->is_sro == 'SRO') <span class="badge bg-light-danger"><i
+                                        class="fas fa-tools"></i>
+                                    {{$order->refer}}</span> @endif
                             </h5>
                             <small><span
                                     class="badge bg-light-secondary">{{$order->getStageCode($order->stagecd)}}</span></small>
@@ -54,7 +54,7 @@
                                 : {{strtoupper(intval($order->totqtyshp))}}</span>
 
                             <div class="float-end" wire:loading
-                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})">
+                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}')">
                                 <div class="spinner-border spinner-border-sm float-end" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
@@ -93,10 +93,16 @@
                         Showing last 5 years of past orders
                     </div>
                     @forelse ($this->orders->whereIn('stagecd',[4,5]) as $order)
-                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})"
+                    @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
+                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}')"
                         class="list-group-item list-group-item-action" aria-current="true">
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">Order# {{$order->orderno}}-{{$order->ordersuf}}
+                            <h5 class="mb-1">
+                                Order# {{$order->orderno}}-{{$order->ordersuf}}
+                                @if($order->is_sro == 'SRO') <span class="badge bg-light-danger"><i
+                                        class="fas fa-tools"></i>
+                                    {{$order->refer}}</span> @endif
+
                             </h5>
                             <small><span
                                     class="badge bg-light-secondary">{{$order->getStageCode($order->stagecd)}}</span></small>
@@ -114,7 +120,7 @@
                                 : {{strtoupper(intval($order->totqtyshp))}}</span>
 
                             <div class="float-end" wire:loading
-                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})">
+                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}')">
                                 <div class="spinner-border spinner-border-sm float-end" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>

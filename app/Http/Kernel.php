@@ -45,8 +45,8 @@ class Kernel extends HttpKernel
         ],
 
         'webhook' => [
-            \App\Http\Middleware\WebhookMiddleware::class
-        ]
+            \App\Http\Middleware\WebhookMiddleware::class,
+        ],
     ];
 
     /**
