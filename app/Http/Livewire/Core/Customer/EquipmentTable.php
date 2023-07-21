@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Maatwebsite\Excel\Facades\Excel;
 use Rappasoft\LaravelLivewireTables\Views\Column;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectDropdownFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class EquipmentTable extends DataTableComponent
@@ -145,7 +147,7 @@ class EquipmentTable extends DataTableComponent
                     }
                 }),
 
-            SelectFilter::make('Purchase Date Year')
+                SelectFilter::make('Purchase Date Year')
                 ->options(['' => 'All Years'] + array_combine(range(date('Y'), now()->subYear(11)->format('Y')), range(date('Y'), now()->subYear(11)->format('Y'))))
                 ->filter(function (Builder $builder, string $value) {
                     if ($value) {

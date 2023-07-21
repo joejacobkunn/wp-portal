@@ -24,7 +24,7 @@ class Table extends DataTableComponent
                 return route('core.customer.show', $row);
             })
             ->setTableRowUrlTarget(function ($row) {
-                return '_self';
+                return '_blank';
             });
 
         $this->setPerPageAccepted([25, 50, 100]);
@@ -51,7 +51,6 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('Name', 'name')
-                ->sortable()
                 ->secondaryHeader($this->getFilterByKey('name'))
                 ->searchable(function (Builder $query, $searchTerm) {
                     if (str_contains(strtolower($searchTerm), ' and')) {
@@ -81,7 +80,6 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('Address', 'address')
-                ->sortable()
                 ->searchable()
                 ->secondaryHeader($this->getFilterByKey('address'))
                 ->format(function ($value, $row) {
@@ -120,7 +118,6 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('Phone', 'phone')
-                ->sortable()
                 ->searchable()
                 ->secondaryHeader($this->getFilterByKey('phone'))
                 ->format(function ($value, $row) {
@@ -130,7 +127,6 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('E-Mail', 'email')
-                ->sortable()
                 ->secondaryHeader($this->getFilterByKey('email'))
                 ->searchable()
                 ->format(function ($value, $row) {
@@ -140,20 +136,18 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('SX Number', 'sx_customer_number')
-                ->sortable()
                 ->searchable()
                 ->hideIf(1)
                 ->excludeFromColumnSelect(),
 
             Column::make('Look Up Name', 'look_up_name')
-                ->sortable()
                 ->hideIf(1)
                 ->searchable(),
 
             Column::make('Sales Terr', 'sales_territory'),
 
             Column::make('Customer Since', 'customer_since')
-                ->sortable()->deselected()
+                ->deselected()
                 ->format(function ($value) {
                     if ($value) {
                         return $value->format('M Y');
@@ -161,7 +155,7 @@ class Table extends DataTableComponent
                 }),
 
             Column::make('Last Sale Date', 'last_sale_date')
-                ->sortable()->deselected()
+                ->excludeFromColumnSelect()
                 ->format(function ($value) {
                     if ($value) {
                         return date('M d, Y', strtotime($value));

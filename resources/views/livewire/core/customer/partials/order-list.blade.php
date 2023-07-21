@@ -93,7 +93,8 @@
                         Showing last 5 years of past orders
                     </div>
                     @forelse ($this->orders->whereIn('stagecd',[4,5]) as $order)
-                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}}, {{$order->is_sro}}, {{$order->refer}})"
+                    @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
+                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}')"
                         class="list-group-item list-group-item-action" aria-current="true">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">
@@ -119,7 +120,7 @@
                                 : {{strtoupper(intval($order->totqtyshp))}}</span>
 
                             <div class="float-end" wire:loading
-                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})">
+                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}')">
                                 <div class="spinner-border spinner-border-sm float-end" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
