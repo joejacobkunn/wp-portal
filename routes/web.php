@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/azure/test', function () {
+    return \Laravel\Socialite\Facades\Socialite::driver('azure')->redirect();
+});
+
+
+Route::get('/azure/callback', function () {
+    dd(\Laravel\Socialite\Facades\Socialite::driver('azure')->user());
+});
+
 Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware' => 'subdomain'], function () {
     Route::get('login', [\App\Http\Controllers\Auth\LoginController::class, 'attemptLogin'])->name('auth.login.view');
     Route::post('login', [\App\Http\Controllers\Auth\LoginController::class, 'authenticate'])->name('auth.login.attempt');
@@ -21,6 +30,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
     Route::get('forgot-password', [\App\Http\Controllers\Auth\ResetController::class, 'showForgotPasswordPage'])->name('auth.forgot.show');
     Route::post('forgot-password', [\App\Http\Controllers\Auth\ResetController::class, 'processForgotPasswordPage'])->name('auth.forgot.process');
     Route::post('reset', [\App\Http\Controllers\Auth\ResetController::class, 'reset'])->name('auth.password.reset');
+
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/', function () {

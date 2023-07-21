@@ -20,6 +20,7 @@
         "livewire/livewire": "^2.12",
         "maatwebsite/excel": "^3.1",
         "rappasoft/laravel-livewire-tables": "^2.14",
+        "socialiteproviders/microsoft-azure": "^5.1",
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-ciphersweet": "^1.2",
         "spatie/laravel-permission": "^5.9",

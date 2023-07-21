@@ -31,16 +31,19 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions for php
+RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
+      mbstring zip pcntl mysqli exif gd
+
+# Install extensions for php
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl pdo_odbc
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install gd
+RUN docker-php-ext-install pdo_odbc
 
 # Install composer (php package manager)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Add user for laravel application
 RUN getent group www || groupadd -g 1000 www
+
 RUN getent passwd www || useradd -u 1000 -ms /bin/bash -g www www
 
 # Copy existing application directory permissions

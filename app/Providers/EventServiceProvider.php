@@ -28,6 +28,11 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\User\ForgotPassword::class => [
             \App\Listeners\User\ForgotPasswordListener::class,
         ],
+
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            // ... other providers
+            \SocialiteProviders\Azure\AzureExtendSocialite::class.'@handle',
+        ],
     ];
 
     /**

@@ -14,7 +14,7 @@ services:
         - ./:/var/www/html/
         - ./docker/php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
     environment:
-      SERVICE_NAME: app
+      SERVICE_NAME: wp_app
       SERVICE_TAGS: dev
     working_dir: /var/www/html/
     networks:
@@ -49,7 +49,7 @@ services:
       MYSQL_DATABASE: wp_portal
       MYSQL_ROOT_PASSWORD: root_password
       SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
+      SERVICE_NAME: wp_db
     networks:
       - wp-network
 
