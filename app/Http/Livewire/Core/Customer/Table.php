@@ -67,7 +67,7 @@ class Table extends DataTableComponent
                     if ($row->is_active) {
                         $display .= '<span class="badge bg-light-success"><i class="fas fa-user-check"></i> '.ucwords(strtolower($value)).' ('.$row->sx_customer_number.')</span>';
                     } else {
-                        $display .= '<span class="badge bg-light-danger"><i class="fas fa-user-times"></i> '.ucwords(strtolower($value)).'</span>';
+                        $display .= '<span class="badge bg-light-danger"><i class="fas fa-user-times"></i> '.ucwords(strtolower($value)).' ('.$row->sx_customer_number.')</span>';
                     }
 
                     if ($row->has_open_order) {
