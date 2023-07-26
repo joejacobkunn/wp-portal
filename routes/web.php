@@ -52,3 +52,4 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
     });
 });
+

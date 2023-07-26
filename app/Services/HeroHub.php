@@ -61,40 +61,32 @@ class HeroHub
 
     private function generate_shipped_product_payload_for_line_items($line_items)
     {
-        $order_lines = [];
-        $deliveries = [];
+
+        $tracking_numbers = [];
+        $unique_tracking_numbers = [];
 
         foreach ($line_items as $order_line_item) {
             $line_item = (array) $order_line_item;
             $hub_hero_order_id = $line_item['HERO_HUB_ORDERNO'];
 
             if ($line_item['qtyship'] > 0) {
-                $order_lines[] = [
-                    'orderLineNumber' => intval($line_item['lineno']),
-                    'material' => preg_replace('/^EX/', '', $line_item['shipprod']),
-                    'qty' => intval($line_item['qtyship']),
-                    'deliveries' => [[
-                        'orderLineId' => intval($line_item['lineno']),
-                        'delivery' => 1,
-                        'deliveryLineNumber' => intval($line_item['lineno']),
-                        'qty' => intval($line_item['qtyship']),
-                    ]],
-                ];
-
-                $deliveries[] = [
-                    'deliveryNumber' => intval($line_item['lineno']),
-                    'trackings' => [[
-                        'trackingNumber' => $line_item['trackerno'],
-                    ]],
-                ];
+                if (! in_array($line_item['trackerno'], $unique_tracking_numbers)) {
+                    $tracking_numbers[] = ['trackingNumber' => $line_item['trackerno']];
+                    $unique_tracking_numbers[] = $line_item['trackerno'];
+                }
             }
 
         }
 
         return [
-            'HeroHubId' => $hub_hero_order_id,
-            'orderLines' => $order_lines,
-            'deliveries' => $deliveries,
+            'heroHubId' => $hub_hero_order_id,
+            'orderLines' => [],
+            'deliveries' => [
+                [
+                    'deliveryNumber' => 1,
+                    'trackings' => $tracking_numbers,
+                ],
+            ],
         ];
     }
 }

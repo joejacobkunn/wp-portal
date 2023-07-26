@@ -99,6 +99,10 @@ class Show extends Component
 
     public $tab;
 
+    public $open_order_tab = true;
+
+    public $past_order_tab = false;
+
     public $queryString = ['tab'];
 
     public function mount()
@@ -149,7 +153,7 @@ class Show extends Component
             ->get();
     }
 
-    public function fetchOrderDetails($order_no, $order_suffix, $sro_number = null)
+    public function fetchOrderDetails($order_no, $order_suffix, $sro_number, $order_type)
     {
         $this->open_line_item_modal = true;
         if ($sro_number) {
@@ -170,6 +174,15 @@ class Show extends Component
                 ->where('oeel.cono', $this->customer->account->sx_company_number)
                 ->orderBy('oeel.lineno', 'asc')
                 ->get();
+
+            if ($order_type == 'open-order') {
+                $this->open_order_tab = true;
+                $this->past_order_tab = false;
+            } else {
+                $this->open_order_tab = false;
+                $this->past_order_tab = true;
+
+            }
 
         }
     }
