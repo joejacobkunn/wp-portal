@@ -153,7 +153,7 @@ class Show extends Component
             ->get();
     }
 
-    public function fetchOrderDetails($order_no, $order_suffix, $sro_number = null, $order_type)
+    public function fetchOrderDetails($order_no, $order_suffix, $sro_number, $order_type)
     {
         $this->open_line_item_modal = true;
         if ($sro_number) {
@@ -175,14 +175,14 @@ class Show extends Component
                 ->orderBy('oeel.lineno', 'asc')
                 ->get();
 
-                if($order_type == 'open-order'){
-                    $this->open_order_tab = true;
-                    $this->past_order_tab = false;
-                }else{
-                    $this->open_order_tab = false;
-                    $this->past_order_tab = true;
+            if ($order_type == 'open-order') {
+                $this->open_order_tab = true;
+                $this->past_order_tab = false;
+            } else {
+                $this->open_order_tab = false;
+                $this->past_order_tab = true;
 
-                }
+            }
 
         }
     }

@@ -70,8 +70,7 @@ class HeroHub
             $hub_hero_order_id = $line_item['HERO_HUB_ORDERNO'];
 
             if ($line_item['qtyship'] > 0) {
-                if(!in_array($line_item['trackerno'],$unique_tracking_numbers))
-                {
+                if (! in_array($line_item['trackerno'], $unique_tracking_numbers)) {
                     $tracking_numbers[] = ['trackingNumber' => $line_item['trackerno']];
                     $unique_tracking_numbers[] = $line_item['trackerno'];
                 }
@@ -84,12 +83,10 @@ class HeroHub
             'orderLines' => [],
             'deliveries' => [
                 [
-                'deliveryNumber' => 1,
-                'trackings' => $tracking_numbers,
-                ]
-            ]
+                    'deliveryNumber' => 1,
+                    'trackings' => $tracking_numbers,
+                ],
+            ],
         ];
     }
-
-
 }
