@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Core\Account;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Core\Account\Traits\FormRequest;
 use App\Models\Core\Account;
+use App\Models\Core\SXAccount;
 use App\Models\Core\User;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -13,7 +14,10 @@ class Show extends Component
 {
     use AuthorizesRequests, FormRequest, HasTabs;
 
+    //Attributes
     public Account $account;
+
+    public $sx_accounts = [];
 
     public $breadcrumbs = [
         [
@@ -40,6 +44,7 @@ class Show extends Component
     protected $listeners = [
         'deleteRecord' => 'delete',
         'edit' => 'edit',
+        'updateStatus' => 'updateStatus'
     ];
 
     public $editRecord = false;
@@ -69,6 +74,10 @@ class Show extends Component
 
     public function edit()
     {
+        if(empty($this->sx_accounts)) {
+            $this->sx_accounts = SXAccount::all();
+        }
+
         $this->editRecord = true;
     }
 

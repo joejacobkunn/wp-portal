@@ -67,7 +67,7 @@ trait FormRequest
         $this->location->save();
 
         $this->addLocation = false;
-        $this->reset();
+        $this->formInit();
         $this->resetValidation();
 
         $this->viewLocation = true;

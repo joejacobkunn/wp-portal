@@ -139,3 +139,17 @@
     filter: grayscale(100) contrast(0%) brightness(1.8);
 }
 /** Tab load styles ends */
+
+/** Account view */
+.account-logo-wrapper .logo-container {
+    width: 250px; /* Set the desired width */
+    height: auto; /* Height will adjust based on aspect ratio */
+    max-width: 100%; /* Ensure the logo doesn't exceed its parent container */
+    padding: 10px; /* Optional: Add some padding around the logo */
+    margin: 10px;
+}
+
+.account-logo-wrapper .logo {
+    width: 100%; /* Ensure the logo fills its container */
+    height: auto; /* Height will adjust based on aspect ratio */
+}

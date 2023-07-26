@@ -9,17 +9,16 @@
         </div>
 
         <div class="card-body">
-            @if($account->is_active)
-            <div class="alert alert-light-success color-success" role="alert">
-                <i class="far fa-check-circle"></i> This account is active
-                <button class="btn btn-sm btn-outline-danger float-end mt-n1">Deactivate</button>
-            </div>
-            @else
-            <div class="alert alert-light-danger color-danger" role="alert">
-                <i class="far fa-times-circle"></i> This account is Deactivated
-                <button class="btn btn-sm btn-outline-success float-end mt-n1">Activate</button>
-            </div>
-            @endif
+            <livewire:component.alert
+                :level="$this->statusAlertClass"
+                :message="$this->statusAlertMessage"
+                :messageIcon="$this->statusAlertMessageIcon"
+                :hasAction="$this->statusAlertHasAction"
+                :actionButtonClass="$this->statusAlertActionButtonClass"
+                :actionButtonName="$this->statusAlertActionButtonName"
+                :actionButtonAction="'updateStatus'"
+                wire:key="{{ 'status_alert_'.$account->id.'_' . $account->is_active->value }}"
+            />
 
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
@@ -49,6 +48,14 @@
                     <div>
                         <h3 class="h6 mb-1">Admin</h3>
                         <p class="small pe-4">{{ $account->admin?->email ?: 'Not Set' }}</p>
+                    </div>
+                </li>
+                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                    <div class="account-logo-wrapper">
+                        <h3 class="h6 mb-1">Logo</h3>
+                        <div class="logo-container">
+                            <img class="logo" src="{{ $account->getFirstMediaUrl('documents'); }}" alt="Account Logo">
+                        </div>
                     </div>
                 </li>
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0">

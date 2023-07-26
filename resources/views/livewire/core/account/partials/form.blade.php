@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-12 col-md-12">
         <div class="card card-body shadow-sm mb-4">
-            <form wire:submit.prevent="{{ (!empty($account->id) ? 'save()' : 'submit()')}}">
+            <form wire:submit.prevent="submit()">
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
@@ -34,6 +34,14 @@
                     </div>
                 </div>
 
+                <x-forms.media
+                    model="documents"
+                    :entity="$account"
+                    :collection="$account::DOCUMENT_COLLECTION"
+                    editable
+                    rules="mimes:jpeg,png"
+                />
+
                 <div class="row">
                     <div class="col-md-12 mb-1">
                         <x-forms.checkbox label="Activate Account" model="account.is_active" lazy />
@@ -45,7 +53,7 @@
                 <div class="mt-2 float-start">
 
                     <button type="submit" class="btn btn-primary">
-                        <div wire:loading wire:target="{{ (!empty($role->id) ? 'save' : 'submit')}}">
+                        <div wire:loading wire:target="submit">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
                         {{$button_text}}

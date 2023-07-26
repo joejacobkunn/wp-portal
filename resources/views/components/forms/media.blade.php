@@ -1,5 +1,9 @@
 <div class="form-group x-media">
 
+    @php
+        $key = ($key ?? "") . $model . "_media-field";
+    @endphp
+
     <livewire:x-media-attachment
         :model="$model"
         :entity="$entity"
@@ -13,7 +17,7 @@
         :view-type="$viewType ?? 'grid'"
         :list-view="$listView ?? ''"
         :grid-view="$gridView ?? ''"
-        :hide-layout-switch="$hideLayoutSwitch ?? false"
+        :grid-width="$gridWidth ?? 25"
     >
 
     @if(isset($model))
