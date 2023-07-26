@@ -20,10 +20,10 @@ class AzureLoginController extends Controller
         }
 
         if ($request->route_subdomain) {
-            session(['azure.login.domain' => $request->route_subdomain]);
-            return redirect()->to($hosturl . route('host.azure.redirect', [], false));
+            return redirect()->to($hosturl . route('host.azure.redirect', ['wp_domain' => $request->route_subdomain], false));
         }
 
+        session(['azure.login.domain' => $request->wp_domain]);
         $url = Socialite::driver('azure')->redirect();
         $urlParts = parse_url($url->getTargetUrl());
         parse_str($urlParts['query'], $queryParams);
