@@ -36,7 +36,7 @@ RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases
 
 # Install extensions for php
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr
-RUN docker-php-ext-install pdo_odbc
+RUN docker-php-ext-install pdo_odbc pdo_mysql
 
 # Install composer (php package manager)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
