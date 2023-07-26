@@ -5,3 +5,33 @@ body{background-color:#fff}#auth{height:100vh;overflow-x:hidden}#auth #auth-righ
 #auth #auth-left {
     padding: 4.5rem !important;
 }
+
+.azure-login-div h4 {
+    color: var(--bs-primary);
+}
+.azure-login-div .azure-link {
+    border: 2px solid var(--bs-primary);
+    color: var(--bs-primary);
+    font-size: 1.3em;
+    padding: 1rem 3rem;
+}
+.azure-login-div .azure-link:hover {
+    background: var(--bs-primary);
+    color: #fff;
+}
+.azure-login-div .azure-link img {
+    width: 25px;
+}
+.pazure-login-div .azure-link:hover {
+    background: #005da6e0;
+}
+.azure-login-div .azure-link .v-divider {
+    width: 1px;
+    background: #cdcdcda1;
+    margin: -2px 8px;
+    display: inline-block;
+    height: 1rem;
+}
+#auth #auth-left .auth-logo {
+    margin-bottom: 18rem;
+}
