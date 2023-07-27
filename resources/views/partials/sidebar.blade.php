@@ -81,6 +81,15 @@
 
                 @endif
 
+                @canany(['roles.view'])
+                <li class="sidebar-item {{ (request()->is('roles*')) ? 'active' : '' }}">
+                    <a href="{{ route('core.role.index') }}" class='sidebar-link'>
+                        <i class="far fa-list-alt"></i>
+                        <span>Roles</span>
+                    </a>
+                </li>
+                @endcan
+
 
 
             </ul>

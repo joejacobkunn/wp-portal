@@ -55,15 +55,7 @@
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
                         <h3 class="h6 mb-1">Role</h3>
-                        <p class="small pe-4">{{ $user->email }}</p>
-                    </div>
-                    <div>
-                </li>
-
-                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                    <div>
-                        <h3 class="h6 mb-1">Affiliate</h3>
-                        <p class="small pe-4">{{ $user->email }}</p>
+                        <p class="small pe-4">{{ $user->roles->first()?->label }}</p>
                     </div>
                     <div>
                 </li>

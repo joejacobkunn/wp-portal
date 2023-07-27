@@ -2,31 +2,29 @@
 
 namespace App\Http\Livewire\Core\Role;
 
-use App\Http\Livewire\Component\Component;
-use App\Http\Resources\Transformers\PermissionGroupCollection;
 use App\Models\Core\Role;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
+use App\Http\Livewire\Component\Component;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Resources\Transformers\PermissionGroupCollection;
+use App\Models\Core\Permission;
 
 class Index extends Component
 {
     use AuthorizesRequests;
-
+    
     public Role $role;
 
     //attributes
+
     public $addRole = false;
-
-    public $roles = [];
-
     public $permissionGroups = [];
-
     public $selectedPermissions = [];
 
     public $breadcrumbs = [
         [
             'title' => 'Roles',
-            'route_name' => 'core.roles.index',
+            'route_name' => 'core.role.index'
         ],
     ];
 
@@ -36,15 +34,13 @@ class Index extends Component
 
     protected $rules = [
         'role.label' => 'required|min:3|unique:roles,label',
-        'role.reporting_role' => 'nullable',
     ];
 
     public function __construct($id = null)
     {
         $this->role = new Role;
-        $this->role->label = null;
-        $this->role->reporting_role = null;
-
+        $this->role->label = NULL;
+        
         parent::__construct($id);
     }
 
@@ -53,25 +49,22 @@ class Index extends Component
         $this->validateOnly($propertyName);
     }
 
-    public function render()
+    public function mount()
     {
         $this->authorize('viewAny', Role::class);
+    }
 
-        return $this->renderView('livewire.core.role.index')->extends('livewire-app', ['moduleName' => $this->moduleName ?? '', 'breadcrumbs' => $this->breadcrumbs]);
+    public function render()
+    {
+        return $this->renderView('livewire.core.role.index');
     }
 
     public function create()
     {
         $this->authorize('store', Role::class);
-        $this->roles = Role::where('level', '>=', auth()->user()->role->level)
-            ->select('label', 'id')
-            ->orderBy('level')
-            ->get();
 
-        $this->permissionGroups = (new PermissionGroupCollection(auth()->user()->getAllPermissions()))->aggregateGroup()->toArray();
-
+        $this->permissionGroups = (new PermissionGroupCollection($this->getPermissions()))->aggregateGroup()->toArray();
         array_push($this->breadcrumbs, ['title' => 'Create']);
-
         $this->addRole = true;
     }
 
@@ -80,27 +73,19 @@ class Index extends Component
         $this->authorize('store', Role::class);
         $this->validate();
 
+        $accountId = !auth()->user()->isMasterAdmin() ? app('domain')->getClientId() : null;
         $roleData = [
-            'name' => Str::slug($this->role->label),
+            'name' => Str::slug($this->role->label) . '-custom-' . ($accountId ? $accountId : 'master'),
             'guard_name' => 'web',
+            'account_id' => $accountId,
         ];
-
-        if ($this->role->reporting_role) {
-            $reportingRole = Role::find($this->role->reporting_role);
-            $roleData['reporting_role'] = $reportingRole->id;
-            $roleData['level'] = $reportingRole->level + 1;
-        } else {
-            $currentRole = auth()->user()->roles()->first();
-            $roleData['reporting_role'] = $currentRole->reporting_role;
-            $roleData['level'] = $currentRole->level;
-        }
-
+        
         $this->role->fill($roleData);
         $this->role->created_by = auth()->user()->id;
         $this->role->save();
 
         //associate permissions to role which is allowed to current user
-        $allowedPermissions = auth()->user()->getAllPermissions();
+        $allowedPermissions = $this->getPermissions();
         $selectedPermissions = $allowedPermissions->whereIn('name', $this->selectedPermissions);
         $this->role->givePermissionTo([$selectedPermissions]);
 
@@ -115,5 +100,17 @@ class Index extends Component
         $this->reset();
 
         $this->addRole = false;
+    }
+
+    protected function getPermissions()
+    {
+        $permissions = Permission::query();
+        if (auth()->user()->isMasterAdmin()) {
+            $permissions->where('master_type', 1);
+        } else  {
+            $permissions->where('account_type', 1);
+        }
+
+        return $permissions->get();
     }
 }

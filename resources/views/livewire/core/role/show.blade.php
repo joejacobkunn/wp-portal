@@ -1,7 +1,4 @@
 <div>
-    @section('sidebar')
-        @include('livewire.core.partials.sidebar')
-    @endsection
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
         

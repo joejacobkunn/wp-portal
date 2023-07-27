@@ -13,11 +13,15 @@ trait FormRequest
         'user.email' => 'Email',
     ];
 
+    public $roles;
+    public $selectedRole;
+
     protected function rules()
     {
         return [
             'user.name' => 'required',
             'user.email' => 'required|email|unique:users,email'.($this->user ? ','.$this->user->id : ''),
+            'selectedRole' => 'required',
         ];
     }
 
@@ -32,6 +36,10 @@ trait FormRequest
             $this->user->email = null;
             $this->user->affiliate_id = null;
         }
+
+        $this->roles = Role::ofAccount(auth()->user()->account_id)
+            ->basicSelect()
+            ->get();
     }
 
     /**
@@ -67,6 +75,7 @@ trait FormRequest
         ]);
 
         $this->user->save();
+        $this->user->assignRole($this->selectedRole);
 
         $this->user->invited_by = auth()->user()->id;
 
@@ -90,6 +99,11 @@ trait FormRequest
     public function update()
     {
         $this->user->save();
+
+        if ($this->user->roles->first()?->name != $this->selectedRole) {
+            $this->user->roles()->detach();
+            $this->user->assignRole($this->selectedRole);
+        }
 
         $this->editRecord = false;
         session()->flash('success', 'User updated!');

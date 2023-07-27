@@ -118,6 +118,29 @@ trait FormRequest
 
     public function setAdminUser()
     {
+        $superAdminName = Role::SUPER_ADMIN_ROLE . '-account-' . $this->account->id;
+        $role = Role::where('name', $superAdminName)->where('account_id', $this->account->id)->first();
+        if (! $role) {
+            //create superadmin role
+            $role = Role::create([
+                'account_id' => $this->account->id,
+                'name' => $superAdminName,
+                'label' => 'Super Admin',
+                'is_preset' => 1,
+            ]);
+
+            $superAdminRole = Role::where('name', Role::SUPER_ADMIN_ROLE)->first();
+            $role->syncPermissions($superAdminRole->getPermissionNames());
+
+            //create user role
+            Role::create([
+                'account_id' => $this->account->id,
+                'name' => Role::USER_ROLE . '-account-' . $this->account->id,
+                'label' => 'User',
+                'is_preset' => 1,
+            ]);
+        }
+
         $user = User::where('account_id', $this->account->id)
             ->where('email', $this->adminEmail)
             ->firstOrNew();
@@ -142,17 +165,10 @@ trait FormRequest
         }
 
         if ($this->adminUser?->id != $user?->id) {
-
-            if ($this->adminUser) {
-                //update existing role
-                $this->adminUser->roles()->detach();
-                $this->adminUser->assignRole(Role::USER_ROLE);
-            }
-
             $this->account->admin_user = $user->id;
             $this->account->save();
             $user->roles()->detach();
-            $user->assignRole(Role::SUPER_ADMIN_ROLE);
+            $user->assignRole($superAdminName);
         }
     }
 }

@@ -1,7 +1,7 @@
 [
     {
         "group": "Vehicle",
-        "roles": ["super-admin"],
+        "type": ["account"],
         "items": [
             {
                 "name": "vehicle.view",

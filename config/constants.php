@@ -6,4 +6,6 @@ return [
     'admin_subdomain' => env('ADMIN_SUBDOMAIN', 'admin'),
 
     'default_logo_path' => env('APP_LOGO_PATH', '/assets/images/logo.png'),
+
+    "asset_version" => env('ASSET_VERSION', uniqid()),
 ];

@@ -13,23 +13,31 @@
                     @endif
 
                     <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <x-forms.input
                                 label="Name"
                                 model="user.name"
                                 lazy
                             />
                         </div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <x-forms.input
                                 label="Email"
                                 model="user.email"
                                 lazy
                             />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <x-forms.select
+                                label="Role" 
+                                model="selectedRole" 
+                                :options="$roles"
+                                :selected="$selectedRole ?? null"
+                                label-index="label"
+                                value-index="name" />
                         </div>
                     </div>
 

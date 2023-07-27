@@ -126,3 +126,7 @@
     filter: grayscale(100) contrast(0%) brightness(1.8);
 }
 /** Tab load styles ends */
+
+.permission-accordion label {
+    color: #333;
+}
