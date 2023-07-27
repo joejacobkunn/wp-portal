@@ -108,6 +108,10 @@ class Table extends DataTableComponent
                 ->searchable()
                 ->hideIf(1),
 
+            Column::make('Address 2', 'address2')
+                ->searchable()
+                ->hideIf(1),
+
             Column::make('State', 'state')
                 ->hideIf(1),
 
@@ -203,7 +207,8 @@ class Table extends DataTableComponent
                     'maxlength' => '25',
                 ])
                 ->filter(function (Builder $builder, string $value) {
-                    $builder->where('address', 'like', '%'.$value.'%');
+                    $builder->where('address', 'like', '%'.$value.'%')
+                        ->orWhere('address2', 'like', '%'.$value.'%');
                 }),
 
             TextFilter::make('Phone')

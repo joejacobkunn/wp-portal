@@ -74,7 +74,7 @@
                         </a>
                         @empty
                         <div class="alert alert-light-warning color-warning">
-                            No open orders for this customer
+                            No line items on this order
                         </div>
                         @endforelse
                         @endif
