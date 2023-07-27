@@ -19,6 +19,7 @@
                             </h3>
 
                             @if($module->slug == 'herohub')
+                                {{-- @TODO  Configuration issue with herohub --}}
                                 {{-- <livewire:core.module.hero-hub-config :account="$account" /> --}}
                             @endif
 

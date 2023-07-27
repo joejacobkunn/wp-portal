@@ -6,11 +6,12 @@ use App\Enums\Account\AccountStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use App\Traits\InteractsWithMedia;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Account extends Model implements HasMedia
 {
-    use InteractsWithMedia;
+    use InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -28,6 +29,10 @@ class Account extends Model implements HasMedia
 
     protected $casts = [
         'is_active' => AccountStatusEnum::class,
+    ];
+
+    protected $hidden = [
+        'deleted_at'
     ];
 
     public function admin()
