@@ -3,10 +3,17 @@
     height:50px
 }
 
+.layout-horizontal .main-navbar {
+    padding: 1rem 1rem 0.8rem 1rem;
+}
+
 .layout-horizontal .main-navbar .menu-item.active .menu-link {
     font-weight:900;
     color: white !important;
+    padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+    border-bottom: .2rem solid;
 }
+
 .container {
     max-width: 95vw !important;
 }
