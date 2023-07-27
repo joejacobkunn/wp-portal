@@ -13,7 +13,7 @@
 
 <body>
     <div id="auth">
-        
+
 <div class="row h-100">
     <div class="col-lg-4 col-12 pe-0">
         <div id="auth-left">
