@@ -52,7 +52,7 @@
 @canany(['roles.view'])
 <li class="menu-item {{ (request()->is('roles*')) ? 'active' : '' }}">
     <a href="{{ route('core.role.index') }}" class='menu-link'>
-        <i class="far fa-list-alt"></i>
+        <i class="fas fa-shield-alt"></i>
         <span>Roles</span>
     </a>
 </li>
