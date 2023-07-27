@@ -39,7 +39,7 @@
                     :entity="$account"
                     :collection="$account::DOCUMENT_COLLECTION"
                     editable
-                    rules="mimes:jpeg,png"
+                    rules="mimes:jpeg,png,svg"
                 />
 
                 <div class="row">

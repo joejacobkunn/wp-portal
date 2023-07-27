@@ -52,7 +52,11 @@
                     <div class="account-logo-wrapper">
                         <h3 class="h6 mb-1">Logo</h3>
                         <div class="logo-container">
-                            <img class="logo" src="{{ $account->getFirstMediaUrl('documents'); }}" alt="Account Logo">
+                            @if(isFileExists($account))
+                                <img class="logo" src="{{ $account->getFirstMediaUrl('documents') }}" alt="Account Logo">
+                            @else
+                                <p>Logo not uploaded yet.</p>
+                            @endif
                         </div>
                     </div>
                 </li>

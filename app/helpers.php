@@ -14,6 +14,39 @@ if (! function_exists('account')) {
     }
 }
 
+if (! function_exists('accountLogo')) {
+    function accountLogo()
+    {
+        try {
+            $logo = account()->getFirstMedia('documents');
+
+            if($logo && File::exists($logo->getPath())){
+                return $logo->getUrl();
+            }
+        } catch(\Exception $e) {
+
+        }
+
+        return url('/assets/images/logo.png');
+    }
+}
+
+if(! function_exists('isFileExists')) {
+    function isFileExists($account)
+    {
+        try {
+            $logo = $account->getFirstMedia('documents');
+            if($logo && File::exists($logo->getPath())){
+                return true;
+            }
+        } catch(\Exception $e) {
+        }
+
+        return false;
+    }
+}
+
+
 function format_phone(string $phone_no)
 {
     return preg_replace(

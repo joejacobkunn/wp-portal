@@ -2,7 +2,7 @@
     <div class="header-top">
         <div class="container">
             <div class="logo">
-                <a href="{{ route('core.dashboard.index') }}"><img src="/assets/images/logo.png" alt="Logo"></a>
+                <a href="{{ route('core.dashboard.index') }}"><img src="{{ accountLogo() }}" alt="Logo"></a>
             </div>
             <div class="header-top-right">
 
