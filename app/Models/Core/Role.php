@@ -34,4 +34,9 @@ class Role extends BaseRole
     {
         return $this->hasMany(ModelHasRole::class);
     }
+
+    public static function getMasterRole()
+    {
+        return self::where('name', 'master-admin')->firstOrFail();
+    }
 }
