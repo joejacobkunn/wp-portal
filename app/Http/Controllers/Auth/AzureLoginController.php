@@ -15,12 +15,16 @@ class AzureLoginController extends Controller
     public function attemptLogin(Request $request)
     {
         $hosturl = config('app.url');
+        $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === 0 ? 'https://' : 'http://';
+
         if (str_contains($request->getHttpHost(), 'localhost')) {
-            $hosturl = 'http://localhost';
+            $hosturl = $protocol.'localhost';
+        }else{
+            $hosturl = $protocol.$request->route_subdomain.'.'.config('app.domain');
         }
 
         if ($request->route_subdomain) {
-            return redirect()->to($hosturl . route('host.azure.redirect', ['wp_domain' => $request->route_subdomain], false));
+            return redirect()->to($hosturl.route('host.azure.redirect', ['wp_domain' => $request->route_subdomain], false));
         }
 
         session(['azure.login.domain' => $request->wp_domain]);
