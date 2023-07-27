@@ -22,8 +22,7 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         UserCreated::class => [
-            // @TODO  Mail Configuration issue
-            // UserCreatedNotification::class,
+            UserCreatedNotification::class,
         ],
 
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [

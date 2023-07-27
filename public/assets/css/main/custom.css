@@ -165,3 +165,8 @@
     width: 100%; /* Ensure the logo fills its container */
     height: auto; /* Height will adjust based on aspect ratio */
 }
+
+/* mail css */
+.mail-header .logo {
+    width: 150px;
+}
