@@ -2,8 +2,9 @@
 
 namespace App\Http\Livewire\Core\User\Traits;
 
-use App\Events\User\UserCreated;
+use App\Models\Core\Role;
 use App\Models\Core\User;
+use App\Events\User\UserCreated;
 
 trait FormRequest
 {
@@ -55,12 +56,12 @@ trait FormRequest
         $this->user->is_active = 1;
         $this->user->password = 'password';
 
-        if (app('domain')) {
+        if (! auth()->user()->isMasterAdmin() && app('domain')) {
             $this->user->account_id = app('domain')->getClientId();
         }
 
         $this->user->save();
-
+        
         $this->user->metadata()->create([
             'invited_by' => auth()->user()->id,
         ]);
@@ -68,6 +69,10 @@ trait FormRequest
         $this->user->save();
 
         $this->user->invited_by = auth()->user()->id;
+
+        if (auth()->user()->isMasterAdmin()) {
+            $this->user->assignRole(Role::getMasterRole());
+        }
 
         //send notifications
         UserCreated::dispatch($this->user);
