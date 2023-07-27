@@ -2,10 +2,8 @@
     @if($loaded)
     <div class="card border-light shadow-sm mb-4">
         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew' . time()">
-            @if($tabLoaded)
             <livewire:component.action-button :actionButtons="$actionButtons" :key="'comments' . time()">
-                @endif
-                <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Overview</h3>
+            <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Overview</h3>
         </div>
 
         <div class="card-body">

@@ -56,9 +56,11 @@ class Show extends Component
         'credentials' => 'API Credentials',
     ];
 
-    public $tab;
+    public $activeTab;
 
-    public $queryString = ['tab'];
+    public $queryString = [
+        'activeTab' => ['except' => '', 'as' => 'tab'],
+    ];
 
     public function mount()
     {

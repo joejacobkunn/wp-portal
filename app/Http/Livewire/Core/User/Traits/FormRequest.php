@@ -55,9 +55,9 @@ trait FormRequest
         $this->user->is_active = 1;
         $this->user->password = 'password';
 
-        if (app('domain')) {
-            $this->user->account_id = app('domain')->getClientId();
-        }
+        // if (app('domain')) {
+        //     $this->user->account_id = app('domain')->getClientId();
+        // }
 
         $this->user->save();
 
@@ -88,5 +88,16 @@ trait FormRequest
 
         $this->editRecord = false;
         session()->flash('success', 'User updated!');
+    }
+
+    /**
+     * Delete existing user
+     */
+    public function delete()
+    {
+        $this->user->delete();
+        session()->flash('success', 'User deleted !');
+
+        return redirect()->route('core.user.index');
     }
 }
