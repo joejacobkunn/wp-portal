@@ -3,6 +3,8 @@
 namespace App\Models\Core;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\User\UserStatusEnum;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,7 +27,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'abbreviation'
+        'abbreviation',
+        'is_active'
     ];
 
     /**
@@ -46,6 +49,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_active' => UserStatusEnum::class,
     ];
 
     private $activeRole;

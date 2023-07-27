@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Core\User\Traits;
 
+use App\Enums\User\UserStatusEnum;
 use App\Models\Core\Role;
 use App\Models\Core\User;
 use App\Events\User\UserCreated;
@@ -19,6 +20,43 @@ trait FormRequest
             'user.name' => 'required',
             'user.email' => 'required|email|unique:users,email'.($this->user ? ','.$this->user->id : ''),
         ];
+    }
+
+    /** Properties */
+    public function getStatusAlertClassProperty()
+    {
+        return $this->user->is_active->class();
+    }
+
+    public function getStatusAlertMessageProperty()
+    {
+        return 'This user is '. $this->user->is_active->label();
+    }
+
+    public function getStatusAlertMessageIconProperty()
+    {
+        return $this->user->is_active->icon();
+    }
+
+    public function getStatusAlertHasActionProperty()
+    {
+        return true;
+    }
+
+    public function getStatusAlertActionButtonClassProperty()
+    {
+        $isActive = !$this->user->is_active->value;
+        $statusEnum = UserStatusEnum::tryFrom($isActive);
+
+        return $statusEnum->class();
+    }
+
+    public function getStatusAlertActionButtonNameProperty()
+    {
+        $isActive = !$this->user->is_active->value;
+        $statusEnum = UserStatusEnum::tryFrom($isActive);
+
+        return $statusEnum->buttonName();
     }
 
     /**
@@ -62,7 +100,7 @@ trait FormRequest
 
         $this->user->abbreviation = $this->getAbbreviation();
         $this->user->save();
-        
+
         $this->user->metadata()->create([
             'invited_by' => auth()->user()->id,
         ]);
@@ -96,6 +134,23 @@ trait FormRequest
 
         $this->editRecord = false;
         session()->flash('success', 'User updated!');
+    }
+
+    public function closeModal()
+    {
+        $this->deactivate_modal = false;
+    }
+
+    /** Update User Status */
+    public function updateStatus()
+    {
+        $this->authorize('update', $this->user);
+
+        $isActive = !$this->user->is_active->value;
+        $statusEnum = UserStatusEnum::tryFrom($isActive);
+
+        $this->user->is_active = $statusEnum;
+        $this->user->save();
     }
 
     public function getAbbreviation()

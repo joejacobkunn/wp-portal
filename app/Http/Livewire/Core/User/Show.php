@@ -20,6 +20,8 @@ class Show extends Component
     protected $listeners = [
         'deleteRecord' => 'delete',
         'edit' => 'edit',
+        'updateStatus' => 'updateStatus',
+        'closeModal' => 'closeModal'
     ];
 
     public function breadcrumbs()
@@ -70,19 +72,6 @@ class Show extends Component
         $this->editRecord = true;
     }
 
-    public function deactivate()
-    {
-        $this->authorize('update', $this->user);
-        $this->user->update(['is_inactive' => 1]);
-        $this->closeModal();
-    }
-
-    public function activate()
-    {
-        $this->authorize('update', $this->user);
-        $this->user->update(['is_inactive' => 0]);
-    }
-
     /**
      * Delete existing user
      */
@@ -102,6 +91,6 @@ class Show extends Component
 
     public function cancel()
     {
-        $this->editUser = false;
+        $this->editRecord = false;
     }
 }

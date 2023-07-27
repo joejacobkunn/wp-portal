@@ -6,37 +6,16 @@
         </div>
 
         <div class="card-body">
-
-            @if(!$user->is_inactive)
-                <div class="alert alert-light-success color-success" role="alert">
-
-                    @can('users.manage')
-                        <button wire:click="$toggle('deactivate_modal')" type="button" class="btn btn-sm btn-outline-danger float-end mt-n1"
-                        wire:key="is_active_{{ now() }}">
-                            <div wire:loading wire:target="$toggle('deactivate_modal')">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </div>
-                            Deactivate
-                        </button>
-                    @endcan
-
-                    <i class="far fa-check-circle"></i> This User is Active
-                </div>
-            @else
-                <div class="alert alert-light-danger color-danger" role="alert">
-                     @can('users.manage')
-                        <button wire:click="activate()" type="button" class="btn btn-sm btn-outline-success float-end mt-n1"
-                            wire:key="is_active_{{ now() }}">
-                            <div wire:loading wire:target="activate">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </div>
-                            Activate
-                        </button>
-                    @endif
-
-                    <i class="far fa-times-circle"></i> This User is Deactivated
-                </div>
-            @endif
+            <livewire:component.alert
+                    :level="$this->statusAlertClass"
+                    :message="$this->statusAlertMessage"
+                    :messageIcon="$this->statusAlertMessageIcon"
+                    :hasAction="$this->statusAlertHasAction"
+                    :actionButtonClass="$this->statusAlertActionButtonClass"
+                    :actionButtonName="$this->statusAlertActionButtonName"
+                    :actionButtonAction="'updateStatus'"
+                    wire:key="{{ 'status_alert_'.$user->id.'_' . $user->is_active->value }}"
+                />
 
             <ul class="list-group list-group-flush">
 
