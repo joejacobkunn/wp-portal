@@ -59,6 +59,7 @@ trait FormRequest
             $this->user->account_id = app('domain')->getClientId();
         }
 
+        $this->user->abbreviation = $this->getAbbreviation();
         $this->user->save();
 
         $this->user->metadata()->create([
@@ -84,20 +85,19 @@ trait FormRequest
      */
     public function update()
     {
+        $this->user->abbreviation = $this->getAbbreviation();
+
         $this->user->save();
 
         $this->editRecord = false;
         session()->flash('success', 'User updated!');
     }
 
-    /**
-     * Delete existing user
-     */
-    public function delete()
+    public function getAbbreviation()
     {
-        $this->user->delete();
-        session()->flash('success', 'User deleted !');
+        $nameString = $this->user->name && $this->user->name !="" ? $this->user->name : $this->user->email;
 
-        return redirect()->route('core.user.index');
+        return abbreviation($nameString);
     }
+
 }

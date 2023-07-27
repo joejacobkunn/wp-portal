@@ -83,6 +83,23 @@ class Show extends Component
         $this->user->update(['is_inactive' => 0]);
     }
 
+    /**
+     * Delete existing user
+     */
+    public function delete()
+    {
+        $this->authorize('delete', $this->user);
+
+        $this->user->update([
+            'email' => $this->user->email . '+del+'. time()
+        ]);
+
+        $this->user->delete();
+        session()->flash('success', 'User deleted !');
+
+        return redirect()->route('core.user.index');
+    }
+
     public function cancel()
     {
         $this->editUser = false;

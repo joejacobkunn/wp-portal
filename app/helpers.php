@@ -22,3 +22,12 @@ function format_phone(string $phone_no)
         $phone_no
     );
 }
+
+if (! function_exists('abbreviation')) {
+    function abbreviation($string, $stringCount = 2)
+    {
+        $acronym = Str::of($string)->headline()->acronym();
+        $acronym = Str::substr($acronym, 0, $stringCount);
+        return Str::upper($acronym);
+    }
+}

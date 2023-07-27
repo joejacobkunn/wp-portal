@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'abbreviation'
     ];
 
     /**
@@ -105,16 +107,5 @@ class User extends Authenticatable
 
         $this->metadata->user_token = $reset ? bin2hex(random_bytes(25)) : null;
         $this->metadata->save();
-    }
-
-    public function abbreviate()
-    {
-        $abbreviation = "";
-        $string = ucwords($this->name);
-        $words = explode(" ", "$this->name");
-        // foreach ($words as $word) {
-        //     $abbreviation .= $word[0];
-        // }
-        return $abbreviation;
     }
 }

@@ -148,6 +148,7 @@ trait FormRequest
             $user->name = '';
             $user->is_active = User::ACTIVE;
             $user->account_id = $this->account->id;
+            $user->abbreviation = abbreviation($user->email);
             $user->save();
 
             $user->metadata()->create([

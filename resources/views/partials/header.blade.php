@@ -9,7 +9,7 @@
                 <div class="dropdown">
                     <a href="#" id="topbarUserDropdown" class="user-dropdown d-flex align-items-center dropend dropdown-toggle " data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="avatar bg-primary">
-                            <span class="avatar-content">{{auth()->user()->abbreviate()}}</span>
+                            <span class="avatar-content">{{ auth()->user()->abbreviation }}</span>
                         </div>
 
                         <div class="text">
