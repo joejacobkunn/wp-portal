@@ -31,14 +31,11 @@ trait FormRequest
      */
     public function formInit()
     {
-        if (empty($this->location->id)) {
-            $this->location = new Location();
-            $this->location->name = null;
-            $this->location->phone = null;
-            $this->location->address = null;
-            $this->location->is_active = true;
-        } else {
-        }
+        $this->location = new Location();
+        $this->location->name = null;
+        $this->location->phone = null;
+        $this->location->address = null;
+        $this->location->is_active = true;
     }
 
     /**
@@ -70,7 +67,6 @@ trait FormRequest
         $this->formInit();
         $this->resetValidation();
 
-        $this->viewLocation = true;
         session()->flash('success', 'Location created!');
 
     }

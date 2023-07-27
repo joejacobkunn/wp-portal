@@ -50,8 +50,8 @@ class Index extends Component
      */
     public function cancel()
     {
-        $this->reset();
+        $this->formInit();
         $this->resetValidation();
-        $this->addRecord = false;
+        $this->resetExcept('account', 'sx_accounts');
     }
 }

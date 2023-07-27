@@ -55,7 +55,8 @@ class Index extends Component
     public function cancel()
     {
         $this->addLocation = false;
-        $this->reset();
+        $this->resetExcept('account', 'location');
+        $this->formInit();
         $this->resetValidation();
     }
 }

@@ -48,6 +48,7 @@ class Show extends Component
     ];
 
     public $editRecord = false;
+    public $activeTab = 'general';
 
     public $tabs = [
         'general' => 'General',
@@ -55,8 +56,6 @@ class Show extends Component
         'modules' => 'Modules',
         'credentials' => 'API Credentials',
     ];
-
-    public $activeTab;
 
     public $queryString = [
         'activeTab' => ['except' => '', 'as' => 'tab'],
@@ -103,8 +102,9 @@ class Show extends Component
     public function cancel()
     {
         //reset dirty attributes to original
-        $this->account->setRawAttributes($this->account->getOriginal());
+        $this->account->refresh();
+        $this->formInit();
         $this->resetValidation();
-        $this->editRecord = false;
+        $this->reset(['editRecord']);
     }
 }
