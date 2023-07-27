@@ -18,7 +18,7 @@
                     <div class="card border-light shadow-sm mb-4" style="min-height: 600px">
                         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
                             @can('roles.manage')
-                                <button wire:click="create()" class="btn btn-primary btn-sm float-end" type="button"><i class="fa fa-plus" aria-hidden="true"></i> Add Role</button>
+                                <button wire:click="create()" class="btn btn-success btn-lg btn-fab"><i class="fas fa-plus"></i></button>
                             @endcan
 
                             <h3 class="h5 mb-0">Role List</h3>

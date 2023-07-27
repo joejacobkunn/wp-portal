@@ -31,6 +31,8 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
             return redirect()->route('core.dashboard.index');
         });
 
+        Route::mediaLibrary();
+
         Route::get('dashboard', \App\Http\Livewire\Dashboard\Index::class)->name('core.dashboard.index');
 
         Route::get('users', \App\Http\Livewire\Core\User\Index::class)->name('core.user.index');

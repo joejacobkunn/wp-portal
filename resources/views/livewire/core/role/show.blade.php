@@ -1,30 +1,26 @@
 <div>
-    @section('sidebar')
-        @include('livewire.core.partials.sidebar')
-    @endsection
-
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <x-page
+            :breadcrumbs="$breadcrumbs"
+        >  
         
-        <div class="page-title-div d-block mb-4 mb-md-0 mt-3">
+        <x-slot:title>Role Info</x-slot>
+
+        <x-slot:description>
+            View role information here.
+        </x-slot>
+
+        <x-slot:content>
+            @include('partials.flash') 
+
+            @if($editRole)
+                @include('livewire.core.role.partials.form', ['role' => $role, 'button_text' => 'Update Role'])
+            @else
+                @include('livewire.core.role.partials.view', ['role' => $role])
+            @endif
+        </x-slot>
             
-            <livewire:component.breadcrumb
-                :breadcrumbs="$breadcrumbs"
-                key="{{now()}}"
-            >
+    </x-page>
 
-            <h2 class="h4">Role Info</h2>
-            
-        </div>
-
-    </div>
-
-    @include('partials.flash') 
-
-    @if($editRole)
-         @include('livewire.core.role.partials.form', ['role' => $role, 'button_text' => 'Update Role'])
-    @else
-        @include('livewire.core.role.partials.view', ['role' => $role])
-    @endif
     
 </div>
 

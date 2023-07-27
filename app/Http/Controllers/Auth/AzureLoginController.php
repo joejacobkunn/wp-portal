@@ -15,12 +15,16 @@ class AzureLoginController extends Controller
     public function attemptLogin(Request $request)
     {
         $hosturl = config('app.url');
+        $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === 0 ? 'https://' : 'http://';
+
         if (str_contains($request->getHttpHost(), 'localhost')) {
-            $hosturl = 'http://localhost';
+            $hosturl = $protocol.'localhost';
+        }else{
+            $hosturl = $protocol.$request->route_subdomain.'.'.config('app.domain');
         }
 
         if ($request->route_subdomain) {
-            return redirect()->to($hosturl . route('host.azure.redirect', ['wp_domain' => $request->route_subdomain], false));
+            return redirect()->to($hosturl.route('host.azure.redirect', ['wp_domain' => $request->route_subdomain], false));
         }
 
         session(['azure.login.domain' => $request->wp_domain]);
@@ -28,7 +32,7 @@ class AzureLoginController extends Controller
         $urlParts = parse_url($url->getTargetUrl());
         parse_str($urlParts['query'], $queryParams);
         $url->setTargetUrl($urlParts['scheme'] . '://' . $urlParts['host'] . $urlParts['path'] . '?' . http_build_query($queryParams));
-        
+
         return $url;
     }
 
@@ -37,7 +41,7 @@ class AzureLoginController extends Controller
         if ($request->route()->getName() == 'host.azure.callback') {
             $domain = session('azure.login.domain');
             $queryParams = $request->all();
-            $request->request->add(['route_subdomain' => $domain]); 
+            $request->request->add(['route_subdomain' => $domain]);
             $azureData = $this->getAzureUser();
             if (empty($azureData['status'])) {
                 return $this->processFailedAuth($request, $azureData['title'], $azureData['message']);
@@ -49,7 +53,7 @@ class AzureLoginController extends Controller
             $queryParams['wp_tk'] = base64_encode($token);
             $queryParams['wp_mail'] = base64_encode($azureData['user']->email);
             $queryParams['checksum'] = Hash::make($domain . $token);
-            
+
             return redirect()->route('auth.azure.callback', [ 'route_subdomain' => $domain] + $queryParams);
         }
 
@@ -73,7 +77,7 @@ class AzureLoginController extends Controller
         }
 
         $user = $user->first();
-        
+
         if (!$user) {
             return $this->processFailedAuth($request, 'Error', 'Invalid Account');
         }
@@ -127,5 +131,5 @@ class AzureLoginController extends Controller
             'message' => $message
         ]);
     }
-    
+
 }

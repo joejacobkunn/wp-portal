@@ -1,7 +1,7 @@
 [
     {
         "group": "Account",
-        "roles": ["master-admin"],
+        "type": ["master"],
         "items": [
             {
                 "name": "accounts.view",

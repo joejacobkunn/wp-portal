@@ -9,11 +9,11 @@ class Role extends BaseRole
     protected $fillable = [
         'name',
         'label',
-        'reporting_role',
-        'level',
         'guard_name',
         'is_preset',
         'description',
+        'account_id',
+        'created_by',
     ];
 
     const MASTER_ROLE = 'master-admin';
@@ -38,5 +38,10 @@ class Role extends BaseRole
     public static function getMasterRole()
     {
         return self::where('name', 'master-admin')->firstOrFail();
+    }
+
+    public function scopeOfAccount($query, $accountId)
+    {
+        return $this->where('account_id', $accountId);
     }
 }

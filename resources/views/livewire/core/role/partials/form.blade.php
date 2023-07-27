@@ -13,29 +13,12 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="form-group">
-                            <x-forms.select
-                                label="Reports To Role"
-                                model="role.reporting_role"
-                                :options="$roles"
-                                :selected="$role->reporting_role ?? null"
-                                default-selectable
-                                default-option-label="- None -"
-                                label-index="label"
-                                value-index="id"
-                            />
-                        </div>
-                    </div>
-                </div>
-
                 <div role="separator" class="dropdown-divider my-3"></div>
 
                 <h3 class="h5 mb-3">Permissions</h3>
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <div class="accordion">
+                        <div class="accordion permission-accordion">
                             @foreach ($permissionGroups as $group => $permissionGroup)
                             <div class="accordion-item mb-2">
                                 <h2 class="accordion-header" id="heading{{ $group }}">

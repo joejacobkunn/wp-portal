@@ -2,11 +2,17 @@
 
 namespace App\Models\Core;
 
+use App\Enums\Account\AccountStatusEnum;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use App\Traits\InteractsWithMedia;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Account extends Model
+class Account extends Model implements HasMedia
 {
+    use InteractsWithMedia, SoftDeletes;
+
     protected $fillable = [
         'name',
         'subdomain',
@@ -15,8 +21,18 @@ class Account extends Model
         'is_active',
     ];
 
+    const DOCUMENT_COLLECTION = 'documents';
+
     protected $attributes = [
         'is_active' => 1,
+    ];
+
+    protected $casts = [
+        'is_active' => AccountStatusEnum::class,
+    ];
+
+    protected $hidden = [
+        'deleted_at'
     ];
 
     public function admin()
@@ -81,5 +97,10 @@ class Account extends Model
     public function hasModule($module_slug)
     {
         return $this->modules()->where('slug', $module_slug)->exists();
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::DOCUMENT_COLLECTION);
     }
 }

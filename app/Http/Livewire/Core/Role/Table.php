@@ -4,14 +4,14 @@ namespace App\Http\Livewire\Core\Role;
 
 use App\Models\Core\Role;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
+use Rappasoft\LaravelLivewireTables\DataTableComponent;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Table extends DataTableComponent
 {
     use AuthorizesRequests;
-
+    
     public Role $role;
 
     public function configure(): void
@@ -32,16 +32,15 @@ class Table extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')
+            Column::make("ID", "id")
                 ->hideIf(true),
-            Column::make('Name', 'label')
+
+            Column::make("Name", "label")
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('core.role.show', $row).'" class="text-info text-decoration-underline">'.$value.'</a>';
+                    return '<a href="'.route('core.role.show', $row).'" class="text-info text-decoration-underline">' . $value . '</a>';
                 })
                 ->html(),
-            Column::make('Slug', 'name')
-                ->sortable()->searchable(),
         ];
     }
 
@@ -53,6 +52,14 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Role::query();
+        $roleQuery = Role::query();
+
+        if (! auth()->user()->isMasterAdmin()) {
+            $roleQuery->where('account_id', app('domain')->getClientId());
+        } else {
+            $roleQuery->whereNull('account_id');
+        }
+        
+        return $roleQuery;
     }
 }

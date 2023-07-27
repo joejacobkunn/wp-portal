@@ -1,8 +1,8 @@
-<div class="x-media-library">
+<div class="x-media-library" wire:init="loadMedia" wire:loading.class="loading-skeleton">
     @if($editable)
         @if($multiple)
-            <x-media-library-collection 
-                name="file"
+            <x-media-library-collection
+                :name="$fileVar"
                 :model="$entity"
                 :rules="$rules"
                 :collection="$collection"
@@ -12,7 +12,7 @@
             />
         @else
             <x-media-library-attachment
-                name="file" 
+                :name="$fileVar"
                 :rules="$rules"
                 wire:key="{{ $fieldId }}"
                 :fields-view="!empty($extraFieldView) ? $extraFieldView : null"
@@ -20,10 +20,10 @@
         @endif
     @else
 
-    @if(!$hideLayoutSwitch && $medias->count())
+    @if(!empty($medias) && $medias->count())
     <div class="overflow-auto mb-2">
         <div class="btn-group float-end" role="group">
-            <button 
+            <button
                 wire:click="toggleView('grid')"
                 type="button"
                 onclick="toggleViewType('grid')"
@@ -39,6 +39,8 @@
             </button>
         </div>
     </div>
+    @else
+        <p>No documents added!</p>
     @endif
 
 
@@ -52,15 +54,15 @@
         </div>
     </div>
 
-    <div class="media-view-div" wire:loading.remove> 
+    <div class="media-view-div" wire:loading.remove>
         @if($viewType == 'grid')
             <div class="media-grid-div">
             @if($gridView)
                 @include($gridView, ['medias' => $medias])
             @else
-                <div class="row">
+                <div class="row row-div">
                 @foreach($medias as $index => $mediaItem)
-                <div class="col-12 col-sm-2 {{ $index > 11 ? 'hidden-row' : ''}}">
+                <div class="tile-div pe-3 {{ $index > 11 ? 'hidden-row' : ''}}">
                     <div class="image-thumb-div mb-5">
                         @if($mediaItem->previewUrl)
                             <div class="preview-div" wire:click="showPreview({{ $index }})"><i class="fas fa-eye"></i></div>
@@ -92,7 +94,7 @@
                 @endforeach
                 </div>
 
-                <div class="row justify-content-center {{ $medias->count() > 12 ? '' : 'd-none' }}">
+                <div class="row justify-content-center {{ !empty($medias) && $medias->count() > 12 ? '' : 'd-none' }}">
                     <div class="d-grid gap-2 col-sm-2">
                         <button class="btn btn-xs btn-outline-secondary" id="view-more-button" type="button"><i class="fas fa-plus"></i> View More</button>
                     </div>
@@ -136,7 +138,7 @@
                                     {{ $mediaItem->file_name }}
                                 </div>
                             </div>
-                            
+
                             @if($extraFieldView)
                                 @include($extraFieldView, ['mediaItem' => $mediaItem, 'readonly' => true])
                             @endif
@@ -144,7 +146,7 @@
                         <hr/>
                     </div>
                     @empty
-                        <p>No items found!</p>
+                        <p>No items added!</p>
                     @endforelse
 
                     <div class="row justify-content-center {{ $medias->count() > 2 ? '' : 'd-none' }}">
@@ -162,8 +164,8 @@
 
     @if($previewImage)
         <div class="modal fade show" id="modal-achievement" tabindex="-1" role="dialog" aria-labelledby="modal-achievement" aria-modal="true" style="display: block; padding-left: 0px;">
-        
-        <button type="button" class="close-btn" data-bs-dismiss="modal" aria-label="Close" wire:click="closePreview"><i class="fas fa-times"></i></button>    
+
+        <button type="button" class="close-btn" data-bs-dismiss="modal" aria-label="Close" wire:click="closePreview"><i class="fas fa-times"></i></button>
         <div class="modal-dialog modal-tertiary modal-dialog-centered" role="document">
                 <div class="modal-content">
 
@@ -186,6 +188,7 @@
         var detail;
         var timer = timer || null;
         let initialRun = false;
+        var fileVar = '{{ $fileVar }}';
 
         function postMedia() {
             if (timer) {
@@ -200,7 +203,7 @@
             localStorage.setItem('media-view-type', type);
         }
 
-        window.addEventListener('media-updated', event => {
+        window.addEventListener(fileVar +':media-updated', event => {
             detail = {
                 collection: event.detail.collection,
                 media: event.detail.media,
@@ -231,7 +234,7 @@
                 })
             } catch ($e) {}
         });
-        
+
         function initializeLayout() {
             let viewMoreButton = document.getElementById('view-more-button')
 
@@ -267,4 +270,10 @@
             return viewType ? viewType : '{{ $viewType }}'
         }
     </script>
+
+    <style>
+        .media-view-div .row-div .tile-div {
+            width: {{ $gridWidth }}%;
+        }
+    </style>
 </div>

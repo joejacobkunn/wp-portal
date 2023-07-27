@@ -1,9 +1,9 @@
 <div>
-    
+
     <x-page
         :breadcrumbs="$breadcrumbs"
-    >  
-       
+    >
+
         <x-slot:title>Accounts</x-slot>
 
         <x-slot:description>
@@ -14,27 +14,13 @@
             @if($addRecord)
                 @include('livewire.core.account.partials.form', ['button_text' => 'Add Account'])
             @else
-                <div>
-                    <div class="card border-light shadow-sm mb-4" style="min-height: 600px">
-                        <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
-                            @can('accounts.manage')
-                                <button wire:click="create()" class="btn btn-success btn-lg btn-fab"><i class="fas fa-plus"></i></button>
-                            @endcan
-
-                            <h3 class="h5 mb-0">Account List</h3>
-                        </div>
-
-                        <div class="card-body">
-                            <livewire:core.account.table />
-                        </div>
-                    </div>
-                </div>
-
+                @include('livewire.core.account.partials.listing')
             @endif
+
         </x-slot>
-            
+
     </x-page>
-    
+
 </div>
 
 

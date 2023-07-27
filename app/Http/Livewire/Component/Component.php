@@ -2,10 +2,13 @@
 
 namespace App\Http\Livewire\Component;
 
+use App\Traits\Livewire\ReceivesEvents;
 use Livewire\Component as BaseComponent;
 
 abstract class Component extends BaseComponent
 {
+    use ReceivesEvents;
+
     public $breadcrumbs = [];
 
     public $actionButtons = [];

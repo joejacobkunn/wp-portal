@@ -1,31 +1,27 @@
 <div>
+    <x-page
+        :breadcrumbs="$breadcrumbs"
+    >
 
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
-        
-        <div class="d-block mb-4 mb-md-0 mt-2">
+        <x-slot:title>Users #{{ $user->id }}</x-slot>
 
-            <x-breadcrumbs
-                :breadcrumbs="$breadcrumbs"
-            />
-
-            <h2 class="h4">Users #{{ $user->id }}</h2>
-            
+        <x-slot:description>
             @if($editRecord)
-                <p class="mb-0">Edit User here</p>
+                Edit User here
             @else
-                <p class="mb-0">View User here</p>
+                View User here
             @endif
-            
-        </div>
+        </x-slot>
 
-    </div>
+        <x-slot:content>
 
-    @include('partials.flash') 
+            @if($editRecord)
+                @include('livewire.core.user.partials.form', ['button_text' => 'Update User'])
+            @else
+                @include('livewire.core.user.partials.view')
+            @endif
 
-    @if($editRecord)
-        @include('livewire.core.user.partials.form', ['button_text' => 'Update User'])
-    @else
-        @include('livewire.core.user.partials.view')
-    @endif
+        </x-slot>
+
+    </x-page>
 </div>
-

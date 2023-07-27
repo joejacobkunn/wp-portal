@@ -1,7 +1,7 @@
 [
     {
         "group": "Order",
-        "roles": ["super-admin"],
+        "type": ["account"],
         "items": [
             {
                 "name": "order.view",

@@ -22,8 +22,6 @@
                 <livewire:core.location.table :account="$account"/>
             @endif
 
-            <hr />
-
             <div>
             </div>
         </div>
