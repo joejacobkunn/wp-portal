@@ -40,12 +40,20 @@
                 </li>
                 @endcan
 
+                @unless(request()->route_subdomain == 'admin')
+
+                @if(auth()->user()->account->hasModule('customers'))
+
                 <li class="sidebar-item {{ (request()->is('customers*')) ? 'active' : '' }}">
                     <a href="{{ route('core.customer.index') }}" class='sidebar-link'>
                         <i class="fas fa-address-card"></i>
                         <span>Customers</span>
                     </a>
                 </li>
+
+                @endif
+
+                @if(auth()->user()->account->hasModule('vehicles'))
 
                 @canany(['vehicle.view'])
                 <li class="sidebar-item {{ (request()->is('vehicle*')) ? 'active' : '' }}">
@@ -56,6 +64,10 @@
                 </li>
                 @endcan
 
+                @endif
+
+                @if(auth()->user()->account->hasModule('orders'))
+
                 @canany(['order.view'])
                 <li class="sidebar-item {{ (request()->is('order*')) ? 'active' : '' }}">
                     <a href="{{ route('order.index') }}" class='sidebar-link'>
@@ -64,6 +76,10 @@
                     </a>
                 </li>
                 @endcan
+
+                @endif
+
+                @endif
 
 
 

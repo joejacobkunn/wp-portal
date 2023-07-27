@@ -108,17 +108,17 @@ class Table extends DataTableComponent
             Column::make('Created At', 'created_at')
                 ->sortable()->searchable()->deselected()
                 ->format(function ($value) {
-                        if ($value) {
-                            return $value->format(config('app.default_datetime_format'));
-                        }
-                    }),
+                    if ($value) {
+                        return $value->format(config('app.default_datetime_format'));
+                    }
+                }),
 
             Column::make('Active', 'retired_at')
-                    ->excludeFromColumnSelect()
-                    ->format(function ($value, $row) {
-                        return ! $value ? '<span style="color:green"><i class="far fa-check-circle"></i></span>' : '<span style="color:red"><i class="far fa-times-circle"></i></span>';
-                    })
-                    ->html(),
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row) {
+                    return ! $value ? '<span style="color:green"><i class="far fa-check-circle"></i></span>' : '<span style="color:red"><i class="far fa-times-circle"></i></span>';
+                })
+                ->html(),
 
         ];
     }
@@ -137,13 +137,13 @@ class Table extends DataTableComponent
     public function fetchIcon($type)
     {
         if ($type == 'TRAILER') {
-        return '<i class="fas fa-trailer"></i> ';
+            return '<i class="fas fa-trailer"></i> ';
         }
         if ($type == 'TRUCK') {
-        return '<i class="fas fa-truck-pickup"></i> ';
+            return '<i class="fas fa-truck-pickup"></i> ';
         }
         if ($type == 'INCOMPLETE VEHICLE') {
-        return '<i class="fas fa-truck"></i> ';
+            return '<i class="fas fa-truck"></i> ';
         }
 
         return '<i class="fas fa-truck"></i>';

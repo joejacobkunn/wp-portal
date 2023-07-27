@@ -56,10 +56,9 @@ class SendInvitationEmail extends Notification
         return (new MailMessage)
             ->subject('Welcome to W&P Portal')
             ->greeting('Hello!')
-            ->line("You have been set as the admin for {$accountTitle}, Please finish setting up your account using the link below.")
-            ->action('JOIN NOW', route('auth.password.show_reset', [
+            ->line("You have been set as the admin for {$accountTitle}, Please login to portal using microsoft account.")
+            ->action('JOIN NOW', route('auth.login.view', [
                 'route_subdomain' => $subdomain,
-                'c' => base64_encode($this->user->metadata->user_token),
             ]));
     }
 }

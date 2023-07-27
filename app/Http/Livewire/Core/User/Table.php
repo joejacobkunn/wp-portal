@@ -42,10 +42,10 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('Name', 'name')
-                 ->sortable()
-                 ->searchable()
-                 ->excludeFromColumnSelect()
-                 ->format(function ($value, $row) {
+                ->sortable()
+                ->searchable()
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row) {
                     return '<a href="'.route('core.user.show', $row->id).'" class="text-decoration-underline">'.$value.'</a>';
                 })
                 ->html(),
@@ -56,8 +56,8 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect(),
 
             BooleanColumn::make('Is Active', 'is_active')
-            ->sortable()
-            ->searchable(),
+                ->sortable()
+                ->searchable(),
         ];
     }
 

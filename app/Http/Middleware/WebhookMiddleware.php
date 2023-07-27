@@ -15,7 +15,7 @@ class WebhookMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($request->hasHeader('Signature')){
+        if ($request->hasHeader('Signature')) {
             return $next($request);
         }
 

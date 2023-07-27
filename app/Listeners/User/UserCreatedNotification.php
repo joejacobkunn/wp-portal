@@ -41,7 +41,6 @@ class UserCreatedNotification
     {
         $user = $event->user;
         $this->emailAddress = $user->email;
-        $user->setResetToken();
         $this->notify(new SendInvitationEmail($user));
     }
 }

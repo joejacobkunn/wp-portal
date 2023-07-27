@@ -1,6 +1,7 @@
 <x-modal :toggle="$open_line_item_modal" size="xl">
     <x-slot name="title">
-        <div class="">Line Items for Order# @if(!empty($this->order_line_items)) {{
+        <div class="">Line Items for Order# @if(!empty($this->order_line_items) && is_array($this->order_line_items) &&
+            !is_null($this->order_line_items->first())) {{
             $this->order_line_items->first()->orderno
             }}
             @endif</div>
@@ -13,6 +14,12 @@
 
             <div class="card border-secondary collapse-icon accordion-icon-rotate">
                 <div class="card-body">
+                    @if(!is_array($this->order_line_items) && str_starts_with($this->order_line_items, 'SRO'))
+
+                    <p class="text-primary">This is a SRO Order. Please close this modal and scroll down to the Customer
+                        Repair Orders section
+                        of this page to view details of <mark>{{$this->order_line_items}}</mark> order</p>
+                    @else
                     <div class="list-group">
                         @if(!empty($this->order_line_items))
                         @forelse ($this->order_line_items as $item)
@@ -67,11 +74,12 @@
                         </a>
                         @empty
                         <div class="alert alert-light-warning color-warning">
-                            No open orders for this customer
+                            No line items on this order
                         </div>
                         @endforelse
                         @endif
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

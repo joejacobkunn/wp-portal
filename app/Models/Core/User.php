@@ -60,7 +60,7 @@ class User extends Authenticatable
 
     public function scopeActive($query)
     {
-        return $query->where('is_inactive', 0);
+        return $query->where('is_active', 1);
     }
 
     public function scopeBasicSelect($query)

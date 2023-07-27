@@ -12,7 +12,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        //task to sync customer last sale dates from sx to local database
+        $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->at('21:30');
+
     }
 
     /**
