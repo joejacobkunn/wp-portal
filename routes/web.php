@@ -13,14 +13,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+/** Global urls */
+Route::get('/azure/login/redirect', [\App\Http\Controllers\Auth\AzureLoginController::class, 'attemptLogin'])->name('host.azure.redirect');
+Route::get('/azure/callback', [\App\Http\Controllers\Auth\AzureLoginController::class, 'callback'])->name('host.azure.callback');
+
+/** Global urls ends */
+
 Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware' => 'subdomain'], function () {
     Route::get('login', [\App\Http\Controllers\Auth\LoginController::class, 'attemptLogin'])->name('auth.login.view');
-    Route::post('login', [\App\Http\Controllers\Auth\LoginController::class, 'authenticate'])->name('auth.login.attempt');
-    Route::get('logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('auth.login.logout');
-    Route::get('set-password', [\App\Http\Controllers\Auth\ResetController::class, 'showReset'])->name('auth.password.show_reset');
-    Route::get('forgot-password', [\App\Http\Controllers\Auth\ResetController::class, 'showForgotPasswordPage'])->name('auth.forgot.show');
-    Route::post('forgot-password', [\App\Http\Controllers\Auth\ResetController::class, 'processForgotPasswordPage'])->name('auth.forgot.process');
-    Route::post('reset', [\App\Http\Controllers\Auth\ResetController::class, 'reset'])->name('auth.password.reset');
+    Route::get('/azure/login', [\App\Http\Controllers\Auth\AzureLoginController::class, 'attemptLogin'])->name('auth.azure.login');
+    Route::get('/azure/response', [\App\Http\Controllers\Auth\AzureLoginController::class, 'callback'])->name('auth.azure.callback');
+    Route::get('logout', [\App\Http\Controllers\Auth\AzureLoginController::class, 'logout'])->name('auth.login.logout');
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/', function () {
@@ -51,3 +54,4 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
     });
 });
+

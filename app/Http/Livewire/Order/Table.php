@@ -137,13 +137,13 @@ class Table extends DataTableComponent
     public function fetchIcon($type)
     {
         if ($type == 'TRAILER') {
-        return '<i class="fas fa-trailer"></i> ';
+            return '<i class="fas fa-trailer"></i> ';
         }
         if ($type == 'TRUCK') {
-        return '<i class="fas fa-truck-pickup"></i> ';
+            return '<i class="fas fa-truck-pickup"></i> ';
         }
         if ($type == 'INCOMPLETE VEHICLE') {
-        return '<i class="fas fa-truck"></i> ';
+            return '<i class="fas fa-truck"></i> ';
         }
 
         return '<i class="fas fa-truck"></i>';

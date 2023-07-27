@@ -55,20 +55,21 @@ class SX
     public function create_order($request)
     {
         $response = Http::withToken($this->token())
-                        ->acceptJson()
-                        ->withBody(json_encode($request), 'application/json')
-                        ->post($this->endpoint.'/sxapioefullordermntv6');
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapioefullordermntv6');
 
         if ($response->ok()) {
             $response_body = json_decode($response->body());
 
             $order_id = $response_body->response->sxt_func_ack->sxt_func_ack[0]->data1;
 
-            if(empty($order_id)) 
+            if (empty($order_id)) {
                 return [
                     'status' => 'failure',
                     'order_id' => $response_body->response->sxt_func_ack->sxt_func_ack[0]->msg,
                 ];
+            }
 
             return [
                 'status' => 'success',
@@ -92,9 +93,9 @@ class SX
     public function check_credit_status($request)
     {
         $response = Http::withToken($this->token())
-                        ->acceptJson()
-                        ->withBody(json_encode($request), 'application/json')
-                        ->post($this->endpoint.'/sxapiargetcustomerdatacreditmess');
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapiargetcustomerdatacreditmess');
 
         if ($response->ok()) {
             $response_body = json_decode($response->body());
@@ -110,9 +111,9 @@ class SX
     public function get_notes($request)
     {
         $response = Http::withToken($this->token())
-                        ->acceptJson()
-                        ->withBody(json_encode($request), 'application/json')
-                        ->post($this->endpoint.'/sxapisagetnoteslist');
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapisagetnoteslist');
 
         if ($response->ok()) {
             $response_body = json_decode($response->body());

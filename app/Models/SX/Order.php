@@ -58,7 +58,10 @@ class Order extends Model
 
     public function getShippingStage($stage_code)
     {
-        if($stage_code > 3) return "Delivered";
+        if ($stage_code > 3) {
+            return 'Delivered';
+        }
+
         return $this->shipping_stages[$stage_code];
     }
 }

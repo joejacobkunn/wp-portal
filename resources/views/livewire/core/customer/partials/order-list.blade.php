@@ -3,18 +3,18 @@
         <h3 class="h5 mb-2">Customer Order History</h3>
     </div>
 
-    <div class="card-body">
+    <div wire:ignore class="card-body">
 
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill"
+                <button class="nav-link @if($open_order_tab) active @endif" id="pills-home-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-open-orders" type="button" role="tab" aria-controls="pills-home"
                     aria-selected="true">Open Orders <span
                         class="badge bg-light-primary">@if(!empty($this->orders->whereIn('stagecd',[1,2,3])))
                         {{count($this->orders->whereIn('stagecd',[1,2,3]))}} @endif</span></button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill"
+                <button class="nav-link @if($past_order_tab) active @endif" id="pills-profile-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-other-orders" type="button" role="tab" aria-controls="pills-profile"
                     aria-selected="false">Past Orders <span
                         class="badge bg-light-primary">@if(!empty($this->orders->whereIn('stagecd',[4,5])))
@@ -27,14 +27,16 @@
             <div class="tab-pane fade show active" id="pills-open-orders" role="tabpanel"
                 aria-labelledby="pills-home-tab">
                 <div class="list-group overflow-scroll" style="height:600px">
-                    @if(!empty($this->orders))
+                    @if(!empty($this->orders) && $open_order_tab)
                     @forelse ($this->orders->whereIn('stagecd',[1,2,3]) as $order)
-                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})"
+                    @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
+                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','open-order')"
                         class="list-group-item list-group-item-action" aria-current="true">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">Order# {{$order->orderno}}-{{$order->ordersuf}}
-                                @if($order->is_sro) <span class="badge bg-light-danger"><i class="fas fa-tools"></i>
-                                    SRO</span> @endif
+                                @if($order->is_sro == 'SRO') <span class="badge bg-light-danger"><i
+                                        class="fas fa-tools"></i>
+                                    {{$order->refer}}</span> @endif
                             </h5>
                             <small><span
                                     class="badge bg-light-secondary">{{$order->getStageCode($order->stagecd)}}</span></small>
@@ -52,7 +54,7 @@
                                 : {{strtoupper(intval($order->totqtyshp))}}</span>
 
                             <div class="float-end" wire:loading
-                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})">
+                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','open-order')">
                                 <div class="spinner-border spinner-border-sm float-end" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
@@ -91,10 +93,16 @@
                         Showing last 5 years of past orders
                     </div>
                     @forelse ($this->orders->whereIn('stagecd',[4,5]) as $order)
-                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})"
+                    @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
+                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','past-order')"
                         class="list-group-item list-group-item-action" aria-current="true">
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">Order# {{$order->orderno}}-{{$order->ordersuf}}
+                            <h5 class="mb-1">
+                                Order# {{$order->orderno}}-{{$order->ordersuf}}
+                                @if($order->is_sro == 'SRO') <span class="badge bg-light-danger"><i
+                                        class="fas fa-tools"></i>
+                                    {{$order->refer}}</span> @endif
+
                             </h5>
                             <small><span
                                     class="badge bg-light-secondary">{{$order->getStageCode($order->stagecd)}}</span></small>
@@ -112,7 +120,7 @@
                                 : {{strtoupper(intval($order->totqtyshp))}}</span>
 
                             <div class="float-end" wire:loading
-                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}})">
+                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','past-order')">
                                 <div class="spinner-border spinner-border-sm float-end" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>

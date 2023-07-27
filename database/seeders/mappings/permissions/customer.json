@@ -1,0 +1,14 @@
+[
+    {
+        "group": "Customer",
+        "roles": [
+            "super-admin"
+        ],
+        "items": [
+            {
+                "name": "customer.view",
+                "label": "View Customer"
+            }
+        ]
+    }
+]
