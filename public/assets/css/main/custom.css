@@ -90,6 +90,11 @@
     z-index: 100;
     cursor: progress;
 }
+
+.nav-tabs-ul {
+    margin-bottom: 2em;
+    position: relative;
+}
 .nav-tabs-ul .nav-link {
     cursor: pointer;
 }
