@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Core\Account\Traits;
 
+use App\Enums\Account\AccountStatusEnum;
 use App\Events\User\UserCreated;
 use App\Models\Core\Account;
 use App\Models\Core\Role;
@@ -14,6 +15,9 @@ trait FormRequest
     public $adminUser;
 
     public $accountMetaData;
+
+    /** Supporting Documents atributes */
+    public $documents;
 
     protected $validationAttributes = [
         'account.name' => 'Name',
@@ -91,8 +95,16 @@ trait FormRequest
     {
         $this->authorize('store', Account::class);
 
-        $this->account->is_active = 1;
+        $this->account->is_active = AccountStatusEnum::Active;
         $this->account->save();
+
+        if ($this->documents !== null) {
+            $this->account
+                ->syncFromMediaLibraryRequest($this->documents)
+                ->toMediaCollection(Account::DOCUMENT_COLLECTION);
+            $this->emit("refreshMedia");
+        }
+
         $this->setAdminUser();
 
         session()->flash('success', 'Account created!');
@@ -110,6 +122,14 @@ trait FormRequest
         $this->authorize('update', $this->account);
 
         $this->account->save();
+
+        if ($this->documents !== null) {
+            $this->account
+                ->syncFromMediaLibraryRequest($this->documents)
+                ->toMediaCollection(Account::DOCUMENT_COLLECTION);
+            $this->emit("refreshMedia");
+        }
+
         $this->setAdminUser();
 
         $this->editRecord = false;
@@ -151,6 +171,7 @@ trait FormRequest
             $user->name = '';
             $user->is_active = User::ACTIVE;
             $user->account_id = $this->account->id;
+            $user->abbreviation = abbreviation($user->email);
             $user->save();
 
             $user->metadata()->create([
@@ -171,4 +192,83 @@ trait FormRequest
             $user->assignRole($superAdminName);
         }
     }
+
+    /**
+     * Update Status
+     */
+    public function updateStatus()
+    {
+        $isActive = !$this->account->is_active->value;
+        $statusEnum = AccountStatusEnum::tryFrom($isActive);
+
+        $this->account->is_active = $statusEnum;
+        $this->account->save();
+    }
+
+    /**
+     * Properties
+     */
+    public function getStatusAlertClassProperty()
+    {
+        return $this->account->is_active->class();
+    }
+
+    public function getStatusAlertMessageProperty()
+    {
+        return 'This account is '. $this->account->is_active->label();
+    }
+
+    public function getStatusAlertMessageIconProperty()
+    {
+        return $this->account->is_active->icon();
+    }
+
+    public function getStatusAlertHasActionProperty()
+    {
+        return true;
+    }
+
+    public function getStatusAlertActionButtonClassProperty()
+    {
+        $isActive = !$this->account->is_active->value;
+        $statusEnum = AccountStatusEnum::tryFrom($isActive);
+
+        return $statusEnum->class();
+    }
+
+    public function getStatusAlertActionButtonNameProperty()
+    {
+        $isActive = !$this->account->is_active->value;
+        $statusEnum = AccountStatusEnum::tryFrom($isActive);
+
+        return $statusEnum->buttonName();
+    }
+
+    /**
+     * Set media on attribute
+     *
+     * Note: Emitted from media library component
+     */
+    public function mediaUpdated($name, $media)
+    {
+        parent::fieldUpdated($name, $media);
+        $this->disableDocumentSubmit = false;
+    }
+
+    /**
+     * Show document upload form
+     */
+    public function showEditDocuments()
+    {
+        $this->editDocuments = true;
+    }
+
+    /**
+     * Cancel document upload form
+     */
+    public function cancelDocumentForm()
+    {
+        $this->editDocuments = false;
+    }
+
 }

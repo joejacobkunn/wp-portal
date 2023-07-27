@@ -1,3 +1,23 @@
+/** Horizontal Logo Custom CSS */
+.layout-horizontal .header-top .logo img{
+    height:50px
+}
+
+.layout-horizontal .main-navbar {
+    padding: 1rem 1rem 0.8rem 1rem;
+}
+
+.layout-horizontal .main-navbar .menu-item.active .menu-link {
+    font-weight:900;
+    color: white !important;
+    padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+    border-bottom: .2rem solid;
+}
+
+.container {
+    max-width: 95vw !important;
+}
+
 /** SLIM Select Field */
 .x-multiselect .ss-single-selected {
     height: 39px !important;
@@ -77,6 +97,11 @@
     z-index: 100;
     cursor: progress;
 }
+
+.nav-tabs-ul {
+    margin-bottom: 2em;
+    position: relative;
+}
 .nav-tabs-ul .nav-link {
     cursor: pointer;
 }
@@ -129,4 +154,17 @@
 
 .permission-accordion label {
     color: #333;
+}
+/** Account view */
+.account-logo-wrapper .logo-container {
+    width: 250px; /* Set the desired width */
+    height: auto; /* Height will adjust based on aspect ratio */
+    max-width: 100%; /* Ensure the logo doesn't exceed its parent container */
+    padding: 10px; /* Optional: Add some padding around the logo */
+    margin: 10px;
+}
+
+.account-logo-wrapper .logo {
+    width: 100%; /* Ensure the logo fills its container */
+    height: auto; /* Height will adjust based on aspect ratio */
 }

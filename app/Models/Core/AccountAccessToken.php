@@ -4,9 +4,12 @@ namespace App\Models\Core;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccountAccessToken extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'account_id',
         'access_token',

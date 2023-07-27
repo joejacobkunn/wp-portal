@@ -1,20 +1,31 @@
 <div>
 
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
-        
-        <div class="d-block mb-4 mb-md-0 mt-2">
+    <x-page
+        :breadcrumbs="$breadcrumbs"
+    >
 
-            <x-breadcrumbs
-                :breadcrumbs="$breadcrumbs"
-            />
+        <x-slot:title>Dashboard</x-slot>
 
-            <h2 class="h4">Dashboard</h2>
-        </div>
+        <x-slot:description>
 
-    </div>
+        </x-slot>
 
-    @include('partials.flash')
+        <x-slot:sidebar>
+        </x-slot>
 
-    <p>Dashboard Content</p>
+        <x-slot:content>
+            <div class="card border-light shadow-sm mb-4">
+                <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                    <h4 class="card-title"></h4>
+                </div>
+                <div class="card-content">
+                    <div class="card-body">
+
+                    </div>
+                </div>
+            </div>
+        </x-slot>
+
+    </x-page>
 
 </div>

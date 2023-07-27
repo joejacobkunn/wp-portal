@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Core\Account;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Core\Account\Traits\FormRequest;
 use App\Models\Core\Account;
+use App\Models\Core\SXAccount;
 use App\Models\Core\User;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -13,7 +14,10 @@ class Show extends Component
 {
     use AuthorizesRequests, FormRequest, HasTabs;
 
+    //Attributes
     public Account $account;
+
+    public $sx_accounts = [];
 
     public $breadcrumbs = [
         [
@@ -40,9 +44,11 @@ class Show extends Component
     protected $listeners = [
         'deleteRecord' => 'delete',
         'edit' => 'edit',
+        'updateStatus' => 'updateStatus'
     ];
 
     public $editRecord = false;
+    public $activeTab = 'general';
 
     public $tabs = [
         'general' => 'General',
@@ -51,9 +57,9 @@ class Show extends Component
         'credentials' => 'API Credentials',
     ];
 
-    public $tab;
-
-    public $queryString = ['tab'];
+    public $queryString = [
+        'activeTab' => ['except' => '', 'as' => 'tab'],
+    ];
 
     public function mount()
     {
@@ -69,6 +75,10 @@ class Show extends Component
 
     public function edit()
     {
+        if(empty($this->sx_accounts)) {
+            $this->sx_accounts = SXAccount::all();
+        }
+
         $this->editRecord = true;
     }
 
@@ -92,8 +102,9 @@ class Show extends Component
     public function cancel()
     {
         //reset dirty attributes to original
-        $this->account->setRawAttributes($this->account->getOriginal());
+        $this->account->refresh();
+        $this->formInit();
         $this->resetValidation();
-        $this->editRecord = false;
+        $this->reset(['editRecord']);
     }
 }
