@@ -205,6 +205,7 @@ return [
 
         /** Third party */
         Spatie\Permission\PermissionServiceProvider::class,
+        \SocialiteProviders\Manager\ServiceProvider::class,
 
     ],
 

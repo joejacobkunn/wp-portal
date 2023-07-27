@@ -35,13 +35,13 @@ class Index extends Component
     public function toggleModule($module_id, $value)
     {
         if (! auth()->user()->isMasterAdmin()) {
-        abort(403);
+            abort(403);
         }
 
         if ($value) {
             $this->account->modules()->attach([$module_id]);
         } else {
-        $this->account->modules()->detach([$module_id]);
+            $this->account->modules()->detach([$module_id]);
         }
 
         $this->emit('refreshPage');

@@ -63,6 +63,8 @@
 
                 </div>
 
+                @if(!is_null($sro_customer))
+
                 <div class="row">
                     <div class="col-sm-12">
                         @include('livewire.core.customer.partials.equipment-list')
@@ -74,6 +76,8 @@
                         @include('livewire.core.customer.partials.repair-order-list')
                     </div>
                 </div>
+
+                @endif
 
             </div>
         </div>

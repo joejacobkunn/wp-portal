@@ -43,7 +43,7 @@ trait FormRequest
         'internal',
         'api',
         'mits',
-        'rest'
+        'rest',
     ];
 
     protected function rules()

@@ -17,7 +17,7 @@ abstract class DataTableComponent extends RappasoftDataTableComponent
     public function getSelectedColumnFields()
     {
         if ($this->selectedColumnFields) {
-        return $this->selectedColumnFields;
+            return $this->selectedColumnFields;
         }
 
         $fields = [];
@@ -41,7 +41,7 @@ abstract class DataTableComponent extends RappasoftDataTableComponent
     public function getSelectedColumnHeaders()
     {
         if ($this->selectedColumnHeaders) {
-        return $this->selectedColumnHeaders;
+            return $this->selectedColumnHeaders;
         }
 
         $headers = [];

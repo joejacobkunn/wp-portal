@@ -118,9 +118,9 @@ class Show extends Component
         $this->vehicle->vin = strtoupper($value);
         $vin_details = $this->getVINDetails($this->vehicle->vin);
         if ($vin_details['Make'] && $vin_details['Model']) {
-        $this->valid_vin = true;
+            $this->valid_vin = true;
         } else {
-        $this->valid_vin = false;
+            $this->valid_vin = false;
         }
         $this->vehicle->make = $vin_details['Make'];
         $this->vehicle->model = $vin_details['Model'];

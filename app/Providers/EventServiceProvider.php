@@ -22,11 +22,13 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         UserCreated::class => [
+            // @TODO  Mail Configuration issue
             // UserCreatedNotification::class,
         ],
 
-        \App\Events\User\ForgotPassword::class => [
-            \App\Listeners\User\ForgotPasswordListener::class,
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            // ... other providers
+            \SocialiteProviders\Azure\AzureExtendSocialite::class.'@handle',
         ],
     ];
 

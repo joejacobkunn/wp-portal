@@ -4,10 +4,11 @@ namespace App\Models\Core;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'customers';
 
@@ -48,7 +49,7 @@ class Customer extends Model
         $address = ucwords(strtolower($this->address));
 
         if ($this->address2) {
-        $address .= ', '.ucwords(strtolower($this->address2));
+            $address .= ', '.ucwords(strtolower($this->address2));
         }
 
         $address .= ', '.ucwords(strtolower($this->city));

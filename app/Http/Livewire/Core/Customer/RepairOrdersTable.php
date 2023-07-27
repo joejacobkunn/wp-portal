@@ -19,13 +19,12 @@ class RepairOrdersTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id')
-        ->setTableRowUrl(function($row) {
-            return config('sro.url').'dashboard/repair-orders/'.$row->id;
-        })
-        ->setTableRowUrlTarget(function($row) {
-            return '_blank';
-        });
-
+            ->setTableRowUrl(function ($row) {
+                return config('sro.url').'dashboard/repair-orders/'.$row->id;
+            })
+            ->setTableRowUrlTarget(function ($row) {
+                return '_blank';
+            });
 
         $this->setPerPageAccepted([25, 50, 100]);
 
@@ -38,7 +37,6 @@ class RepairOrdersTable extends DataTableComponent
         $this->setFilterLayout('slide-down');
 
         $this->setFilterSlideDownDefaultStatusEnabled();
-
 
     }
 
@@ -133,14 +131,14 @@ class RepairOrdersTable extends DataTableComponent
                         $builder->where('type', $value);
                     }
                 }),
-                SelectFilter::make('Priority')
+            SelectFilter::make('Priority')
                 ->options(RepairOrders::distinct('priority')->where('customer_id', $this->customer->id)->pluck('priority', 'priority')->prepend('All', '')->toArray())
                 ->filter(function (Builder $builder, string $value) {
                     if ($value) {
                         $builder->where('priority', $value);
                     }
                 }),
-                SelectFilter::make('Status')
+            SelectFilter::make('Status')
                 ->options(RepairOrders::distinct('status')->where('customer_id', $this->customer->id)->pluck('status', 'status')->prepend('All', '')->toArray())
                 ->filter(function (Builder $builder, string $value) {
                     if ($value) {

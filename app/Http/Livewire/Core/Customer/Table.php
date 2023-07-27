@@ -20,14 +20,12 @@ class Table extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id')
-        ->setTableRowUrl(function ($row) {
-            return route('core.customer.show', $row);
-        })
-        ->setTableRowUrlTarget(function ($row) {
-            return '_self';
-        });
-
-        $this->setDefaultSort('last_sale_date', 'desc');
+            ->setTableRowUrl(function ($row) {
+                return route('core.customer.show', $row);
+            })
+            ->setTableRowUrlTarget(function ($row) {
+                return '_blank';
+            });
 
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
@@ -53,16 +51,15 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('Name', 'name')
-                ->sortable()
                 ->secondaryHeader($this->getFilterByKey('name'))
                 ->searchable(function (Builder $query, $searchTerm) {
                     if (str_contains(strtolower($searchTerm), ' and')) {
-                    $query->orWhere('name', 'like', '%'.str_replace(' and', ' &', strtolower($searchTerm)).'%')->orWhere('name', 'like', '%'.$searchTerm.'%');
+                        $query->orWhere('name', 'like', '%'.str_replace(' and', ' &', strtolower($searchTerm)).'%')->orWhere('name', 'like', '%'.$searchTerm.'%');
                     }
                     if (str_contains(strtolower($searchTerm), ' &')) {
-                    $query->orWhere('name', 'like', '%'.str_replace(' &', ' and', $searchTerm).'%')->orWhere('name', 'like', '%'.$searchTerm.'%');
+                        $query->orWhere('name', 'like', '%'.str_replace(' &', ' and', $searchTerm).'%')->orWhere('name', 'like', '%'.$searchTerm.'%');
                     } else {
-                    $query->orWhere('name', 'like', '%'.$searchTerm.'%');
+                        $query->orWhere('name', 'like', '%'.$searchTerm.'%');
                     }
                 })
                 ->format(function ($value, $row) {
@@ -70,7 +67,7 @@ class Table extends DataTableComponent
                     if ($row->is_active) {
                         $display .= '<span class="badge bg-light-success"><i class="fas fa-user-check"></i> '.ucwords(strtolower($value)).' ('.$row->sx_customer_number.')</span>';
                     } else {
-                    $display .= '<span class="badge bg-light-danger"><i class="fas fa-user-times"></i> '.ucwords(strtolower($value)).'</span>';
+                        $display .= '<span class="badge bg-light-danger"><i class="fas fa-user-times"></i> '.ucwords(strtolower($value)).' ('.$row->sx_customer_number.')</span>';
                     }
 
                     if ($row->has_open_order) {
@@ -83,24 +80,23 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('Address', 'address')
-                ->sortable()
                 ->searchable()
                 ->secondaryHeader($this->getFilterByKey('address'))
                 ->format(function ($value, $row) {
                     $address = ucwords(strtolower($value));
 
                     if ($row->address2) {
-                    $address .= ', '.ucwords(strtolower($row->address2));
+                        $address .= ', '.ucwords(strtolower($row->address2));
                     }
-            
+
                     $address .= ', '.ucwords(strtolower($row->city));
-            
+
                     $address .= ', '.$row->state;
-            
+
                     $address .= ', '.$row->zip;
-            
+
                     return $address;
-            
+
                 })
                 ->html(),
 
@@ -113,7 +109,7 @@ class Table extends DataTableComponent
                 ->hideIf(1),
 
             Column::make('State', 'state')
-            ->hideIf(1),
+                ->hideIf(1),
 
             Column::make('Cust Type', 'customer_type')
                 ->format(function ($value, $row) {
@@ -122,7 +118,6 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('Phone', 'phone')
-                ->sortable()
                 ->searchable()
                 ->secondaryHeader($this->getFilterByKey('phone'))
                 ->format(function ($value, $row) {
@@ -132,7 +127,6 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('E-Mail', 'email')
-                ->sortable()
                 ->secondaryHeader($this->getFilterByKey('email'))
                 ->searchable()
                 ->format(function ($value, $row) {
@@ -142,37 +136,35 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('SX Number', 'sx_customer_number')
-                ->sortable()
                 ->searchable()
                 ->hideIf(1)
                 ->excludeFromColumnSelect(),
 
             Column::make('Look Up Name', 'look_up_name')
-                ->sortable()
                 ->hideIf(1)
                 ->searchable(),
 
             Column::make('Sales Terr', 'sales_territory'),
 
             Column::make('Customer Since', 'customer_since')
-                ->sortable()->deselected()
+                ->deselected()
                 ->format(function ($value) {
-                        if ($value) {
-                            return $value->format('M Y');
-                        }
-                    }),
+                    if ($value) {
+                        return $value->format('M Y');
+                    }
+                }),
 
             Column::make('Last Sale Date', 'last_sale_date')
-                ->sortable()->deselected()
+                ->excludeFromColumnSelect()
                 ->format(function ($value) {
-                        if ($value) {
-                            return date('M d, Y', strtotime($value));
-                        }
-                    }),
+                    if ($value) {
+                        return date('M d, Y', strtotime($value));
+                    }
+                }),
 
             Column::make('Open Order', 'has_open_order')
-                    ->excludeFromColumnSelect()
-                    ->hideIf(1),
+                ->excludeFromColumnSelect()
+                ->hideIf(1),
 
             Column::make('Active', 'is_active')
                 ->hideIf(1),
@@ -185,58 +177,54 @@ class Table extends DataTableComponent
         return [
 
             TextFilter::make('Name')
-            ->hiddenFromAll()
-            ->config([
-                'placeholder' => 'Search Name / SX#',
-                'maxlength' => '25',
-            ])
-            ->filter(function(Builder $builder, string $value) {
-                if (str_contains(strtolower($value), ' and')) {
-                    $builder->where('name', 'like', '%'.str_replace(' and', ' &', strtolower($value)).'%')->orWhere('name', 'like', '%'.$value.'%');
+                ->hiddenFromAll()
+                ->config([
+                    'placeholder' => 'Search Name / SX#',
+                    'maxlength' => '25',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    if (str_contains(strtolower($value), ' and')) {
+                        $builder->where('name', 'like', '%'.str_replace(' and', ' &', strtolower($value)).'%')->orWhere('name', 'like', '%'.$value.'%');
                     }
                     if (str_contains(strtolower($value), ' &')) {
                         $builder->where('name', 'like', '%'.str_replace(' &', ' and', $value).'%')->orWhere('name', 'like', '%'.$value.'%');
-                    } 
-                    if(is_numeric($value)){
-                        $builder->where('sx_customer_number', '=', $value);
                     }
-                    else {
+                    if (is_numeric($value)) {
+                        $builder->where('sx_customer_number', '=', $value);
+                    } else {
                         $builder->where('name', 'like', '%'.$value.'%');
                     }
-            }),
+                }),
 
             TextFilter::make('Address')
-            ->hiddenFromAll()
-            ->config([
-                'placeholder' => 'Search Address',
-                'maxlength' => '25',
-            ])
-            ->filter(function(Builder $builder, string $value) {
-                $builder->where('address', 'like', '%'.$value.'%');
-            }),
+                ->hiddenFromAll()
+                ->config([
+                    'placeholder' => 'Search Address',
+                    'maxlength' => '25',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('address', 'like', '%'.$value.'%');
+                }),
 
             TextFilter::make('Phone')
-            ->hiddenFromAll()
-            ->config([
-                'placeholder' => 'Search Phone',
-                'maxlength' => '25',
-            ])
-            ->filter(function(Builder $builder, string $value) {
-                $builder->where('phone', 'like', $value.'%');
-            }),
+                ->hiddenFromAll()
+                ->config([
+                    'placeholder' => 'Search Phone',
+                    'maxlength' => '25',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('phone', 'like', '%'.$value.'%');
+                }),
 
             TextFilter::make('Email')
-            ->hiddenFromAll()
-            ->config([
-                'placeholder' => 'Search Email',
-                'maxlength' => '25',
-            ])
-            ->filter(function(Builder $builder, string $value) {
-                $builder->where('email', 'like', $value.'%');
-            }),
-
-
-
+                ->hiddenFromAll()
+                ->config([
+                    'placeholder' => 'Search Email',
+                    'maxlength' => '25',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('email', 'like', '%'.$value.'%');
+                }),
 
             SelectFilter::make('Open Orders')
                 ->options([
@@ -274,7 +262,7 @@ class Table extends DataTableComponent
                     'WEB' => 'WEB',
                     'MUN' => 'MUN',
                 ])->filter(function (Builder $builder, string $value) {
-                        $builder->where('customer_type', $value);
+                    $builder->where('customer_type', $value);
                 }),
         ];
     }
@@ -282,9 +270,8 @@ class Table extends DataTableComponent
     public function builder(): Builder
     {
         return Customer::where('account_id', $this->account->id)
-                        ->orderBy('has_open_order', 'DESC')
-                        ->orderBy('name', 'ASC')
-                        ->orderBy('last_sale_date', 'DESC');
+            ->orderBy('has_open_order', 'DESC')
+            ->orderBy('name', 'ASC')
+            ->orderBy('last_sale_date', 'DESC');
     }
-
 }

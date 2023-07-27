@@ -17,10 +17,10 @@ class Host
         $hostParts = explode('.', static::$host);
 
         if (count($hostParts) > 2) {
-            static::$subdomain = $hostParts[0];
-            static::$domain = $hostParts[1];
+            static::$subdomain = $hostParts[0] ?? null;
+            static::$domain = $hostParts[1] ?? null;
         } else {
-            static::$domain = $hostParts[1];
+            static::$domain = $hostParts[1] ?? null;
         }
     }
 

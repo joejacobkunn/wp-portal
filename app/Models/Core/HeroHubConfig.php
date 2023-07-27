@@ -4,13 +4,14 @@ namespace App\Models\Core;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use ParagonIE\CipherSweet\EncryptedRow;
 use Spatie\LaravelCipherSweet\Concerns\UsesCipherSweet;
 use Spatie\LaravelCipherSweet\Contracts\CipherSweetEncrypted;
 
 class HeroHubConfig extends Model implements CipherSweetEncrypted
 {
-    use HasFactory,UsesCipherSweet;
+    use HasFactory,UsesCipherSweet, SoftDeletes;
 
     protected $table = 'herohub_configs';
 
