@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 /** Global urls */
 Route::get('/azure/login/redirect', [\App\Http\Controllers\Auth\AzureLoginController::class, 'attemptLogin'])->name('host.azure.redirect');
 Route::get('/azure/callback', [\App\Http\Controllers\Auth\AzureLoginController::class, 'callback'])->name('host.azure.callback');
+Route::post('livewire/message/{name}', [\Livewire\Controllers\HttpConnectionHandler::class, '__invoke'])->name('livewire.message')->middleware('subdomain');
 
 /** Global urls ends */
 

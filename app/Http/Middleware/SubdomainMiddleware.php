@@ -17,6 +17,10 @@ class SubdomainMiddleware
      */
     public function handle($request, Closure $next)
     {
+        if ($request->route()->getName() == 'livewire.message') {
+            $hostSplit = explode('.', $request->header('host'));
+            $request->request->add(['route_subdomain' => $hostSplit[0]]);
+        }
 
         if ($request->route_subdomain && ! in_array($request->route_subdomain, config('constants.reserved_subdomain'))) {
             $subdomain = Account::select('id', 'name', 'admin_user', 'is_active')->where('subdomain', $request->route_subdomain)->firstOrFail();
