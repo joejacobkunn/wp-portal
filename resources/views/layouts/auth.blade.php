@@ -13,12 +13,14 @@
 
 <body>
     <div id="auth">
-        
+
 <div class="row h-100">
     <div class="col-lg-4 col-12 pe-0">
         <div id="auth-left">
             <div class="auth-logo">
-                <a href="/"><img src="/assets/images/logo.png" /></a>
+                <a href="/">
+                    <img src="{{ accountLogo() }}" />
+                </a>
             </div>
 
             @yield('left_column')

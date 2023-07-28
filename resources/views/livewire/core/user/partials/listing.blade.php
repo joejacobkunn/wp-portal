@@ -1,4 +1,4 @@
-    <div class="row px-2">
+    <div>
         <div class="card border-light shadow-sm mb-4" style="min-height: 600px">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
 

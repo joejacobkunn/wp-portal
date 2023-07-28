@@ -1,7 +1,7 @@
 [
     {
         "group": "Access Control",
-        "roles": ["master-admin"],
+        "type": ["master", "account"],
         "items": [
             {
                 "name": "roles.view",
@@ -17,7 +17,7 @@
     },
     {
         "group": "User",
-        "roles": ["master-admin", "super-admin"],
+        "type": ["master", "account"],
         "items": [
             {
                 "name": "users.view",
@@ -31,7 +31,7 @@
     },
     {
         "group": "Location",
-        "roles": ["master-admin", "super-admin"],
+        "type": ["master", "account"],
         "items": [
             {
                 "name": "locations.view",
@@ -47,7 +47,7 @@
     },
     {
         "group": "Module",
-        "roles": ["master-admin", "super-admin"],
+        "type": ["master", "account"],
         "items": [
             {
                 "name": "modules.view",

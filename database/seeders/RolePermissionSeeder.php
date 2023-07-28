@@ -15,6 +15,16 @@ class RolePermissionSeeder extends Seeder
 
     protected $roles = [];
 
+    protected $roleTypeMap = [
+        'master' => [
+            'master-admin'
+        ],
+        'account' => [
+            'super-admin',
+            'user'
+        ],
+    ];
+
     /**
      * Run the database seeds.
      *
@@ -36,9 +46,15 @@ class RolePermissionSeeder extends Seeder
                     'label' => $permission['label'],
                     'group_name' => $permissionGroup['group'],
                     'description' => $permission['description'] ?? null,
+                    'master_type' => (int) (in_array('master', $permissionGroup['type'])),
+                    'account_type' => (int) (in_array('account', $permissionGroup['type'])),
                 ]);
 
-                $this->attachToRoles($permissionItem, $permissionGroup['roles']);
+                foreach ($this->roleTypeMap as $type => $roles) {
+                    if (in_array($type, $permissionGroup['type'])) {
+                        $this->attachToRoles($permissionItem, $roles);
+                    }
+                }
             }
         }
     }
@@ -70,6 +86,7 @@ class RolePermissionSeeder extends Seeder
             $user->name = 'Master Admin';
             $user->email = config('permission.master_user_email');
             $user->password = 'BaJDTCCpHLpMph';
+            $user->abbreviation = 'MA';
             $user->save();
         }
 

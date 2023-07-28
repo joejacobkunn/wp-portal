@@ -3,16 +3,20 @@
 namespace App\Models\Core;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\User\UserStatusEnum;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +27,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'abbreviation',
+        'is_active'
     ];
 
     /**
@@ -33,6 +39,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'deleted_at'
     ];
 
     /**
@@ -42,6 +49,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_active' => UserStatusEnum::class,
     ];
 
     private $activeRole;

@@ -20,6 +20,21 @@ class Index extends Component
 
     public $viewLocation = false;
 
+    public $actionButtons = [
+        [
+            'icon' => 'fa-edit',
+            'color' => 'primary',
+            'listener' => 'edit',
+        ],
+        [
+            'icon' => 'fa-trash',
+            'color' => 'danger',
+            'confirm' => true,
+            'confirm_header' => 'Confirm Delete',
+            'listener' => 'deleteRecord',
+        ],
+    ];
+
     public function render()
     {
         return view('livewire.core.location.index');
@@ -40,7 +55,8 @@ class Index extends Component
     public function cancel()
     {
         $this->addLocation = false;
-        $this->reset();
+        $this->resetExcept('account', 'location');
+        $this->formInit();
         $this->resetValidation();
     }
 }

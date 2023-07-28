@@ -1,9 +1,7 @@
 [
     {
         "group": "Customer",
-        "roles": [
-            "super-admin"
-        ],
+        "type": ["account"],
         "items": [
             {
                 "name": "customer.view",

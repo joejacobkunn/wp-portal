@@ -24,15 +24,6 @@
                     </div>
                     <div>
                 </li>
-
-                @if($role && $role->reportsTo)
-                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                    <div>
-                        <h3 class="h6 mb-1">Reports To Role</h3>
-                        <p class="small pe-4">{{ $role->reportsTo->label  }}</p>
-                    </div>
-                </li>
-                @endif
             </ul>
         </div>
     </div>
@@ -41,7 +32,7 @@
             <h3 class="h5 mb-0"><i class="fas fa-key me-1"></i> Permissions</h3>
         </div>
         <div class="card-body">
-            <div class="accordion">
+            <div class="accordion permission-accordion">
                 @forelse($role->permission_list as $group => $permissionGroup)
                     <div class="accordion-item mb-2">
                         <h2 class="accordion-header" id="heading{{ $group }}">
@@ -49,6 +40,7 @@
                             {{ $permissionGroup["group_name"] }}
                         </button>
                         </h2>
+                        
                         <div id="collapse-{{ $group }}" class="accordion-collapse collapse show" aria-labelledby="heading{{ $group }}">
                         <div class="accordion-body">
                             <div class="row">
@@ -77,9 +69,3 @@
         </div>
     </div>
 </div>
-
-<livewire:x-activity-log
-    :entity="$role"
-    recordType="role"
-    default-load
->

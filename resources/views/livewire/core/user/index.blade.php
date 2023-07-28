@@ -1,31 +1,24 @@
 <div>
 
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
-        
-        <div class="d-block mb-4 mb-md-0 mt-2">
+    <x-page
+        :breadcrumbs="$breadcrumbs"
+    >
 
-            <x-breadcrumbs
-                :breadcrumbs="$breadcrumbs"
-            />
+        <x-slot:title>Users</x-slot>
 
-            <h2 class="h4">Users</h2>
-            
+        <x-slot:description>
+            {{ !$addRecord ? 'Manage users here' : 'Create a new user here' }}
+        </x-slot>
+
+        <x-slot:content>
             @if($addRecord)
-                <p class="mb-0">Create a new User here</p>
+                @include('livewire.core.user.partials.form', ['button_text' => 'Add User'])
             @else
-                <p class="mb-0">Manage users here</p>
+                @include('livewire.core.user.partials.listing')
             @endif
-            
-        </div>
 
-    </div>
+        </x-slot>
 
-    @include('partials.flash')
-
-    @if($addRecord)
-        @include('livewire.core.user.partials.form', ['button_text' => 'Add User'])
-    @else
-        @include('livewire.core.user.partials.listing')
-    @endif
+    </x-page>
 
 </div>

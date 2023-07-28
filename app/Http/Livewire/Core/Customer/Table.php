@@ -204,7 +204,7 @@ class Table extends DataTableComponent
                 ->hiddenFromAll()
                 ->config([
                     'placeholder' => 'Search Address',
-                    'maxlength' => '25',
+                    'maxlength' => '50',
                 ])
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('address', 'like', '%'.$value.'%')
@@ -215,10 +215,10 @@ class Table extends DataTableComponent
                 ->hiddenFromAll()
                 ->config([
                     'placeholder' => 'Search Phone',
-                    'maxlength' => '25',
+                    'maxlength' => '15',
                 ])
                 ->filter(function (Builder $builder, string $value) {
-                    $builder->where('phone', 'like', '%'.$value.'%');
+                    $builder->where('phone', 'like', '%'.preg_replace("/[^0-9]/", "", $value).'%');
                 }),
 
             TextFilter::make('Email')

@@ -45,7 +45,7 @@
                                         Vehicle Details @unless($valid_vin) - Enter Valid VIN to fetch vehicle data @else for VIN# {{$vehicle->vin}} <button wire:click="changeVIN" type="button" class="btn btn-sm btn-link">Change VIN</button> @endif
                                         @if($valid_vin)<span class="float-end"><a href="https://vpic.nhtsa.dot.gov/api/" target="_blank">Data from NHTSA</a></span>@endif
                                     </li>
-                                    
+
                                     @if($valid_vin)
                                         <li class="list-group-item list-group-item-light">
                                             Vehicle Make : <strong>{{$vehicle->make}}</strong>
@@ -71,7 +71,7 @@
                     </div>
 
 
-                    <div class="mt-2 float-end">
+                    <div class="mt-2 float-start">
                         <button type="submit" class="btn btn-success">
                             <div wire:loading wire:target="{{ (isset($vehicle) ? 'save' : 'submit')}}">
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

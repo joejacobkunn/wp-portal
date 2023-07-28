@@ -2,27 +2,21 @@
 
 namespace App\Http\Livewire\Core\Role;
 
-use App\Http\Livewire\Component\Component;
-use App\Http\Resources\Transformers\PermissionGroupCollection;
 use App\Models\Core\Role;
+use App\Models\Core\Permission;
+use App\Http\Livewire\Component\Component;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Resources\Transformers\PermissionGroupCollection;
 
 class Show extends Component
 {
     use AuthorizesRequests;
-
+    
     public Role $role;
 
-    public $moduleName = 'Administration';
-
     public $editRole = false;
-
     public $locations = [];
-
-    public $roles = [];
-
     public $permissionGroups = [];
-
     public $selectedPermissions = [];
 
     protected $listeners = [
@@ -38,39 +32,36 @@ class Show extends Component
     public $breadcrumbs = [
         [
             'title' => 'Roles',
-            'route_name' => 'core.roles.index',
+            'route_name' => 'core.role.index'
         ],
     ];
 
     public $actionButtons = [
         [
             'icon' => 'fa-edit',
-            'color' => 'primary',
-            'listener' => 'edit',
+            'color' => 'info',
+            'listener' => 'edit'
         ],
         [
             'icon' => 'fa-trash',
             'color' => 'danger',
             'confirm' => true,
-            'confirm_header' => 'Confirm Delete',
-            'listener' => 'deleteRecord',
+            'confirm_header' => "Confirm Delete",
+            'listener' => 'deleteRecord'
         ],
     ];
 
     public function render()
     {
         $this->authorize('view', $this->role);
-        $this->role->reportsTo = $this->role->reportsTo()->basicSelect()->first();
         $this->role->permission_list = (new PermissionGroupCollection($this->role->getAllPermissions()))->aggregateGroup()->toArray();
 
         return $this->renderView('livewire.core.role.show');
     }
 
-    public function rules()
-    {
+    public function rules() {
         return [
             'role.label' => 'required|min:3|unique:roles,label,'.$this->role->id,
-            'role.reporting_role' => 'nullable',
         ];
     }
 
@@ -88,15 +79,8 @@ class Show extends Component
     public function edit()
     {
         $this->authorize('update', $this->role);
-        $this->roles = Role::where('level', '>=', auth()->user()->role->level)
-            ->select('label', 'id')
-            ->where('id', '!=', $this->role->id)
-            ->orderBy('level')
-            ->get()
-            ->toArray();
-
         $this->selectedPermissions = $this->role->getAllPermissions()->pluck('name')->toArray();
-        $this->permissionGroups = (new PermissionGroupCollection(auth()->user()->getAllPermissions()))->aggregateGroup()->toArray();
+        $this->permissionGroups = (new PermissionGroupCollection($this->getPermissions()))->aggregateGroup()->toArray();
         $this->editRole = true;
     }
 
@@ -105,20 +89,10 @@ class Show extends Component
         $this->authorize('update', $this->role);
         $this->validate();
 
-        $roleData['reporting_role'] = null;
-        if ($this->role->reporting_role) {
-            $reportingRole = Role::find($this->role->reporting_role);
-            $this->role->reporting_role = $reportingRole->id;
-            $this->role->level = $reportingRole->level + 1;
-        } else {
-            $this->role->reporting_role = null;
-            $this->role->level = 0;
-        }
-
         $this->role->save();
 
         //associate permissions to role which is allowed to current user
-        $allowedPermissions = auth()->user()->getAllPermissions();
+        $allowedPermissions = $this->getPermissions();
         $selectedPermissions = $allowedPermissions->whereIn('name', $this->selectedPermissions);
         $this->role->syncPermissions([$selectedPermissions]);
         $this->role->permission_list = (new PermissionGroupCollection($this->role->getAllPermissions()))->aggregateGroup()->toArray();
@@ -131,27 +105,25 @@ class Show extends Component
     public function delete()
     {
         $this->authorize('delete', $this->role);
-
+        
         //check for existing users with this role
         $existingUserCount = $this->role->hasModels()->count();
         if ($existingUserCount) {
-            session()->flash('warning', 'Error, there '.($existingUserCount > 1 ? 'are' : 'is')." $existingUserCount users associated with this role, re-assign them to different role before continue!");
-
+            session()->flash('warning', "Error, there ".($existingUserCount > 1 ? 'are' : 'is')." $existingUserCount users associated with this role, re-assign them to different role before continue!");
             return;
         }
 
         //check for other roles reporting to this role
         $reportingRoleCount = Role::where('reporting_role', $this->role->id)->count();
         if ($reportingRoleCount) {
-            session()->flash('warning', 'Warning, there '.($reportingRoleCount > 1 ? 'are' : 'is')." $reportingRoleCount roles reporting to this role!");
-
+            session()->flash('warning', "Warning, there ".($reportingRoleCount > 1 ? 'are' : 'is')." $reportingRoleCount roles reporting to this role!");
             return;
         }
-
+        
         $this->role->delete();
         session()->flash('success', 'Role deleted !');
 
-        return redirect()->route('core.roles.index');
+        return redirect()->route('core.role.index');
     }
 
     public function cancel()
@@ -159,5 +131,17 @@ class Show extends Component
         //reset dirty attributes to original
         $this->role->setRawAttributes($this->role->getOriginal());
         $this->editRole = false;
+    }
+
+    protected function getPermissions()
+    {
+        $permissions = Permission::query();
+        if (auth()->user()->isMasterAdmin()) {
+            $permissions->where('master_type', 1);
+        } else  {
+            $permissions->where('account_type', 1);
+        }
+
+        return $permissions->get();
     }
 }

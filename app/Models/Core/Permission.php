@@ -12,5 +12,7 @@ class Permission extends BasePermission
         'guard_name',
         'group_name',
         'description',
+        'master_type',
+        'account_type',
     ];
 }
