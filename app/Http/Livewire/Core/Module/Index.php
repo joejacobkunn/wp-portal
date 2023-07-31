@@ -20,16 +20,16 @@ class Index extends Component
         'closeModal',
     ];
 
-    public function render()
-    {
-        $this->authorize('view', Module::class);
-
-        return view('livewire.core.module.index');
-    }
-
     public function mount()
     {
+        $this->authorize('viewAny', Module::class);
+
         $this->modules = Module::get();
+    }
+
+    public function render()
+    {
+        return view('livewire.core.module.index');
     }
 
     public function toggleModule($module_id, $value)

@@ -38,18 +38,18 @@ class Index extends Component
         ],
     ];
 
-    public function render()
-    {
-        //$this->authorize('viewAny', Account::class);
-
-        return $this->renderView('livewire.vehicle.vehicle.index');
-    }
-
     public function mount()
     {
         $this->account = account();
         $this->vehicle = new Vehicle();
         $this->formInit();
+    }
+
+    public function render()
+    {
+        //$this->authorize('viewAny', Account::class);
+
+        return $this->renderView('livewire.vehicle.vehicle.index');
     }
 
     public function updated($propertyName, $value)

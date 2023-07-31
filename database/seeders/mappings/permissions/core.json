@@ -55,7 +55,21 @@
                 "description" : "Can view enabled modules"
             }
         ]
+    },
+    {
+        "group": "Customer",
+        "type": ["master", "account"],
+        "items": [
+            {
+                "name": "customers.view",
+                "label": "View Customers",
+                "description" : "Can view customers"
+            },
+            {
+                "name": "customers.manage",
+                "label": "Manage Customers",
+                "description" : "Can create/update/delete customers"
+            }
+        ]
     }
-
-
 ]

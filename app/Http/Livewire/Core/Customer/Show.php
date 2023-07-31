@@ -13,11 +13,12 @@ use DateInterval;
 use DatePeriod;
 use DateTime;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Show extends Component
 {
-    use HasTabs, LivewireAlert;
+    use AuthorizesRequests, HasTabs, LivewireAlert;
 
     public Customer $customer;
 
@@ -107,6 +108,8 @@ class Show extends Component
 
     public function mount()
     {
+        $this->authorize('view', $this->customer);
+
         $this->sro_customer = SROCustomer::where('sx_customer_id', $this->customer->sx_customer_number)->first();
         array_push($this->breadcrumbs, ['title' => $this->customer->name]);
     }

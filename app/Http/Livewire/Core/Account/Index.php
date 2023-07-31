@@ -24,18 +24,18 @@ class Index extends Component
         ],
     ];
 
-    public function render()
+    public function mount()
     {
         $this->authorize('viewAny', Account::class);
 
-        return $this->renderView('livewire.core.account.index');
-    }
-
-    public function mount()
-    {
         $this->account = new Account();
         $this->sx_accounts = SXAccount::all();
         $this->formInit();
+    }
+
+    public function render()
+    {
+        return $this->renderView('livewire.core.account.index');
     }
 
     public function create()

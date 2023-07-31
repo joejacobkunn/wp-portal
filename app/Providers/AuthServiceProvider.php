@@ -46,6 +46,7 @@ class AuthServiceProvider extends ServiceProvider
             \App\Models\Core\Account::class => \App\Policies\Core\AccountPolicy::class,
             \App\Models\Core\Location::class => \App\Policies\Core\LocationPolicy::class,
             \App\Models\Core\Module::class => \App\Policies\Core\ModulePolicy::class,
+            \App\Models\Core\Customer::class => \App\Policies\Core\CustomerPolicy::class
         ];
     }
 
