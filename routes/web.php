@@ -13,12 +13,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
 /** Global urls */
-Route::get('/azure/login/redirect', [\App\Http\Controllers\Auth\AzureLoginController::class, 'attemptLogin'])->name('host.azure.redirect');
-Route::get('/azure/callback', [\App\Http\Controllers\Auth\AzureLoginController::class, 'callback'])->name('host.azure.callback');
+
 Route::post('livewire/message/{name}', [\Livewire\Controllers\HttpConnectionHandler::class, '__invoke'])->name('livewire.message')->middleware('subdomain');
 
 /** Global urls ends */
+
+
+
+/** Azure urls */
+Route::group(['domain' => config('constants.azure_auth_domain')], function () {
+    Route::get('/azure/login/redirect', [\App\Http\Controllers\Auth\AzureLoginController::class, 'attemptLogin'])->name('host.azure.redirect');
+    Route::get('/azure/callback', [\App\Http\Controllers\Auth\AzureLoginController::class, 'callback'])->name('host.azure.callback');
+});
+
+/** Azure urls ends */
 
 Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware' => 'subdomain'], function () {
     Route::get('login', [\App\Http\Controllers\Auth\LoginController::class, 'attemptLogin'])->name('auth.login.view');
