@@ -79,7 +79,7 @@ class HeroHub
         }
 
         return [
-            'heroHubId' => $hub_hero_order_id,
+            'heroHubId' => preg_replace("/[^A-Za-z0-9 ]/", '', $hub_hero_order_id),
             'orderLines' => [],
             'deliveries' => [
                 [

@@ -49,7 +49,7 @@ class ImportSX extends Command
                 ->where('cono', $account->sx_company_number)
                 ->where('custno', '>', $latest_sx_number)
                 ->orderBy('custno', 'asc')
-                ->chunk(500, function (Collection $sx_customers) use ($account) {
+                ->chunk(1000, function (Collection $sx_customers) use ($account) {
                     foreach ($sx_customers as $sx_customer) {
 
                         $address = $this->split_address($sx_customer->addr);
@@ -58,7 +58,7 @@ class ImportSX extends Command
                             'account_id' => $account->id,
                             'sx_customer_number' => $sx_customer->custno,
                             'name' => $sx_customer->name,
-                            'customer_type' => $sx_customer->custtype,
+                            'customer_type' => strtoupper($sx_customer->custtype),
                             'phone' => $sx_customer->phoneno,
                             'email' => $sx_customer->email,
                             'address' => $address[0],
@@ -87,10 +87,9 @@ class ImportSX extends Command
                 Order::openOrders()
                     ->select('custno')
                     ->where('cono', $account->sx_company_number)
-                    ->where('whse', $warehouse->whse)
-                    ->chunk(500, function (Collection $open_orders) {
+                    ->where('whse', strtolower($warehouse->whse))
+                    ->chunk(1000, function (Collection $open_orders) {
                         foreach ($open_orders as $open_order) {
-
                             Customer::where('sx_customer_number', $open_order->custno)->update(['has_open_order' => 1]);
                         }
                     });
