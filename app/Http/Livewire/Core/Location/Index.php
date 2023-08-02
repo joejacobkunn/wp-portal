@@ -35,15 +35,17 @@ class Index extends Component
         ],
     ];
 
+    public function mount()
+    {
+        $this->authorize('viewAny', Location::class);
+
+        $this->location = new Location();
+        $this->formInit();
+    }
+
     public function render()
     {
         return view('livewire.core.location.index');
-    }
-
-    public function mount()
-    {
-        $this->location = new Location();
-        $this->formInit();
     }
 
     public function create()

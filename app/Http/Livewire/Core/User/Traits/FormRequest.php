@@ -76,6 +76,7 @@ trait FormRequest
         }
 
         $this->roles = Role::ofAccount(auth()->user()->account_id)
+            ->whereNot('name', 'super-admin-account-'.auth()->user()->account_id)
             ->basicSelect()
             ->get();
     }
@@ -114,7 +115,10 @@ trait FormRequest
         ]);
 
         $this->user->save();
-        $this->user->assignRole($this->selectedRole);
+
+        if($this->selectedRole != 'super-admin-account-'.$this->user->account_id) {
+            $this->user->assignRole($this->selectedRole);
+        }
 
         $this->user->invited_by = auth()->user()->id;
 
@@ -135,20 +139,21 @@ trait FormRequest
     /**
      * Update existing user
      */
-    public function update()
-    {
-        $this->user->abbreviation = $this->getAbbreviation();
+    // @TODO Remove after confirmation on WP-8 Remove User info Edit
+    // public function update()
+    // {
+    //     $this->user->abbreviation = $this->getAbbreviation();
 
-        $this->user->save();
+    //     $this->user->save();
 
-        if ($this->user->roles->first()?->name != $this->selectedRole) {
-            $this->user->roles()->detach();
-            $this->user->assignRole($this->selectedRole);
-        }
+    //     if ($this->user->roles->first()?->name != $this->selectedRole) {
+    //         $this->user->roles()->detach();
+    //         $this->user->assignRole($this->selectedRole);
+    //     }
 
-        $this->editRecord = false;
-        session()->flash('success', 'User updated!');
-    }
+    //     $this->editRecord = false;
+    //     session()->flash('success', 'User updated!');
+    // }
 
     public function closeModal()
     {

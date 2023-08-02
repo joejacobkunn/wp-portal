@@ -4,9 +4,12 @@ namespace App\Http\Livewire\Core\Customer;
 
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Customer;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
 {
+    use AuthorizesRequests;
+
     public $account;
 
     public $addRecord = false;
@@ -25,6 +28,8 @@ class Index extends Component
 
     public function mount()
     {
+        $this->authorize('viewAny', Customer::class);
+
         $this->account = account();
     }
 

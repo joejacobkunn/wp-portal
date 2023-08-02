@@ -25,17 +25,17 @@ class Index extends Component
         ];
     }
 
-    public function render()
+    public function mount()
     {
         $this->authorize('viewAny', User::class);
 
-        return view('livewire.core.user.index')->extends('livewire-app');
-    }
-
-    public function mount()
-    {
         $this->formInit();
         $this->breadcrumbs = $this->breadcrumbs();
+    }
+
+    public function render()
+    {
+        return view('livewire.core.user.index')->extends('livewire-app');
     }
 
     public function create()

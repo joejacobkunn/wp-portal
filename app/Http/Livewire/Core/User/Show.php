@@ -44,20 +44,21 @@ class Show extends Component
         $this->breadcrumbs = $this->breadcrumbs();
 
         if (auth()->user()->can('users.manage')) {
-            $this->actionButtons = [
-                [
-                    'icon' => 'fa-edit',
-                    'color' => 'primary',
-                    'listener' => 'edit',
-                ],
-                [
-                    'icon' => 'fa-trash',
-                    'color' => 'danger',
-                    'confirm' => true,
-                    'confirm_header' => 'Confirm Delete',
-                    'listener' => 'deleteRecord',
-                ],
-            ];
+            // @TODO Remove after confirmation on WP-8 Remove User info Edit
+            // $this->actionButtons = [
+            //     [
+            //         'icon' => 'fa-edit',
+            //         'color' => 'primary',
+            //         'listener' => 'edit',
+            //     ],
+            //     [
+            //         'icon' => 'fa-trash',
+            //         'color' => 'danger',
+            //         'confirm' => true,
+            //         'confirm_header' => 'Confirm Delete',
+            //         'listener' => 'deleteRecord',
+            //     ],
+            // ];
         }
     }
 
@@ -66,31 +67,33 @@ class Show extends Component
         return view('livewire.core.user.show')->extends('livewire-app');
     }
 
-    public function edit()
-    {
-        $this->authorize('update', $this->user);
-        $this->editRecord = true;
-    }
+    // @TODO Remove after confirmation on WP-8 Remove User info Edit
+    // public function edit()
+    // {
+    //     $this->authorize('update', $this->user);
+    //     $this->editRecord = true;
+    // }
 
     /**
      * Delete existing user
      */
-    public function delete()
-    {
-        $this->authorize('delete', $this->user);
+    // public function delete()
+    // {
+    //     $this->authorize('delete', $this->user);
 
-        $this->user->update([
-            'email' => $this->user->email . '+del+'. time()
-        ]);
+    //     $this->user->update([
+    //         'email' => $this->user->email . '+del+'. time()
+    //     ]);
 
-        $this->user->delete();
-        session()->flash('success', 'User deleted !');
+    //     $this->user->delete();
+    //     session()->flash('success', 'User deleted !');
 
-        return redirect()->route('core.user.index');
-    }
+    //     return redirect()->route('core.user.index');
+    // }
 
     public function cancel()
     {
-        $this->editRecord = false;
+        // @TODO Remove after confirmation on WP-8 Remove User info Edit
+        // $this->editRecord = false;
     }
 }

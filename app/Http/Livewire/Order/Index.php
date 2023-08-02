@@ -18,11 +18,6 @@ class Index extends Component
         ],
     ];
 
-    public function render()
-    {
-        return $this->renderView('livewire.order.index');
-    }
-
     public function mount()
     {
         $this->account = account();
@@ -35,5 +30,10 @@ class Index extends Component
             ->where('invoicedt', '=', '2022-03-30')
             ->where('whse', 'UTIC')
             ->get();
+    }
+
+    public function render()
+    {
+        return $this->renderView('livewire.order.index');
     }
 }
