@@ -4,7 +4,7 @@
 
 
             @can('roles.manage')
-                @if(!$role->is_preset) 
+                @if(!$role->is_preset)
                     <livewire:component.action-button
                         :actionButtons="$actionButtons"
                     >
@@ -12,12 +12,12 @@
             @endcan
             <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Overview</h3>
         </div>
-        
+
         <div class="card-body">
 
             <ul class="list-group list-group-flush">
 
-                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                     <div>
                         <h3 class="h6 mb-1">Role Name</h3>
                         <p class="small pe-4">{{ $role->label }}</p>
@@ -40,7 +40,7 @@
                             {{ $permissionGroup["group_name"] }}
                         </button>
                         </h2>
-                        
+
                         <div id="collapse-{{ $group }}" class="accordion-collapse collapse show" aria-labelledby="heading{{ $group }}">
                         <div class="accordion-body">
                             <div class="row">
@@ -53,7 +53,7 @@
                                     <sup><i class="fas fa-question-circle"
                                         data-bs-toggle="tooltip"
                                         data-bs-custom-class="custom-tooltip"
-                                        data-bs-placement="right" 
+                                        data-bs-placement="right"
                                         data-bs-title="{{ $permission->description  }}"></i></sup>
                                     @endif
                                 </div>

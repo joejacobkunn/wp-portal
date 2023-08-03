@@ -31,6 +31,10 @@ class SXSync
             $this->updateCustomerOpenOrderStatus($this->payload['data']);
         }
 
+        if ($this->payload['event'] == 'customer.sx_number_changed') {
+            $this->updateCustomerSXNumber($this->payload['data']);
+        }
+
         if ($this->payload['event'] == 'order.shipped') {
             $this->orderShipped($this->payload['data']);
         }
@@ -84,31 +88,49 @@ class SXSync
         $account = Account::where('sx_company_number', $data['cono'])->first();
 
         $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->first();
-        $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['sx_customer_number'])->first();
 
         $address = $this->split_address($sx_customer->addr);
 
-        $customer->update([
-            'name' => $sx_customer->name,
-            'customer_type' => $sx_customer->custtype,
-            'phone' => $sx_customer->phoneno,
-            'email' => $sx_customer->email,
-            'address' => $address[0],
-            'address2' => $address[1] ?? '',
-            'city' => $sx_customer->city,
-            'state' => $sx_customer->state,
-            'zip' => $sx_customer->zipcd,
-            'customer_since' => date('Y-m-d', strtotime($sx_customer->enterdt)),
-            'look_up_name' => $sx_customer->lookupnm,
-            'sales_territory' => $sx_customer->salesterr,
-            'last_sale_date' => $sx_customer->lastsaledt,
-            'sales_rep_in' => $sx_customer->slsrepin,
-            'sales_rep_out' => $sx_customer->slsrepout,
-            'is_active' => $sx_customer->statustype ?? 1,
-        ]);
+        $customer = Customer::updateOrCreate(
+            [
+                'account_id' => $account->id,
+                'sx_customer_number' => $sx_customer->custno,
+
+            ],
+            [
+                'name' => $sx_customer->name,
+                'customer_type' => $sx_customer->custtype,
+                'phone' => $sx_customer->phoneno,
+                'email' => $sx_customer->email,
+                'address' => $address[0],
+                'address2' => $address[1] ?? '',
+                'city' => $sx_customer->city,
+                'state' => $sx_customer->state,
+                'zip' => $sx_customer->zipcd,
+                'customer_since' => date('Y-m-d', strtotime($sx_customer->enterdt)),
+                'look_up_name' => $sx_customer->lookupnm,
+                'sales_territory' => $sx_customer->salesterr,
+                'last_sale_date' => $sx_customer->lastsaledt,
+                'sales_rep_in' => $sx_customer->slsrepin,
+                'sales_rep_out' => $sx_customer->slsrepout,
+                'is_active' => $sx_customer->statustype ?? 1,
+            ]
+        );
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
 
+    }
+
+    private function updateCustomerSXNumber($data)
+    {
+        $account = Account::where('sx_company_number', $data['cono'])->first();
+        
+        if(!empty($data['old_sx_customer_number']) && !empty($data['new_sx_customer_number'])){
+            $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['old_sx_customer_number'])->first();
+            $customer->update(['sx_customer_number' => $data['new_sx_customer_number']]);
+        }
+
+        return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
     }
 
     private function updateCustomerOpenOrderStatus($data)
