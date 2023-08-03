@@ -127,7 +127,29 @@ class SXSync
         
         if(!empty($data['old_sx_customer_number']) && !empty($data['new_sx_customer_number'])){
             $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['old_sx_customer_number'])->first();
-            $customer->update(['sx_customer_number' => $data['new_sx_customer_number']]);
+            $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['new_sx_customer_number'])->first();
+            $address = $this->split_address($sx_customer->addr);
+
+            $customer->update([
+                'name' => $sx_customer->name,
+                'sx_customer_number' => $data['new_sx_customer_number'],
+                'customer_type' => $sx_customer->custtype,
+                'phone' => $sx_customer->phoneno,
+                'email' => $sx_customer->email,
+                'address' => $address[0],
+                'address2' => $address[1] ?? '',
+                'city' => $sx_customer->city,
+                'state' => $sx_customer->state,
+                'zip' => $sx_customer->zipcd,
+                'customer_since' => date('Y-m-d', strtotime($sx_customer->enterdt)),
+                'look_up_name' => $sx_customer->lookupnm,
+                'sales_territory' => $sx_customer->salesterr,
+                'last_sale_date' => $sx_customer->lastsaledt,
+                'sales_rep_in' => $sx_customer->slsrepin,
+                'sales_rep_out' => $sx_customer->slsrepout,
+                'is_active' => $sx_customer->statustype ?? 1,
+                ]
+            );
         }
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
