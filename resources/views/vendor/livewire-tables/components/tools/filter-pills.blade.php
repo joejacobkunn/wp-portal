@@ -105,7 +105,7 @@ $theme = $component->getTheme();
         @endforeach
 
         <a href="#" wire:click.prevent="setFilterDefaults"
-            class="badge rounded-pill bg-light text-dark text-decoration-none">
+            class="badge rounded-pill bg-danger text-dark text-decoration-none">
             @lang('Clear')
         </a>
     </div>

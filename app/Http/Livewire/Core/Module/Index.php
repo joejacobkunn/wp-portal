@@ -22,7 +22,7 @@ class Index extends Component
 
     public function mount()
     {
-        $this->authorize('viewAny', Module::class);
+        $this->authorize('view', Module::class);
 
         $this->modules = Module::get();
     }
