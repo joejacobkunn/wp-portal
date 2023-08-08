@@ -11,14 +11,14 @@
                     data-bs-target="#pills-open-orders" type="button" role="tab" aria-controls="pills-home"
                     aria-selected="true">Open Orders <span
                         class="badge bg-light-primary">@if(!empty($this->orders->whereIn('stagecd',[1,2,3])))
-                        {{count($this->orders->whereIn('stagecd',[1,2,3]))}} @endif</span></button>
+                        {{count($this->orders->whereIn('stagecd',[1,2]))}} @endif</span></button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link @if($past_order_tab) active @endif" id="pills-profile-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-other-orders" type="button" role="tab" aria-controls="pills-profile"
                     aria-selected="false">Past Orders <span
                         class="badge bg-light-primary">@if(!empty($this->orders->whereIn('stagecd',[4,5])))
-                        {{count($this->orders->whereIn('stagecd',[4,5]))}} @endif</span></button>
+                        {{count($this->orders->whereIn('stagecd',[3,4,5]))}} @endif</span></button>
             </li>
         </ul>
 

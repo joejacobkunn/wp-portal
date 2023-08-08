@@ -80,20 +80,18 @@ class ImportSX extends Command
         }
 
         if ($name == 'open-orders') {
-            $warehouses = Warehouse::where('cono', $account->sx_company_number)->get();
-
-            foreach ($warehouses as $warehouse) {
+            
+            $warehouses = ['ann','ceda','farm','livo','utic','wate'];
 
                 Order::openOrders()
                     ->select('custno')
                     ->where('cono', $account->sx_company_number)
-                    ->where('whse', strtolower($warehouse->whse))
+                    ->whereIn('whse', $warehouses)
                     ->chunk(1000, function (Collection $open_orders) {
                         foreach ($open_orders as $open_order) {
                             Customer::where('sx_customer_number', $open_order->custno)->update(['has_open_order' => 1]);
                         }
                     });
-            }
 
         }
     }
