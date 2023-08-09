@@ -65,9 +65,18 @@
 
                 @if(!is_null($sro_customer))
 
+
                 <div class="row">
                     <div class="col-sm-12">
+                        @if($page_loaded)
                         @include('livewire.core.customer.partials.equipment-list')
+                        @else
+                        <center>
+                            <div class="spinner-border" style="width: 3rem; height: 3rem" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div> Loading Customer Equipments
+                        </center>
+                        @endif
                     </div>
                 </div>
 
