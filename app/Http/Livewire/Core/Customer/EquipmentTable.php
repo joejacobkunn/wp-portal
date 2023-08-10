@@ -116,7 +116,7 @@ class EquipmentTable extends DataTableComponent
                     if($yepp_status['status'] == 'Inactive')
                         return '<span class="badge bg-light-secondary">Inactive</span>';
                     else
-                        return '<span class="badge bg-light-success">Active - Last Serv '.$yepp_status['last_service']. '</span>';
+                        return '<span class="badge bg-light-success">Active (Last Serv '.$yepp_status['last_service']. ')</span>';
 
                 })
                 ->html(),
@@ -186,9 +186,11 @@ class EquipmentTable extends DataTableComponent
                                                     WHERE s.cono = 10
                                                     AND s.prod = '".$model_number."'
                                                     AND s.serialno = '".$serial_number."'
+                                                    AND s.custno <> 0
                                                 WITH(NOLOCK)");
 
         if(is_null($status) || empty($status)) return ['status' => 'Inactive'];
+
 
         return ['status' => $status[0]->YEPP_Status, 'year' => $status[0]->YEPP_Year, 'last_service' => $status[0]->YEPP_LastService];
     }
