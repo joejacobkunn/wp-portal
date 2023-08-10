@@ -70,8 +70,8 @@ class Table extends DataTableComponent
                         $display .= '<span class="badge bg-light-danger"><i class="fas fa-user-times"></i> '.ucwords(strtolower($value)).' ('.$row->sx_customer_number.')</span>';
                     }
 
-                    if ($row->has_open_order) {
-                        $display .= '<span class="badge bg-light-warning float-end"><i class="fas fa-exchange-alt"></i></span>';
+                    if ($row->open_order_count > 0) {
+                        $display .= '<span class="badge bg-light-warning float-end"><i class="fas fa-exchange-alt"></i> '.$row->open_order_count.'</span>';
                     }
 
                     return $display;
@@ -166,7 +166,7 @@ class Table extends DataTableComponent
                     }
                 }),
 
-            Column::make('Open Order', 'has_open_order')
+            Column::make('Open Order', 'open_order_count')
                 ->excludeFromColumnSelect()
                 ->hideIf(1),
 
@@ -231,17 +231,17 @@ class Table extends DataTableComponent
                     $builder->where('email', 'like', '%'.$value.'%');
                 }),
 
-            SelectFilter::make('Open Orders')
+            SelectFilter::make('Customer Order Status')
                 ->options([
-                    '' => 'All',
-                    'yes' => 'Yes',
-                    'no' => 'No',
+                    '' => 'Show all Orders',
+                    'open-orders' => 'Show all with Open Orders',
+                    'open-orders-multiple' => 'Show all with Multiple Open Orders',
                 ])->filter(function (Builder $builder, string $value) {
-                    if ($value == 'yes') {
-                        $builder->where('has_open_order', 1);
+                    if ($value == 'open-orders') {
+                        $builder->where('open_order_count', '>',0);
                     }
-                    if ($value == 'no') {
-                        $builder->where('has_open_order', 0);
+                    if ($value == 'open-orders-multiple') {
+                        $builder->where('open_order_count','>', 1);
                     }
                 }),
             SelectFilter::make('Customer Status')
@@ -275,7 +275,7 @@ class Table extends DataTableComponent
     public function builder(): Builder
     {
         return Customer::where('account_id', $this->account->id)
-            ->orderBy('has_open_order', 'DESC')
+            ->orderBy('open_order_count', 'DESC')
             ->orderBy('name', 'ASC')
             ->orderBy('last_sale_date', 'DESC');
     }

@@ -116,7 +116,7 @@ class EquipmentTable extends DataTableComponent
                     if($yepp_status['status'] == 'Inactive')
                         return '<span class="badge bg-light-secondary">Inactive</span>';
                     else
-                        return '<span class="badge bg-light-success">Active (Last Serv '.$yepp_status['last_service']. ')</span>';
+                        return '<span class="badge bg-light-success">Active: '.ordinal(intval($yepp_status['year'])).' Year (Last Serv '.$yepp_status['last_service']. ')</span>';
 
                 })
                 ->html(),

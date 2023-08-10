@@ -89,7 +89,7 @@ class ImportSX extends Command
                     ->whereIn('whse', $warehouses)
                     ->chunk(1000, function (Collection $open_orders) {
                         foreach ($open_orders as $open_order) {
-                            Customer::where('sx_customer_number', $open_order->custno)->update(['has_open_order' => 1]);
+                            Customer::where('sx_customer_number', $open_order->custno)->increment('open_order_count');
                         }
                     });
 
