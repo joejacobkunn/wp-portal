@@ -106,9 +106,11 @@ class Show extends Component
 
     public $queryString = ['tab'];
 
+    public $page_loaded = false;
+
     public function mount()
     {
-        $this->authorize('view', $this->customer);
+        //$this->authorize('view', $this->customer);
 
         $this->sro_customer = SROCustomer::where('sx_customer_id', $this->customer->sx_customer_number)->first();
         array_push($this->breadcrumbs, ['title' => $this->customer->name]);
@@ -123,7 +125,7 @@ class Show extends Component
     {
         $this->getCreditStatus();
         $this->getNotes();
-        //$this->getOpenOrders();
+        $this->page_loaded = true;
     }
 
     public function getCreditStatus()

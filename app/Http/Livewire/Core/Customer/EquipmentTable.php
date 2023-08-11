@@ -8,6 +8,7 @@ use App\Models\SRO\Customer as SROCustomer;
 use App\Models\SRO\Equipment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
@@ -20,13 +21,7 @@ class EquipmentTable extends DataTableComponent
 
     public function configure(): void
     {
-        $this->setPrimaryKey('id')
-            ->setTableRowUrl(function ($row) {
-                return config('sro.url').'dashboard/equipment/'.$row->id;
-            })
-            ->setTableRowUrlTarget(function ($row) {
-                return '_blank';
-            });
+        $this->setPrimaryKey('id');
 
         $this->setPerPageAccepted([25, 50, 100]);
 
@@ -67,7 +62,7 @@ class EquipmentTable extends DataTableComponent
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return ucwords(strtolower($value)).' '.ucwords(strtolower($row->model));
+                    return '<a target="_blank" href="'.config('sro.url').'dashboard/equipment/'.$row->id.'" class="link-underline-primary">'.ucwords(strtolower($value)).' '.$row->model.'</a>';
                 })
                 ->html(),
 
@@ -112,6 +107,18 @@ class EquipmentTable extends DataTableComponent
                 ->html(),
 
             Column::make('Engine Serial', 'engine_serial_no')
+                ->html(),
+
+            Column::make('7YEPP', 'sx_equipment_order_no')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row) {
+                    $yepp_status = $this->SevenYeppStatus($row->model, $row->serial_no);
+                    if($yepp_status['status'] == 'Inactive')
+                        return '<span class="badge bg-light-secondary">Inactive</span>';
+                    else
+                        return '<span class="badge bg-light-success">Active: '.ordinal(intval($yepp_status['year'])).' Year (Last Serv '.$yepp_status['last_service']. ')</span>';
+
+                })
                 ->html(),
 
             Column::make('Purchase Date', 'purchase_date')
@@ -164,5 +171,27 @@ class EquipmentTable extends DataTableComponent
     public function exportToExcel()
     {
         return Excel::download(new CustomerEquipmentExport($this->customer, $this->getSelected()), 'equipments_user_'.$this->customer->sx_customer_id.'_export.xlsx');
+    }
+
+    private function SevenYeppStatus($model_number, $serial_number)
+    {
+        $status = DB::connection('sx')->select("SELECT
+                                                    CASE
+                                                    WHEN s.user5 = 'Y' THEN 'Active'
+                                                    ELSE 'Inactive'
+                                                    END AS 'YEPP_Status',
+                                                    s.user6 AS 'YEPP_Year',
+                                                    s.user8 AS 'YEPP_LastService'
+                                                    FROM pub.icses s
+                                                    WHERE s.cono = 10
+                                                    AND s.prod = '".$model_number."'
+                                                    AND s.serialno = '".$serial_number."'
+                                                    AND s.custno <> 0
+                                                WITH(NOLOCK)");
+
+        if(is_null($status) || empty($status)) return ['status' => 'Inactive'];
+
+
+        return ['status' => $status[0]->YEPP_Status, 'year' => $status[0]->YEPP_Year, 'last_service' => $status[0]->YEPP_LastService];
     }
 }

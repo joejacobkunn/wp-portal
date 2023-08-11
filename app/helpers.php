@@ -64,3 +64,18 @@ if (! function_exists('abbreviation')) {
         return Str::upper($acronym);
     }
 }
+
+function ordinal($n) 
+{ 
+    if (!in_array(($n % 100),array(11,12,13)))
+    {
+        switch ($n % 10)
+        {
+        // Only Handle 1st, 2nd, 3rd from Here
+        case 1:  return $n .'st';
+        case 2:  return $n .'nd';
+        case 3:  return $n .'rd';
+      }
+    }
+    return $n.'th';
+}

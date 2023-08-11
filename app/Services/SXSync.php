@@ -162,13 +162,8 @@ class SXSync
         $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['sx_customer_number'])->first();
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();
 
-        if ($no_open_orders > 0) {
-            $customer->update(['has_open_order' => 1]);
-        } else {
-            $customer->update(['has_open_order' => 0]);
-        }
-
-        return response()->json(['status' => 'success', 'customer_id' => $customer->id, 'has_open_order' => ($no_open_orders == 0) ? 0 : 1], 200);
+        $customer->update(['open_order_count' => $no_open_orders]);
+        return response()->json(['status' => 'success', 'customer_id' => $customer->id, 'open_order_count' => $no_open_orders], 200);
     }
 
     private function orderShipped($data)

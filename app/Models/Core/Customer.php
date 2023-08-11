@@ -31,7 +31,7 @@ class Customer extends Model
         'sales_rep_in',
         'sales_rep_out',
         'is_active',
-        'has_open_order',
+        'open_order_count',
     ];
 
     protected $casts = [
