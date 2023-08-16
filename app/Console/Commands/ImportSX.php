@@ -83,15 +83,25 @@ class ImportSX extends Command
             
             $warehouses = ['ann','ceda','farm','livo','utic','wate'];
 
-                Order::openOrders()
-                    ->select('custno')
-                    ->where('cono', $account->sx_company_number)
-                    ->whereIn('whse', $warehouses)
-                    ->chunk(1000, function (Collection $open_orders) {
-                        foreach ($open_orders as $open_order) {
-                            Customer::where('sx_customer_number', $open_order->custno)->increment('open_order_count');
-                        }
-                    });
+            $open_order_customers = [];
+
+            Order::openOrders()
+                ->select('custno')
+                ->selectRaw('count(*) as open_order_count')
+                ->where('cono', $account->sx_company_number)
+                ->whereIn('whse', $warehouses)
+                ->groupBy('custno')
+                ->orderBy('custno', 'asc')
+                ->chunk(1000, function (Collection $open_orders) use($open_order_customers) {
+                    foreach ($open_orders as $open_order) {
+                        Customer::where('sx_customer_number', $open_order->custno)->update(['open_order_count' => $open_order->open_order_count]);
+                        $open_order_customers[] = $open_order->custno;
+                    }
+                });
+
+
+            //update non open orders
+            Customer::whereNotIn('custno',$open_order_customers)->update(['open_order_count' => 0]);
 
         }
     }
