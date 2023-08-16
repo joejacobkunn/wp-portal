@@ -119,6 +119,7 @@ class EquipmentTable extends DataTableComponent
                         return '<span class="badge bg-light-success">Active: '.ordinal(intval($yepp_status['year'])).' Year (Last Serv '.$yepp_status['last_service']. ')</span>';
 
                 })
+                ->hideIf(strtolower($this->customer->sxCustomer->customer_type) != 'hom')
                 ->html(),
 
             Column::make('Purchase Date', 'purchase_date')
