@@ -9,6 +9,7 @@ use App\Models\SX\Order;
 use App\Models\SX\Warehouse;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ImportSX extends Command
 {
@@ -86,15 +87,14 @@ class ImportSX extends Command
             $open_order_customers = [];
 
             Order::openOrders()
-                ->select('custno')
-                ->selectRaw('count(*) as open_order_count')
+                ->select('custno',DB::raw('count(*) as open_order_count'))
                 ->where('cono', $account->sx_company_number)
                 ->whereIn('whse', $warehouses)
                 ->groupBy('custno')
                 ->orderBy('custno', 'asc')
                 ->chunk(1000, function (Collection $open_orders) use($open_order_customers) {
                     foreach ($open_orders as $open_order) {
-                        Customer::where('sx_customer_number', $open_order->custno)->update(['open_order_count' => $open_order->open_order_count]);
+                        Customer::where('sx_customer_number', $open_order->custno)->update(['open_order_count' => $open_order->OPEN_ORDER_COUNT]);
                         $open_order_customers[] = $open_order->custno;
                     }
                 });
