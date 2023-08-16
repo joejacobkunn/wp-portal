@@ -35,6 +35,8 @@ class Table extends DataTableComponent
         $this->setFilterLayout('slide-down');
         $this->setFilterSlideDownDefaultStatusEnabled();
 
+        $this->setEmptyMessage('No customers found. Use global search to search on all columns and make sure no filters are applied.');
+
     }
 
     public function boot(): void
@@ -233,7 +235,7 @@ class Table extends DataTableComponent
 
             SelectFilter::make('Customer Order Status')
                 ->options([
-                    '' => 'Show all Orders',
+                    '' => 'Show All',
                     'open-orders' => 'Show all with Open Orders',
                     'open-orders-multiple' => 'Show all with Multiple Open Orders',
                 ])->filter(function (Builder $builder, string $value) {
