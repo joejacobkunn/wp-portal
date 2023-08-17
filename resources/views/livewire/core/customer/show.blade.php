@@ -92,6 +92,7 @@
         </div>
     </div>
     @include('livewire.core.customer.partials.line-item-modal')
+    @include('livewire.core.customer.partials.service-plan-modal')
 </div>
 
 <script>
