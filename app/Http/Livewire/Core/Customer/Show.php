@@ -14,6 +14,7 @@ use DatePeriod;
 use DateTime;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Show extends Component
@@ -32,6 +33,8 @@ class Show extends Component
 
     public $open_line_item_modal = false;
 
+    public $service_plan_modal = false;
+
     protected $order_line_items = [];
 
     //protected $orders = [];
@@ -41,6 +44,8 @@ class Show extends Component
     public $order_details;
 
     public $past_orders = [];
+
+    protected $service_plans = [];
 
     public SX $sx_client;
 
@@ -195,6 +200,7 @@ class Show extends Component
     public function closeModal()
     {
         $this->open_line_item_modal = false;
+        $this->service_plan_modal = false;
     }
 
     public function clipboardCopied()
@@ -204,7 +210,23 @@ class Show extends Component
 
     public function fetchServicePlans($model,$serial_no)
     {
-        dd($model,$serial_no);
+        $this->service_plans = DB::connection('zxt')->select("SELECT
+                                                        p.custno AS 'CustNo',
+                                                        p.modelno AS 'ModelNo',
+                                                        p.serialno AS 'SerialNo',
+                                                        p.orderno AS 'OrderNo',
+                                                        p.invoicedt AS 'InvoiceDt',
+                                                        p.laborcode AS 'LaborCode'
+                                                        FROM zxt.pub.servicePlan p
+                                                        where p.cono = 10
+                                                        AND p.plantype = '7YEPP'
+                                                        AND p.modelno = '".$model."'
+                                                        AND p.serialno = '".$serial_no."'
+                                                        order by p.invoicedt asc
+                                                        WITH(NOLOCK)");
+
+                                                        $this->service_plan_modal = true;
+
     }
 
     private function getDatesFromRange($start, $end, $format = 'Y-m-d')
