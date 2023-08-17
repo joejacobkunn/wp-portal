@@ -37,6 +37,7 @@ class OrderSXTransfomer extends JsonResource
                             'takenBy' => 'WEB',
                             'transType' => 'SO',
                             'whse' => $request->warehouse ?? 'RICH',
+                            'user6' => '88'
                         ],
                     ],
                 ],
