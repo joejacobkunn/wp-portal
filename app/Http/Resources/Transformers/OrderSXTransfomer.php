@@ -118,7 +118,7 @@ class OrderSXTransfomer extends JsonResource
                 ->where('exmarknm', $customer_number)->first()->shipto;
         }
 
-        return $ship_to ?: 'RICH';
+        return $ship_to ?: '';
     }
 
     private function create_items_array($order_items)
