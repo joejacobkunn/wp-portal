@@ -80,10 +80,9 @@ class ImportSX extends Command
                 });
         }
 
-        if ($name == 'open-orders') {
+        if ($name == 'customer-order-status-sync') {
             
             $warehouses = ['ann','ceda','farm','livo','utic','wate'];
-
             $open_order_customers = [];
 
             Order::openOrders()
@@ -101,7 +100,15 @@ class ImportSX extends Command
 
 
             //update non open orders
-            Customer::whereNotIn('custno',$open_order_customers)->update(['open_order_count' => 0]);
+            Order::nonOpenOrders()
+                ->select('custno')
+                ->where('cono', $account->sx_company_number)
+                ->whereIn('whse', $warehouses)
+                ->orderBy('custno', 'desc')
+                ->chunk(900, function (Collection $non_open_orders) use($open_order_customers) {
+                    $non_open_order_customers = array_diff($non_open_orders->pluck('custno')->toArray(), $open_order_customers);
+                    Customer::whereIn('sx_customer_number', $non_open_order_customers)->update(['open_order_count' => 0]);
+                });
 
         }
     }
