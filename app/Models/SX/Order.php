@@ -51,6 +51,12 @@ class Order extends Model
         $query->whereIn('stagecd', [1, 2]);
     }
 
+    public function scopeNonOpenOrders(Builder $query)
+    {
+        $query->whereNotIn('stagecd', [1, 2]);
+    }
+
+
     public function getStageCode($stage_code)
     {
         return $this->stage_codes[$stage_code];

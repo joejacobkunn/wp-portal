@@ -104,6 +104,18 @@ return [
             'schema' => env('PROGRESS_SCHEMA', 'PUB'),
         ],
 
+        'zxt' => [
+            'driver' => 'progress',
+            'host' => env('PROGRESS_HOST', 'localhost'),
+            'port' => env('PROGRESS_PORT', 19204),
+            'database' => env('PROGRESS_ZXT_DATABASE', 'forge'),
+            'username' => env('PROGRESS_USERNAME', 'forge'),
+            'password' => env('PROGRESS_PASSWORD', ''),
+            'codepage' => env('PROGRESS_CODEPAGE', 'ISO_8859_1'),
+            'schema' => env('PROGRESS_SCHEMA', 'PUB'),
+        ],
+
+
         'sro' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),

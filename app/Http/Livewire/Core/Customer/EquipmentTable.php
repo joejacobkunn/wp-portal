@@ -19,6 +19,8 @@ class EquipmentTable extends DataTableComponent
 
     public SROCustomer $customer;
 
+    public $type;
+
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -114,12 +116,12 @@ class EquipmentTable extends DataTableComponent
                 ->format(function ($value, $row) {
                     $yepp_status = $this->SevenYeppStatus($row->model, $row->serial_no);
                     if($yepp_status['status'] == 'Inactive')
-                        return '<span class="badge bg-light-secondary">Inactive</span>';
+                        return sprintf('<span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-secondary">Inactive: %s Year (Last Serv %s)</span>',$row->model,$row->serial_no,ordinal(intval($yepp_status['year'])),$yepp_status['last_service']);
                     else
-                        return '<span class="badge bg-light-success">Active: '.ordinal(intval($yepp_status['year'])).' Year (Last Serv '.$yepp_status['last_service']. ')</span>';
+                        return sprintf('<span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-success">Active: %s Year (Last Serv %s)</span>',$row->model,$row->serial_no,ordinal(intval($yepp_status['year'])),$yepp_status['last_service']);
 
                 })
-                ->hideIf(strtolower($this->customer->sxCustomer->customer_type) != 'hom')
+                ->hideIf(strtolower($this->type) != 'hom')
                 ->html(),
 
             Column::make('Purchase Date', 'purchase_date')
@@ -172,6 +174,11 @@ class EquipmentTable extends DataTableComponent
     public function exportToExcel()
     {
         return Excel::download(new CustomerEquipmentExport($this->customer, $this->getSelected()), 'equipments_user_'.$this->customer->sx_customer_id.'_export.xlsx');
+    }
+
+    public function fetchServicePlans($model_number, $serial_number)
+    {
+        dd($model_number, $serial_number);
     }
 
     private function SevenYeppStatus($model_number, $serial_number)

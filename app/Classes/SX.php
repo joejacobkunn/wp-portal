@@ -64,7 +64,7 @@ class SX
 
             $order_id = $response_body->response->sxt_func_ack->sxt_func_ack[0]->data1;
 
-            if (empty($order_id)) {
+            if (empty($order_id) || !is_numeric($order_id)) {
                 return [
                     'status' => 'failure',
                     'order_id' => $response_body->response->sxt_func_ack->sxt_func_ack[0]->msg,
