@@ -84,7 +84,7 @@ class Show extends Component
         'icsl.prodline',
     ];
 
-    protected $listeners = ['closeModal', 'clipboardCopied'];
+    protected $listeners = ['closeModal', 'clipboardCopied', 'fetchServicePlans'];
 
     public $breadcrumbs = [
         [
@@ -200,6 +200,11 @@ class Show extends Component
     public function clipboardCopied()
     {
         $this->alert('success', 'Copied!');
+    }
+
+    public function fetchServicePlans($model,$serial_no)
+    {
+        dd($model,$serial_no);
     }
 
     private function getDatesFromRange($start, $end, $format = 'Y-m-d')

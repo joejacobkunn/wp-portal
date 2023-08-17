@@ -4,7 +4,8 @@
     </div>
 
     <div class="card-body">
-        <livewire:core.customer.equipment-table :customer="$sro_customer">
+        <livewire:core.customer.equipment-table :customer="$sro_customer"
+            :type="$sro_customer->sxCustomer->customer_type">
     </div>
 
 
