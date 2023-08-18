@@ -127,7 +127,12 @@ class SXSync
         
         if(!empty($data['old_sx_customer_number']) && !empty($data['new_sx_customer_number'])){
             $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['old_sx_customer_number'])->first();
-            if(is_null($customer)) $this->createCustomer($data);
+            
+            if(is_null($customer)) 
+            {
+                $this->createCustomer($data);
+                $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['old_sx_customer_number'])->first();
+            }
 
             $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['new_sx_customer_number'])->first();
             $address = $this->split_address($sx_customer->addr);
@@ -163,7 +168,11 @@ class SXSync
 
         $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['sx_customer_number'])->first();
         
-        if(is_null($customer)) $this->createCustomer($data);
+        if(is_null($customer)) 
+        {
+            $this->createCustomer($data);
+            $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['old_sx_customer_number'])->first();
+        }
 
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();
 
