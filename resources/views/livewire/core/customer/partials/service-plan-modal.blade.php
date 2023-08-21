@@ -20,12 +20,13 @@
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">
                                     <span class="badge bg-light-secondary">Customer No :
-                                        {{$service_plan->CustNo}}</span>
-                                    <span class="badge bg-light-secondary">Order No : {{$service_plan->OrderNo}}</span>
+                                        {{intval($service_plan->CustNo)}}</span>
+                                    <span class="badge bg-light-secondary">Order No :
+                                        {{$service_plan->OrderNo}}-{{$service_plan->OrderSuf}}</span>
                                     <span class="badge bg-light-secondary">Labor Code
-                                        :{{$service_plan->LaborCode}}</span>
+                                        : {{$service_plan->LaborCode}}</span>
                                     <span class="badge bg-light-secondary">Service Date
-                                        :{{$service_plan->InvoiceDt}}</span>
+                                        : {{date('m-d-Y',strtotime($service_plan->InvoiceDt))}}</span>
                                 </h5>
                             </div>
                         </a>
