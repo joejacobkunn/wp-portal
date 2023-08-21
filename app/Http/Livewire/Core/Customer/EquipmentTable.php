@@ -118,7 +118,7 @@ class EquipmentTable extends DataTableComponent
                     if($yepp_status['status'] == 'Inactive')
                         return sprintf('<span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-secondary">Inactive</span>',$row->model,$row->serial_no);
                     else
-                        return sprintf('<span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-success">Active: %s Year (Last Serv %s)</span>',$row->model,$row->serial_no,ordinal(intval($yepp_status['year'])),$yepp_status['last_service']);
+                        return sprintf('<span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-success">Active: %s Year (Last Serv %s)</span>',$row->model,$row->serial_no,ordinal(intval($yepp_status['year'])),date('m-d-Y',strtotime($yepp_status['last_service'])));
 
                 })
                 ->hideIf(strtolower($this->type) != 'hom')

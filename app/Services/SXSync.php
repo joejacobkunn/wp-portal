@@ -171,7 +171,8 @@ class SXSync
         if(is_null($customer)) 
         {
             $this->createCustomer($data);
-            $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['old_sx_customer_number'])->first();
+            $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['sx_customer_number'])->first();
+
         }
 
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();

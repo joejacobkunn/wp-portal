@@ -216,7 +216,8 @@ class Show extends Component
                                                         p.serialno AS 'SerialNo',
                                                         p.orderno AS 'OrderNo',
                                                         p.invoicedt AS 'InvoiceDt',
-                                                        p.laborcode AS 'LaborCode'
+                                                        p.laborcode AS 'LaborCode',
+                                                        p.ordersuf as 'OrderSuf'
                                                         FROM zxt.pub.servicePlan p
                                                         where p.cono = 10
                                                         AND p.plantype = '7YEPP'
