@@ -134,6 +134,16 @@ class OrderSXTransfomer extends JsonResource
             ];
         }
 
+        //fake line item for reporting, keep this!!!
+        $items[] = [
+            'buyerProd' => 'EXSHOPLOCAL',
+            'qtyOrd' => 1,
+            'sellerProd' => 'EXSHOPLOCAL',
+            'upc' => 'EXSHOPLOCAL',
+        ];
+
         return $items;
     }
+
+   
 }
