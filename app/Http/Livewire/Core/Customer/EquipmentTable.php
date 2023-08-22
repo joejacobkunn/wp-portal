@@ -119,7 +119,7 @@ class EquipmentTable extends DataTableComponent
                     {
                         $last_service = '';
 
-                        if(!empty($yepp_status['last_service'])) $last_service = '(Last Serv '.$yepp_status['last_service'].')';
+                        if(!empty($yepp_status['last_service'])) $last_service = '(Last Serv '.date('m-d-Y',strtotime($yepp_status['last_service'])).')';
 
                         return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-secondary"><abbr title="Click to view 7YEPP history">Inactive %s</abbr></span></a></ul>',$row->model,$row->serial_no,$last_service);
                     }
