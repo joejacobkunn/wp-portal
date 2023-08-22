@@ -116,9 +116,17 @@ class EquipmentTable extends DataTableComponent
                 ->format(function ($value, $row) {
                     $yepp_status = $this->SevenYeppStatus($row->model, $row->serial_no);
                     if($yepp_status['status'] == 'Inactive')
-                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-secondary"><abbr title="Click to view 7YEPP history">Inactive</abbr></span></a></ul>',$row->model,$row->serial_no);
+                    {
+                        $last_service = '';
+
+                        if(!empty($yepp_status['last_service'])) $last_service = '(Last Serv '.$yepp_status['last_service'].')';
+
+                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-secondary"><abbr title="Click to view 7YEPP history">Inactive %s</abbr></span></a></ul>',$row->model,$row->serial_no,$last_service);
+                    }
                     else
+                    {
                         return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-success"><abbr title="Click to view 7YEPP history">Active: %s Year (Last Serv %s)</abbr></span></a></ul>',$row->model,$row->serial_no,ordinal(intval($yepp_status['year'])),date('m-d-Y',strtotime($yepp_status['last_service'])));
+                    }
 
                 })
                 ->hideIf(strtolower($this->type) != 'hom')
@@ -176,10 +184,6 @@ class EquipmentTable extends DataTableComponent
         return Excel::download(new CustomerEquipmentExport($this->customer, $this->getSelected()), 'equipments_user_'.$this->customer->sx_customer_id.'_export.xlsx');
     }
 
-    public function fetchServicePlans($model_number, $serial_number)
-    {
-        dd($model_number, $serial_number);
-    }
 
     private function SevenYeppStatus($model_number, $serial_number)
     {

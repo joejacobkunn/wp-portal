@@ -43,7 +43,9 @@ class SXSync
 
     private function createCustomer($data)
     {
-        $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->first();
+        $sx_customer_number = $data['sx_customer_number'] ?? $data['old_sx_customer_number'];
+
+        $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $sx_customer_number)->first();
 
         $account = Account::where('sx_company_number', $data['cono'])->first();
 
