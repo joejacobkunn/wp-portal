@@ -81,14 +81,21 @@ class ImportSX extends Command
         }
 
         if ($name == 'customer-order-status-sync') {
+
+            $start_time = microtime(true);
             
             $warehouses = ['ann','ceda','farm','livo','utic','wate'];
             $open_order_customers = [];
 
-            Order::openOrders()
+            //step 1 - set all customer flag to false
+            Customer::where('account_id', $account->id)->update(['open_order_count' => 0]);
+
+            //step 2 - update open order flags
+            Order::without('customer')
                 ->select('custno',DB::raw('count(*) as open_order_count'))
                 ->where('cono', $account->sx_company_number)
                 ->whereIn('whse', $warehouses)
+                ->openOrders()
                 ->groupBy('custno')
                 ->orderBy('custno', 'asc')
                 ->chunk(1000, function (Collection $open_orders) use($open_order_customers) {
@@ -98,17 +105,11 @@ class ImportSX extends Command
                     }
                 });
 
+                $end_time = microtime(true);
 
-            //update non open orders
-            Order::nonOpenOrders()
-                ->select('custno')
-                ->where('cono', $account->sx_company_number)
-                ->whereIn('whse', $warehouses)
-                ->orderBy('custno', 'desc')
-                ->chunk(900, function (Collection $non_open_orders) use($open_order_customers) {
-                    $non_open_order_customers = array_diff($non_open_orders->pluck('custno')->toArray(), $open_order_customers);
-                    Customer::whereIn('sx_customer_number', $non_open_order_customers)->update(['open_order_count' => 0]);
-                });
+                $execution_time = $end_time - $start_time;
+
+                echo " Execution time of script = " . $execution_time . " sec to update ".count($open_order_customers);
 
         }
     }

@@ -14,6 +14,10 @@ class Kernel extends ConsoleKernel
     {
         //task to sync customer last sale dates from sx to local database
         $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->at('21:30');
+
+        //task to refresh open order data
+        $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->at('21:15');
+
         $schedule->command('media-library:delete-old-temporary-uploads')->daily();
 
     }
