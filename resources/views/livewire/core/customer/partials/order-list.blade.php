@@ -10,14 +10,14 @@
                 <button class="nav-link @if($open_order_tab) active @endif" id="pills-home-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-open-orders" type="button" role="tab" aria-controls="pills-home"
                     aria-selected="true">Open Orders <span
-                        class="badge bg-light-primary">@if(!empty($this->orders->whereIn('stagecd',[1,2,3])))
+                        class="badge bg-light-primary">@if(!empty($this->orders->whereIn('stagecd',[1,2])))
                         {{count($this->orders->whereIn('stagecd',[1,2]))}} @endif</span></button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link @if($past_order_tab) active @endif" id="pills-profile-tab" data-bs-toggle="pill"
                     data-bs-target="#pills-other-orders" type="button" role="tab" aria-controls="pills-profile"
                     aria-selected="false">Past Orders <span
-                        class="badge bg-light-primary">@if(!empty($this->orders->whereIn('stagecd',[4,5])))
+                        class="badge bg-light-primary">@if(!empty($this->orders->whereIn('stagecd',[3,4,5])))
                         {{count($this->orders->whereIn('stagecd',[3,4,5]))}} @endif</span></button>
             </li>
         </ul>
@@ -28,7 +28,7 @@
                 aria-labelledby="pills-home-tab">
                 <div class="list-group overflow-scroll" style="height:600px">
                     @if(!empty($this->orders) && $open_order_tab)
-                    @forelse ($this->orders->whereIn('stagecd',[1,2,3]) as $order)
+                    @forelse ($this->orders->whereIn('stagecd',[1,2]) as $order)
                     @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
                     <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','open-order')"
                         class="list-group-item list-group-item-action" aria-current="true">
@@ -92,7 +92,7 @@
                     <div class="alert alert-light-warning color-warning">
                         Showing last 5 years of past orders
                     </div>
-                    @forelse ($this->orders->whereIn('stagecd',[4,5]) as $order)
+                    @forelse ($this->orders->whereIn('stagecd',[3,4,5]) as $order)
                     @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
                     <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','past-order')"
                         class="list-group-item list-group-item-action" aria-current="true">
