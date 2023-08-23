@@ -53,7 +53,7 @@ class Order extends Model
 
     public function scopeNonOpenOrders(Builder $query)
     {
-        $query->whereNotIn('stagecd', [1, 2]);
+        $query->whereNotIn('stagecd', [1,2]);
     }
 
 

@@ -155,9 +155,10 @@ class Show extends Component
 
     public function getOrdersProperty()
     {
-        return Order::select($this->required_order_columns)
-            ->where('custno', $this->customer->sx_customer_number)
+        return Order::without('customer')
+            ->select($this->required_order_columns)
             ->where('cono', $this->customer->account->sx_company_number)
+            ->where('custno', $this->customer->sx_customer_number)
             ->whereIn('enterdt', $this->getDatesFromRange(now()->subYear(5)->format('Y-m-d'), now()->format('Y-m-d'), $format = 'Y-m-d'))
             ->orderBy('enterdt', 'desc')
             ->get();
