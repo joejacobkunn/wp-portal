@@ -76,7 +76,7 @@ class RolePermissionSeeder extends Seeder
         if (! $this->masterRole->id) {
             $this->masterRole->label = 'Master Admin';
             $this->masterRole->name = 'master-admin';
-            $this->masterRole->level = 0;
+            //$this->masterRole->level = 0;
             $this->masterRole->is_preset = 1;
             $this->masterRole->save();
         }
@@ -105,8 +105,8 @@ class RolePermissionSeeder extends Seeder
         if (! $superAdminRole->id) {
             $superAdminRole->label = 'Super Admin';
             $superAdminRole->name = 'super-admin';
-            $superAdminRole->level = 100;
-            $superAdminRole->reporting_role = $this->masterRole->id;
+            //$superAdminRole->level = 100;
+            //$superAdminRole->reporting_role = $this->masterRole->id;
             $superAdminRole->is_preset = 1;
             $superAdminRole->save();
         }
@@ -123,9 +123,9 @@ class RolePermissionSeeder extends Seeder
         if (! $userRole->id) {
             $userRole->label = 'User';
             $userRole->name = 'user';
-            $userRole->level = 200;
+            //$userRole->level = 200;
             $userRole->is_preset = 1;
-            $userRole->reporting_role = $superAdminRole->id;
+            //$userRole->reporting_role = $superAdminRole->id;
             $userRole->save();
         }
     }
