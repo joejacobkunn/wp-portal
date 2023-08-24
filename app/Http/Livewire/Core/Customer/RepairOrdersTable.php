@@ -118,7 +118,7 @@ class RepairOrdersTable extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
-            Column::make('Est Comp Date', 'need_by_date')
+            Column::make('Est Comp Date', 'est_completed_date')
                 ->excludeFromColumnSelect()
                 ->html(),
 
