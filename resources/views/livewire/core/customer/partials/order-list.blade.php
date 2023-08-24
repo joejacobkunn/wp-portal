@@ -52,7 +52,8 @@
                             <strong>${{number_format($order->totordamt,2)}}</strong> on
                             <strong>{{$order->enterdt->toFormattedDateString()}}</strong>.
                             @if($backorder_count > 0)
-                            <strong>{{$backorder_count}}</strong> item(s) backordered.
+                            <span class="bg-danger text-white"> <strong>{{$backorder_count}}</strong> item(s)
+                                backordered</span>
                             @endif
                         </p>
                         <small>

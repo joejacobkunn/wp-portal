@@ -160,7 +160,8 @@ class Show extends Component
             ->select($this->required_order_columns)
             ->where('cono', $this->customer->account->sx_company_number)
             ->where('custno', $this->customer->sx_customer_number)
-            ->whereIn('enterdt', $this->getDatesFromRange(now()->subYear(5)->format('Y-m-d'), now()->format('Y-m-d'), $format = 'Y-m-d'))
+            ->whereIn('stagecd',[1,2,3,4,5])
+            ->whereIn('enterdt', $this->getDatesFromRange(now()->subYear(3)->format('Y-m-d'), now()->format('Y-m-d'), $format = 'Y-m-d'))
             ->orderBy('enterdt', 'desc')
             ->get();
     }
