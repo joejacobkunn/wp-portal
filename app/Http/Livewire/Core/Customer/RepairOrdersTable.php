@@ -119,8 +119,13 @@ class RepairOrdersTable extends DataTableComponent
                 ->html(),
 
             Column::make('Est Comp Date', 'est_completed_date')
+                ->format(function ($value, $row) {
+                    return date('M j, Y', strtotime($value));
+                })
+                ->sortable()
                 ->excludeFromColumnSelect()
                 ->html(),
+
 
         ];
     }
