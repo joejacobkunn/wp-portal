@@ -41,9 +41,19 @@
                             <small><span
                                     class="badge bg-light-secondary">{{$order->getStageCode($order->stagecd)}}</span></small>
                         </div>
+
+                        @php
+
+                        $backorder_count = intval($order->totqtyord) - intval($order->totqtyshp);
+
+                        @endphp
+
                         <p class="mb-1">Order has <strong>{{intval($order->totqtyord)}}</strong> item(s) totalling
                             <strong>${{number_format($order->totordamt,2)}}</strong> on
-                            <strong>{{$order->enterdt->toFormattedDateString()}}</strong>
+                            <strong>{{$order->enterdt->toFormattedDateString()}}</strong>.
+                            @if($backorder_count > 0)
+                            <strong>{{$backorder_count}}</strong> item(s) backordered.
+                            @endif
                         </p>
                         <small>
                             <span class="badge bg-light-info">WHSE : {{strtoupper($order->whse)}}</span>
@@ -52,6 +62,8 @@
                             <span
                                 class="badge bg-light-success">{{strtoupper($order->getShippingStage($order->stagecd))}}
                                 : {{strtoupper(intval($order->totqtyshp))}}</span>
+                            <span class="badge bg-light-secondary">PROMISE DT : {{date("M j,
+                                Y",strtotime($order->promisedt))}}</span>
 
                             <div class="float-end" wire:loading
                                 wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','open-order')">
@@ -118,6 +130,9 @@
                             <span
                                 class="badge bg-light-success">{{strtoupper($order->getShippingStage($order->stagecd))}}
                                 : {{strtoupper(intval($order->totqtyshp))}}</span>
+
+                            <span class="badge bg-light-secondary">PROMISE DT : {{date("M j,
+                                Y",strtotime($order->promisedt))}}</span>
 
                             <div class="float-end" wire:loading
                                 wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','past-order')">

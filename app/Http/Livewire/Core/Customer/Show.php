@@ -62,6 +62,7 @@ class Show extends Component
         'totqtyshp',
         'user1 as is_sro',
         'refer',
+        'promisedt'
     ];
 
     public $required_line_item_columns = [

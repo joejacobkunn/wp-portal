@@ -74,6 +74,11 @@ class RepairOrdersTable extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->searchable(),
 
+            Column::make('Serial Number', 'serial_no')
+                ->searchable()
+                ->excludeFromColumnSelect()
+                ->html(),
+
             Column::make('Type', 'type')
                 ->sortable()
                 ->searchable()
@@ -88,10 +93,6 @@ class RepairOrdersTable extends DataTableComponent
 
             Column::make('Lane', 'lane')
                 ->excludeFromColumnSelect()
-                ->html(),
-
-            Column::make('Need By', 'need_by_date')
-                ->searchable()
                 ->html(),
 
             Column::make('Warranty Vendor', 'warranty_vendor')
@@ -114,6 +115,10 @@ class RepairOrdersTable extends DataTableComponent
                 ->format(function ($value, $row) {
                     return $value->toFormattedDateString();
                 })
+                ->excludeFromColumnSelect()
+                ->html(),
+
+            Column::make('Est Comp Date', 'need_by_date')
                 ->excludeFromColumnSelect()
                 ->html(),
 
