@@ -65,6 +65,18 @@
                                 : {{strtoupper(intval($order->totqtyshp))}}</span>
                             <span class="badge bg-light-secondary">PROMISE DT : {{date("M j,
                                 Y",strtotime($order->promisedt))}}</span>
+                            @if(str_contains($order->item_type,'A'))
+                            <span class="badge bg-light-warning">ACCESSORY</span>
+                            @endif
+
+                            @if(str_contains($order->item_type,'E'))
+                            <span class="badge bg-light-warning">EQUIPMENT</span>
+                            @endif
+
+                            @if(str_contains($order->item_type,'P'))
+                            <span class="badge bg-light-warning">PART</span>
+                            @endif
+
 
                             <div class="float-end" wire:loading
                                 wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','open-order')">
