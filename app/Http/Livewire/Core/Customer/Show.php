@@ -61,6 +61,7 @@ class Show extends Component
         'takenby',
         'totqtyshp',
         'user1 as is_sro',
+        'user14 as item_type',
         'refer',
         'promisedt'
     ];
