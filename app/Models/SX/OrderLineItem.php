@@ -2,6 +2,7 @@
 
 namespace App\Models\SX;
 
+use App\Models\Scopes\WithnolockScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,6 +13,13 @@ class OrderLineItem extends Model
     protected $connection = 'sx';
 
     protected $table = 'oeel';
+
+    protected static function booted(): void
+    {
+        parent::boot();
+        static::addGlobalScope(new WithnolockScope);
+    }
+
 
     private $types = [
         'l' => 'Lost',
