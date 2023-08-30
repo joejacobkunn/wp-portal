@@ -113,7 +113,7 @@
 
             </div>
             <div class="tab-pane fade" id="pills-other-orders" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <div class="list-group">
+                <div class="list-group overflow-scroll" style="height:600px">
                     <div class="alert alert-light-warning color-warning">
                         Showing last 5 years of past orders
                     </div>
