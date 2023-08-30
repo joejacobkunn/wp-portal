@@ -18,6 +18,9 @@ class Kernel extends ConsoleKernel
         //task to refresh open order data
         $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->at('21:15');
 
+        //purge old auth logs that are more than a year old
+        $schedule->command('authentication-log:purge')->monthly();
+
         $schedule->command('media-library:delete-old-temporary-uploads')->daily();
 
     }

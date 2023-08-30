@@ -106,11 +106,14 @@ class ImportSX extends Command
                     }
                 });
 
-                $end_time = microtime(true);
+            //step 3 - delete any duplicate customers
+            $deleted = DB::delete('DELETE t1 FROM customers t1 INNER JOIN customers t2  WHERE t1.id < t2.id AND t1.sx_customer_number = t2.sx_customer_number');
 
-                $execution_time = $end_time - $start_time;
+            $end_time = microtime(true);
 
-                echo " Execution time of script = " . $execution_time . " sec to update ".count($open_order_customers);
+            $execution_time = $end_time - $start_time;
+
+            echo " Execution time of script = " . $execution_time . " sec to update ".count($open_order_customers);
 
         }
     }
