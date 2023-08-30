@@ -66,15 +66,15 @@
                             <span class="badge bg-light-secondary">PROMISE DT : {{date("M j,
                                 Y",strtotime($order->promisedt))}}</span>
                             @if(str_contains($order->item_type,'A'))
-                            <span class="badge bg-light-warning">ACCESSORY</span>
+                            <span class="badge bg-primary">ACCESSORY</span>
                             @endif
 
                             @if(str_contains($order->item_type,'E'))
-                            <span class="badge bg-light-success">EQUIPMENT</span>
+                            <span class="badge bg-success">EQUIPMENT</span>
                             @endif
 
                             @if(str_contains($order->item_type,'P'))
-                            <span class="badge bg-light-info">PART</span>
+                            <span class="badge bg-info">PART</span>
                             @endif
 
 
@@ -148,15 +148,15 @@
                                 Y",strtotime($order->promisedt))}}</span>
 
                             @if(str_contains($order->item_type,'A'))
-                            <span class="badge bg-light-warning">ACCESSORY</span>
+                            <span class="badge bg-primary">ACCESSORY</span>
                             @endif
 
                             @if(str_contains($order->item_type,'E'))
-                            <span class="badge bg-light-success">EQUIPMENT</span>
+                            <span class="badge bg-success">EQUIPMENT</span>
                             @endif
 
                             @if(str_contains($order->item_type,'P'))
-                            <span class="badge bg-light-info">PART</span>
+                            <span class="badge bg-info">PART</span>
                             @endif
 
 
