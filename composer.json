@@ -13,6 +13,7 @@
         "firebase/php-jwt": "^6.4",
         "guzzlehttp/guzzle": "^7.2",
         "jantinnerezo/livewire-alert": "^2.2",
+        "jenssegers/agent": "^2.6",
         "koenhendriks/laravel-str-acronym": "^1.0",
         "larabug/larabug": "^3.0",
         "laravel/framework": "^10.2",
