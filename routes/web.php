@@ -46,6 +46,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('dashboard', \App\Http\Livewire\Dashboard\Index::class)->name('core.dashboard.index');
 
         Route::get('users', \App\Http\Livewire\Core\User\Index::class)->name('core.user.index');
+        Route::get('users/authentication-log', \App\Http\Livewire\Core\User\AuthenticationLog::class)->name('core.user.authentication');
         Route::get('users/{user}/show', \App\Http\Livewire\Core\User\Show::class)->name('core.user.show');
 
         Route::get('customers', \App\Http\Livewire\Core\Customer\Index::class)->name('core.customer.index');

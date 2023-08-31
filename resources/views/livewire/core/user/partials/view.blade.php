@@ -6,16 +6,11 @@
         </div>
 
         <div class="card-body">
-            <livewire:component.alert
-                    :level="$this->statusAlertClass"
-                    :message="$this->statusAlertMessage"
-                    :messageIcon="$this->statusAlertMessageIcon"
-                    :hasAction="$this->statusAlertHasAction"
-                    :actionButtonClass="$this->statusAlertActionButtonClass"
-                    :actionButtonName="$this->statusAlertActionButtonName"
-                    :actionButtonAction="'updateStatus'"
-                    wire:key="{{ 'status_alert_'.$user->id.'_' . $user->is_active->value }}"
-                />
+            <livewire:component.alert :level="$this->statusAlertClass" :message="$this->statusAlertMessage"
+                :messageIcon="$this->statusAlertMessageIcon" :hasAction="$this->statusAlertHasAction"
+                :actionButtonClass="$this->statusAlertActionButtonClass"
+                :actionButtonName="$this->statusAlertActionButtonName" :actionButtonAction="'updateStatus'"
+                wire:key="{{ 'status_alert_'.$user->id.'_' . $user->is_active->value }}" />
 
             <ul class="list-group list-group-flush">
 
