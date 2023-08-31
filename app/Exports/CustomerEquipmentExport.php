@@ -72,7 +72,7 @@ class CustomerEquipmentExport implements FromQuery, WithHeadings,WithMapping
                                                     AND s.custno <> 0
                                                 WITH(NOLOCK)");
 
-        if(is_null($status) || empty($status)) return ['status' => 'Inactive'];
+        if(is_null($status) || empty($status)) return ['status' => 'Inactive', 'year' => 'n/a', 'last_service' => 'n/a'];
 
 
         return ['status' => $status[0]->YEPP_Status, 'year' => $status[0]->YEPP_Year, 'last_service' => $status[0]->YEPP_LastService];
