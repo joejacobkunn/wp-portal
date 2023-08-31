@@ -12,6 +12,7 @@
         "dbt/odbc-driver": "^2.1",
         "firebase/php-jwt": "^6.4",
         "guzzlehttp/guzzle": "^7.2",
+        "jamesmills/laravel-timezone": "^1.13",
         "jantinnerezo/livewire-alert": "^2.2",
         "jenssegers/agent": "^2.6",
         "koenhendriks/laravel-str-acronym": "^1.0",
