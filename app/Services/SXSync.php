@@ -6,6 +6,7 @@ use App\Models\Core\Account;
 use App\Models\Core\Customer;
 use App\Models\SX\Customer as SXCustomer;
 use App\Models\SX\Order;
+use Illuminate\Support\Facades\Log;
 
 class SXSync
 {
@@ -82,6 +83,8 @@ class SXSync
 
             ]);
 
+            Log::info('customer.create => Customer SX#'.$sx_customer->custno.' ('.trim($sx_customer->name).') created');
+
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 201);
     }
 
@@ -118,6 +121,8 @@ class SXSync
                 'is_active' => $sx_customer->statustype ?? 1,
             ]
         );
+
+        Log::info('customer.update => Customer SX#'.$sx_customer->custno.' ('.trim($sx_customer->name).') updated');
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
 
@@ -161,6 +166,8 @@ class SXSync
             );
         }
 
+        Log::info('customer.sx_number_changed => Customer SX#'.$data['old_sx_customer_number'].' has been assigned a new SX#'.$data['new_sx_customer_number']);
+
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
     }
 
@@ -179,8 +186,10 @@ class SXSync
 
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();
 
+        Log::info('customer.order_status_changed => Customer SX#'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
 
         $customer->update(['open_order_count' => $no_open_orders]);
+
         return response()->json(['status' => 'success', 'customer_id' => $customer->id, 'open_order_count' => $no_open_orders], 200);
     }
 
@@ -190,6 +199,8 @@ class SXSync
 
         //if herohub notification if configured
         if ($account->herohubConfig()->exists()) {
+
+            Log::info('order.shipped => Sending herohub notification for '.$data['order_no'].'-'.$data['order_suffix']);
 
             $herohub = new HeroHub($account);
 
