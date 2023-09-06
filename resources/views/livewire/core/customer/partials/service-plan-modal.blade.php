@@ -6,10 +6,9 @@
         <div class="col-md-12">
             <div class="alert alert-light-primary color-primary">
                 <i class="fas fa-info-circle"></i> <span class="ms-4"><strong>Model</strong> :
-                    @if(!empty($this->service_plans))
-                    {{ $this->service_plans[0]->ModelNo }}</span> @endif
-                <span class="ms-4"><strong>Serial</strong> : @if(!empty($this->service_plans))
-                    {{ $this->service_plans[0]->SerialNo }}</span> @endif
+                    {{ $model }}</span>
+                <span class="ms-4"><strong>Serial</strong> :
+                    {{ $serial_number }}</span>
             </div>
 
             <div class="card border-secondary collapse-icon accordion-icon-rotate">
@@ -31,9 +30,16 @@
                             </div>
                         </a>
                         @empty
+                        @if($is_7yepp_active)
+                        <div class="alert alert-light-warning color-warning">
+                            7YEPP maintenance has not been performed
+                        </div>
+
+                        @else
                         <div class="alert alert-light-warning color-warning">
                             No service plans for this equipment
                         </div>
+                        @endif
                         @endforelse
                     </div>
                 </div>

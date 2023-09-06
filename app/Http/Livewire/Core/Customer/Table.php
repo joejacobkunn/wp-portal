@@ -277,6 +277,7 @@ class Table extends DataTableComponent
     public function builder(): Builder
     {
         return Customer::where('account_id', $this->account->id)
+            ->where('sx_customer_number', '!=', 1)
             ->without('account')
             ->orderBy('open_order_count', 'DESC')
             ->orderBy('name', 'ASC')

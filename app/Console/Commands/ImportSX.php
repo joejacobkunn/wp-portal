@@ -95,6 +95,7 @@ class ImportSX extends Command
             Order::without('customer')
                 ->select('custno',DB::raw('count(*) as open_order_count'))
                 ->where('cono', $account->sx_company_number)
+                ->where('custno', '!=', 1)
                 ->whereIn('whse', $warehouses)
                 ->openOrders()
                 ->groupBy('custno')

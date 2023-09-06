@@ -49,6 +49,12 @@ class Show extends Component
 
     public SX $sx_client;
 
+    public $model;
+
+    public $serial_number;
+
+    public $is_7yepp_active = false;
+
     public $required_order_columns = [
         'orderno',
         'ordersuf',
@@ -212,8 +218,14 @@ class Show extends Component
         $this->alert('success', 'Copied!');
     }
 
-    public function fetchServicePlans($model,$serial_no)
+    public function fetchServicePlans($model,$serial_no,$is_7yepp_active)
     {
+        $this->model = $model;
+
+        $this->serial_number = $serial_no;
+    
+        $this->is_7yepp_active = $is_7yepp_active;
+    
         $this->service_plans = DB::connection('zxt')->select("SELECT
                                                         p.custno AS 'CustNo',
                                                         p.modelno AS 'ModelNo',

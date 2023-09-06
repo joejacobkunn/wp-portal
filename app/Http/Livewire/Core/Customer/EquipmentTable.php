@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Rappasoft\LaravelLivewireTables\Views\Column;
+use Rappasoft\LaravelLivewireTables\Views\Columns\BooleanColumn;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class EquipmentTable extends DataTableComponent
@@ -121,11 +122,11 @@ class EquipmentTable extends DataTableComponent
 
                         if(!empty($yepp_status['last_service'])) $last_service = '(Last Serv '.date('m-d-Y',strtotime($yepp_status['last_service'])).')';
 
-                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-secondary"><abbr title="Click to view 7YEPP history">Inactive %s</abbr></span></a></ul>',$row->model,$row->serial_no,$last_service);
+                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\',\'%s\')" class="badge bg-light-secondary"><abbr title="Click to view 7YEPP history">Inactive %s</abbr></span></a></ul>',$row->model,$row->serial_no,false,$last_service);
                     }
                     else
                     {
-                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\')" class="badge bg-light-success"><abbr title="Click to view 7YEPP history">Active: %s Year (Last Serv %s)</abbr></span></a></ul>',$row->model,$row->serial_no,ordinal(intval($yepp_status['year'])),date('m-d-Y',strtotime($yepp_status['last_service'])));
+                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\',\'%s\')" class="badge bg-light-success"><abbr title="Click to view 7YEPP history">Active: Year %s (Last Serv %s)</abbr></span></a></ul>',$row->model,$row->serial_no,true,intval($yepp_status['year']),$yepp_status['last_service'] ? date('m-d-Y',strtotime($yepp_status['last_service'])) : ' - None');
                     }
 
                 })
@@ -140,12 +141,25 @@ class EquipmentTable extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
+            BooleanColumn::make('Is Active', 'is_active')
+            ->excludeFromColumnSelect()
+                ->sortable(),
+
+
         ];
     }
 
     public function filters(): array
     {
         return [
+
+            SelectFilter::make('Status')
+                ->options(['' => 'All', 1 => 'Active', 0 => 'Inactive'])
+                ->filter(function (Builder $builder, string $value) {
+                    if ($value) {
+                        $builder->where('is_active', $value);
+                    }
+                }),
 
             SelectFilter::make('Type')
                 ->options(Equipment::distinct('type')->where('customer_id', $this->customer->id)->pluck('type', 'type')->prepend('All', '')->toArray())
