@@ -29,6 +29,21 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
                    $entry->isScheduledTask() ||
                    $entry->hasMonitoredTag();
         });
+
+        Telescope::tag(function (IncomingEntry $entry) {
+            if ($entry->type === 'log') {
+                $message = $entry->content['message'];
+    
+                // Check if the log message starts with a square bracket
+                if (strpos($message, 'customer.') === 0) {
+                    // Extract the tag that's inside the square brackets
+                    preg_match('/#\w+/', $message, $matches);
+                    return [(int) filter_var($matches[0], FILTER_SANITIZE_NUMBER_INT)];
+                }
+            }
+    
+            return [];
+        });
     }
 
     /**

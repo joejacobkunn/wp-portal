@@ -83,7 +83,7 @@ class SXSync
 
             ]);
 
-            Log::info('customer.create => Customer SX#'.$sx_customer->custno.' ('.trim($sx_customer->name).') created');
+            Log::info('customer.create : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') created');
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 201);
     }
@@ -122,7 +122,7 @@ class SXSync
             ]
         );
 
-        Log::info('customer.update => Customer SX#'.$sx_customer->custno.' ('.trim($sx_customer->name).') updated');
+        Log::info('customer.update : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') updated');
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
 
@@ -166,7 +166,7 @@ class SXSync
             );
         }
 
-        Log::info('customer.sx_number_changed => Customer SX#'.$data['old_sx_customer_number'].' has been assigned a new SX#'.$data['new_sx_customer_number']);
+        Log::info('customer.sx_number_changed : SX #'.$data['old_sx_customer_number'].' has been assigned a new SX#'.$data['new_sx_customer_number']);
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
     }
@@ -186,7 +186,7 @@ class SXSync
 
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();
 
-        Log::info('customer.order_status_changed => Customer SX#'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
+        Log::info('customer.order_status_changed : SX #'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
 
         $customer->update(['open_order_count' => $no_open_orders]);
 
