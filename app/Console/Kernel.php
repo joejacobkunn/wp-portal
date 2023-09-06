@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Spatie\WebhookClient\Models\WebhookCall;
 
 class Kernel extends ConsoleKernel
 {
@@ -20,6 +21,14 @@ class Kernel extends ConsoleKernel
 
         //purge old auth logs that are more than a year old
         $schedule->command('authentication-log:purge')->monthly();
+
+        //purge old webhooks daily - 90 days or older
+        $schedule->command('model:prune', [
+            '--model' => [WebhookCall::class],
+        ])->daily();
+
+        //purge telescope entries
+        $schedule->command('telescope:prune --hours=48')->daily();
 
         $schedule->command('media-library:delete-old-temporary-uploads')->daily();
 
