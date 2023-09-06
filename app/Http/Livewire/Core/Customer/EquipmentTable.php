@@ -155,8 +155,8 @@ class EquipmentTable extends DataTableComponent
 
             SelectFilter::make('Status')
                 ->options(['' => 'All', 1 => 'Active', 0 => 'Inactive'])
-                ->filter(function (Builder $builder, string $value) {
-                    if ($value) {
+                ->filter(function (Builder $builder, $value) {
+                    if (is_numeric($value)) {
                         $builder->where('is_active', $value);
                     }
                 }),

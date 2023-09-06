@@ -32,6 +32,9 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('media-library:delete-old-temporary-uploads')->daily();
 
+        //cron to clean up laravel log files
+        $schedule->command('logcleaner:run', ['--keeplines' => 5000, '--keepfiles' => 14])->daily()->timezone('America/New_York')->at('06:00');
+
     }
 
     /**

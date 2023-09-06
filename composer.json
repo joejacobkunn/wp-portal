@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "accentinteractive/laravel-logcleaner": "^1.2",
         "dbt/odbc-driver": "^2.1",
         "firebase/php-jwt": "^6.4",
         "guzzlehttp/guzzle": "^7.2",
