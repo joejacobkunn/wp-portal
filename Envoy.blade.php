@@ -1,4 +1,4 @@
-@servers(['staging' => '192.168.1.167', 'production' => '192.168.1.168'])
+@servers(['staging' => 'administrator@192.168.1.167', 'production' => 'administrator@192.168.1.168'])
 
 //setup paths and git
 
@@ -64,9 +64,9 @@ php artisan config:cache
 
 php artisan migrate --force
 
-php artisan db:seed --class=RolePermissionSeeder
+php artisan db:seed --class=RolePermissionSeeder --force
 @if($seed)
-php artisan db:seed --class={{$seed}}
+php artisan db:seed --class={{$seed}} --force
 @endif
 
 @endtask

@@ -1,0 +1,4 @@
+Host sro-staging
+  HostName 3.235.234.138
+  User forge
+  IdentityFile /var/www/html/docker/drivers/openedge/src/etc/sro-ssh-private-key

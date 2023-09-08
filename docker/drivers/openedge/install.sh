@@ -13,3 +13,9 @@ fi
 
 #Set up ODBCINST
 cp /var/www/html/docker/drivers/openedge/src/etc/odbcinst.ini /etc/odbcinst.ini
+
+#Set up SRO SSH config file
+cp /var/www/html/docker/drivers/openedge/src/etc/config ~/.ssh/config
+
+#Inititiate tunnel via autossh
+autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -N -f -L 3308:weingartz-dev-02.cx1bpgdldz9l.us-east-1.rds.amazonaws.com:3306 sro-staging
