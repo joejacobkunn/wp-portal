@@ -1,0 +1,4 @@
+Host %HOST%
+  HostName %HOST_NAME%
+  User %USER%
+  IdentityFile %FILE_PATH%

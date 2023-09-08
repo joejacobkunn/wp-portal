@@ -23,7 +23,10 @@ echo "Set symlinks"
 php artisan storage:link
 
 echo "Setup OpenEdge driver"
-/bin/bash /var/www/html/docker/drivers/openedge/install.sh
+/bin/bash /var/www/html/docker/includes/drivers/openedge/install.sh
+
+echo "Setup SSH Tunnel"
+/bin/bash /var/www/html/docker/includes/tunnel/install.sh
 
 echo "Completed W&P_Connect setup"
 
