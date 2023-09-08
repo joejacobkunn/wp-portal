@@ -1,5 +1,5 @@
 #!/usr/bin/expect
-spawn /var/www/html/docker/drivers/openedge/src/proinst
+spawn /var/www/html/docker/includes/drivers/openedge/src/proinst
 expect "WELCOME"
 send -- "\r"
 expect "Company Name:"
