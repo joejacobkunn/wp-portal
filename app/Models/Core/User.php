@@ -113,4 +113,11 @@ class User extends Authenticatable
         $this->metadata->user_token = $reset ? bin2hex(random_bytes(25)) : null;
         $this->metadata->save();
     }
+
+    public function getAbbreviation()
+    {
+        $nameString = $this->name && $this->name !="" ? $this->name : $this->email;
+
+        return abbreviation($nameString);
+    }
 }

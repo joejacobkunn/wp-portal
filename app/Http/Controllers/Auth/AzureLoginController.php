@@ -44,6 +44,7 @@ class AzureLoginController extends Controller
             $token = bin2hex(random_bytes(60));
             $queryParams['wp_tk'] = base64_encode($token);
             $queryParams['wp_mail'] = base64_encode($azureData['user']->email);
+            $queryParams['wp_name'] = base64_encode($azureData['user']->name);
             $queryParams['checksum'] = Hash::make($domain . $token);
 
             return redirect()->route('auth.azure.callback', [ 'route_subdomain' => $domain] + $queryParams);
@@ -60,7 +61,7 @@ class AzureLoginController extends Controller
         }
 
         $email = base64_decode($request->wp_mail);
-        $user = User::active()->where('email', $email);
+        $user = User::where('email', $email);
 
         if (!empty($account)) {
             $user->where('account_id', $account->id);
@@ -71,7 +72,21 @@ class AzureLoginController extends Controller
         $user = $user->first();
 
         if (!$user) {
-            return $this->processFailedAuth($request, 'Error', 'Invalid Account');
+            $user = new User();
+            $user->name = base64_decode($request->wp_name);
+            $user->email = $email;
+            $user->is_active = 1;
+            $user->account_id = $account->id ?? null;
+            $user->abbreviation = $user->getAbbreviation();
+            $user->save();
+
+            $user->metadata()->create([
+                'invited_by' => null,
+            ]);
+        }
+
+        if (empty($user->is_active)) {
+            return $this->processFailedAuth($request, 'Error', 'Account is inactive, please contact administrator.');
         }
 
         Auth::guard('web')->login($user);
