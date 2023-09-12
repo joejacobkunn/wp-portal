@@ -76,7 +76,13 @@ class AzureLoginController extends Controller
 
         $user = $user->first();
 
-        if (!$user) {
+        //return error if invalid master account
+        if (!$user && empty($account)) {
+            return $this->processFailedAuth($request, 'Error', 'Invalid Account');
+        }
+
+        //create account if not already exist in portal
+        if (!$user && !empty($account)) {
             $user = new User();
             $user->name = base64_decode($request->wp_name);
             $user->email = $email;
@@ -90,6 +96,7 @@ class AzureLoginController extends Controller
             ]);
         }
 
+        //check if the user access is disabled
         if (empty($user->is_active)) {
             return $this->processFailedAuth($request, 'Error', 'Account is inactive, please contact administrator.');
         }

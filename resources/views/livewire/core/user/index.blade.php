@@ -7,11 +7,15 @@
         <x-slot:title>Users</x-slot>
 
         <x-slot:description>
-            {{ 'Manage users here' }}
+            {{ !$addRecord ? 'Manage users here' : 'Create a new user here' }}
         </x-slot>
 
         <x-slot:content>
-            @include('livewire.core.user.partials.listing')
+            @if($addRecord)
+                @include('livewire.core.user.partials.form', ['button_text' => 'Add User'])
+            @else
+                @include('livewire.core.user.partials.listing')
+            @endif
         </x-slot>
 
     </x-page>
