@@ -101,7 +101,6 @@ trait FormRequest
     public function store()
     {
         $this->user->is_active = 1;
-        $this->user->password = 'password';
 
         if (! auth()->user()->isMasterAdmin() && app('domain')) {
             $this->user->account_id = app('domain')->getClientId();

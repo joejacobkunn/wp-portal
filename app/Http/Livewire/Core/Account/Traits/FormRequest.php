@@ -167,7 +167,6 @@ trait FormRequest
 
         if (empty($user->id)) {
             $user->email = $this->adminEmail;
-            $user->password = uniqid();
             $user->name = '';
             $user->is_active = User::ACTIVE;
             $user->account_id = $this->account->id;

@@ -27,7 +27,6 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
         'abbreviation',
         'is_active'
     ];
@@ -38,7 +37,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
         'remember_token',
         'deleted_at'
     ];
@@ -58,14 +56,6 @@ class User extends Authenticatable
     const ACTIVE = 1;
 
     const INACTIVE = 1;
-
-    protected function password(): Attribute
-    {
-        return Attribute::make(
-            get: fn (string $value) => $value,
-            set: fn (string $value) => bcrypt($value),
-        );
-    }
 
     public function scopeActive($query)
     {

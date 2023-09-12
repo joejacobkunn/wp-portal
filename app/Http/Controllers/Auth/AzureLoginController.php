@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Models\Core\User;
 use App\Models\Core\Account;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -35,6 +36,10 @@ class AzureLoginController extends Controller
             $queryParams = $request->all();
             $request->request->add(['route_subdomain' => $domain]);
             $azureData = $this->getAzureUser();
+
+            //@TODO
+            Log::info("azureData: ". json_encode($azureData));
+
             if (empty($azureData['status'])) {
                 return $this->processFailedAuth($request, $azureData['title'], $azureData['message']);
             }
