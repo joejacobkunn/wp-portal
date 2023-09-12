@@ -46,8 +46,8 @@ services:
     volumes:
       - wp_dbdata:/var/lib/mysql/
     environment:
-      MYSQL_DATABASE: wp_portal
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       SERVICE_TAGS: dev
       SERVICE_NAME: wp_db
     networks:
