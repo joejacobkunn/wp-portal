@@ -28,6 +28,9 @@ class User extends Authenticatable
         'name',
         'email',
         'abbreviation',
+        'sx_operator_id',
+        'title',
+        'office_location',
         'is_active'
     ];
 
