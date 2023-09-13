@@ -16,6 +16,8 @@ services:
     environment:
       SERVICE_NAME: wp_app
       SERVICE_TAGS: dev
+    ports:
+      - "${SRO_DB_PORT}:${SRO_DB_PORT}"
     working_dir: /var/www/html/
     networks:
       - wp-network
