@@ -1,7 +1,9 @@
 [
     {
         "group": "Vehicle",
-        "type": ["account"],
+        "user_groups": [
+            "super-admin"
+        ],
         "items": [
             {
                 "name": "vehicle.view",
