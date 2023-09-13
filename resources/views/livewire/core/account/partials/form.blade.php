@@ -30,17 +30,12 @@
                     <div class="col-md-12 mb-3">
                         <x-forms.input label="Admin Email" model="adminEmail" placeholder="Enter Admin Email"
                             prepend-icon="fas fa-envelope" lazy
-                            hint="User will be set as Super Admin for account and will be sent an onboarding email to setup password" />
+                            hint="User will be set as Super Admin for account with elevated permissions" />
                     </div>
                 </div>
 
-                <x-forms.media
-                    model="documents"
-                    :entity="$account"
-                    :collection="$account::DOCUMENT_COLLECTION"
-                    editable
-                    rules="mimes:jpeg,png,svg"
-                />
+                <x-forms.media model="documents" :entity="$account" :collection="$account::DOCUMENT_COLLECTION" editable
+                    rules="mimes:jpeg,png,svg" />
 
                 <div class="row">
                     <div class="col-md-12 mb-1">
