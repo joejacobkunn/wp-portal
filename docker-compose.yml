@@ -11,13 +11,11 @@ services:
     restart: unless-stopped
     tty: true
     volumes:
-        - ./:/var/www/html/
-        - ./docker/php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
+      - ./:/var/www/html/
+      - ./docker/php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
     environment:
       SERVICE_NAME: wp_app
       SERVICE_TAGS: dev
-    ports:
-      - "${SRO_DB_PORT}:${SRO_DB_PORT}"
     working_dir: /var/www/html/
     networks:
       - wp-network
@@ -29,8 +27,8 @@ services:
     restart: unless-stopped
     tty: true
     volumes:
-        - ./:/var/www/html/
-        - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./:/var/www/html/
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     ports:
       - "80:80"
       - "443:443"
@@ -68,7 +66,7 @@ services:
     privileged: true
     logging:
       driver: 'none'
-    command: ["-storage=maildir", "-maildir-path=/maildir"]
+    command: [ "-storage=maildir", "-maildir-path=/maildir" ]
     volumes:
       - wp_maildata:/maildir
     ports:

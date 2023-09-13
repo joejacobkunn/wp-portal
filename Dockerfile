@@ -56,4 +56,5 @@ COPY ./docker/php/scripts /usr/scripts/
 
 # Expose port 9000 and start php-fpm server (for FastCGI Process Manager)
 EXPOSE 9000
+EXPOSE 33234
 CMD ["php-fpm"]

@@ -15,15 +15,18 @@ echo "Running migrations"
 php artisan migrate
 php artisan key:generate
 
-echo "Running Permission seeder"
-php artisan db:seed --class=RolePermissionSeeder
-php artisan db:seed --class=ModuleSeeder
 
 echo "Set symlinks"
 php artisan storage:link
 
 echo "Setup OpenEdge driver"
 /bin/bash /var/www/html/docker/includes/drivers/openedge/install.sh
+
+echo "Running Permission seeder"
+php artisan db:seed --class=RolePermissionSeeder
+php artisan db:seed --class=ModuleSeeder
+php artisan db:seed --class=SXAccountSeeder
+
 
 echo "Setup SSH Tunnel"
 /bin/bash /var/www/html/docker/includes/tunnel/install.sh
