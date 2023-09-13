@@ -1,7 +1,9 @@
 [
     {
         "group": "Customer",
-        "type": ["account"],
+        "user_groups": [
+            "master-admin"
+        ],
         "items": [
             {
                 "name": "customer.view",

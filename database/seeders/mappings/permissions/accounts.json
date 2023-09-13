@@ -1,7 +1,9 @@
 [
     {
         "group": "Account",
-        "type": ["master"],
+        "user_groups": [
+            "super-admin"
+        ],
         "items": [
             {
                 "name": "accounts.view",

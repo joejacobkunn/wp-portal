@@ -101,13 +101,12 @@ trait FormRequest
     public function store()
     {
         $this->user->is_active = 1;
-        $this->user->password = 'password';
 
         if (! auth()->user()->isMasterAdmin() && app('domain')) {
             $this->user->account_id = app('domain')->getClientId();
         }
 
-        $this->user->abbreviation = $this->getAbbreviation();
+        $this->user->abbreviation = $this->user->getAbbreviation();
         $this->user->save();
 
         $this->user->metadata()->create([
@@ -142,7 +141,7 @@ trait FormRequest
     // @TODO Remove after confirmation on WP-8 Remove User info Edit
     // public function update()
     // {
-    //     $this->user->abbreviation = $this->getAbbreviation();
+    //     $this->user->abbreviation = $this->user->getAbbreviation();
 
     //     $this->user->save();
 
@@ -171,12 +170,4 @@ trait FormRequest
         $this->user->is_active = $statusEnum;
         $this->user->save();
     }
-
-    public function getAbbreviation()
-    {
-        $nameString = $this->user->name && $this->user->name !="" ? $this->user->name : $this->user->email;
-
-        return abbreviation($nameString);
-    }
-
 }

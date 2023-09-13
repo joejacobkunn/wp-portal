@@ -1,7 +1,10 @@
 [
     {
         "group": "Access Control",
-        "type": ["master", "account"],
+        "user_groups": [
+            "master-admin",
+            "super-admin"
+        ],
         "items": [
             {
                 "name": "roles.view",
@@ -17,7 +20,10 @@
     },
     {
         "group": "User",
-        "type": ["master", "account"],
+        "user_groups": [
+            "master-admin",
+            "super-admin"
+        ],
         "items": [
             {
                 "name": "users.view",
@@ -31,7 +37,10 @@
     },
     {
         "group": "Location",
-        "type": ["master", "account"],
+        "user_groups": [
+            "master-admin",
+            "super-admin"
+        ],
         "items": [
             {
                 "name": "locations.view",
@@ -47,7 +56,10 @@
     },
     {
         "group": "Module",
-        "type": ["master", "account"],
+        "user_groups": [
+            "master-admin",
+            "super-admin"
+        ],
         "items": [
             {
                 "name": "modules.view",
@@ -58,7 +70,11 @@
     },
     {
         "group": "Customer",
-        "type": ["master", "account"],
+        "user_groups": [
+            "master-admin",
+            "super-admin",
+            "user"
+        ],
         "items": [
             {
                 "name": "customers.view",

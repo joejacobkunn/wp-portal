@@ -16,7 +16,6 @@
             @else
                 @include('livewire.core.user.partials.listing')
             @endif
-
         </x-slot>
 
     </x-page>

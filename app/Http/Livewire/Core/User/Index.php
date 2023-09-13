@@ -40,7 +40,10 @@ class Index extends Component
 
     public function create()
     {
-        $this->addRecord = true;
+        //user creation allowed only for master admins
+        if (auth()->user()->isMasterAdmin()) {
+            $this->addRecord = true;
+        }
     }
 
     public function cancel()

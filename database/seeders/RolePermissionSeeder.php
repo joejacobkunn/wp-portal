@@ -37,8 +37,15 @@ class RolePermissionSeeder extends Seeder
         $this->roles = Role::select('id', 'name', 'guard_name')->get()->keyBy('name');
         $permissionGroups = $this->parsePermissions('mappings/permissions', true);
 
+        $defaultRoles = [];
+        foreach ($this->roleTypeMap as $type => $roleMap) {
+            $defaultRoles = array_merge($defaultRoles, $roleMap);
+        }
+
         foreach ($permissionGroups as $permissionGroup) {
             foreach ($permissionGroup['items'] as $permission) {
+                $permissionUserMap = $permission['user_groups'] ?? $permissionGroup['user_groups'];
+
                 $permissionItem = Permission::updateOrCreate([
                     'name' => $permission['name'],
                 ], [
@@ -46,13 +53,13 @@ class RolePermissionSeeder extends Seeder
                     'label' => $permission['label'],
                     'group_name' => $permissionGroup['group'],
                     'description' => $permission['description'] ?? null,
-                    'master_type' => (int) (in_array('master', $permissionGroup['type'])),
-                    'account_type' => (int) (in_array('account', $permissionGroup['type'])),
+                    'master_type' => (int) (!empty(array_intersect($permissionUserMap, $this->roleTypeMap['master']))),
+                    'account_type' => (int) (!empty(array_intersect($permissionUserMap, $this->roleTypeMap['account']))),
                 ]);
 
-                foreach ($this->roleTypeMap as $type => $roles) {
-                    if (in_array($type, $permissionGroup['type'])) {
-                        $this->attachToRoles($permissionItem, $roles);
+                foreach ($defaultRoles as $role) {
+                    if (in_array($role, $permissionGroup['user_groups'])) {
+                        $this->attachToRoles($permissionItem, $role);
                     }
                 }
             }
@@ -85,7 +92,6 @@ class RolePermissionSeeder extends Seeder
         if (! $user->id) {
             $user->name = 'Master Admin';
             $user->email = config('permission.master_user_email');
-            $user->password = 'BaJDTCCpHLpMph';
             $user->abbreviation = 'MA';
             $user->save();
         }
@@ -133,12 +139,10 @@ class RolePermissionSeeder extends Seeder
     /**
      * Attach permission to defined role types
      */
-    public function attachToRoles($permission, $roleTypes)
+    public function attachToRoles($permission, $role)
     {
-        foreach ($roleTypes as $roleType) {
-            if (isset($this->roles[$roleType])) {
-                $this->roles[$roleType]->givePermissionTo($permission);
-            }
+        if (isset($this->roles[$role])) {
+            $this->roles[$role]->givePermissionTo($permission);
         }
     }
 

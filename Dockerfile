@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
     unixodbc unixodbc-dev \
     curl \
     xdotool \
+    autossh \
     expect
 
 # Clear cache
@@ -32,7 +33,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions for php
 RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-      mbstring zip pcntl mysqli exif gd
+    mbstring zip pcntl mysqli exif gd
 
 # Install extensions for php
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr
@@ -55,4 +56,5 @@ COPY ./docker/php/scripts /usr/scripts/
 
 # Expose port 9000 and start php-fpm server (for FastCGI Process Manager)
 EXPOSE 9000
+EXPOSE 33234
 CMD ["php-fpm"]

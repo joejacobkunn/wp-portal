@@ -181,14 +181,15 @@ class Show extends Component
         } else {
             $this->order_line_items = OrderLineItem::select($this->required_line_item_columns)
                 ->leftJoin('icsp', function (JoinClause $join) {
-                    $join->on('oeel.shipprod', '=', 'icsp.prod')
-                        ->where('icsp.cono', $this->customer->account->sx_company_number);
+                    $join->on('oeel.cono','=','icsp.cono')
+                    ->on('oeel.shipprod', '=', 'icsp.prod');
+                        //->where('icsp.cono', $this->customer->account->sx_company_number);
                 })
                 ->leftJoin('icsl', function (JoinClause $join) {
-                    $join->on('oeel.vendno', '=', 'icsl.vendno')
-                        ->where('icsl.cono', $this->customer->account->sx_company_number)
-                        ->whereColumn('icsl.whse', '=', 'oeel.whse')
-                        ->whereColumn('oeel.prodline', '=', 'icsl.prodline');
+                    $join->on('oeel.cono','=','icsl.cono')
+                        ->on('oeel.whse', '=', 'icsl.whse')
+                        ->on('oeel.vendno', '=', 'icsl.vendno')
+                        ->on('oeel.prodline', '=', 'icsl.prodline');
                 })
                 ->where('oeel.orderno', $order_no)->where('oeel.ordersuf', $order_suffix)
                 ->where('oeel.cono', $this->customer->account->sx_company_number)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Models\Core\User;
 use App\Models\Core\Account;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -35,6 +36,10 @@ class AzureLoginController extends Controller
             $queryParams = $request->all();
             $request->request->add(['route_subdomain' => $domain]);
             $azureData = $this->getAzureUser();
+
+            //@TODO
+            Log::info("azureData: ". json_encode($azureData));
+
             if (empty($azureData['status'])) {
                 return $this->processFailedAuth($request, $azureData['title'], $azureData['message']);
             }
@@ -44,6 +49,7 @@ class AzureLoginController extends Controller
             $token = bin2hex(random_bytes(60));
             $queryParams['wp_tk'] = base64_encode($token);
             $queryParams['wp_mail'] = base64_encode($azureData['user']->email);
+            $queryParams['wp_name'] = base64_encode($azureData['user']->name);
             $queryParams['checksum'] = Hash::make($domain . $token);
 
             return redirect()->route('auth.azure.callback', [ 'route_subdomain' => $domain] + $queryParams);
@@ -60,7 +66,7 @@ class AzureLoginController extends Controller
         }
 
         $email = base64_decode($request->wp_mail);
-        $user = User::active()->where('email', $email);
+        $user = User::where('email', $email);
 
         if (!empty($account)) {
             $user->where('account_id', $account->id);
@@ -70,8 +76,29 @@ class AzureLoginController extends Controller
 
         $user = $user->first();
 
-        if (!$user) {
+        //return error if invalid master account
+        if (!$user && empty($account)) {
             return $this->processFailedAuth($request, 'Error', 'Invalid Account');
+        }
+
+        //create account if not already exist in portal
+        if (!$user && !empty($account)) {
+            $user = new User();
+            $user->name = base64_decode($request->wp_name);
+            $user->email = $email;
+            $user->is_active = 1;
+            $user->account_id = $account->id ?? null;
+            $user->abbreviation = $user->getAbbreviation();
+            $user->save();
+
+            $user->metadata()->create([
+                'invited_by' => null,
+            ]);
+        }
+
+        //check if the user access is disabled
+        if (empty($user->is_active)) {
+            return $this->processFailedAuth($request, 'Error', 'Account is inactive, please contact administrator.');
         }
 
         Auth::guard('web')->login($user);
