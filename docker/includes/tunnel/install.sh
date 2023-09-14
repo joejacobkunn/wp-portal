@@ -14,5 +14,5 @@ sed "s/%HOST%/$host/g;s/%HOST_NAME%/$host_name/g;s/%USER%/$user/g;s/%FILE_PATH%/
 #Inititiate tunnel via autossh
 remote_host=$(get_app_env "AUTO_SSH_REMOTE_HOST")
 remote_port=$(get_app_env "AUTO_SSH_REMOTE_PORT")
-local_port=$(get_app_env "AUTO_SSH_LOCAL_PORT")
-autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -N -f -L $local_port:$remote_host:$remote_port $host
+sro_db_port=$(get_app_env "SRO_DB_PORT")
+autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -N -f -L $sro_db_port:$remote_host:$remote_port $host

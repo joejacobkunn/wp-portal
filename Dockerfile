@@ -1,5 +1,8 @@
 FROM php:8.1-fpm
 
+# from compose args
+ARG SRO_DB_PORT
+
 # Copy composer.lock and composer.json into the working directory
 COPY composer.json /var/www/html/
 
@@ -56,5 +59,8 @@ COPY ./docker/php/scripts /usr/scripts/
 
 # Expose port 9000 and start php-fpm server (for FastCGI Process Manager)
 EXPOSE 9000
-EXPOSE 33234
+
+#expose SRO db port
+EXPOSE ${SRO_DB_PORT}
+
 CMD ["php-fpm"]
