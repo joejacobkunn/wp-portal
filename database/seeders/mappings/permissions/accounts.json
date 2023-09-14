@@ -2,7 +2,7 @@
     {
         "group": "Account",
         "user_groups": [
-            "super-admin"
+            "master-admin"
         ],
         "items": [
             {
@@ -17,7 +17,6 @@
                 "name": "accounts.manage.credentials",
                 "label": "Manage API Credentials"
             }
-
         ]
     }
 ]

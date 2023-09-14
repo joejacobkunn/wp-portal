@@ -25,6 +25,7 @@
         "laravelcollective/html": "^6.4",
         "livewire/livewire": "^2.12",
         "maatwebsite/excel": "^3.1",
+        "microsoft/microsoft-graph": "^1.106",
         "rappasoft/laravel-authentication-log": "^3.0",
         "rappasoft/laravel-livewire-tables": "^2.14",
         "socialiteproviders/microsoft-azure": "^5.1",
