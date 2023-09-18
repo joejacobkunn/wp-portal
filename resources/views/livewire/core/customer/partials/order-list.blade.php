@@ -26,157 +26,60 @@
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-open-orders" role="tabpanel"
                 aria-labelledby="pills-home-tab">
-                <div class="list-group overflow-scroll" style="height:600px">
-                    @if(!empty($this->orders) && $open_order_tab)
-                    @forelse ($this->orders->whereIn('stagecd',[1,2]) as $order)
-                    @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
-                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','open-order')"
-                        class="list-group-item list-group-item-action" aria-current="true">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">Order# {{$order->orderno}}-{{$order->ordersuf}}
-                                @if($order->is_sro == 'SRO') <span class="badge bg-light-danger"><i
-                                        class="fas fa-tools"></i>
-                                    {{$order->refer}}</span> @endif
-                            </h5>
-                            <small><span
-                                    class="badge bg-light-secondary">{{$order->getStageCode($order->stagecd)}}</span></small>
-                        </div>
 
-                        @php
+                <ul class="nav nav-tabs mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" data-bs-toggle="pill"
+                            data-bs-target="#pills-open-orders-all" type="button" role="tab">All Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-open-orders-taken-by-me"
+                            type="button" role="tab">Taken By Me</a>
+                    </li>
+                </ul>
 
-                        $backorder_count = intval($order->totqtyord) - intval($order->totqtyshp);
-
-                        @endphp
-
-                        <p class="mb-1">Order has <strong>{{intval($order->totqtyord)}}</strong> item(s) totalling
-                            <strong>${{number_format($order->totordamt,2)}}</strong> on
-                            <strong>{{$order->enterdt->toFormattedDateString()}}</strong>.
-                            @if($backorder_count > 0)
-                            <span class="bg-danger text-white"> <strong>{{$backorder_count}}</strong> item(s)
-                                backordered</span>
-                            @endif
-                        </p>
-                        <small>
-                            <span class="badge bg-light-info">WHSE : {{strtoupper($order->whse)}}</span>
-                            <span class="badge bg-light-warning">TRANS TYPE : {{strtoupper($order->transtype)}}</span>
-                            <span class="badge bg-light-secondary">TAKEN BY : {{strtoupper($order->takenby)}}</span>
-                            <span
-                                class="badge bg-light-success">{{strtoupper($order->getShippingStage($order->stagecd))}}
-                                : {{strtoupper(intval($order->totqtyshp))}}</span>
-                            <span class="badge bg-light-secondary">PROMISE DT : {{date("M j,
-                                Y",strtotime($order->promisedt))}}</span>
-                            @if(str_contains($order->item_type,'A'))
-                            <span class="badge bg-primary">ACCESSORY</span>
-                            @endif
-
-                            @if(str_contains($order->item_type,'E'))
-                            <span class="badge bg-success">EQUIPMENT</span>
-                            @endif
-
-                            @if(str_contains($order->item_type,'P'))
-                            <span class="badge bg-info">PART</span>
-                            @endif
-
-
-                            <div class="float-end" wire:loading
-                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','open-order')">
-                                <div class="spinner-border spinner-border-sm float-end" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-
-                        </small>
-                    </a>
-                    @empty
-                    <div class="alert alert-light-warning color-warning">
-                        No open orders for this customer
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-open-orders-all" role="tabpanel"
+                        aria-labelledby="pills-home-tab">
+                        @include('livewire.core.customer.partials.open-orders-all')
                     </div>
-                    @endforelse
-                    @else
-                    <div class="card" aria-hidden="true">
-                        <div class="card-body">
-                            <h5 class="card-title placeholder-glow">
-                                <span class="placeholder col-6"></span>
-                            </h5>
-                            <p class="card-text placeholder-glow">
-                                <span class="placeholder col-7"></span>
-                                <span class="placeholder col-4"></span>
-                                <span class="placeholder col-4"></span>
-                                <span class="placeholder col-6"></span>
-                                <span class="placeholder col-8"></span>
-                            </p>
-                            <a href="#" tabindex="-1" class="btn btn-primary disabled placeholder col-6"></a>
-                        </div>
-                    </div>
-                    @endif
                 </div>
+
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show" id="pills-open-orders-taken-by-me" role="tabpanel"
+                        aria-labelledby="pills-home-tab">
+                        @include('livewire.core.customer.partials.open-orders-taken-by-me')
+                    </div>
+                </div>
+
 
             </div>
             <div class="tab-pane fade" id="pills-other-orders" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <div class="list-group overflow-scroll" style="height:600px">
-                    <div class="alert alert-light-warning color-warning">
-                        Showing last 5 years of past orders
+
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" data-bs-toggle="pill"
+                            data-bs-target="#pills-past-orders-all" type="button" role="tab">All Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-past-orders-taken-by-me"
+                            type="button" role="tab">Taken By Me</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-past-orders-all" role="tabpanel"
+                        aria-labelledby="pills-home-tab">
+                        @include('livewire.core.customer.partials.past-orders-all')
                     </div>
-                    @forelse ($this->orders->whereIn('stagecd',[3,4,5]) as $order)
-                    @php $sro_number = ($order->is_sro == 'SRO') ? $order->refer : ''; @endphp
-                    <a wire:click="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','past-order')"
-                        class="list-group-item list-group-item-action" aria-current="true">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">
-                                Order# {{$order->orderno}}-{{$order->ordersuf}}
-                                @if($order->is_sro == 'SRO') <span class="badge bg-light-danger"><i
-                                        class="fas fa-tools"></i>
-                                    {{$order->refer}}</span> @endif
-
-                            </h5>
-                            <small><span
-                                    class="badge bg-light-secondary">{{$order->getStageCode($order->stagecd)}}</span></small>
-                        </div>
-                        <p class="mb-1">Order has <strong>{{intval($order->totqtyord)}}</strong> item(s) totalling
-                            <strong>${{number_format($order->totordamt,2)}}</strong> on
-                            <strong>{{$order->enterdt->toFormattedDateString()}}</strong>
-                        </p>
-                        <small>
-                            <span class="badge bg-light-info">WHSE : {{strtoupper($order->whse)}}</span>
-                            <span class="badge bg-light-warning">TRANS TYPE : {{strtoupper($order->transtype)}}</span>
-                            <span class="badge bg-light-secondary">TAKEN BY : {{strtoupper($order->takenby)}}</span>
-                            <span
-                                class="badge bg-light-success">{{strtoupper($order->getShippingStage($order->stagecd))}}
-                                : {{strtoupper(intval($order->totqtyshp))}}</span>
-
-                            <span class="badge bg-light-secondary">PROMISE DT : {{date("M j,
-                                Y",strtotime($order->promisedt))}}</span>
-
-                            @if(str_contains($order->item_type,'A'))
-                            <span class="badge bg-primary">ACCESSORY</span>
-                            @endif
-
-                            @if(str_contains($order->item_type,'E'))
-                            <span class="badge bg-success">EQUIPMENT</span>
-                            @endif
-
-                            @if(str_contains($order->item_type,'P'))
-                            <span class="badge bg-info">PART</span>
-                            @endif
-
-
-                            <div class="float-end" wire:loading
-                                wire:target="fetchOrderDetails({{$order->orderno}},{{$order->ordersuf}},'{{$sro_number}}','past-order')">
-                                <div class="spinner-border spinner-border-sm float-end" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-
-                        </small>
-                    </a>
-                    @empty
-                    <div class="alert alert-light-warning color-warning">
-                        No open orders for this customer
-                    </div>
-                    @endforelse
-
                 </div>
 
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show" id="pills-past-orders-taken-by-me" role="tabpanel"
+                        aria-labelledby="pills-home-tab">
+                        @include('livewire.core.customer.partials.past-orders-taken-by-me')
+                    </div>
+                </div>
             </div>
         </div>
 
