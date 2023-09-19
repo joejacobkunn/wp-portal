@@ -62,7 +62,7 @@
     </a>
     @empty
     <div class="alert alert-light-warning color-warning">
-        No past orders for this customer
+        No past orders for this customer taken by me
     </div>
     @endforelse
     @else

@@ -91,6 +91,7 @@ class Show extends Component
         'oeel.user8',
         'oeel.vendno',
         'oeel.whse',
+        'oeel.returnfl',
         'icsp.descrip',
         'icsl.user3',
         'icsl.whse',
