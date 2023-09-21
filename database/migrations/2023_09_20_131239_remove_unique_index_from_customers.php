@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->index(['account_id', 'open_order_count']);
-            $table->unique('sx_customer_number');
+            $table->dropUnique(['sx_customer_number']);
         });
     }
 
@@ -23,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->dropIndex(['account_id', 'open_order_count']);
-            $table->dropUnique(['sx_customer_number']);
+            $table->unique('sx_customer_number');
         });
     }
 };

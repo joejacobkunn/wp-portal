@@ -15,10 +15,11 @@
         @php
 
         $backorder_count = intval($order->totqtyord) - intval($order->totqtyshp);
+        $item_count = intval($order->totqtyret) + (intval($order->totqtyord) + intval($order->totqtyret));
 
         @endphp
 
-        <p class="mb-1">Order has <strong>{{intval($order->totqtyord)}}</strong> item(s) totalling
+        <p class="mb-1">Order has <strong>{{$item_count}}</strong> item(s) totalling
             <strong>${{number_format($order->totordamt,2)}}</strong> on
             <strong>{{$order->enterdt->toFormattedDateString()}}</strong>.
             @if($backorder_count > 0)
@@ -31,7 +32,12 @@
             <span class="badge bg-light-warning">TRANS TYPE : {{strtoupper($order->transtype)}}</span>
             <span class="badge bg-light-secondary">TAKEN BY : {{strtoupper($order->takenby)}}</span>
             <span class="badge bg-light-success">{{strtoupper($order->getShippingStage($order->stagecd))}}
-                : {{strtoupper(intval($order->totqtyshp))}}</span>
+                : {{intval($order->totqtyshp) + intval($order->totqtyret) }}</span>
+
+            @if(!empty($order->totqtyret) && intval($order->totqtyret) > 0)
+            <span class="badge bg-light-warning">RETURNS : {{intval($order->totqtyret)}}</span>
+            @endif
+
             <span class="badge bg-light-secondary">PROMISE DT : {{date("M j,
                 Y",strtotime($order->promisedt))}}</span>
             @if(str_contains($order->item_type,'A'))
