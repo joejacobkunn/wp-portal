@@ -863,6 +863,7 @@
         <div
             x-cloak
             x-show="filtersOpen"
+            class="table-filter-div"
         >
             <div class="container">
                 <div class="row">
@@ -887,3 +888,49 @@
 @if ($component->hasConfigurableAreaFor('after-toolbar'))
     @include($component->getConfigurableAreaFor('after-toolbar'), $component->getParametersForConfigurableArea('after-toolbar'))
 @endif
+
+
+<script>
+    (function () {
+        if (typeof SlimSelect == 'function') {
+            initSelect()
+        } else {
+            loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initSelect);
+        }
+
+        let inProcessFlag = 0;
+        function initSelect() {
+            if (inProcessFlag) return
+
+            inProcessFlag = 1
+            document.querySelectorAll('#datatable-{{$component->id }} .table-filter-div select').forEach((el) => {
+                el.classList.remove('form-select')
+                if (typeof SlimSelect == 'function') {
+                    let id = '#' + el.getAttribute('id')
+                    new SlimSelect({ 
+                        select: id,
+                        onChange: (info) => {
+                            let val = info.value
+                            if (el.hasAttribute('multiple')) {
+                                val = info.map((v) => v.value)
+                            }
+
+                            @this.set(el.getAttribute('wire:model.stop'), val)
+
+                        },
+                    })
+                }
+            })
+
+            inProcessFlag = 0
+        }
+
+        setTimeout(() => {
+            window.livewire.hook('message.processed', (message, component) => {
+                if (!document.querySelector('#datatable-X3IjpsTf3VTZyWmlK7tp .table-filter-div .ss-main')) {
+                    initSelect()
+                }
+            })
+        }, 500)
+    })()
+</script>
