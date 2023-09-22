@@ -57,3 +57,14 @@ ssh tunnel : https://tutonics.com/2012/06/using-publicprivate-key-pair-for-auto.
 
     ```
 
+5. Uninstalling docker and cleaning up files
+    ```python
+    sudo hwclock -s
+    docker stop $(docker ps -a -q)
+    docker rm $(docker ps -a -q)
+    docker rmi $(docker images -a -q)
+    docker volume rm $(docker volume ls -q)
+    docker network rm `docker network ls -q`
+    ```
+
+

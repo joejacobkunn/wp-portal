@@ -69,7 +69,8 @@ class Show extends Component
         'user1 as is_sro',
         'user14 as item_type',
         'refer',
-        'promisedt'
+        'promisedt',
+        'totqtyret'
     ];
 
     public $required_line_item_columns = [
@@ -91,6 +92,7 @@ class Show extends Component
         'oeel.user8',
         'oeel.vendno',
         'oeel.whse',
+        'oeel.returnfl',
         'icsp.descrip',
         'icsl.user3',
         'icsl.whse',

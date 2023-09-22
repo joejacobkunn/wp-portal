@@ -41,11 +41,12 @@
                             </small>
                             <small>
                                 <span class="badge bg-light-primary">Qty Ordered :
+                                    @if($item->returnfl == '1')-@endif
                                     {{intval($item->qtyord)}}</span>
                             </small>
                             <small>
                                 <span class="badge bg-light-info">Qty Shipped :
-                                    {{intval($item->qtyship)}}</span>
+                                    @if($item->returnfl == '1')-@endif {{intval($item->qtyship)}}</span>
                             </small>
 
                             <small>
