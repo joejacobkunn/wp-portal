@@ -11,8 +11,12 @@
                         <h3 class="h5 mb-0">Customer List for {{$account->name}}</h3>
                     </div>
 
-                    <div class="card-body">
-                        <livewire:core.customer.table :account="$account" />
+                    <div class="card-body" {!! $lazyLoad ? 'wire:init="loadLazyContent"' : '' !!}>
+                        @if($lazyLoad && !$contentLoaded)
+                            <x-skelton type='table' />
+                        @else
+                            <livewire:core.customer.table :account="$account" key="{{ now() }}" />
+                        @endif
                     </div>
                 </div>
             </div>
@@ -20,5 +24,4 @@
             </x-slot>
 
     </x-page>
-
 </div>

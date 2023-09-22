@@ -17,6 +17,9 @@ abstract class Component extends BaseComponent
 
     public $loaded = false;
 
+    public $lazyLoad = false;
+    public $contentLoaded = false;
+
     public function init()
     {
         $this->loaded = true;
@@ -82,5 +85,10 @@ abstract class Component extends BaseComponent
             'type' => $type,
             'message' => $message,
         ]);
+    }
+
+    public function loadLazyContent()
+    {
+        $this->contentLoaded = true;
     }
 }

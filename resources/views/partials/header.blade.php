@@ -1,4 +1,5 @@
 <header class="mb-4">
+    <span id="toggle-dark" class="d-none"></span>
     <div class="header-top">
         <div class="container">
             <div class="logo">

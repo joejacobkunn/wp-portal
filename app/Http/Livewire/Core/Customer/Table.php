@@ -2,14 +2,15 @@
 
 namespace App\Http\Livewire\Core\Customer;
 
-use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\Account;
 use App\Models\Core\Customer;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
+use App\Http\Livewire\Component\DataTableComponent;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectDropdownFilter;
 
 class Table extends DataTableComponent
 {
@@ -259,17 +260,16 @@ class Table extends DataTableComponent
                         $builder->where('is_active', 0);
                     }
                 }),
-            SelectFilter::make('Customer Type')
+                MultiSelectDropdownFilter::make('Customer Type')
                 ->options([
-                    '' => 'All',
                     'HOM' => 'HOM',
                     'LAN' => 'LAN',
                     'SPC' => 'SPC',
                     'EMP' => 'EMP',
                     'WEB' => 'WEB',
                     'MUN' => 'MUN',
-                ])->filter(function (Builder $builder, string $value) {
-                    $builder->where('customer_type', $value);
+                ])->filter(function (Builder $builder, array $value) {
+                    $builder->whereIn('customer_type', $value);
                 }),
         ];
     }

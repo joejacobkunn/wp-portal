@@ -19,47 +19,47 @@
 }
 
 /** SLIM Select Field */
-.x-multiselect .ss-single-selected {
+.ss-main .ss-single-selected {
     height: 39px !important;
     border-radius: 0.25rem !important;
     font-size: .875rem;
     padding: 0.5rem 1rem 0.5rem 1rem !important;
     border: 1px solid #dce7f1 !important;
 }
-.x-multiselect .ss-multi-selected {
+.ss-main .ss-multi-selected {
     padding: 0.35rem 1rem 0.35rem 1rem !important;
     border-radius: 0.25rem !important;
     font-size: .875rem;
     border: 1px solid #dce7f1 !important;
 }
-.x-multiselect .ss-value {
+.ss-main .ss-value {
     padding: 4px 14px !important;
     margin: 0 !important;
     margin-right: 6px !important;
 }
-.x-multiselect .ss-content .ss-list {
+.ss-main .ss-content .ss-list {
     font-size: .875rem;
 }
-.x-multiselect .ss-content .ss-search input {
+.ss-main .ss-content .ss-search input {
     font-size: .875rem !important;
 }
-.x-multiselect .ss-main .ss-single-selected .ss-deselect {
+.ss-main .ss-main .ss-single-selected .ss-deselect {
     margin: 0 10px !important;
 }
-.is-invalid .x-multiselect .ss-main .ss-single-selected,
-.is-invalid .x-multiselect .ss-main .ss-multi-selected  {
+.is-invalid .ss-main .ss-main .ss-single-selected,
+.is-invalid .ss-main .ss-main .ss-multi-selected  {
     border-color: #e11d48;
 }
-.x-multiselect .ss-content .ss-list .ss-optgroup .ss-option {
+.ss-main .ss-content .ss-list .ss-optgroup .ss-option {
     padding: 6px 10px;
 }
-.x-multiselect .ss-content .deselect-option {
+.ss-main .ss-content .deselect-option {
     color: #f16666;
 }
-.x-multiselect .ss-content .ss-list .ss-option.ss-disabled {
+.ss-main .ss-content .ss-list .ss-option.ss-disabled {
     color: #bfb9b9;
 }
-.x-multiselect .placeholder {
+.ss-main .placeholder {
     background: #fff !important;
 }
 /** SLIM Select Ends */
@@ -168,3 +168,84 @@
     width: 100%; /* Ensure the logo fills its container */
     height: auto; /* Height will adjust based on aspect ratio */
 }
+
+.loading-skeleton h1, .loading-skeleton h2, .loading-skeleton h3, .loading-skeleton h4, .loading-skeleton h5, .loading-skeleton h6,
+.loading-skeleton p, .loading-skeleton li,
+.loading-skeleton .btn,
+.loading-skeleton label,
+.loading-skeleton table,
+.loading-skeleton span,
+.loading-skeleton a,
+.loading-skeleton .form-select,
+.loading-skeleton td,
+.loading-skeleton .form-control,
+.loading-skeleton i {
+    color: transparent !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-color: #eee;
+    border-color: #eee;
+}
+.loading-skeleton h1::placeholder, .loading-skeleton h2::placeholder, .loading-skeleton h3::placeholder, .loading-skeleton h4::placeholder, .loading-skeleton h5::placeholder, .loading-skeleton h6::placeholder,
+.loading-skeleton p::placeholder, .loading-skeleton li::placeholder,
+.loading-skeleton .btn::placeholder,
+.loading-skeleton label::placeholder,
+.loading-skeleton .form-control::placeholder {
+    color: transparent;
+}
+@keyframes loading-skeleton {
+    from {
+        opacity: 0.4;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.loading-skeleton {
+    pointer-events: none;
+    animation: loading-skeleton 1s infinite alternate;
+}
+.loading-skeleton img {
+    filter: grayscale(100) contrast(0%) brightness(1.8);
+}
+
+/** SLIM Select Field */
+.ss-main .ss-single-selected {
+    height: 39px !important;
+    border-radius: 0.25rem !important;
+    font-size: .875rem;
+    padding: 0.5rem 1rem 0.5rem 1rem !important;
+}
+.ss-main .ss-multi-selected {
+    padding: 0.35rem 1rem 0.35rem 1rem !important;
+    border-radius: 0.25rem !important;
+    font-size: .875rem;
+}
+.ss-main .ss-value {
+    padding: 4px 14px !important;
+    margin: 0 !important;
+    margin-right: 6px !important;
+}
+.ss-main .ss-content .ss-list {
+    font-size: .875rem;
+}
+.ss-main .ss-content .ss-search input {
+    font-size: .875rem !important;
+}
+.ss-main .ss-main .ss-single-selected .ss-deselect {
+    margin: 0 10px !important;
+}
+.is-invalid .ss-main .ss-main .ss-single-selected,
+.is-invalid .ss-main .ss-main .ss-multi-selected  {
+    border-color: #e11d48;
+}
+.ss-main .ss-content .ss-list .ss-optgroup .ss-option {
+    padding: 6px 10px;
+}
+.ss-main .ss-content .deselect-option {
+    color: #f16666;
+}
+.ss-main .ss-content .ss-list .ss-option.ss-disabled {
+    color: #bfb9b9;
+}
+/** SLIM Select Ends */
