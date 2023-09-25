@@ -39,7 +39,7 @@
             <span class="badge bg-light-success">{{strtoupper($order->getShippingStage($order->stagecd))}}
                 : {{intval($order->totqtyshp) + intval($order->totqtyret) }}</span>
             @if(!empty($order->totqtyret) && intval($order->totqtyret) > 0)
-            <span class="badge bg-light-warning">RETURNS : {{intval($order->totqtyret)}}</span>
+            <span class="badge bg-light-warning">RETURNED : {{intval($order->totqtyret)}}</span>
             @endif
 
             <span class="badge bg-light-secondary">PROMISE DT : {{date("M j,
