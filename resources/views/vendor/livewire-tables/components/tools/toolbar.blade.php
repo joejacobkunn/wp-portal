@@ -892,15 +892,18 @@
 
 <script>
     (function () {
+        let inProcessFlag = 0;
+
         if (typeof SlimSelect == 'function') {
             initSelect()
         } else {
             loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initSelect);
         }
 
-        let inProcessFlag = 0;
         function initSelect() {
             if (inProcessFlag) return
+
+            if (! document.querySelector('#datatable-{{$component->id }} .table-filter-div select')) return
 
             inProcessFlag = 1
             document.querySelectorAll('#datatable-{{$component->id }} .table-filter-div select').forEach((el) => {
@@ -927,7 +930,7 @@
 
         setTimeout(() => {
             window.livewire.hook('message.processed', (message, component) => {
-                if (!document.querySelector('#datatable-X3IjpsTf3VTZyWmlK7tp .table-filter-div .ss-main')) {
+                if (document.querySelector('#datatable-{{$component->id }} .table-filter-div select') && !document.querySelector('#datatable-{{$component->id }} .table-filter-div .ss-main')) {
                     initSelect()
                 }
             })
