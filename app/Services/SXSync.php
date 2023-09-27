@@ -48,6 +48,8 @@ class SXSync
 
         $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $sx_customer_number)->first();
 
+        if(is_null($sx_customer)) return 0;
+
         $account = Account::where('sx_company_number', $data['cono'])->first();
 
         $address = $this->split_address($sx_customer->addr);
@@ -93,6 +95,8 @@ class SXSync
         $account = Account::where('sx_company_number', $data['cono'])->first();
 
         $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->first();
+
+        if(is_null($sx_customer)) return 0;
 
         $address = $this->split_address($sx_customer->addr);
 
