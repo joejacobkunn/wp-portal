@@ -26,12 +26,14 @@
 @unless(request()->route_subdomain == 'admin')
 
     @if(auth()->user()->account->hasModule('customers'))
-        <li class="menu-item  {{ (request()->is('customers*')) ? 'active' : '' }}">
-            <a href="{{ route('core.customer.index') }}" class='menu-link'>
-                <i class="fas fa-address-card"></i>
-                <span>Customers</span>
-            </a>
-        </li>
+        @can('viewAny', \App\Models\Core\Customer::class)
+            <li class="menu-item  {{ (request()->is('customers*')) ? 'active' : '' }}">
+                <a href="{{ route('core.customer.index') }}" class='menu-link'>
+                    <i class="fas fa-address-card"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+        @endcan
     @endif
 
     @if(auth()->user()->account->hasModule('vehicles'))

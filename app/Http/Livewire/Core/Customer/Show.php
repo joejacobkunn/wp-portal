@@ -125,7 +125,7 @@ class Show extends Component
 
     public function mount()
     {
-        //$this->authorize('view', $this->customer);
+        $this->authorize('view', $this->customer);
 
         $this->sro_customer = SROCustomer::where('sx_customer_id', $this->customer->sx_customer_number)->first();
         array_push($this->breadcrumbs, ['title' => $this->customer->name]);
@@ -226,9 +226,9 @@ class Show extends Component
         $this->model = $model;
 
         $this->serial_number = $serial_no;
-    
+
         $this->is_7yepp_active = $is_7yepp_active;
-    
+
         $this->service_plans = DB::connection('zxt')->select("SELECT
                                                         p.custno AS 'CustNo',
                                                         p.modelno AS 'ModelNo',

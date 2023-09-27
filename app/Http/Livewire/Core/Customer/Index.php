@@ -30,7 +30,7 @@ class Index extends Component
 
     public function mount()
     {
-        //$this->authorize('viewAny', Customer::class);
+        $this->authorize('viewAny', Customer::class);
 
         $this->account = account();
     }
