@@ -13,6 +13,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        //rerun failed jobs every 3 hours
+        $schedule->command('queue:retry all')->everyThreeHours();
+
         //task to sync customer last sale dates from sx to local database
         $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->at('21:30');
 
