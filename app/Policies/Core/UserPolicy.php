@@ -40,4 +40,9 @@ class UserPolicy
     {
         return $user->can('users.manage');
     }
+
+    public function manageRole(User $user)
+    {
+        return $user->can('users.manage.role');
+    }
 }

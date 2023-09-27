@@ -71,6 +71,7 @@ class RolePermissionSeeder extends Seeder
         $this->seedMasterRole();
         $this->seedSuperAdminRole();
         $this->seedUserRole();
+        $this->seedDefaultRole();
     }
 
     /**
@@ -132,6 +133,20 @@ class RolePermissionSeeder extends Seeder
             //$userRole->level = 200;
             $userRole->is_preset = 1;
             //$userRole->reporting_role = $superAdminRole->id;
+            $userRole->save();
+        }
+    }
+
+    /**
+     * Create Default Role
+     */
+    public function seedDefaultRole()
+    {
+        $userRole = Role::where('name', 'default')->firstOrNew();
+        if (! $userRole->id) {
+            $userRole->label = 'Default';
+            $userRole->name = 'default';
+            $userRole->is_preset = 1;
             $userRole->save();
         }
     }

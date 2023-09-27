@@ -2,10 +2,13 @@
 
 namespace App\Models\Core;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Models\Role as BaseRole;
 
 class Role extends BaseRole
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'name',
         'label',
@@ -14,6 +17,7 @@ class Role extends BaseRole
         'description',
         'account_id',
         'created_by',
+        'is_visible'
     ];
 
     const MASTER_ROLE = 'master-admin';
@@ -24,7 +28,7 @@ class Role extends BaseRole
 
     public function scopeBasicSelect($query)
     {
-        return $query->select('id', 'name', 'label');
+        return $query->select('id', 'name', 'label')->where('is_visible', true);
     }
 
     /**
@@ -40,8 +44,8 @@ class Role extends BaseRole
         return self::where('name', 'master-admin')->firstOrFail();
     }
 
-    public function scopeOfAccount($query, $accountId)
+    public static function getDefaultRole()
     {
-        return $this->where('account_id', $accountId);
+        return self::where('name', 'default')->firstOrFail();
     }
 }

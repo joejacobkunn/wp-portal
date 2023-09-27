@@ -2,8 +2,7 @@
     {
         "group": "Access Control",
         "user_groups": [
-            "master-admin",
-            "super-admin"
+            "master-admin"
         ],
         "items": [
             {
@@ -32,6 +31,10 @@
             {
                 "name": "users.manage",
                 "label": "Manage Users"
+            },
+            {
+                "name": "users.manage.role",
+                "label": "Manage User Roles"
             }
         ]
     },

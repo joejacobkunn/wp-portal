@@ -12,7 +12,7 @@ use App\Models\Core\Permission;
 class Index extends Component
 {
     use AuthorizesRequests;
-    
+
     public Role $role;
 
     //attributes
@@ -40,7 +40,7 @@ class Index extends Component
     {
         $this->role = new Role;
         $this->role->label = NULL;
-        
+
         parent::__construct($id);
     }
 
@@ -79,7 +79,7 @@ class Index extends Component
             'guard_name' => 'web',
             'account_id' => $accountId,
         ];
-        
+
         $this->role->fill($roleData);
         $this->role->created_by = auth()->user()->id;
         $this->role->save();

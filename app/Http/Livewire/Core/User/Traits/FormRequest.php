@@ -19,11 +19,16 @@ trait FormRequest
 
     protected function rules()
     {
-        return [
+        $rules = [
             'user.name' => 'required',
             'user.email' => 'required|email|unique:users,email'.($this->user->email ? ','.$this->user->id : ''),
-            'selectedRole' => 'required',
         ];
+
+        if(auth()->user()->can('manageRole', auth()->user())) {
+            $rules['selectedRole'] = 'required';
+        }
+
+        return $rules;
     }
 
     /** Properties */
@@ -75,9 +80,7 @@ trait FormRequest
             $this->user->affiliate_id = null;
         }
 
-        $this->roles = Role::ofAccount(auth()->user()->account_id)
-            ->whereNot('name', 'super-admin-account-'.auth()->user()->account_id)
-            ->basicSelect()
+        $this->roles = Role::basicSelect()
             ->get();
     }
 
@@ -115,14 +118,19 @@ trait FormRequest
 
         $this->user->save();
 
-        if($this->selectedRole != 'super-admin-account-'.$this->user->account_id) {
+
+        if(auth()->user()->can('manageRole', auth()->user()) && isset($this->selectedRole)) {
             $this->user->assignRole($this->selectedRole);
-        }
 
-        $this->user->invited_by = auth()->user()->id;
+            $this->user->invited_by = auth()->user()->id;
 
-        if (auth()->user()->isMasterAdmin()) {
-            $this->user->assignRole(Role::getMasterRole());
+
+            if (auth()->user()->isMasterAdmin()) {
+                $this->user->assignRole(Role::getMasterRole());
+            }
+        } else {
+            //Default Role Assign
+            $this->user->assignRole(Role::getDefaultRole());
         }
 
         //send notifications
@@ -138,21 +146,23 @@ trait FormRequest
     /**
      * Update existing user
      */
-    // @TODO Remove after confirmation on WP-8 Remove User info Edit
-    // public function update()
-    // {
-    //     $this->user->abbreviation = $this->user->getAbbreviation();
+    // @TODO Remove after confirmation on WP-8 Remove User info Edit; Uncommented on WP-11
+    public function update()
+    {
+        $this->user->abbreviation = $this->user->getAbbreviation();
 
-    //     $this->user->save();
+        $this->user->save();
 
-    //     if ($this->user->roles->first()?->name != $this->selectedRole) {
-    //         $this->user->roles()->detach();
-    //         $this->user->assignRole($this->selectedRole);
-    //     }
+        if(auth()->user()->can('manageRole', auth()->user())) {
+            if ($this->user->roles->first()?->name != $this->selectedRole) {
+                $this->user->roles()->detach();
+                $this->user->assignRole($this->selectedRole);
+            }
+        }
 
-    //     $this->editRecord = false;
-    //     session()->flash('success', 'User updated!');
-    // }
+        $this->editRecord = false;
+        session()->flash('success', 'User updated!');
+    }
 
     public function closeModal()
     {

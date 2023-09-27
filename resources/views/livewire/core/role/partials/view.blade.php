@@ -4,7 +4,7 @@
 
 
             @can('roles.manage')
-                @if(!$role->is_preset)
+                @if($role->is_visible)
                     <livewire:component.action-button
                         :actionButtons="$actionButtons"
                     >
