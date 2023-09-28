@@ -16,6 +16,7 @@ trait FormRequest
 
     public $roles;
     public $selectedRole;
+    public $userEmail;
 
     protected function rules()
     {
@@ -80,7 +81,10 @@ trait FormRequest
             $this->user->affiliate_id = null;
         }
 
+        $this->userEmail = $this->user->email;
+
         $this->roles = Role::basicSelect()
+            ->withRoleType(auth()->user())
             ->get();
     }
 
@@ -146,11 +150,11 @@ trait FormRequest
     /**
      * Update existing user
      */
-    // @TODO Remove after confirmation on WP-8 Remove User info Edit; Uncommented on WP-11
     public function update()
     {
         $this->user->abbreviation = $this->user->getAbbreviation();
 
+        $this->user->email = $this->userEmail;
         $this->user->save();
 
         if(auth()->user()->can('manageRole', auth()->user())) {

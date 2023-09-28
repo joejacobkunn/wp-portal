@@ -4,12 +4,25 @@
             <form wire:submit.prevent="{{ (!empty($role->id) ? 'save()' : 'submit()')}}">
 
                 <div class="row">
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-6 mb-3">
                         <x-forms.input
                             label="Name"
                             model="role.label"
                             lazy
                         />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <x-forms.select
+                            label="Type"
+                            model="selectedType"
+                            :options="$roleTypes"
+                            :selected="$selectedType ?? null"
+                            label-index="label"
+                            value-index="name"
+                            key="{{ 'selectedType_'.($selectedType) }}"
+
+                            />
                     </div>
                 </div>
 

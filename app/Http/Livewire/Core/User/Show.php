@@ -71,6 +71,7 @@ class Show extends Component
     {
         $this->authorize('update', $this->user);
         $this->editRecord = true;
+        $this->userEmail = $this->user->email;
     }
 
     /**

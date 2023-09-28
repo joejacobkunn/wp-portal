@@ -2,9 +2,20 @@
 
     @php
         $id = ($id ?? "") . $model . "_input-field";
+        $isDisabled = !empty($disabled) && $disabled;
     @endphp
 
-    <label>{{ $label ?? '' }}</label>
+    @if(!isset($noLabel))
+        <label>{{ $label ?? '' }}</label>
+        @if(isset($labelInfoText))
+            <a tabindex="0" role="button" data-bs-toggle="popover"
+                data-bs-placement="top"
+                data-bs-trigger="focus"
+                data-bs-content="{{ $labelInfoText }}">
+                <i class="fa fa-info-circle"></i>
+            </a>
+        @endif
+    @endif
 
     <div class="input-group">
         @if(!empty($prependIcon) || !empty($prependText))
@@ -16,16 +27,18 @@
             @endif
         </span>
         @endif
-        
-        <input 
+
+        <input
             id="{{ $id }}"
-            type="{{ $type ?? 'text' }}" 
-            class="form-control {{ $errors->has($model) ? 'is-invalid' : '' }} {{ $class ?? '' }}" 
+            type="{{ $type ?? 'text' }}"
+            class="form-control {{ $errors->has($model) ? 'is-invalid' : '' }} {{ $class ?? '' }}"
             placeholder="{{ $placeholder ?? '' }}"
             value="{{ $value ?? '' }}"
-            wire:model.{{ !empty($lazy) ? 'lazy' : 'debounce.500ms' }}="{{ $model ?? '' }}"
-            autocomplete="{{ $autocompleteOn ?? 'off' }}"
-        >
+            {{  $isDisabled ? "disabled" : "" }}
+            wire:model.{{ (!empty($defer) ? 'defer' : (!empty($lazy) ? 'lazy': 'debounce.500ms')) }}="{{ $model ?? '' }}"
+            wire:keyup="{{ $keyup ?? '' }}"
+            maxlength="{{ isset($maxLength) ?  $maxLength : -1 }}"
+            >
 
         @if(!empty($appendIcon) || !empty($appendText))
         <span class="input-group-text">
@@ -38,11 +51,11 @@
         @endif
     </div>
 
-
     @if(!empty($hint))
-    <p class="mb-0"><small class="text-muted">{{ $hint }}</small></p>
+    <small class="form-text text-muted">{{ $hint }}</small>
     @endif
-    
+
+
     @if(isset($model))
         @error($model) <span class="text-danger">{{ $message }}</span> @enderror
     @endif

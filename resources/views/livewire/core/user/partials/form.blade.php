@@ -25,6 +25,7 @@
                                 label="Email"
                                 model="user.email"
                                 lazy
+                                :disabled="$user->id"
                             />
                         </div>
                     </div>

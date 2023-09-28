@@ -20,6 +20,8 @@ class Index extends Component
     public $addRole = false;
     public $permissionGroups = [];
     public $selectedPermissions = [];
+    public $roleTypes = [];
+    public $selectedType = null;
 
     public $breadcrumbs = [
         [
@@ -34,6 +36,11 @@ class Index extends Component
 
     protected $rules = [
         'role.label' => 'required|min:3|unique:roles,label',
+        'selectedType' => 'required',
+    ];
+
+    protected $listeners = [
+        'selectedType:changed' => 'roleTypeChanged',
     ];
 
     public function __construct($id = null)
@@ -52,6 +59,8 @@ class Index extends Component
     public function mount()
     {
         $this->authorize('viewAny', Role::class);
+
+        $this->roleTypes = Role::getRoleTypes();
     }
 
     public function render()
@@ -59,13 +68,24 @@ class Index extends Component
         return $this->renderView('livewire.core.role.index');
     }
 
+    public function roleTypeChanged($name, $value, $recheckValidation = true)
+    {
+        $this->fieldUpdated($name, $value, $recheckValidation);
+        $this->permissionGroups = (new PermissionGroupCollection($this->getPermissions()))->aggregateGroup()->toArray();
+    }
+
     public function create()
     {
         $this->authorize('store', Role::class);
 
-        $this->permissionGroups = (new PermissionGroupCollection($this->getPermissions()))->aggregateGroup()->toArray();
+        $this->setPermissionGroups();
         array_push($this->breadcrumbs, ['title' => 'Create']);
         $this->addRole = true;
+    }
+
+    public function setPermissionGroups()
+    {
+        $this->permissionGroups = (new PermissionGroupCollection($this->getPermissions()))->aggregateGroup()->toArray();
     }
 
     public function submit()
@@ -81,7 +101,20 @@ class Index extends Component
         ];
 
         $this->role->fill($roleData);
+
         $this->role->created_by = auth()->user()->id;
+
+        if($this->selectedType == 'all') {
+            $this->role->master_type = true;
+            $this->role->account_type = true;
+        } else if($this->selectedType == 'master-type') {
+            $this->role->master_type = true;
+            $this->role->account_type = false;
+        }else if($this->selectedType == 'account-type') {
+            $this->role->master_type = false;
+            $this->role->account_type = true;
+        }
+
         $this->role->save();
 
         //associate permissions to role which is allowed to current user
@@ -104,13 +137,11 @@ class Index extends Component
 
     protected function getPermissions()
     {
-        $permissions = Permission::query();
-        if (auth()->user()->isMasterAdmin()) {
-            $permissions->where('master_type', 1);
-        } else  {
-            $permissions->where('account_type', 1);
-        }
-
-        return $permissions->get();
+        return Permission::query()
+        ->when($this->selectedType == 'master_type', function($query) {
+            $query->where('master_type', 1);
+        })->when($this->selectedType == 'account_type', function($query) {
+            $query->where('account_type', 1);
+        })->get();
     }
 }

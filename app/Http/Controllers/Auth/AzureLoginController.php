@@ -17,14 +17,6 @@ class AzureLoginController extends Controller
 {
     public function attemptLogin(Request $request)
     {
-        // $user = User::find(1);
-        // $user = User::find(25);
-        $user = User::find(41);
-        Auth::guard('web')->login($user);
-        $this->updateOperId($user);
-
-        return redirect()->route('core.dashboard.index');
-
         $hosturl = config('app.scheme') .'://' . config('constants.azure_auth_domain');
         if ($request->route_subdomain) {
             return redirect()->to($hosturl.route('host.azure.redirect', ['wp_domain' => $request->route_subdomain], false));
@@ -105,6 +97,9 @@ class AzureLoginController extends Controller
             $user->metadata()->create([
                 'invited_by' => null,
             ]);
+
+            //Default Role Assign
+            $user->assignRole(Role::getDefaultRole());
         }
 
         //check if the user access is disabled

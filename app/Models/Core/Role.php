@@ -17,7 +17,8 @@ class Role extends BaseRole
         'description',
         'account_id',
         'created_by',
-        'is_visible'
+        'master_type',
+        'account_type'
     ];
 
     const MASTER_ROLE = 'master-admin';
@@ -28,7 +29,16 @@ class Role extends BaseRole
 
     public function scopeBasicSelect($query)
     {
-        return $query->select('id', 'name', 'label')->where('is_visible', true);
+        return $query->select('id', 'name', 'label');
+    }
+
+    public function scopeWithRoleType($query, $user)
+    {
+        return $query->when($user->isMasterAdmin(), function ($query) {
+            $query->where('master_type', true);
+        })->when(!$user->isMasterAdmin(), function ($query) {
+            $query->where('account_type', true);
+        });
     }
 
     /**
@@ -44,8 +54,30 @@ class Role extends BaseRole
         return self::where('name', 'master-admin')->firstOrFail();
     }
 
+    public static function getSuperAdminRole()
+    {
+        return self::where('name', 'super-admin')->firstOrFail();
+    }
+
     public static function getDefaultRole()
     {
-        return self::where('name', 'default')->firstOrFail();
+        return self::where('name', 'default-user')->firstOrFail();
+    }
+
+    public static function getRoleTypes()
+    {
+        return [
+            ['name' => 'all', 'label' => 'Master and Account Type'],
+            ['name' => 'master-type', 'label' => 'Master Type'],
+            ['name' => 'account-type', 'label' => 'Account Type'],
+        ];
+    }
+
+    public function roleType()
+    {
+        return $this->master_type && $this->account_type ? 'Master and Account Type' :
+            ($this->master_type ? 'Master Type'
+                : ($this->account_type ? 'Account Type' : 'None')
+            );
     }
 }
