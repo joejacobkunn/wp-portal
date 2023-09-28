@@ -67,9 +67,8 @@ class Role extends BaseRole
     public static function getRoleTypes()
     {
         return [
-            ['name' => 'all', 'label' => 'Master and Account Type'],
-            ['name' => 'master-type', 'label' => 'Master Type'],
-            ['name' => 'account-type', 'label' => 'Account Type'],
+            ['name' => 'master_type', 'label' => 'Master Type'],
+            ['name' => 'account_type', 'label' => 'Account Type'],
         ];
     }
 

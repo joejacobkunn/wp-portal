@@ -18,6 +18,7 @@
                             model="selectedType"
                             :options="$roleTypes"
                             :selected="$selectedType ?? null"
+                            :listener="'selectedType:changed'"
                             label-index="label"
                             value-index="name"
                             key="{{ 'selectedType_'.($selectedType) }}"

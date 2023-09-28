@@ -105,10 +105,10 @@ class Show extends Component
         if($this->selectedType == 'all') {
             $this->role->master_type = true;
             $this->role->account_type = true;
-        } else if($this->selectedType == 'master-type') {
+        } else if($this->selectedType == 'master_type') {
             $this->role->master_type = true;
             $this->role->account_type = false;
-        }else if($this->selectedType == 'account-type') {
+        }else if($this->selectedType == 'account_type') {
             $this->role->master_type = false;
             $this->role->account_type = true;
         }
@@ -173,9 +173,9 @@ class Show extends Component
         if($this->role->master_type && $this->role->account_type) {
             $this->selectedType = 'all';
         } else if ($this->role->master_type) {
-            $this->selectedType = 'master-type';
+            $this->selectedType = 'master_type';
         } else if ($this->role->account_type) {
-            $this->selectedType = 'account-type';
+            $this->selectedType = 'account_type';
         }
     }
 }

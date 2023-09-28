@@ -21,7 +21,7 @@ class Index extends Component
     public $permissionGroups = [];
     public $selectedPermissions = [];
     public $roleTypes = [];
-    public $selectedType = null;
+    public $selectedType = 'account_type';
 
     public $breadcrumbs = [
         [
@@ -71,7 +71,7 @@ class Index extends Component
     public function roleTypeChanged($name, $value, $recheckValidation = true)
     {
         $this->fieldUpdated($name, $value, $recheckValidation);
-        $this->permissionGroups = (new PermissionGroupCollection($this->getPermissions()))->aggregateGroup()->toArray();
+        $this->setPermissionGroups();
     }
 
     public function create()
@@ -107,10 +107,10 @@ class Index extends Component
         if($this->selectedType == 'all') {
             $this->role->master_type = true;
             $this->role->account_type = true;
-        } else if($this->selectedType == 'master-type') {
+        } else if($this->selectedType == 'master_type') {
             $this->role->master_type = true;
             $this->role->account_type = false;
-        }else if($this->selectedType == 'account-type') {
+        }else if($this->selectedType == 'account_type') {
             $this->role->master_type = false;
             $this->role->account_type = true;
         }
