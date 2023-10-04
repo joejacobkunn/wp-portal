@@ -14,24 +14,24 @@
 <body>
     <div id="auth">
 
-<div class="row h-100">
-    <div class="col-lg-4 col-12 pe-0">
-        <div id="auth-left">
-            <div class="auth-logo">
-                <a href="/">
-                    <img src="{{ accountLogo() }}" />
-                </a>
-            </div>
+        <div class="row h-100">
+            <div class="col-lg-5 col-12 pe-0">
+                <div id="auth-left">
+                    <div class="auth-logo">
+                        <a href="/">
+                            <img src="{{ accountLogo() }}" />
+                        </a>
+                    </div>
 
-            @yield('left_column')
+                    @yield('left_column')
+                </div>
+            </div>
+            <div class="col-lg-7 d-none d-lg-block ps-0">
+                <div id="auth-right">
+                    <center><img style="margin-top:30%" src="{{ url('/assets/images/wp-logo.jpg') }}" /></center>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-lg-8 d-none d-lg-block ps-0">
-        <div id="auth-right">
-            @yield('right_column')
-        </div>
-    </div>
-</div>
 
     </div>
 </body>

@@ -31,6 +31,7 @@ class AuthServiceProvider extends ServiceProvider
         $policies = [];
         $policies += $this->getCorePolicies();
         $policies += $this->getVehiclePolicies();
+        $policies += $this->getReportingPolicies();
 
         return $policies;
     }
@@ -56,4 +57,12 @@ class AuthServiceProvider extends ServiceProvider
             \App\Models\Vehicle\Vehicle::class => \App\Policies\Vehicle\VehiclePolicy::class,
         ];
     }
+
+    private function getReportingPolicies()
+    {
+        return [
+            \App\Models\Report::class => \App\Policies\ReportingPolicy::class,
+        ];
+    }
+
 }

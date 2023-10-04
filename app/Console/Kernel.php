@@ -13,11 +13,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        //rerun failed jobs every 3 hours
+        $schedule->command('queue:retry all')->everyThreeHours();
+
         //task to sync customer last sale dates from sx to local database
-        $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->at('21:30');
+        $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->dailyAt('21:15');
 
         //task to refresh open order data
-        $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->at('21:15');
+        $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->dailyAt('02:15');
 
         //purge old auth logs that are more than a year old
         $schedule->command('authentication-log:purge')->monthly();

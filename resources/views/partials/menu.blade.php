@@ -25,43 +25,51 @@
 
 @unless(request()->route_subdomain == 'admin')
 
-    @if(auth()->user()->account->hasModule('customers'))
-        @can('viewAny', \App\Models\Core\Customer::class)
-            <li class="menu-item  {{ (request()->is('customers*')) ? 'active' : '' }}">
-                <a href="{{ route('core.customer.index') }}" class='menu-link'>
-                    <i class="fas fa-address-card"></i>
-                    <span>Customers</span>
-                </a>
-            </li>
-        @endcan
-    @endif
+@if(auth()->user()->account->hasModule('customers'))
 
-    @if(auth()->user()->account->hasModule('vehicles'))
-        @can('viewAny', \App\Models\Vehicle\Vehicle::class)
-        <li class="menu-item  {{ (request()->is('vehicle*')) ? 'active' : '' }}">
-            <a href="{{ route('vehicle.index') }}" class='menu-link'>
-                <i class="fas fa-truck"></i>
-                <span>Vehicle</span>
-            </a>
-        </li>
-        @endcan
-
-    @endif
-
-    @if(auth()->user()->account->hasModule('orders'))
-
-        @canany(['order.view'])
-        <li class="menu-item  {{ (request()->is('order*')) ? 'active' : '' }}">
-            <a href="{{ route('order.index') }}" class='menu-link'>
-                <i class="far fa-list-alt"></i>
-                <span>Orders</span>
-            </a>
-        </li>
-        @endcan
-
-    @endif
+<li class="menu-item  {{ (request()->is('customers*')) ? 'active' : '' }}">
+    <a href="{{ route('core.customer.index') }}" class='menu-link'>
+        <i class="fas fa-address-card"></i>
+        <span>Customers</span>
+    </a>
+</li>
 
 @endif
+
+<li class="menu-item {{ (request()->is('reporting*')) ? 'active' : '' }}">
+    <a href="{{ route('reporting.index') }}" class='menu-link'>
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Reporting</span>
+    </a>
+</li>
+
+
+@if(auth()->user()->account->hasModule('vehicles'))
+
+@canany(['vehicle.view'])
+<li class="menu-item  {{ (request()->is('vehicle*')) ? 'active' : '' }}">
+    <a href="{{ route('vehicle.index') }}" class='menu-link'>
+        <i class="fas fa-truck"></i>
+        <span>Vehicle</span>
+    </a>
+</li>
+@endcan
+
+@endif
+
+@if(auth()->user()->account->hasModule('orders'))
+
+@canany(['order.view'])
+<li class="menu-item  {{ (request()->is('order*')) ? 'active' : '' }}">
+    <a href="{{ route('order.index') }}" class='menu-link'>
+        <i class="far fa-list-alt"></i>
+        <span>Orders</span>
+    </a>
+</li>
+@endcan
+
+@endif
+
 
 @canany(['roles.view'])
 <li class="menu-item {{ (request()->is('roles*')) ? 'active' : '' }}">
@@ -71,3 +79,5 @@
     </a>
 </li>
 @endcan
+
+@endif
