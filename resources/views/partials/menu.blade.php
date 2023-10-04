@@ -36,6 +36,14 @@
 
 @endif
 
+<li class="menu-item {{ (request()->is('reporting*')) ? 'active' : '' }}">
+    <a href="{{ route('reporting.index') }}" class='menu-link'>
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Reporting</span>
+    </a>
+</li>
+
+
 @if(auth()->user()->account->hasModule('vehicles'))
 
 @canany(['vehicle.view'])

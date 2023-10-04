@@ -1,0 +1,18 @@
+[
+    {
+        "group": "Reporting",
+        "user_groups": [
+            "super-admin"
+        ],
+        "items": [
+            {
+                "name": "reporting.view",
+                "label": "View Reports"
+            },
+            {
+                "name": "reporting.manage",
+                "label": "Manage Reports"
+            }
+        ]
+    }
+]
