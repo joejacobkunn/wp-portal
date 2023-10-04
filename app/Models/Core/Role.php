@@ -2,10 +2,13 @@
 
 namespace App\Models\Core;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Models\Role as BaseRole;
 
 class Role extends BaseRole
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'name',
         'label',
@@ -14,6 +17,8 @@ class Role extends BaseRole
         'description',
         'account_id',
         'created_by',
+        'master_type',
+        'account_type'
     ];
 
     const MASTER_ROLE = 'master-admin';
@@ -25,6 +30,15 @@ class Role extends BaseRole
     public function scopeBasicSelect($query)
     {
         return $query->select('id', 'name', 'label');
+    }
+
+    public function scopeWithRoleType($query, $user)
+    {
+        return $query->when($user->isMasterAdmin(), function ($query) {
+            $query->where('master_type', true);
+        })->when(!$user->isMasterAdmin(), function ($query) {
+            $query->where('account_type', true);
+        });
     }
 
     /**
@@ -40,8 +54,29 @@ class Role extends BaseRole
         return self::where('name', 'master-admin')->firstOrFail();
     }
 
-    public function scopeOfAccount($query, $accountId)
+    public static function getSuperAdminRole()
     {
-        return $this->where('account_id', $accountId);
+        return self::where('name', 'super-admin')->firstOrFail();
+    }
+
+    public static function getDefaultRole()
+    {
+        return self::where('name', 'default-user')->firstOrFail();
+    }
+
+    public static function getRoleTypes()
+    {
+        return [
+            ['name' => 'master_type', 'label' => 'Master Type'],
+            ['name' => 'account_type', 'label' => 'Account Type'],
+        ];
+    }
+
+    public function roleType()
+    {
+        return $this->master_type && $this->account_type ? 'Master and Account Type' :
+            ($this->master_type ? 'Master Type'
+                : ($this->account_type ? 'Account Type' : 'None')
+            );
     }
 }

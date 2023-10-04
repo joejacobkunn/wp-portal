@@ -1,5 +1,7 @@
 <div class="form-group {{ $errors->has($model) ? 'is-invalid' : '' }}">
-    <label>{{ $label ?? '' }}</label>
+    @if(!empty($label))
+        <label>{{ $label ?? '' }}</label>
+    @endif
     <livewire:x-select-field
         :field-id="$model ?? 'field'"
         :options="$options"
@@ -20,6 +22,9 @@
         :no-result-text="$noResultText ?? ''"
         :search-placeholder="$searchPlaceholder ?? ''"
         :direction="$direction ?? 'auto'"
+        :hasAssociativeIndex="$hasAssociativeIndex ?? false"
+        :allowDeselect="isset($allowDeselect) ? filter_var($allowDeselect, FILTER_VALIDATE_BOOL) : true"
+        parentComponent="{{ $parentComponent ?? $this::class }}"
     >
 
     @if(isset($model))

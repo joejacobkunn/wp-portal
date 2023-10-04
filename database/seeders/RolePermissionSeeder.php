@@ -71,6 +71,7 @@ class RolePermissionSeeder extends Seeder
         $this->seedMasterRole();
         $this->seedSuperAdminRole();
         $this->seedUserRole();
+        $this->seedDefaultRole();
     }
 
     /**
@@ -78,15 +79,16 @@ class RolePermissionSeeder extends Seeder
      */
     public function seedMasterRole()
     {
-        $this->masterRole = Role::where('name', 'master-admin')->firstOrNew();
-
-        if (! $this->masterRole->id) {
-            $this->masterRole->label = 'Master Admin';
-            $this->masterRole->name = 'master-admin';
-            //$this->masterRole->level = 0;
-            $this->masterRole->is_preset = 1;
-            $this->masterRole->save();
-        }
+        $this->masterRole = Role::updateOrCreate(
+            ['name' => 'master-admin'],
+            [
+                'label' => 'Master Admin',
+                'name' => 'master-admin',
+                'is_preset' => 1,
+                'master_type' => true,
+                'account_type' => false
+            ]
+        );
 
         $user = User::where('email', config('permission.master_user_email'))->firstOrNew();
         if (! $user->id) {
@@ -106,16 +108,16 @@ class RolePermissionSeeder extends Seeder
      */
     public function seedSuperAdminRole()
     {
-        $superAdminRole = Role::where('name', 'super-admin')->firstOrNew();
-
-        if (! $superAdminRole->id) {
-            $superAdminRole->label = 'Super Admin';
-            $superAdminRole->name = 'super-admin';
-            //$superAdminRole->level = 100;
-            //$superAdminRole->reporting_role = $this->masterRole->id;
-            $superAdminRole->is_preset = 1;
-            $superAdminRole->save();
-        }
+        Role::updateOrCreate(
+            ['name' => 'super-admin'],
+            [
+                'label' => 'Super Admin',
+                'name' => 'super-admin',
+                'is_preset' => 1,
+                'master_type' => false,
+                'account_type' => true
+            ]
+        );
     }
 
     /**
@@ -123,17 +125,33 @@ class RolePermissionSeeder extends Seeder
      */
     public function seedUserRole()
     {
-        $userRole = Role::where('name', 'user')->firstOrNew();
-        $superAdminRole = Role::where('name', 'super-admin')->first();
+        Role::updateOrCreate(
+            ['name' => 'user'],
+            [
+                'label' => 'User',
+                'name' => 'user',
+                'is_preset' => 1,
+                'master_type' => false,
+                'account_type' => true
+            ]
+        );
+    }
 
-        if (! $userRole->id) {
-            $userRole->label = 'User';
-            $userRole->name = 'user';
-            //$userRole->level = 200;
-            $userRole->is_preset = 1;
-            //$userRole->reporting_role = $superAdminRole->id;
-            $userRole->save();
-        }
+    /**
+     * Create Default Role
+     */
+    public function seedDefaultRole()
+    {
+        Role::updateOrCreate(
+            ['name' => 'default-user'],
+            [
+                'label' => 'Default User',
+                'name' => 'default-user',
+                'is_preset' => 1,
+                'master_type' => false,
+                'account_type' => true
+            ]
+        );
     }
 
     /**
