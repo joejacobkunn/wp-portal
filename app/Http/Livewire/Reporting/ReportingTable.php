@@ -16,14 +16,17 @@ class ReportingTable extends DataTableComponent
 
     public $query;
 
-    private $colors = ['active', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
+    private $colors = [ 'success', 'warning'];
+
+    private $color_toggle = 1;
 
     public $groupby;
 
     public function configure(): void
     {
         $this->setPrimaryKey('id');
-        $this->setDefaultSort($this->groupby, 'desc');
+
+        if(!empty($this->groupby)) $this->setDefaultSort($this->groupby, 'desc');
 
         $this->setPerPageAccepted([50, 75, 100]);
         $this->setTableAttributes([
@@ -34,7 +37,8 @@ class ReportingTable extends DataTableComponent
             if(!empty($this->groupby))
             {
                 if (!array_key_exists($row->{$this->groupby}, $this->colors)) {
-                    $this->colors[$row->{$this->groupby}] = $this->colors[array_rand($this->colors,1)];
+                    $this->color_toggle = !$this->color_toggle;
+                    $this->colors[$row->{$this->groupby}] = $this->colors[$this->color_toggle];
                 }
 
                 return [
