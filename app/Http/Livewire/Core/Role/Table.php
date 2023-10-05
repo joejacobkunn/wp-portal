@@ -38,7 +38,7 @@ class Table extends DataTableComponent
             Column::make("Name", "label")
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('core.role.show', $row).'" class="text-info text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('core.role.show', $row).'" class="text-primary text-decoration-underline">' . $value . '</a>';
                 })
                 ->html(),
         ];

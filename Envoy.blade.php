@@ -65,6 +65,8 @@ php artisan config:cache
 php artisan migrate --force
 
 php artisan db:seed --class=RolePermissionSeeder --force
+php artisan db:seed --class=ModuleSeeder --force
+
 @if($seed)
 php artisan db:seed --class={{$seed}} --force
 @endif

@@ -18,7 +18,6 @@ class ModuleSeeder extends Seeder
                 'slug' => 'customers',
                 'description' => 'Displays customer information from sx',
             ],
-
             [
                 'name' => 'Orders',
                 'slug' => 'orders',
@@ -38,6 +37,11 @@ class ModuleSeeder extends Seeder
                 'name' => 'HeroHub',
                 'slug' => 'herohub',
                 'description' => 'Enables HeroHub integration for Orders and Shipping',
+            ],
+            [
+                'name' => 'Reporting',
+                'slug' => 'reporting',
+                'description' => 'Enables reporting to query SX database',
             ],
         ];
 

@@ -44,20 +44,23 @@ class Show extends Component
             'icon' => 'fa-edit',
             'color' => 'info',
             'listener' => 'edit'
-        ],
-        [
-            'icon' => 'fa-trash',
-            'color' => 'danger',
-            'confirm' => true,
-            'confirm_header' => "Confirm Delete",
-            'listener' => 'deleteRecord'
-        ],
+        ]
     ];
 
     public function render()
     {
         $this->authorize('view', $this->role);
         $this->role->permission_list = (new PermissionGroupCollection($this->role->getAllPermissions()))->aggregateGroup()->toArray();
+
+        if(!in_array($this->role->name,[Role::MASTER_ROLE,Role::SUPER_ADMIN_ROLE, Role::USER_ROLE, Role::DEFAULT_USER_ROLE])){
+            $this->actionButtons[] =[
+                'icon' => 'fa-trash',
+                'color' => 'danger',
+                'confirm' => true,
+                'confirm_header' => "Confirm Delete",
+                'listener' => 'deleteRecord'
+            ];
+        }
 
         return $this->renderView('livewire.core.role.show');
     }

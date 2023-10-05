@@ -49,6 +49,7 @@ class RolePolicy
 
     public function delete(User $user, Role $role)
     {
-        return $user->can('roles.manage');
+        return $user->can('roles.manage') && 
+                !in_array($role->name,[Role::MASTER_ROLE,Role::SUPER_ADMIN_ROLE, Role::USER_ROLE, Role::DEFAULT_USER_ROLE]);
     }
 }

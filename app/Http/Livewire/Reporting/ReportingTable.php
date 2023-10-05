@@ -23,6 +23,7 @@ class ReportingTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
+        $this->setDefaultSort($this->groupby, 'desc');
 
         $this->setPerPageAccepted([50, 75, 100]);
         $this->setTableAttributes([
