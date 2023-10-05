@@ -27,6 +27,8 @@ class Role extends BaseRole
 
     const USER_ROLE = 'user';
 
+    const DEFAULT_USER_ROLE = 'default-user';
+
     public function scopeBasicSelect($query)
     {
         return $query->select('id', 'name', 'label');
