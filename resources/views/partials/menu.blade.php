@@ -35,24 +35,26 @@
 @unless (request()->route_subdomain == 'admin')
 
     @if (auth()->user()->account->hasModule('customers'))
-
-        <li class="menu-item  {{ request()->is('customers*') ? 'active' : '' }}">
-            <a href="{{ route('core.customer.index') }}" class='menu-link'>
-                <i class="fas fa-address-card"></i>
-                <span>Customers</span>
-            </a>
-        </li>
+        @canany(['customers.view'])
+            <li class="menu-item  {{ request()->is('customers*') ? 'active' : '' }}">
+                <a href="{{ route('core.customer.index') }}" class='menu-link'>
+                    <i class="fas fa-address-card"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+        @endcan
 
     @endif
 
     @if (auth()->user()->account->hasModule('reporting'))
-
-        <li class="menu-item {{ request()->is('reporting*') ? 'active' : '' }}">
-            <a href="{{ route('reporting.index') }}" class='menu-link'>
-                <i class="fa-solid fa-chart-line"></i>
-                <span>Reporting</span>
-            </a>
-        </li>
+        @canany(['reporting.view'])
+            <li class="menu-item {{ request()->is('reporting*') ? 'active' : '' }}">
+                <a href="{{ route('reporting.index') }}" class='menu-link'>
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reporting</span>
+                </a>
+            </li>
+        @endcan
 
     @endif
 
