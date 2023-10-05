@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use Microsoft\Graph\Graph;
+use App\Models\Core\Role;
+
 
 
 class AzureLoginController extends Controller
