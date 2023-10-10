@@ -88,14 +88,11 @@ class Show extends Component
     {
         $this->authorize('delete', $this->report);
 
-        $this->user->update([
-            'email' => $this->user->email . '+del+'. time()
-        ]);
+        $this->report->delete();
 
-        $this->user->delete();
-        session()->flash('success', 'User deleted !');
+        session()->flash('success', 'Report deleted !');
 
-        return redirect()->route('core.user.index');
+        return redirect()->route('reporting.index');
     }
 
     public function cancel()
