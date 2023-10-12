@@ -20,9 +20,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('reports', function (Blueprint $table) {
-            $table->string('tally_column')->after('group_by');
-        });
 
     }
 
@@ -32,10 +29,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('reporting_dashboards');
-
-        Schema::table('reports', function (Blueprint $table) {
-            $table->dropColumn('tally_column');
-        });
 
     }
 };

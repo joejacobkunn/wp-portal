@@ -19,7 +19,6 @@ trait FormRequest
             'report.description' => 'required',
             'report.query' => 'required',
             'report.group_by' => 'nullable',
-            'report.tally_column' => 'nullable'
         ];
     }
 

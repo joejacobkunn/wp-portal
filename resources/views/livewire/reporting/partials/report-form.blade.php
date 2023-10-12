@@ -35,16 +35,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                                <x-forms.select label="Tally Column" model="report.tally_column" :options="$group_by_options"
-                                    :selected="$report->tally_column ?? ''" default-selectable default-option-label="- None -"
-                                    label-index="label" value-index="name" />
-                            </div>
-                        </div>
-                    </div>
                 @endif
 
 
