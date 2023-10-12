@@ -4,7 +4,7 @@ namespace App\Http\Livewire\Reporting;
 
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Reporting\Traits\FormRequest;
-use App\Models\Report;
+use App\Models\Report\Report;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 
@@ -13,6 +13,8 @@ class Index extends Component
     use FormRequest,AuthorizesRequests;
 
     public $addReport = false;
+
+    public $addDashboard = false;
 
     public Report $report;
 
@@ -42,11 +44,18 @@ class Index extends Component
         return $this->renderView('livewire.reporting.index')->extends('livewire-app');
     }
 
-    public function create()
+    public function createReport()
     {
         $this->authorize('store', Report::class);
         $this->addReport = true;
     }
+
+    public function createDashboard()
+    {
+        $this->authorize('store', Report::class);
+        $this->addDashboard = true;
+    }
+
 
     public function cancel()
     {

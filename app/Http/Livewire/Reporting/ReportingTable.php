@@ -3,8 +3,8 @@
 namespace App\Http\Livewire\Reporting;
 
 use App\Http\Livewire\Component\DataTableComponent;
-use App\Models\Report;
-use App\Models\Reporting;
+use App\Models\Report\Report;
+use App\Models\Report\Reporting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Column;
@@ -60,7 +60,7 @@ class ReportingTable extends DataTableComponent
     public function columns(): array
     {
         $columns = [];
-        $parser = new PHPSQLParser($this->query, true);
+        $parser = new PHPSQLParser($this->cleanWithNoLocks($this->query, true));
         $parsed_columns = $parser->parsed;
 
         foreach($parsed_columns['SELECT'] as $column){
@@ -91,4 +91,15 @@ class ReportingTable extends DataTableComponent
         $string = str_replace("'",'',$string);
         return $string;
     }
+
+    private function cleanWithNoLocks($string)
+    {
+        $string = str_replace('WITH (NOLOCK)','',$string);
+        $string = str_replace("WITH(NOLOCK)",'',$string);
+        $string = str_replace('with (nolock)','',$string);
+        $string = str_replace("with(nolock)",'',$string);
+
+        return $string;
+    }
+
 }

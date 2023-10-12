@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Livewire\Reporting\Traits;
-use App\Models\Report;
+use App\Models\Report\Report;
 use PHPSQLParser\PHPSQLParser;
 
 
@@ -18,7 +18,8 @@ trait FormRequest
             'report.name' => 'required',
             'report.description' => 'required',
             'report.query' => 'required',
-            'report.group_by' => 'nullable'
+            'report.group_by' => 'nullable',
+            'report.tally_column' => 'nullable'
         ];
     }
 
@@ -103,7 +104,7 @@ trait FormRequest
     private function get_columns($query)
     {
         $columns = [];
-        $parser = new PHPSQLParser($query, true);
+        $parser = new PHPSQLParser($this->cleanWithNoLocks($query), true);
         $parsed_columns = $parser->parsed;
         if($parsed_columns)
         {
@@ -125,6 +126,18 @@ trait FormRequest
         $string = str_replace("'",'',$string);
         return $string;
     }
+
+    private function cleanWithNoLocks($string)
+    {
+        $string = str_replace('WITH (NOLOCK)','',$string);
+        $string = str_replace("WITH(NOLOCK)",'',$string);
+        $string = str_replace('with (nolock)','',$string);
+        $string = str_replace("with(nolock)",'',$string);
+
+        return $string;
+    }
+
+
 
 
 }

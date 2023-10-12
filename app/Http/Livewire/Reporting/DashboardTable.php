@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
-class Table extends DataTableComponent
+class DashboardTable extends DataTableComponent
 {
     use AuthorizesRequests;
 
@@ -38,7 +38,7 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
-            Column::make('Report Name', 'name')
+            Column::make('Dashboard Name', 'name')
                 ->sortable()
                 ->searchable()
                 ->excludeFromColumnSelect()
@@ -47,10 +47,6 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
-            Column::make('Description', 'description')
-                ->sortable()
-                ->searchable()
-                ->excludeFromColumnSelect(),
         ];
     }
 

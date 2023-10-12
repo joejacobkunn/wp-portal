@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Core\User;
-use App\Models\Report;
+use App\Models\Report\Report;
 
 class ReportingPolicy
 {

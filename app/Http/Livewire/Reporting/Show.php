@@ -4,7 +4,7 @@ namespace App\Http\Livewire\Reporting;
 
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Reporting\Traits\FormRequest;
-use App\Models\Report;
+use App\Models\Report\Report;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
 
@@ -66,7 +66,7 @@ class Show extends Component
 
     public function render()
     {
-        return view('livewire.reporting.show')->extends('livewire-app');
+        return view('livewire.reporting.report-show')->extends('livewire-app');
     }
 
     public function loadReport()

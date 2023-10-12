@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Core;
+namespace App\Models\Report;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +16,7 @@ class Report extends Model
         'name',
         'description',
         'query',
-        'group_by'
+        'group_by',
+        'tally_column'
     ];
 }

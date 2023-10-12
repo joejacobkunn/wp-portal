@@ -61,7 +61,7 @@ class AuthServiceProvider extends ServiceProvider
     private function getReportingPolicies()
     {
         return [
-            \App\Models\Report::class => \App\Policies\ReportingPolicy::class,
+            \App\Models\Report\Report::class => \App\Policies\ReportingPolicy::class,
         ];
     }
 
