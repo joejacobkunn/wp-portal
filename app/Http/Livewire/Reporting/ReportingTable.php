@@ -22,6 +22,10 @@ class ReportingTable extends DataTableComponent
 
     public $groupby;
 
+    private $column_tally_ignore = [
+        'CompanyID', 'CONO', 'CustNo', 'CustomerNumber', 'OrderNumber', 'OrderSuffix'
+    ];
+
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -66,7 +70,18 @@ class ReportingTable extends DataTableComponent
         foreach($parsed_columns['SELECT'] as $column){
             if(is_array($column['alias'])) $column_name = $this->clean($column['alias']['name']);
             else $column_name = $this->clean(end($column['no_quotes']['parts']));
-            $columns[] =  Column::make($column_name, $column_name)->sortable()->searchable();
+            $columns[] =  Column::make($column_name, $column_name)->sortable()->searchable()->secondaryHeader(function($rows) use($column_name) {
+                if(in_array($column_name, $this->column_tally_ignore)) return;
+                $sum = 0;
+                foreach($rows as $row)
+                {
+                    if(is_numeric($row->$column_name)){
+                        $sum += $row->$column_name;
+                    }
+                }
+
+                if($sum > 0) return '<a href="#" class="badge bg-primary">Total : '.$sum.'</a>';
+            })->html();
         }
 
         return $columns;
