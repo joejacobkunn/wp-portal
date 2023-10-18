@@ -71,9 +71,9 @@ trait FormRequest
     // @TODO Remove after confirmation on WP-8 Remove User info Edit
     public function update()
     {
-        $this->report->save();
+        $this->dashboard->save();
 
-        session()->flash('success', 'Report saved!');
+        session()->flash('success', 'Dashboard saved!');
 
         $this->editRecord = false;
     }
