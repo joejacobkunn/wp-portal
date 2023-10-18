@@ -1,24 +1,26 @@
 <?php
 
-namespace App\Http\Livewire\Reporting;
+namespace App\Http\Livewire\ReportingDashboard;
 
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Reporting\Traits\FormRequest;
+use App\Http\Livewire\ReportingDashboard\Traits\FormRequest;
+use App\Models\Report\Dashboard;
 use App\Models\Report\Report;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\DB;
+
+
 
 class Show extends Component
 {
     use AuthorizesRequests, FormRequest;
 
-    public $editRecord = false;
+    public Dashboard $dashboard;
 
     public $actionButtons = [];
 
-    public Report $report;
+    public $editRecord = false;
 
-    public $report_data = [];
+    public $reports = [];
 
     protected $listeners = [
         'deleteRecord' => 'delete',
@@ -27,25 +29,25 @@ class Show extends Component
         'closeModal' => 'closeModal'
     ];
 
+
     public function breadcrumbs()
     {
         return [
             [
-                'title' => 'Reporting',
-                'href' => route('reporting.index'),
+                'title' => 'Reporting Dashboards',
+                'href' => route('reporting-dashboard.index'),
             ],
             [
-                'title' => $this->report->name,
+                'title' => $this->dashboard->name,
             ],
         ];
     }
 
-    public function mount(Report $report)
+    public function mount()
     {
         //$this->authorize('view', $report);
         $this->formInit();
         $this->breadcrumbs = $this->breadcrumbs();
-        $this->report_data = DB::connection('sx')->select($this->report->query);
 
 
         $this->actionButtons = [
@@ -64,20 +66,18 @@ class Show extends Component
         ];
     }
 
+
+
     public function render()
     {
-        return $this->renderView('livewire.reporting.show');
+        return $this->renderView('livewire.reporting-dashboard.show');
     }
 
-    public function loadReport()
-    {
-        $this->report_data = DB::connection('sx')->select($this->report->query);
-    }
-
-    // @TODO Remove after confirmation on WP-8 Remove User info Edit
     public function edit()
     {
-        $this->authorize('update', $this->report);
+        //$this->authorize('update', $this->report);
+        $this->reports = Report::all();
+
         $this->editRecord = true;
     }
 
@@ -86,17 +86,18 @@ class Show extends Component
      */
     public function delete()
     {
-        $this->authorize('delete', $this->report);
+        //$this->authorize('delete', $this->report);
 
-        $this->report->delete();
+        $this->dashboard->delete();
 
-        session()->flash('success', 'Report deleted !');
+        session()->flash('success', 'Dashboard deleted !');
 
-        return redirect()->route('reporting.index');
+        return redirect()->route('reporting-dashboard.index');
     }
 
     public function cancel()
     {
         $this->editRecord = false;
     }
+
 }

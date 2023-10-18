@@ -5,11 +5,11 @@
         <x-slot:content>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="home-tab" href="{{ route('reporting.index') }}" role="tab"
+                    <a class="nav-link" id="home-tab" href="{{ route('reporting.index') }}" role="tab"
                         aria-controls="home" aria-selected="true">Reports</a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="profile-tab" href="{{ route('reporting-dashboard.index') }}"
+                    <a class="nav-link active" id="profile-tab" href="{{ route('reporting-dashboard.index') }}"
                         aria-controls="profile" aria-selected="false" tabindex="-1">Dashboards</a>
                 </li>
             </ul>
@@ -19,23 +19,23 @@
                     <div>
                         <div class="card border-light shadow-sm mt-4" style="min-height: 600px">
                             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
-                                @if (!$addReport)
-                                    <button wire:click="createReport"
-                                        class="btn btn-sm btn-outline-primary float-end"><i
+                                @if (!$addDashboard)
+                                    <button wire:click="create" class="btn btn-sm btn-outline-primary float-end"><i
                                             class="fa-solid fa-plus"></i> New
-                                        Report</button>
+                                        Dashboard</button>
                                 @endif
                                 <h3 class="h5 mb-0">
-                                    {{ !$addReport ? 'Manage Reports here' : 'Create a New Report here' }}</h3>
+                                    {{ !$addDashboard ? 'Manage Report Dashboards here' : 'Create a New Report dashboard here' }}
+                                </h3>
                             </div>
 
                             <div class="card-body">
-                                @if ($addReport)
-                                    @include('livewire.reporting.partials.form', [
-                                        'button_text' => 'Add Report',
+                                @if ($addDashboard)
+                                    @include('livewire.reporting-dashboard.partials.form', [
+                                        'button_text' => 'Add Report Dashboard',
                                     ])
                                 @else
-                                    @include('livewire.reporting.partials.listing')
+                                    @include('livewire.reporting-dashboard.partials.listing')
                                 @endif
 
                             </div>

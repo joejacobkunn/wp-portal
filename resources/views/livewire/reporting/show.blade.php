@@ -14,9 +14,9 @@
         <x-slot:content>
 
             @if ($editRecord)
-                @include('livewire.reporting.partials.report-form', ['button_text' => 'Update Report'])
+                @include('livewire.reporting.partials.form', ['button_text' => 'Update Report'])
             @else
-                @include('livewire.reporting.partials.report-view')
+                @include('livewire.reporting.partials.view')
             @endif
 
         </x-slot>

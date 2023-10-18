@@ -14,8 +14,6 @@ class Index extends Component
 
     public $addReport = false;
 
-    public $addDashboard = false;
-
     public Report $report;
 
     public $group_by_options = [];
@@ -48,12 +46,6 @@ class Index extends Component
     {
         $this->authorize('store', Report::class);
         $this->addReport = true;
-    }
-
-    public function createDashboard()
-    {
-        $this->authorize('store', Report::class);
-        $this->addDashboard = true;
     }
 
 

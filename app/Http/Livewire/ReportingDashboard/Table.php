@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Http\Livewire\Reporting;
+namespace App\Http\Livewire\ReportingDashboard;
 
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Models\Report\Dashboard;
 use App\Models\Report\Report;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Column;
+use Rappasoft\LaravelLivewireTables\Views\Columns\BooleanColumn;
 
-class DashboardTable extends DataTableComponent
+class Table extends DataTableComponent
 {
     use AuthorizesRequests;
 
@@ -34,7 +36,7 @@ class DashboardTable extends DataTableComponent
             Column::make('ID', 'id')
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('reporting.show', $row->id).'" class="text-decoration-underline">'.$value.'</a>';
+                    return '<a href="'.route('reporting-dashboard.show', $row->id).'" class="text-decoration-underline">'.$value.'</a>';
                 })
                 ->html(),
 
@@ -43,9 +45,23 @@ class DashboardTable extends DataTableComponent
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('reporting.show', $row->id).'" class="text-decoration-underline">'.$value.'</a>';
+                    return '<a href="'.route('reporting-dashboard.show', $row->id).'" class="text-decoration-underline">'.$value.'</a>';
                 })
                 ->html(),
+
+            Column::make('Reports', 'reports')
+                ->format(function ($value, $row) {
+                    return Report::whereIn('id', $value)->implode('name', ', ');
+                })
+                ->excludeFromColumnSelect(),
+
+            Column::make('URL', 'reports')
+                ->format(function ($value, $row) {
+                    return '<a target="_blank" href="'.route('reporting-dashboard.broadcast', $row->id).'" class="text-decoration-underline">Go to Public Page</a>';
+                })->html()
+                ->excludeFromColumnSelect(),
+
+            BooleanColumn::make('Active', 'is_active')->excludeFromColumnSelect(),
 
         ];
     }
@@ -59,6 +75,6 @@ class DashboardTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Report::query();
+        return Dashboard::query();
     }
 }

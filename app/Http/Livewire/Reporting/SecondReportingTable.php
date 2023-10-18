@@ -4,13 +4,13 @@ namespace App\Http\Livewire\Reporting;
 
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Report\Report;
-use App\Models\Report\Reporting;
+use App\Models\Report\SecondReporting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use PHPSQLParser\PHPSQLParser;
 
-class ReportingTable extends DataTableComponent
+class SecondReportingTable extends DataTableComponent
 {
     use AuthorizesRequests;
 
@@ -21,8 +21,6 @@ class ReportingTable extends DataTableComponent
     private $color_toggle = 1;
 
     public $groupby;
-
-    public $poll = false;
 
     private $column_tally_ignore = [
         'CompanyID', 'CONO', 'CustNo', 'CustomerNumber', 'OrderNumber', 'OrderSuffix'
@@ -99,12 +97,7 @@ class ReportingTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Reporting::setQuery($this->query);
-    }
-
-    public function updateTimestamp()
-    {
-        $this->emitUp('updateTimestamp');
+        return SecondReporting::setQuery($this->query);
     }
 
     private function clean($string)
