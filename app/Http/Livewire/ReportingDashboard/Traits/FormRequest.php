@@ -31,6 +31,7 @@ trait FormRequest
         if (empty($this->dashboard)) {
             $this->dashboard = new Dashboard();
             $this->dashboard->name = null;
+            $this->dashboard->account_id = null;
             $this->dashboard->reports = [];
             $this->dashboard->is_active = 1;
         }else{
@@ -45,6 +46,7 @@ trait FormRequest
     {
         $this->validate();
 
+        $this->dashboard->account_id = auth()->user()->account->id;
 
         if (! empty($this->dashboard->id)) {
             $this->update();

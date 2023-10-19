@@ -2,6 +2,7 @@
 
 namespace App\Models\Report;
 
+use App\Models\Core\Account;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,7 +17,12 @@ class Report extends Model
         'name',
         'description',
         'query',
+        'account_id',
         'group_by',
-        'tally_column'
     ];
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class, 'account_id');
+    }
 }

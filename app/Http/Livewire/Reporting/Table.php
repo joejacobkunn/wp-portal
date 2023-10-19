@@ -63,6 +63,6 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Report::query();
+        return Report::where('account_id', auth()->user()->account->id);
     }
 }

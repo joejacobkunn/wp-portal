@@ -75,6 +75,6 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Dashboard::query();
+        return Dashboard::where('account_id', auth()->user()->account->id);
     }
 }
