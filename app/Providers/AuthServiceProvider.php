@@ -62,6 +62,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         return [
             \App\Models\Report\Report::class => \App\Policies\ReportingPolicy::class,
+            \App\Models\Report\Dashboard::class => \App\Policies\ReportDashboardPolicy::class
         ];
     }
 

@@ -12,6 +12,10 @@
             {
                 "name": "reporting.manage",
                 "label": "Manage Reports"
+            },
+            {
+                "name": "reporting-dashboard.manage",
+                "label": "Manage Report Dashboards"
             }
         ]
     }

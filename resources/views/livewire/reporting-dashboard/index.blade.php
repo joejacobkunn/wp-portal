@@ -8,10 +8,12 @@
                     <a class="nav-link" id="home-tab" href="{{ route('reporting.index') }}" role="tab"
                         aria-controls="home" aria-selected="true">Reports</a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="profile-tab" href="{{ route('reporting-dashboard.index') }}"
-                        aria-controls="profile" aria-selected="false" tabindex="-1">Dashboards</a>
-                </li>
+                @can('reporting-dashboard.manage')
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="profile-tab" href="{{ route('reporting-dashboard.index') }}"
+                            aria-controls="profile" aria-selected="false" tabindex="-1">Dashboards</a>
+                    </li>
+                @endcan
             </ul>
 
             <div class="tab-content" id="myTabContent">

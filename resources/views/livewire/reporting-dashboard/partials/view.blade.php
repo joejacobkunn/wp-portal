@@ -1,7 +1,7 @@
 <div class="row px-2">
     <div class="card border-light shadow-sm mb-4">
         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
-            @can('reporting.manage')
+            @can('reporting-dashboard.manage')
                 <livewire:component.action-button :actionButtons="$actionButtons">
                 @endcan
                 <h3 class="h5 mb-0">{{ $dashboard->name }}</h3>
@@ -11,10 +11,12 @@
 
             @if ($dashboard->is_active)
                 <div class="alert alert-light-success color-success">
+                    <button wire:click="deactivate" class="btn btn-sm btn-outline-danger float-end">Deactivate</button>
                     <i class="bi bi-check-circle"></i> This dashboard is active
                 </div>
             @else
                 <div class="alert alert-light-danger color-danger">
+                    <button wire:click="activate" class="btn btn-sm btn-outline-success float-end">Activate</button>
                     <i class="bi bi-exclamation-triangle-fill"></i> This dashboard is deactivated
                 </div>
             @endif

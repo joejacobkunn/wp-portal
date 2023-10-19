@@ -45,6 +45,7 @@ trait FormRequest
     {
         $this->validate();
 
+
         if (! empty($this->dashboard->id)) {
             $this->update();
         } else {
@@ -57,6 +58,7 @@ trait FormRequest
      */
     public function store()
     {
+        $this->authorize('store', $this->dashboard);
 
         $this->dashboard->save();
 
@@ -71,6 +73,8 @@ trait FormRequest
     // @TODO Remove after confirmation on WP-8 Remove User info Edit
     public function update()
     {
+        $this->authorize('update', $this->dashboard);
+
         $this->dashboard->save();
 
         session()->flash('success', 'Dashboard saved!');

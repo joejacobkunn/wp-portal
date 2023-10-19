@@ -45,7 +45,8 @@ class Show extends Component
 
     public function mount()
     {
-        //$this->authorize('view', $report);
+        $this->authorize('view', $this->dashboard);
+
         $this->formInit();
         $this->breadcrumbs = $this->breadcrumbs();
 
@@ -75,7 +76,8 @@ class Show extends Component
 
     public function edit()
     {
-        //$this->authorize('update', $this->report);
+        $this->authorize('update', $this->dashboard);
+
         $this->reports = Report::all();
 
         $this->editRecord = true;
@@ -86,7 +88,7 @@ class Show extends Component
      */
     public function delete()
     {
-        //$this->authorize('delete', $this->report);
+        $this->authorize('delete', $this->dashboard);
 
         $this->dashboard->delete();
 
@@ -99,5 +101,20 @@ class Show extends Component
     {
         $this->editRecord = false;
     }
+
+    public function deactivate()
+    {
+        $this->authorize('update', $this->dashboard);
+        $this->dashboard->is_active = false;
+        $this->dashboard->save();
+    }
+
+    public function activate()
+    {
+        $this->authorize('update', $this->dashboard);
+        $this->dashboard->is_active = true;
+        $this->dashboard->save();
+    }
+
 
 }

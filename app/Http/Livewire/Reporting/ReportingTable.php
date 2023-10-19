@@ -16,6 +16,8 @@ class ReportingTable extends DataTableComponent
 
     public $query;
 
+    public $broadcast = false;
+
     private $colors = [ 'success', 'warning'];
 
     private $color_toggle = 1;
@@ -33,6 +35,12 @@ class ReportingTable extends DataTableComponent
         $this->setPrimaryKey('id');
 
         if(!empty($this->groupby)) $this->setDefaultSort($this->groupby, 'desc');
+
+        if($this->broadcast){
+            $this->setSearchDisabled();
+            $this->setColumnSelectDisabled();
+            $this->setPerPageVisibilityDisabled();
+        } 
 
         $this->setPerPageAccepted([50, 75, 100]);
         $this->setTableAttributes([

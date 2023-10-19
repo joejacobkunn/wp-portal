@@ -30,7 +30,7 @@ class Index extends Component
 
     public function mount()
     {
-        //$this->authorize('viewAny', Report::class);
+        $this->authorize('viewAny', Dashboard::class);
         $this->formInit();
         $this->breadcrumbs = $this->breadcrumbs();
 
