@@ -30,7 +30,9 @@ trait FormRequest
     public function formInit()
     {
         if (empty($this->report)) {
+
             $this->report = new Report();
+            $this->report->account_id = null;
             $this->report->name = null;
             $this->report->description = null;
             $this->report->query = null;
@@ -62,6 +64,8 @@ trait FormRequest
     {
         $this->validate();
 
+        $this->report->account_id = auth()->user()->account->id;
+
         if (! empty($this->report->id)) {
             $this->update();
         } else {
@@ -81,6 +85,7 @@ trait FormRequest
 
         return redirect()->route('reporting.index');
     }
+
 
     /**
      * Update existing user

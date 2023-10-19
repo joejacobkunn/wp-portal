@@ -1,5 +1,6 @@
 <div>
-    <h1 class="mt-4 mb-4">{{ $dashboard->name }}</h1>
+    <h1 class="mt-4 mb-4">{{ $dashboard->name }} <span
+            class="float-end">{{ now('America/Detroit')->format('h:i A') }}</span></h1>
 
     @if ($dashboard->is_active)
 
