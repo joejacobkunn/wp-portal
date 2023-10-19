@@ -11,18 +11,21 @@ use App\Http\Resources\Transformers\PermissionGroupCollection;
 class Show extends Component
 {
     use AuthorizesRequests;
-    
+
     public Role $role;
 
     public $editRole = false;
     public $locations = [];
     public $permissionGroups = [];
     public $selectedPermissions = [];
+    public $roleTypes = [];
+    public $selectedType = null;
 
     protected $listeners = [
         'deleteRecord' => 'delete',
         'closeModal' => 'closeModal',
         'edit' => 'edit',
+        'selectedType:changed' => 'roleTypeChanged',
     ];
 
     protected $validationAttributes = [
@@ -41,14 +44,7 @@ class Show extends Component
             'icon' => 'fa-edit',
             'color' => 'info',
             'listener' => 'edit'
-        ],
-        [
-            'icon' => 'fa-trash',
-            'color' => 'danger',
-            'confirm' => true,
-            'confirm_header' => "Confirm Delete",
-            'listener' => 'deleteRecord'
-        ],
+        ]
     ];
 
     public function render()
@@ -56,7 +52,30 @@ class Show extends Component
         $this->authorize('view', $this->role);
         $this->role->permission_list = (new PermissionGroupCollection($this->role->getAllPermissions()))->aggregateGroup()->toArray();
 
+        if(!in_array($this->role->name,[Role::MASTER_ROLE,Role::SUPER_ADMIN_ROLE, Role::USER_ROLE, Role::DEFAULT_USER_ROLE])){
+            $this->actionButtons[] =[
+                'icon' => 'fa-trash',
+                'color' => 'danger',
+                'confirm' => true,
+                'confirm_header' => "Confirm Delete",
+                'listener' => 'deleteRecord'
+            ];
+        }
+
         return $this->renderView('livewire.core.role.show');
+    }
+
+    public function mount(Role $role)
+    {
+        $this->authorize('view', $role);
+        array_push($this->breadcrumbs, ['title' => $role->label]);
+        $this->roleTypes = Role::getRoleTypes();
+    }
+
+    public function roleTypeChanged($name, $value, $recheckValidation = true)
+    {
+        $this->fieldUpdated($name, $value, $recheckValidation);
+        $this->permissionGroups = (new PermissionGroupCollection($this->getPermissions()))->aggregateGroup()->toArray();
     }
 
     public function rules() {
@@ -65,11 +84,7 @@ class Show extends Component
         ];
     }
 
-    public function mount(Role $role)
-    {
-        $this->authorize('view', $role);
-        array_push($this->breadcrumbs, ['title' => $role->label]);
-    }
+
 
     public function updated($propertyName)
     {
@@ -81,6 +96,7 @@ class Show extends Component
         $this->authorize('update', $this->role);
         $this->selectedPermissions = $this->role->getAllPermissions()->pluck('name')->toArray();
         $this->permissionGroups = (new PermissionGroupCollection($this->getPermissions()))->aggregateGroup()->toArray();
+        $this->setSelectedRoleType();
         $this->editRole = true;
     }
 
@@ -88,6 +104,17 @@ class Show extends Component
     {
         $this->authorize('update', $this->role);
         $this->validate();
+
+        if($this->selectedType == 'all') {
+            $this->role->master_type = true;
+            $this->role->account_type = true;
+        } else if($this->selectedType == 'master_type') {
+            $this->role->master_type = true;
+            $this->role->account_type = false;
+        }else if($this->selectedType == 'account_type') {
+            $this->role->master_type = false;
+            $this->role->account_type = true;
+        }
 
         $this->role->save();
 
@@ -105,7 +132,7 @@ class Show extends Component
     public function delete()
     {
         $this->authorize('delete', $this->role);
-        
+
         //check for existing users with this role
         $existingUserCount = $this->role->hasModels()->count();
         if ($existingUserCount) {
@@ -119,7 +146,7 @@ class Show extends Component
             session()->flash('warning', "Warning, there ".($reportingRoleCount > 1 ? 'are' : 'is')." $reportingRoleCount roles reporting to this role!");
             return;
         }
-        
+
         $this->role->delete();
         session()->flash('success', 'Role deleted !');
 
@@ -135,13 +162,23 @@ class Show extends Component
 
     protected function getPermissions()
     {
-        $permissions = Permission::query();
-        if (auth()->user()->isMasterAdmin()) {
-            $permissions->where('master_type', 1);
-        } else  {
-            $permissions->where('account_type', 1);
-        }
+        return Permission::query()
+        ->when($this->selectedType == 'master_type', function($query) {
+            $query->where('master_type', 1);
+        })->when($this->selectedType == 'account_type', function($query) {
+            $query->where('account_type', 1);
+        })->get();
+    }
 
-        return $permissions->get();
+    private function setSelectedRoleType()
+    {
+        $this->selectedType = null;
+        if($this->role->master_type && $this->role->account_type) {
+            $this->selectedType = 'all';
+        } else if ($this->role->master_type) {
+            $this->selectedType = 'master_type';
+        } else if ($this->role->account_type) {
+            $this->selectedType = 'account_type';
+        }
     }
 }

@@ -53,10 +53,12 @@ class XSelectField extends Component
      */
     public $defaultOptionSelectable = false;
 
+
     /**
      * Disable select field
      */
     public $disabled = false;
+
 
     /**
      * Listener
@@ -64,17 +66,17 @@ class XSelectField extends Component
     public $listener = 'fieldUpdated';
 
     /**
-     * @var string Label index in options provided
+     * @var String Label index in options provided
      */
     public $labelIndex = 'text';
 
     /**
-     * @var string Value index in options provided
+     * @var String Value index in options provided
      */
     public $valueIndex = 'value';
 
     /**
-     * @var string Value index in options provided
+     * @var String Value index in options provided
      */
     public $selectAllOption = true;
 
@@ -98,6 +100,18 @@ class XSelectField extends Component
      */
     public $direction;
 
+    /**
+     * Supports associative options array
+     */
+    public $hasAssociativeIndex;
+
+    /**
+     * Show clear option
+     */
+    public $allowDeselect = true;
+
+    public $parentComponent;
+
     /*
     |--------------------------------------------------------------------------
     | Non-Configurable Attributes
@@ -112,12 +126,17 @@ class XSelectField extends Component
     /**
      * Rendered Options
      */
-    public $items = [];
+    protected $items = [];
 
     /**
      * Rendered Selected Options
      */
     public $selectedItem = [];
+
+    /**
+     * Field Name
+     */
+    public $fieldName;
 
     public function mount()
     {
@@ -141,6 +160,10 @@ class XSelectField extends Component
         } else {
             $this->selectAllOption = false;
         }
+
+        if ($this->selected) {
+            $this->selectedItem = is_array($this->selected) ? $this->selected : [$this->selected];
+        }
     }
 
     /**
@@ -148,14 +171,11 @@ class XSelectField extends Component
      */
     public function render()
     {
-        $this->fieldDomId = str_replace('.', '--', $this->fieldId).'_'.uniqid();
+        $this->fieldName = str_replace('.', '--', $this->fieldId);
+        $this->fieldDomId = $this->fieldName . '_' . uniqid();
         $this->items = $this->getItems();
 
-        if ($this->selected) {
-            $this->selectedItem = is_array($this->selected) ? $this->selected : [$this->selected];
-        }
-
-        return view('livewire.component.x-select-field');
+        return view('livewire.component.x-select-field', ['items' => $this->items]);
     }
 
     /**
@@ -165,15 +185,15 @@ class XSelectField extends Component
     {
         $items = [];
 
-        //check if multidimentiional array
+        //check if multidimentional array
         if (count($this->options) == count($this->options, COUNT_RECURSIVE)) {
-            foreach ($this->options as $item) {
+            foreach ($this->options as $key => $item) {
                 $items[] = [
                     'text' => $item,
-                    'value' => $item,
+                    'value' => $this->hasAssociativeIndex ? $key : $item,
                 ];
             }
-        } elseif (! empty($this->labelIndex) && ! empty($this->valueIndex)) {
+        } elseif (!empty($this->labelIndex) && !empty($this->valueIndex)) {
             foreach ($this->options as $item) {
                 $items[] = [
                     'text' => $item[$this->labelIndex] ?? '',
@@ -182,7 +202,7 @@ class XSelectField extends Component
             }
         }
 
-        if (! $this->multiple && $this->defaultOption) {
+        if (!$this->multiple && $this->defaultOption) {
             array_unshift($items, [
                 'text' => $this->defaultOptionLabel,
                 'value' => null,
@@ -192,5 +212,11 @@ class XSelectField extends Component
         }
 
         return $items;
+    }
+
+    public function setValue($value)
+    {
+        $this->selectedItem = $this->multiple ? $value : [$value];
+        $this->emitTo($this->parentComponent, $this->listener, $this->fieldId, $value);
     }
 }

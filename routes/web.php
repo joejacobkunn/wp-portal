@@ -20,7 +20,8 @@ Route::post('livewire/message/{name}', [\Livewire\Controllers\HttpConnectionHand
 
 /** Global urls ends */
 
-
+//reporting broadcast url
+Route::get('reporting-dashboard/{dashboard}/broadcast', \App\Http\Livewire\ReportingDashboard\Broadcast::class)->name('reporting-dashboard.broadcast');
 
 /** Azure urls */
 Route::group(['domain' => config('constants.azure_auth_domain')], function () {
@@ -63,6 +64,12 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         Route::get('orders', \App\Http\Livewire\Order\Index::class)->name('order.index');
         Route::get('orders/{order}/show', \App\Http\Livewire\Order\Show::class)->name('order.show');
+
+        Route::get('reporting', \App\Http\Livewire\Reporting\Index::class)->name('reporting.index');
+        Route::get('reporting/{report}/show', \App\Http\Livewire\Reporting\Show::class)->name('reporting.show');
+
+        Route::get('reporting-dashboard', \App\Http\Livewire\ReportingDashboard\Index::class)->name('reporting-dashboard.index');
+        Route::get('reporting-dashboard/{dashboard}/show', \App\Http\Livewire\ReportingDashboard\Show::class)->name('reporting-dashboard.show');
 
     });
 });

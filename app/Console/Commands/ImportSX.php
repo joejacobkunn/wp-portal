@@ -89,7 +89,14 @@ class ImportSX extends Command
             $open_order_customers = [];
 
             //step 1 - set all customer flag to false
-            Customer::where('account_id', $account->id)->update(['open_order_count' => 0]);
+            Customer::where('account_id', $account->id)
+                ->whereNot('open_order_count',0)
+                ->chunkById(1000, function($customers) {
+                    foreach($customers as $customer) {
+                        $customer->open_order_count = 0;
+                        $customer->save();
+                    }
+            });
 
             //step 2 - update open order flags
             Order::without('customer')

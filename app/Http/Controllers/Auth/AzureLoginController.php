@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use Microsoft\Graph\Graph;
+use App\Models\Core\Role;
+
 
 
 class AzureLoginController extends Controller
@@ -97,6 +99,9 @@ class AzureLoginController extends Controller
             $user->metadata()->create([
                 'invited_by' => null,
             ]);
+
+            //Default Role Assign
+            $user->assignRole(Role::getDefaultRole());
         }
 
         //check if the user access is disabled
@@ -153,15 +158,15 @@ class AzureLoginController extends Controller
                 ],
             ])->getBody()->getContents());
             $accessToken = $token->access_token;
-    
+
             $graph = new Graph();
             $graph->setAccessToken($accessToken);
             $response = $graph->createRequest('GET', '/users' . sprintf("('%s')", $user->email) . '?$select=employeeid')->execute()->getBody();
-    
+
             if(isset($response['employeeId']) and !empty($response['employeeId'])){
                 $user->update(['sx_operator_id' => $response['employeeId']]);
             }
-    
+
 
     }
 

@@ -4,7 +4,7 @@
 
 
             @can('roles.manage')
-                @if(!$role->is_preset)
+                @if($role->name != 'master-admin')
                     <livewire:component.action-button
                         :actionButtons="$actionButtons"
                     >
@@ -18,12 +18,16 @@
             <ul class="list-group list-group-flush">
 
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                    <div>
+                    <div class="col-md-6">
                         <h3 class="h6 mb-1">Role Name</h3>
                         <p class="small pe-4">{{ $role->label }}</p>
                     </div>
-                    <div>
+                    <div class="col-md-6">
+                        <h3 class="h6 mb-1">Type</h3>
+                        <p class="small pe-4">{{ $role->roleType() }}</p>
+                    </div>
                 </li>
+
             </ul>
         </div>
     </div>

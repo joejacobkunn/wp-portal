@@ -45,7 +45,7 @@ abstract class Component extends BaseComponent
     public function fieldUpdated($name, $value, $recheckValidation = true)
     {
         if (str_contains($name, '.')) {
-            $fieldAttributes = explode('.', $name);
+            $fieldAttributes = explode('.', $name,);
             $updatingAttr = array_pop($fieldAttributes);
             $updatingObj = &$this;
             foreach ($fieldAttributes as $fieldAttribute) {
