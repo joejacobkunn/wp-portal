@@ -136,7 +136,7 @@ class EquipmentTable extends DataTableComponent
             Column::make('Purchase Date', 'purchase_date')
                 ->sortable()
                 ->format(function ($value, $row) {
-                    return $value->toFormattedDateString();
+                    return $value?->toFormattedDateString();
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
