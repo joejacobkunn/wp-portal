@@ -113,7 +113,7 @@ class RepairOrdersTable extends DataTableComponent
             Column::make('Job Created At', 'job_created_date')
                 ->sortable()
                 ->format(function ($value, $row) {
-                    return $value->toFormattedDateString();
+                    return $value?->toFormattedDateString();
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
