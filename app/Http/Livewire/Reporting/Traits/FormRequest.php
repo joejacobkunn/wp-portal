@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Reporting\Traits;
 use App\Models\Report\Report;
+use App\Rules\ValidQuery;
 use PHPSQLParser\PHPSQLParser;
 
 
@@ -17,7 +18,7 @@ trait FormRequest
         return [
             'report.name' => 'required',
             'report.description' => 'required',
-            'report.query' => 'required',
+            'report.query' => ['required', new ValidQuery],
             'report.group_by' => 'nullable',
         ];
     }
