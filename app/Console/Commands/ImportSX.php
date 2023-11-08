@@ -109,9 +109,6 @@ class ImportSX extends Command
                     }
                 });
 
-            //step 3 - delete any duplicate customers
-            $deleted = DB::delete('DELETE t1 FROM customers t1 INNER JOIN customers t2  WHERE t1.id < t2.id AND t1.sx_customer_number = t2.sx_customer_number');
-
             $end_time = microtime(true);
 
             $execution_time = $end_time - $start_time;
