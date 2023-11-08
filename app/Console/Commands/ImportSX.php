@@ -91,12 +91,7 @@ class ImportSX extends Command
             //step 1 - set all customer flag to false
             Customer::where('account_id', $account->id)
                 ->whereNot('open_order_count',0)
-                ->chunkById(1000, function($customers) {
-                    foreach($customers as $customer) {
-                        $customer->open_order_count = 0;
-                        $customer->save();
-                    }
-            });
+                ->update(['open_order_count' => 0]);
 
             //step 2 - update open order flags
             Order::without('customer')
@@ -109,7 +104,7 @@ class ImportSX extends Command
                 ->orderBy('custno', 'asc')
                 ->chunk(1000, function (Collection $open_orders) use($open_order_customers) {
                     foreach ($open_orders as $open_order) {
-                        Customer::where('sx_customer_number', $open_order->custno)->update(['open_order_count' => $open_order->OPEN_ORDER_COUNT]);
+                        Customer::where('sx_customer_number', $open_order->custno)->limit(1)->update(['open_order_count' => $open_order->OPEN_ORDER_COUNT]);
                         $open_order_customers[] = $open_order->custno;
                     }
                 });

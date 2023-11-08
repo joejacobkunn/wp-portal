@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->dailyAt('21:15');
 
         //task to refresh open order data
-        $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->dailyAt('02:15');
+        $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->dailyAt('03:15');
 
         //purge old auth logs that are more than a year old
         $schedule->command('authentication-log:purge')->monthly();
@@ -28,12 +28,12 @@ class Kernel extends ConsoleKernel
         //purge old webhooks daily - 90 days or older
         $schedule->command('model:prune', [
             '--model' => [WebhookCall::class],
-        ])->daily();
+        ])->dailyAt('04:45');
 
         //purge telescope entries
-        $schedule->command('telescope:prune --hours=48')->daily();
+        $schedule->command('telescope:prune --hours=48')->dailyAt('07:30');
 
-        $schedule->command('media-library:delete-old-temporary-uploads')->daily();
+        $schedule->command('media-library:delete-old-temporary-uploads')->dailyAt('06:30');
 
         //cron to clean up laravel log files
         $schedule->command('logcleaner:run', ['--keeplines' => 5000, '--keepfiles' => 14])->daily()->timezone('America/New_York')->at('06:00');
