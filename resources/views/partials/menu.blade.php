@@ -84,4 +84,18 @@
 
     @endif
 
+    @if (auth()->user()->account->hasModule('pos'))
+
+        @canany(['terminals.view', 'transactions.view'])
+            <li class="menu-item  {{ request()->is('pos*') ? 'active' : '' }}">
+                <a href="{{ route('order.index') }}" class='menu-link'>
+                    <i class="fas fa-cash-register"></i>
+                    <span>POS</span>
+                </a>
+            </li>
+        @endcan
+
+    @endif
+
+
     @endif

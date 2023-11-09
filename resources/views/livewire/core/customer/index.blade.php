@@ -5,23 +5,47 @@
         <x-slot:content>
 
             <div>
-                <div class="card border-light shadow-sm mb-4" style="min-height: 600px">
-                    <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                @unless ($addRecord)
 
-                        <h3 class="h5 mb-0">Customer List for {{$account->name}}</h3>
+                    <div class="card border-light shadow-sm mb-4" style="min-height: 600px">
+                        <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                            @can('customers.manage')
+                                <button wire:click='create' class="btn btn-sm btn-outline-primary float-end"><i
+                                        class="fas fa-plus"></i>
+                                    New
+                                    Customer</button>
+                            @endcan
+                            <h3 class="h5 mb-0">Customer List for {{ $account->name }}</h3>
+                        </div>
+
+                        <div class="card-body" {!! $lazyLoad ? 'wire:init="loadLazyContent"' : '' !!}>
+                            @if ($lazyLoad && !$contentLoaded)
+                                <x-skelton type='table' />
+                            @else
+                                <livewire:core.customer.table :account="$account" key="{{ now() }}" />
+                            @endif
+                        </div>
+
+                    </div>
+                @else
+                    <div class="card border-light shadow-sm mb-4" style="min-height: 600px">
+                        <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                            <h3 class="h5 mb-0">Create Customer for {{ $account->name }}</h3>
+                        </div>
+
+                        <div class="card-body">
+                            @include('livewire.core.customer.partials.form', [
+                                'button_text' => 'Create Customer',
+                            ])
+                        </div>
+
                     </div>
 
-                    <div class="card-body" {!! $lazyLoad ? 'wire:init="loadLazyContent"' : '' !!}>
-                        @if($lazyLoad && !$contentLoaded)
-                            <x-skelton type='table' />
-                        @else
-                            <livewire:core.customer.table :account="$account" key="{{ now() }}" />
-                        @endif
-                    </div>
-                </div>
+                @endunless
+
             </div>
 
-            </x-slot>
+        </x-slot>
 
     </x-page>
 </div>
