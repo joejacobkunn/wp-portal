@@ -85,7 +85,7 @@ class SXSync
 
             ]);
 
-            Log::info('customer.create : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') created');
+            Log::channel('webhook')->info('customer.create : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') created');
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 201);
     }
@@ -126,7 +126,7 @@ class SXSync
             ]
         );
 
-        Log::info('customer.update : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') updated');
+        Log::channel('webhook')->info('customer.update : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') updated');
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
 
@@ -170,7 +170,7 @@ class SXSync
             );
         }
 
-        Log::info('customer.sx_number_changed : SX #'.$data['old_sx_customer_number'].' has been assigned a new SX#'.$data['new_sx_customer_number']);
+        Log::channel('webhook')->info('customer.sx_number_changed : SX #'.$data['old_sx_customer_number'].' has been assigned a new SX#'.$data['new_sx_customer_number']);
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
     }
@@ -190,7 +190,7 @@ class SXSync
 
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();
 
-        Log::info('customer.order_status_changed : SX #'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
+        Log::channel('webhook')->info('customer.order_status_changed : SX #'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
 
         $customer->update(['open_order_count' => $no_open_orders]);
 
@@ -204,7 +204,7 @@ class SXSync
         //if herohub notification if configured
         if ($account->herohubConfig()->exists()) {
 
-            Log::info('order.shipped => Sending herohub notification for '.$data['order_no'].'-'.$data['order_suffix']);
+            Log::channel('webhook')->info('order.shipped => Sending herohub notification for '.$data['order_no'].'-'.$data['order_suffix']);
 
             $herohub = new HeroHub($account);
 
