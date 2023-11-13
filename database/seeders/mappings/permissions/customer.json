@@ -2,12 +2,17 @@
     {
         "group": "Customer",
         "user_groups": [
-            "master-admin"
+            "master-admin",
+            "super-admin"
         ],
         "items": [
             {
                 "name": "customer.view",
                 "label": "View Customer"
+            },
+            {
+                "name": "customer.manage",
+                "label": "Manage Customer"
             }
         ]
     }

@@ -125,4 +125,46 @@ class SX
 
         }
     }
+
+    public function create_customer($request)
+    {
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapiarcustomermnt');
+
+        if ($response->ok()) {
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response->returnData;
+            preg_match_all('#(\d{4,})#', $return_data , $matches);
+
+            $sx_customer_number = $matches[0][0];
+
+            if (empty($sx_customer_number)) {
+                return [
+                    'status' => 'failure',
+                    'message' => $response_body->response->sxt_func_ack->sxt_func_ack[0]->msg,
+                ];
+            }
+
+            return [
+                'status' => 'success',
+                'sx_customer_number' => $sx_customer_number,
+            ];
+
+        }
+
+        if ($response->badRequest()) {
+            $response_body = json_decode($response->body());
+
+            return [
+                'status' => 'error',
+                'message' => $response_body->response->cErrorMessage,
+            ];
+
+        }
+
+    }
+
 }

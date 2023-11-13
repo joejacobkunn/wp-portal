@@ -45,9 +45,9 @@ class CustomerPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function store(User $user): bool
     {
-        return $user->can('locations.manage');
+        return $user->can('customers.manage');
     }
 
     /**
@@ -55,9 +55,7 @@ class CustomerPolicy
      */
     public function update(User $user, Customer $customer): bool
     {
-        abort_if(!$this->hasAccess($user, $customer), 401);
-
-        return $user->can('locations.manage');
+        return $user->can('customers.manage');
     }
 
     /**

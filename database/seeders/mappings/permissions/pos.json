@@ -1,0 +1,30 @@
+[
+    {
+        "group": "Point of Sale (POS)",
+        "user_groups": [
+            "super-admin"
+        ],
+        "items": [
+            {
+                "name": "terminals.view",
+                "label": "View POS Terminals",
+                "description": "User can view terminals"
+            },
+            {
+                "name": "terminals.manage",
+                "label": "Manage POS Terminals",
+                "description": "User can manage terminals"
+            },
+            {
+                "name": "transactions.view",
+                "label": "View POS Transactions",
+                "description": "User can view transactions"
+            },
+            {
+                "name": "transactions.manage",
+                "label": "Manage POS Transactions",
+                "description": "User can create/manage transactions"
+            }
+        ]
+    }
+]

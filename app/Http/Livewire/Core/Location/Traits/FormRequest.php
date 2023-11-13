@@ -22,7 +22,9 @@ trait FormRequest
             'location.name' => 'required|min:3',
             'location.phone' => 'required',
             'location.address' => 'required',
+            'location.location' => 'required',
             'location.is_active' => 'required|boolean',
+            'location.fortis_location_id' => 'nullable'
         ];
     }
 
@@ -36,6 +38,8 @@ trait FormRequest
         $this->location->phone = null;
         $this->location->address = null;
         $this->location->is_active = true;
+        $this->location->location = null;
+        $this->location->fortis_location_id = null;
     }
 
     /**
@@ -79,48 +83,10 @@ trait FormRequest
         $this->authorize('update', $this->location);
 
         $this->location->save();
-        $this->setAdminUser();
 
         $this->editRecord = false;
         session()->flash('success', 'Account updated!');
     }
 
-    public function setAdminUser()
-    {
-        $user = User::where('account_id', $this->location->id)
-            ->where('email', $this->adminEmail)
-            ->firstOrNew();
 
-        if (empty($user->id)) {
-            $user->email = $this->adminEmail;
-            $user->name = '';
-            $user->is_active = User::ACTIVE;
-            $user->account_id = $this->location->id;
-            $user->save();
-
-            $user->metadata()->create([
-                'invited_by' => auth()->user()->id,
-            ]);
-
-            //send notifications
-            UserCreated::dispatch($user);
-        } elseif ($user->account_id != $this->location->id) {
-            $user->account_id = $this->location->id;
-            $user->save();
-        }
-
-        if ($this->adminUser?->id != $user?->id) {
-
-            if ($this->adminUser) {
-                //update existing role
-                $this->adminUser->roles()->detach();
-                $this->adminUser->assignRole(Role::USER_ROLE);
-            }
-
-            $this->location->admin_user = $user->id;
-            $this->location->save();
-            $user->roles()->detach();
-            $user->assignRole(Role::SUPER_ADMIN_ROLE);
-        }
-    }
 }

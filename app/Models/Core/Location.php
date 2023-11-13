@@ -18,6 +18,8 @@ class Location extends Model
         'phone',
         'address',
         'is_active',
+        'fortis_location_id',
+        'location'
     ];
 
     public function account()
