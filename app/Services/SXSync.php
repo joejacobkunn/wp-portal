@@ -52,7 +52,7 @@ class SXSync
 
         $account = Account::where('sx_company_number', $data['cono'])->first();
 
-        $address = $this->split_address($sx_customer->addr);
+        $address = $this->split_address($sx_customer->addr ?? '');
 
         //create customer in mysql table
 
@@ -98,7 +98,7 @@ class SXSync
 
         if(is_null($sx_customer)) return 0;
 
-        $address = $this->split_address($sx_customer->addr);
+        $address = $this->split_address($sx_customer->addr ?? '');
 
         $customer = Customer::updateOrCreate(
             [
