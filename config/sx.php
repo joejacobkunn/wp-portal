@@ -16,4 +16,6 @@ return [
 
     'grant_type' => env('SX_GRANT_TYPE', 'password'),
 
+    'mock' => env('SX_MOCK_API', false)
+
 ];

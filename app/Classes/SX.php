@@ -167,4 +167,122 @@ class SX
 
     }
 
+    public function get_product_info($request)
+    {
+        if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
+        
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapiicgetproductdatageneralv3');
+
+        if ($response->ok()) {
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response;
+            $error_message = $return_data->cErrorMessage;
+
+            if(!empty($error_message)){
+                return [
+                    'status' => 'error',
+                    'message' => 'Product not found',
+                ];
+            }
+
+            $product_name = $return_data->description1.' '.$return_data->description2.' ('.$return_data->crossReferenceProduct.')';
+            $look_up_name = $return_data->lookupName;
+            $entered_date = $return_data->enteredDate;
+            $category = $return_data->productCategory;
+
+
+            return [
+                'status' => 'success',
+                'product_name' => $product_name,
+                'look_up_name' => $look_up_name,
+                'entered_date' => $entered_date,
+                'category' => $category
+            ];
+
+        }
+
+        if ($response->badRequest()) {
+            
+            $response_body = json_decode($response->body());
+
+            return [
+                'status' => 'error',
+                'message' => $response_body->response->cErrorMessage,
+            ];
+
+        }
+
+    }
+
+    public function get_product_pricing_and_availability($request)
+    {
+        if(config('sx.mock')) return $this->mock(__FUNCTION__,$request);
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapioepricingv4');
+
+        if ($response->ok()) {
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response;
+            $price = $return_data->price;
+            $stock = $return_data->netAvailable;
+
+            if (empty($price)) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Product does not exist',
+                ];
+            }
+
+            return [
+                'status' => 'success',
+                'price' => $price,
+                'stock' => $stock
+            ];
+
+        }
+
+        if ($response->badRequest()) {
+            $response_body = json_decode($response->body());
+
+            return [
+                'status' => 'error',
+                'message' => $response_body->response->cErrorMessage,
+            ];
+
+        }
+
+    }
+
+    public function mock($function, $request)
+    {
+        $faker = \Faker\Factory::create();
+
+        if($function == 'get_product_pricing_and_availability')
+        {
+            return [
+                'status' => $faker->randomElement(['success', 'error']),
+                'price' => $faker->randomFloat(2),
+                'stock' => $faker->randomDigit()
+            ];
+        }
+
+        if($function == 'get_product_info')
+        {
+            return [
+                'status' => $faker->randomElement(['success', 'error']),
+                'product_name' => $faker->word().' '.$faker->word().' ('.$faker->word().')',
+                'look_up_name' => $faker->word(),
+                'entered_date' => $faker->date(),
+                'category' => $faker->word()
+            ];
+        }
+    }
 }
