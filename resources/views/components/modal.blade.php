@@ -12,9 +12,12 @@
                 <div class="modal-body">
                     {{ $slot }}
                 </div>
+
+                @if(!empty($footer))
                 <div class="modal-footer">
                     {{ $footer ?? '' }}
                 </div>
+                @endif
             </div>
         </div>
     </div>

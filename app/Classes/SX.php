@@ -223,6 +223,8 @@ class SX
     {
         $faker = \Faker\Factory::create();
 
+        //add delay
+        sleep(2);
 
         if($function == 'get_product')
         {
