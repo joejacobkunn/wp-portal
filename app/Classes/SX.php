@@ -167,7 +167,7 @@ class SX
 
     }
 
-    public function get_product_info($request)
+    public function get_product($request)
     {
         if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
         
@@ -218,70 +218,22 @@ class SX
 
     }
 
-    public function get_product_pricing_and_availability($request)
-    {
-        if(config('sx.mock')) return $this->mock(__FUNCTION__,$request);
-
-        $response = Http::withToken($this->token())
-            ->acceptJson()
-            ->withBody(json_encode($request), 'application/json')
-            ->post($this->endpoint.'/sxapioepricingv4');
-
-        if ($response->ok()) {
-            $response_body = json_decode($response->body());
-
-            $return_data = $response_body->response;
-            $price = $return_data->price;
-            $stock = $return_data->netAvailable;
-
-            if (empty($price)) {
-                return [
-                    'status' => 'error',
-                    'message' => 'Product does not exist',
-                ];
-            }
-
-            return [
-                'status' => 'success',
-                'price' => $price,
-                'stock' => $stock
-            ];
-
-        }
-
-        if ($response->badRequest()) {
-            $response_body = json_decode($response->body());
-
-            return [
-                'status' => 'error',
-                'message' => $response_body->response->cErrorMessage,
-            ];
-
-        }
-
-    }
 
     public function mock($function, $request)
     {
         $faker = \Faker\Factory::create();
 
-        if($function == 'get_product_pricing_and_availability')
-        {
-            return [
-                'status' => $faker->randomElement(['success', 'error']),
-                'price' => $faker->randomFloat(2),
-                'stock' => $faker->randomDigit()
-            ];
-        }
 
-        if($function == 'get_product_info')
+        if($function == 'get_product')
         {
             return [
                 'status' => $faker->randomElement(['success', 'error']),
                 'product_name' => $faker->word().' '.$faker->word().' ('.$faker->word().')',
                 'look_up_name' => $faker->word(),
                 'entered_date' => $faker->date(),
-                'category' => $faker->word()
+                'category' => $faker->word(),
+                'price' => $faker->randomFloat(2),
+                'stock' => $faker->randomDigit()
             ];
         }
     }
