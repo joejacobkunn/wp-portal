@@ -74,9 +74,9 @@
                                                                         <div class="quantity-div">
                                                                             <div class="input-group w-75">
                                                                                 <div class="input-group-prepend">
-                                                                                    <button class="btn btn-secondary"
+                                                                                    <button class="btn btn-{{ $item['quantity'] == 1 ? 'danger' : 'secondary' }}"
                                                                                         type="button"
-                                                                                        wire:click="updateQuantity(-1, '{{ $item['product_code'] }}')">-</button>
+                                                                                        wire:click="updateQuantity(-1, '{{ $item['product_code'] }}')">{!! $item['quantity'] == 1 ? '<i class="fa fa-trash"></i>' : '<i class="fa fa-minus"></i>' !!}</button>
                                                                                 </div>
                                                                                 <input type="text"
                                                                                     class="form-control text-center"
@@ -86,7 +86,7 @@
                                                                                 <div class="input-group-append">
                                                                                     <button class="btn btn-secondary"
                                                                                         type="button"
-                                                                                        wire:click="updateQuantity(1, '{{ $item['product_code'] }}')">+</button>
+                                                                                        wire:click="updateQuantity(1, '{{ $item['product_code'] }}')"><i class="fa fa-plus"></i></button>
                                                                                 </div>
                                                                             </div>
                                                                         </div>

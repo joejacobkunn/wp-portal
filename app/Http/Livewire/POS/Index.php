@@ -40,7 +40,7 @@ class Index extends Component
             return '<i class="fas fa-forward"></i> Waived customer info';
         }
 
-        return !empty($this->customerSelected) ? $this->customerSelected['name'] : (count($this->cart) ? '* Fill in customer information' : '* Add products in cart');
+        return !empty($this->customerSelected) ? $this->customerSelected['name'] : '<span class="text-danger">'. (count($this->cart) ? '* Fill in customer information' : '* add products in cart') .'</span>';
     }
     
 
@@ -111,7 +111,14 @@ class Index extends Component
         $product = $productCode ? $this->cart[$productCode] : $this->productResult;
 
         $product['quantity'] = $product['quantity'] + ((int) $qty);
+
         if ($product['quantity'] < 1) {
+            //if empty remove item from cart
+            if ($productCode) {
+                unset($this->cart[$productCode]);
+                return;
+            }
+
             $product['quantity'] = 1;
         }
 
