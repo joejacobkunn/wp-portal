@@ -198,6 +198,7 @@ class SX
             $stock = $return_data->tSrprodwhsedata->$key_var[0]->netavail;
             $prodline = $return_data->tSrprodwhsedata->$key_var[0]->prodline;
             $bin_location = $return_data->tSrprodwhsedata->$key_var[0]->binloc1;
+            $product_code = $return_data->tSrprodwhsedata->$key_var[0]->prod;
 
             return [
                 'status' => 'success',
@@ -207,7 +208,8 @@ class SX
                 'price' => $price,
                 'stock' => $stock,
                 'prodline' => $prodline,
-                'bin_location' => $bin_location
+                'bin_location' => $bin_location,
+                'product_code' => $product_code
             ];
 
         }
@@ -243,7 +245,8 @@ class SX
                 'price' => $faker->randomFloat(2),
                 'stock' => $faker->randomDigit(),
                 'prodline' => $faker->word(),
-                'bin_location' => $faker->word()
+                'bin_location' => $faker->word(),
+                'product_code' => $faker->word()
             ];
         }
     }

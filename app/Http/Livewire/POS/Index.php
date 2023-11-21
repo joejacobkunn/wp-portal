@@ -149,6 +149,7 @@ class Index extends Component
         $searchTerm = trim($this->customerQuery);
         $customerQuery = Customer::where('account_id', account()->id)
             ->where('sx_customer_number', '!=', 1)
+            ->orderBy('updated_at', 'desc')
             ->select(
                 'id',
                 'sx_customer_number',
@@ -160,7 +161,9 @@ class Index extends Component
                 'address2',
                 'city',
                 'state',
-                'zip'
+                'zip',
+                'is_active',
+                'updated_at'
             );
 
             if (preg_match('/^\d{10}$/', $searchTerm) || preg_match('/^\(\d{3}\) \d{3}-\d{4}$/', $searchTerm)) {
