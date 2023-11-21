@@ -10,39 +10,43 @@
                             <div class="accordion accordion-flush" id="accordionFlushExample">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="flush-headingOne">
-                                        <button class="accordion-button " type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#flush-collapseOne" aria-expanded="false"
-                                            aria-controls="flush-collapseOne">
-                                            1. <span class="title-span"><i class="fas fa-cart-plus"></i> Cart</span>
-                                            <p class="mb-0 brief-info">
-                                                {{ count($cart) ? count($cart) . ' Items selected' : '' }}</p>
+                                        <button
+                                            class="accordion-button {{ $activeTab == 1 ? '' : 'collapsed' }}"
+                                            {{ $activeTab == 1 ? 'disabled' : '' }}
+                                            type="button"
+                                            wire:click="selectTab(1)">
+                                            1. <span class="title-span"><i class="fas fa-cart-plus"></i> Cart 
+
+                                                <label class=" ms-2" wire:loading wire:target="selectTab(1)">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                </label>
+                                            </span>
+                                            <p class="mb-0 brief-info">{{ count($cart) ? count($cart) . ' Items selected' : '' }}</p>
                                         </button>
                                     </h2>
-                                    <div id="flush-collapseOne" class="accordion-collapse show"
+                                    <div id="flush-collapseOne" class="accordion-collapse collapse {{ $activeTab == 1 ? 'show' : '' }}"
                                         aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample"
                                         style="">
                                         <div class="accordion-body">
                                             <div>
-                                                <div>
-                                                    <div class="row">
-                                                        <div class="col-sm-4">
-                                                            <x-forms.input label="Search Product" model="productQuery"
-                                                                defer />
-                                                        </div>
-                                                        <div class="col-sm-4">
-                                                            <button class="btn btn-primary mt-4 search-btn"
-                                                                type="button" wire:click="searchProduct">
-                                                                <div wire:loading wire:target="searchProduct">
-                                                                    <span class="spinner-border spinner-border-sm"
-                                                                        role="status" aria-hidden="true"></span>
-                                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-4">
+                                                        <x-forms.input label="Search Product" model="productQuery"
+                                                            defer />
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <button class="btn btn-primary mt-4 search-btn"
+                                                            type="button" wire:click="searchProduct">
+                                                            <div wire:loading wire:target="searchProduct">
+                                                                <span class="spinner-border spinner-border-sm"
+                                                                    role="status" aria-hidden="true"></span>
+                                                            </div>
 
-                                                                <div wire:loading.class="d-none"
-                                                                    wire:target="searchProduct">
-                                                                    <i class="fa fa-search"></i> Search
-                                                                </div>
-                                                            </button>
-                                                        </div>
+                                                            <div wire:loading.class="d-none"
+                                                                wire:target="searchProduct">
+                                                                <i class="fa fa-search"></i> Search
+                                                            </div>
+                                                        </button>
                                                     </div>
                                                 </div>
 
@@ -98,29 +102,94 @@
                                 </div>
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="flush-headingTwo">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo"
-                                            aria-expanded="true" aria-controls="flush-collapseTwo">
+                                        <button
+                                            class="accordion-button {{ $activeTab == 2 ? '' : 'collapsed' }}" type="button"
+                                            {{ count($cart) ? '' : 'disabled' }}
+                                            wire:click="selectTab(2)">
                                             2. <span class="title-span"><i class="fas fa-user-edit"></i> Customer
-                                                Details</span>
-                                            <p class="mb-0 brief-info">Adrian Luna</p>
+                                                Details
+                                                <label class=" ms-2" wire:loading wire:target="selectTab(2)">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                </label>
+                                            </span>
+                                            <p class="mb-0 brief-info">{!! $this->customerPanelHint !!}</p>
                                         </button>
                                     </h2>
-                                    <div id="flush-collapseTwo" class="accordion-collapse collapse "
+                                    <div id="flush-collapseTwo" class="accordion-collapse collapse {{ $activeTab == 2 ? 'show' : '' }}"
                                         aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
-                                        <div class="accordion-body">Customer part</div>
+                                        <div class="accordion-body">
+                                            <div>
+                                                <strong>
+                                                <x-forms.checkbox
+                                                    label="Waive Customer Info"
+                                                    name="waive_customer_info"
+                                                    :value="1"
+                                                    :model="'waiveCustomerInfo'"
+                                                />
+                                                </strong>
+
+                                                @if(! $waiveCustomerInfo)
+                                                    <hr />
+
+                                                    @if(empty($customerSelected))
+                                                        <div class="row">
+                                                            <div class="col-sm-4">
+                                                                <x-forms.input
+                                                                    label="Search Customer"
+                                                                    model="customerQuery"
+                                                                    placeholder="Search By Name / SX # / Address / Phone #"
+                                                                    defer />
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <button class="btn btn-primary mt-4 search-btn"
+                                                                    type="button" wire:click="searchCustomer">
+                                                                    <div wire:loading wire:target="searchCustomer">
+                                                                        <span class="spinner-border spinner-border-sm"
+                                                                            role="status" aria-hidden="true"></span>
+                                                                    </div>
+
+                                                                    <div wire:loading.class="d-none"
+                                                                        wire:target="searchCustomer">
+                                                                        <i class="fa fa-search"></i> Search
+                                                                    </div>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                    <div>
+                                                        <label>{{ $customerSelected['name'] }}</label>
+                                                        <p class="mb-0">SX #: {{ $customerSelected['sx_customer_number'] }}</p>
+                                                        <p class="mb-0">Address: {{ $customerSelected['full_address'] }}</p>
+                                                        <p class="mb-0">Email: {{ $customerSelected['email'] }}</p>
+                                                        <p class="mb-0">Phone: {{ $customerSelected['phone'] }}</p>
+                                                        <button class="btn btn-outline-danger btn-sm mt-2" wire:click="resetCustomerSelection">
+                                                            <i class="fa fa-trash"></i> Remove
+                                                        </button>
+                                                    </div>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="flush-headingThree">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#flush-collapseThree"
-                                            aria-expanded="false" aria-controls="flush-collapseThree">
+                                        <button
+                                            class="accordion-button {{ $activeTab == 3 ? '' : 'collapsed' }}"
+                                            type="button" 
+                                            {{ !empty($customerSelected) || !empty($waiveCustomerInfo) ? '' : 'disabled' }}
+                                            wire:click="selectTab(3)">
                                             3. <span class="title-span"><i class="far fa-credit-card"></i>
-                                                Payment</span>
+                                                Payment
+
+                                                <label class=" ms-2" wire:loading wire:target="selectTab(3)">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                </label>
+                                            </span>
+                                            <p class="mb-0 brief-info">{{ !empty($customerSelected) ? $customerSelected['name'] : '' }}</p>
                                         </button>
                                     </h2>
-                                    <div id="flush-collapseThree" class="accordion-collapse collapse"
+                                    <div id="flush-collapseThree" class="accordion-collapse collapse  {{ $activeTab == 3 ? 'show' : '' }}"
                                         aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
                                         <div class="accordion-body">Payment part</div>
                                     </div>
@@ -132,7 +201,7 @@
 
                 <div>
                     @if ($productSearchModal)
-                        <x-modal :toggle="$productSearchModal">
+                        <x-modal :toggle="$productSearchModal" :closeEvent="'closeProductSearch'">
                             <x-slot name="title">
                                 <div>Search Product: {{ $productResult['product_code'] }}</div>
                             </x-slot>
@@ -193,6 +262,42 @@
 
                                     <div wire:loading.class="d-none" wire:target="addToCart">
                                         <i class="fa fa-plus me-2"></i> Add To Cart
+                                    </div>
+                                </button>
+                            </div>
+                        </x-modal>
+                    @endif
+
+                    @if ($customerSearchModal)
+                        <x-modal :toggle="$customerSearchModal" :size="'lg'" :closeEvent="'closeCustomerSearch'">
+                            <x-slot name="title">
+                                <div>Search Customer: {{ $lastCustomerQuery }}</div>
+                            </x-slot>
+
+                            <p>Select Customer for billing</p>
+
+                            <div class="customer-outer-div">
+                                @foreach($customerResult as $customer)
+                                    <div class="customer-ind-div {{ $customer['id'] == $customerResultSelected['id'] ? 'selected' : '' }}" wire:click="selectCustomer('{{ $customer['id'] }}')">
+                                        <div class="selected-label"><i class="fa fa-check-circle"></i></div>
+                                        <label>{{ $customer['name'] }}</label>
+                                        <p class="mb-0">SX #: {{ $customer['sx_customer_number'] }}</p>
+                                        <p class="mb-0">Address: {{ $customer['full_address'] }}</p>
+                                        <p class="mb-0">Email: {{ $customer['email'] }}</p>
+                                        <p class="mb-0">Phone: {{ $customer['phone'] }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="text-center">
+                                <button class="btn btn-primary btn-lg my-4 add-cart-btn" wire:click="proceedToPayment">
+                                    <div wire:loading wire:target="proceedToPayment">
+                                        <span class="spinner-border spinner-border-sm" role="status"
+                                            aria-hidden="true"></span>
+                                    </div>
+
+                                    <div wire:loading.class="d-none" wire:target="proceedToPayment">
+                                        Proceed <i class="fas fa-arrow-circle-right"></i>
                                     </div>
                                 </button>
                             </div>

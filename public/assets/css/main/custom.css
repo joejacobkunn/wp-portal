@@ -271,6 +271,9 @@
 .checkout-outer-div .accordion-button {
     padding: 1.4em;
 }
+.checkout-outer-div .accordion-button.collapsed:disabled {
+    opacity: .6;
+}
 .checkout-outer-div .accordion-button .title-span {
     font-size: 1.2em;
     font-weight: 600;
@@ -300,4 +303,37 @@
 }
 .add-cart-btn {
     width: 180px;
+}
+.customer-outer-div {
+}
+.customer-outer-div .customer-ind-div {
+    width: 31%;
+    display: inline-block;
+    padding: 12px;
+    border: 1px solid #e3e3e3;
+    border-radius: 6px;
+    margin: 0 .5%;
+    text-align: left;
+    margin-bottom: 12px;
+    position: relative;
+    height: 250px;
+    overflow: auto;
+}
+.customer-outer-div .customer-ind-div label {
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+.customer-outer-div .customer-ind-div .selected-label {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    color: var(--bs-green);
+    display: none;
+}
+.customer-outer-div .customer-ind-div.selected {
+    border: 3px solid var(--bs-blue);
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
+.customer-outer-div .customer-ind-div.selected .selected-label {
+    display: block;
 }
