@@ -174,7 +174,7 @@ class SX
         $response = Http::withToken($this->token())
             ->acceptJson()
             ->withBody(json_encode($request), 'application/json')
-            ->post($this->endpoint.'/sxapiicgetproductdatageneralv3');
+            ->post($this->endpoint.'/sxapisrgetwhseproductdata');
 
         if ($response->ok()) {
             $response_body = json_decode($response->body());
@@ -189,18 +189,25 @@ class SX
                 ];
             }
 
-            $product_name = $return_data->description1.' '.$return_data->description2.' ('.$return_data->crossReferenceProduct.')';
-            $look_up_name = $return_data->lookupName;
-            $entered_date = $return_data->enteredDate;
-            $category = $return_data->productCategory;
+            $key_var = 't-srprodwhsedata';
 
+            $product_name = $return_data->tSrprodwhsedata->$key_var[0]->descrip1.' '.$return_data->tSrprodwhsedata->$key_var[0]->descrip2.' ('.$return_data->tSrprodwhsedata->$key_var[0]->prod.')';
+            $look_up_name = $return_data->tSrprodwhsedata->$key_var[0]->prodcat;
+            $category = $return_data->tSrprodwhsedata->$key_var[0]->prodcat;
+            $price =  $return_data->tSrprodwhsedata->$key_var[0]->sellprice;
+            $stock = $return_data->tSrprodwhsedata->$key_var[0]->netavail;
+            $prodline = $return_data->tSrprodwhsedata->$key_var[0]->prodline;
+            $bin_location = $return_data->tSrprodwhsedata->$key_var[0]->binloc1;
 
             return [
                 'status' => 'success',
                 'product_name' => $product_name,
                 'look_up_name' => $look_up_name,
-                'entered_date' => $entered_date,
-                'category' => $category
+                'category' => $category,
+                'price' => $price,
+                'stock' => $stock,
+                'prodline' => $prodline,
+                'bin_location' => $bin_location
             ];
 
         }
@@ -232,10 +239,11 @@ class SX
                 'status' => $faker->randomElement(['success', 'error']),
                 'product_name' => $faker->word().' '.$faker->word().' ('.$faker->word().')',
                 'look_up_name' => $faker->word(),
-                'entered_date' => $faker->date(),
                 'category' => $faker->word(),
                 'price' => $faker->randomFloat(2),
-                'stock' => $faker->randomDigit()
+                'stock' => $faker->randomDigit(),
+                'prodline' => $faker->word(),
+                'bin_location' => $faker->word()
             ];
         }
     }

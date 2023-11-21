@@ -33,15 +33,24 @@ class Index extends Component
                 "operatorInit" => "wpa",
                 "operatorPassword" =>  "",
                 "productCode" => $this->productQuery,
-                "useCrossReferenceFlag" => false,
                 "customerNumber" => 1,
                 "shipTo" => "",
                 "unitOfMeasure" => "EA",
+                "includeSellingPrice" => true,
                 "warehouse" => "utic",
-                "extraData" => "",
-                "offerID" => "",
-                "quantity" => 0
+                "quantityOrdered" =>  0,
+                "tInfieldvalue" => [
+                    "t-infieldvalue" => [
+                        "level" => "string",
+                        "lineno"=> 0,
+                        "seqno" => 0,
+                        "fieldname" => "string",
+                        "fieldvalue" =>  "string"
+
+                    ]
+                ]
             ]
+
         ];
 
         $sx = new SX();
@@ -62,6 +71,8 @@ class Index extends Component
             'category' => $searchResponse['category'],
             'price' => $searchResponse['price'],
             'stock' => $searchResponse['stock'],
+            'bin_location' => $searchResponse['bin_location'],
+            'prodline' => $searchResponse['prodline'],
             'quantity' => isset($this->cart[$this->productQuery]) ? ($this->cart[$this->productQuery]['quantity'] > $searchResponse['stock'] ? $searchResponse['stock'] :  $this->cart[$this->productQuery]['quantity']) : 1,
         ];
         $this->reset('productQuery');
