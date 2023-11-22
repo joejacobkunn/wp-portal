@@ -337,3 +337,13 @@
 .customer-outer-div .customer-ind-div.selected .selected-label {
     display: block;
 }
+.payment-outer-div {
+    font-size: 1.1em;
+}
+.payment-outer-div .price-value-div {
+    font-weight: 700;
+}
+.payment-outer-div .view-breakup {
+    font-size: initial;
+    text-decoration: underline;
+}

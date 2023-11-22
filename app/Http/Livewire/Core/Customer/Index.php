@@ -5,12 +5,10 @@ namespace App\Http\Livewire\Core\Customer;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Customer;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Http\Livewire\Core\Customer\Traits\FormRequest;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
 {
-    use AuthorizesRequests,FormRequest,LivewireAlert;
+    use AuthorizesRequests;
 
     public $account;
 
@@ -28,25 +26,17 @@ class Index extends Component
         ],
     ];
 
-    public $customer_types = [
-        'HOM' => 'HOM',
-        'LAN' => 'LAN',
-        'SPC' => 'SPC',
-        'EMP' => 'EMP',
-        'WEB' => 'WEB',
-        'MUN' => 'MUN',
-
+    protected $listeners = [
+        'showOpenOrder',
+        'closeModal',
+        'customer:form:cancel' => 'cancel'
     ];
-
-    protected $listeners = ['showOpenOrder', 'closeModal'];
 
     public function mount()
     {
         $this->authorize('viewAny', Customer::class);
 
         $this->account = account();
-
-        $this->formInit();
     }
 
     public function render()

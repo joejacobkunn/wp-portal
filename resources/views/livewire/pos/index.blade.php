@@ -54,7 +54,7 @@
                                                 @if (count($cart))
                                                     <hr />
                                                     <h4 class="mt-4">Total Items selected ({{ count($cart) }})</h4>
-                                                    <table class="table">
+                                                    <table class="table table-hover">
                                                         <thead>
                                                             <th>Product</th>
                                                             <th>Product Line</th>
@@ -142,7 +142,7 @@
                                                                     placeholder="Search By Name / SX # / Address / Phone # / Email"
                                                                     defer />
                                                             </div>
-                                                            <div class="col-sm-4">
+                                                            <div class="col-sm-8">
                                                                 <button class="btn btn-primary mt-4 search-btn"
                                                                     type="button" wire:click="searchCustomer">
                                                                     <div wire:loading wire:target="searchCustomer">
@@ -153,6 +153,19 @@
                                                                     <div wire:loading.class="d-none"
                                                                         wire:target="searchCustomer">
                                                                         <i class="fa fa-search"></i> Search
+                                                                    </div>
+                                                                </button>
+
+                                                                <button class="btn btn-outline-success ms-2 mt-4"
+                                                                    type="button" wire:click="newCustomer">
+                                                                    <div wire:loading wire:target="newCustomer">
+                                                                        <span class="spinner-border spinner-border-sm"
+                                                                            role="status" aria-hidden="true"></span>
+                                                                    </div>
+
+                                                                    <div wire:loading.class="d-none"
+                                                                        wire:target="newCustomer">
+                                                                        <i class="fa fa-plus"></i> New Customer
                                                                     </div>
                                                                 </button>
                                                             </div>
@@ -193,14 +206,41 @@
                                                         aria-hidden="true"></span>
                                                 </label>
                                             </span>
-                                            <p class="mb-0 brief-info">
-                                                {{ !empty($customerSelected) ? $customerSelected['name'] : '' }}</p>
+                                            <p class="mb-0 brief-info">Total: {{ format_money($netPrice) }}</p>
                                         </button>
                                     </h2>
                                     <div id="flush-collapseThree"
                                         class="accordion-collapse collapse  {{ $activeTab == 3 ? 'show' : '' }}"
                                         aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
-                                        <div class="accordion-body">Payment part</div>
+                                        <div class="accordion-body">
+                                            <div class="payment-outer-div mt-3 mb-4">
+                                                <div class="row mb-4">
+                                                    <div class="col-sm-3">
+                                                        <label>Total Amount</label>
+                                                    </div>
+                                                    <div class="col-sm-9">
+                                                        <div class="price-value-div">{{ format_money($netPrice) }}</div>
+                                                        <a href="javascript:;" wire:click="showPriceBreakdown" class="view-breakup"><small>View Breakdown</small></a>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-3">
+                                                        <label>Payment Method</label>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <select class="form-select">
+                                                            <option>By Cash</option>
+                                                            <option>By Card</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2 offset-md-3">
+                                                        <button class="btn btn-primary mt-5 w-100 btn-lg"><i class="fas fa-shopping-basket me-2"></i> Place Order</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -333,6 +373,51 @@
                             </div>
                         </x-modal>
                     @endif
+
+                    @if ($newCustomerModal)
+                        <x-modal :toggle="$newCustomerModal" :size="'xl'" :closeEvent="'closeNewCustomer'">
+                            <x-slot name="title">
+                                <div>Add New Customer</div>
+                            </x-slot>
+
+                            <livewire:core.customer.create
+                                source-popup
+                            />
+                        </x-modal>
+                    @endif
+
+                    @if ($priceBreakdownModal)
+                        <x-modal :toggle="$priceBreakdownModal" :size="'lg'" :closeEvent="'closeBreakdownModal'">
+                            <x-slot name="title">
+                                <div>Price Breakdown</div>
+                            </x-slot>
+
+                            <div>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total Price</th>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($cart as $item)
+                                        <tr>
+                                            <td>{{ $item['product_name'] }} ({{ $item['product_code'] }})</td>
+                                            <td>{{ format_money($item['price']) }}</td>
+                                            <td>{{ $item['quantity'] }}</td>
+                                            <td>{{ format_money($item['total_price']) }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                <div class="mt-3">
+                                    <div class="text-end me-5 font-bold"><span class="me-3">Net Price:</span> {{ format_money($netPrice) }}</div>
+                                </div>
+                            </div>
+                        </x-modal>
+                    @endif
+
 
                 </div>
             </div>

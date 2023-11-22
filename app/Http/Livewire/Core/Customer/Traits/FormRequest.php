@@ -110,7 +110,13 @@ trait FormRequest
             $this->customer->sx_customer_number = $sx_customer_number;
             $this->customer->save();
             $this->alert('success', 'Customer created!');
-            return redirect()->route('core.customer.show', $this->customer);
+
+            if (empty($this->sourcePopup)) {
+                return redirect()->route('core.customer.show', $this->customer);
+            } else {
+                $this->emit('customer:created', $this->customer->id);
+                return;
+            }
 
         }else{
             return $this->alert('warning', 'Something went wrong. Try again later');
