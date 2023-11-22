@@ -94,6 +94,11 @@ class User extends Authenticatable
         return $this->activeRole;
     }
 
+    public function location()
+    {
+        return Location::where('account_id', $this->account_id)->where('location', $this->office_location)->first();
+    }
+
     public function isMasterAdmin()
     {
         return $this->hasRole(Role::MASTER_ROLE);

@@ -122,6 +122,7 @@ class Index extends Component
 
         ];
 
+
         $sx = new SX();
         $searchResponse = $sx->get_product($pricingRequest);
 
@@ -232,7 +233,7 @@ class Index extends Component
             ->toArray();
 
         if (! count($this->customerResult)) {    
-            return $this->addError('customerQuery', 'Invalid customer details.' );
+            return $this->addError('customerQuery', 'Customer not found' );
         }
 
         $this->customerResultSelected = current($this->customerResult);
@@ -375,5 +376,22 @@ class Index extends Component
     public function closeBreakdownModal()
     {
         $this->priceBreakdownModal = false;    
+    }
+
+    public function cc_sale_data()
+    {
+        return [
+            'checkin_date' => date('Y-m-d'),
+            'checkout_date' => date('Y-m-d'),
+            'clerk_number' => auth()->user()->sx_operator_id,
+            'custom_data' => [
+                'sx_order_id' => '',
+                'location' => auth()->user()->location()->location,
+                'portal_user_id' => auth()->user()->id
+            ],
+            'customer_id' => $sx_customer_number,
+            'terminal_id' => $terminal_id,
+            'location_id' => auth()->user()->location()->fortis_location_id
+        ];
     }
 }
