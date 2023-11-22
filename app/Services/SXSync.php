@@ -139,14 +139,20 @@ class SXSync
         if(!empty($data['old_sx_customer_number']) && !empty($data['new_sx_customer_number'])){
             $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['old_sx_customer_number'])->first();
             
-            if(is_null($customer)) 
+            if(is_null($customer) || empty($customer)) 
             {
                 $this->createCustomer($data);
                 $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['old_sx_customer_number'])->first();
             }
 
+            if(is_null($customer)){
+                return Log::channel('webhook')->warning('customer.sx_number_changed : SX #'.$data['old_sx_customer_number'].' couldnt find or create customer ', $data);
+            }
+
+
             $sx_customer = SXCustomer::where('cono', $data['cono'])->where('custno', $data['new_sx_customer_number'])->first();
-            $address = $this->split_address($sx_customer->addr);
+            $address = $this->split_address($sx_customer->addr ?? '');
+
 
             $customer->update([
                 'name' => $sx_customer->name,
@@ -181,18 +187,22 @@ class SXSync
 
         $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['sx_customer_number'])->first();
         
-        if(is_null($customer)) 
+        if(is_null($customer) || empty($customer)) 
         {
             $this->createCustomer($data);
             $customer = Customer::where('account_id', $account->id)->where('sx_customer_number', $data['sx_customer_number'])->first();
-
         }
+
+        if(is_null($customer)){
+            return Log::channel('webhook')->warning('customer.order_status_changed : SX #'.$data['sx_customer_number'].' couldnt find or create customer ', $data);
+        }
+
 
         $no_open_orders = Order::where('cono', $data['cono'])->where('custno', $data['sx_customer_number'])->openOrders()->count();
 
-        Log::channel('webhook')->info('customer.order_status_changed : SX #'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
-
         $customer->update(['open_order_count' => $no_open_orders]);
+
+        Log::channel('webhook')->info('customer.order_status_changed : SX #'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id, 'open_order_count' => $no_open_orders], 200);
     }
