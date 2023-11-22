@@ -20,8 +20,9 @@
                                                         aria-hidden="true"></span>
                                                 </label>
                                             </span>
-                                            <p class="mb-0 brief-info">
-                                                {{ count($cart) ? count($cart) . ' Items selected' : '' }}</p>
+                                            <span class="badge bg-light-primary">
+                                                <strong>{{ count($cart) ? count($cart) . ' Item(s) selected' : '' }}</strong>
+                                            </span>
                                         </button>
                                     </h2>
                                     <div id="flush-collapseOne"
@@ -173,13 +174,15 @@
                                                     @else
                                                         <div>
                                                             <label>{{ $customerSelected['name'] }}</label>
-                                                            <p class="mb-0">SX #:
+                                                            <p class="mb-0"><strong>SX #</strong>
                                                                 {{ $customerSelected['sx_customer_number'] }}</p>
-                                                            <p class="mb-0">Address:
+                                                            <p class="mb-0"><strong>Address</strong>:
                                                                 {{ $customerSelected['full_address'] }}</p>
-                                                            <p class="mb-0">Email: {{ $customerSelected['email'] }}
+                                                            <p class="mb-0"><strong>Email</strong>:
+                                                                {{ $customerSelected['email'] }}
                                                             </p>
-                                                            <p class="mb-0">Phone: {{ $customerSelected['phone'] }}
+                                                            <p class="mb-0"><strong>Phone</strong>:
+                                                                {{ format_phone($customerSelected['phone']) }}
                                                             </p>
                                                             <button class="btn btn-outline-danger btn-sm mt-2"
                                                                 wire:click="resetCustomerSelection">
@@ -206,7 +209,9 @@
                                                         aria-hidden="true"></span>
                                                 </label>
                                             </span>
-                                            <p class="mb-0 brief-info">Total: {{ format_money($netPrice) }}</p>
+                                            <span class="badge bg-light-secondary">Total:
+                                                {{ format_money($netPrice) }}
+                                            </span>
                                         </button>
                                     </h2>
                                     <div id="flush-collapseThree"
@@ -219,8 +224,10 @@
                                                         <label>Total Amount</label>
                                                     </div>
                                                     <div class="col-sm-9">
-                                                        <div class="price-value-div">{{ format_money($netPrice) }}</div>
-                                                        <a href="javascript:;" wire:click="showPriceBreakdown" class="view-breakup"><small>View Breakdown</small></a>
+                                                        <div class="price-value-div">{{ format_money($netPrice) }}
+                                                        </div>
+                                                        <a href="javascript:;" wire:click="showPriceBreakdown"
+                                                            class="view-breakup"><small>View Breakdown</small></a>
                                                     </div>
                                                 </div>
                                                 <div class="row">
@@ -236,7 +243,9 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-2 offset-md-3">
-                                                        <button class="btn btn-primary mt-5 w-100 btn-lg"><i class="fas fa-shopping-basket me-2"></i> Place Order</button>
+                                                        <button class="btn btn-primary mt-5 w-100 btn-lg"><i
+                                                                class="fas fa-shopping-basket me-2"></i> Place
+                                                            Order</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -380,9 +389,7 @@
                                 <div>Add New Customer</div>
                             </x-slot>
 
-                            <livewire:core.customer.create
-                                source-popup
-                            />
+                            <livewire:core.customer.create source-popup />
                         </x-modal>
                     @endif
 
@@ -401,18 +408,19 @@
                                         <th>Total Price</th>
                                     </thead>
                                     <tbody>
-                                        @foreach($cart as $item)
-                                        <tr>
-                                            <td>{{ $item['product_name'] }} ({{ $item['product_code'] }})</td>
-                                            <td>{{ format_money($item['price']) }}</td>
-                                            <td>{{ $item['quantity'] }}</td>
-                                            <td>{{ format_money($item['total_price']) }}</td>
-                                        </tr>
+                                        @foreach ($cart as $item)
+                                            <tr>
+                                                <td>{{ $item['product_name'] }} ({{ $item['product_code'] }})</td>
+                                                <td>{{ format_money($item['price']) }}</td>
+                                                <td>{{ $item['quantity'] }}</td>
+                                                <td>{{ format_money($item['total_price']) }}</td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                                 <div class="mt-3">
-                                    <div class="text-end me-5 font-bold"><span class="me-3">Net Price:</span> {{ format_money($netPrice) }}</div>
+                                    <div class="text-end me-5 font-bold"><span class="me-3">Net Price:</span>
+                                        {{ format_money($netPrice) }}</div>
                                 </div>
                             </div>
                         </x-modal>

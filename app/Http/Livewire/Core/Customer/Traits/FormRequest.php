@@ -108,6 +108,8 @@ trait FormRequest
         
         if($sx_customer_number){
             $this->customer->sx_customer_number = $sx_customer_number;
+            $this->customer->sales_rep_in = auth()->user()->sx_operator_id;
+            $this->customer->sales_rep_out = auth()->user()->sx_operator_id;
             $this->customer->save();
             $this->alert('success', 'Customer created!');
 

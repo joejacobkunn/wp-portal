@@ -50,10 +50,10 @@ class Index extends Component
     public function getCustomerPanelHintProperty()
     {
         if (!empty($this->waiveCustomerInfo)) {
-            return '<i class="fas fa-forward"></i> Waived customer info';
+            return '<span class="badge bg-light-warning"><i class="fas fa-user-slash"></i> <strong>Waived Customer Information</strong></span>';
         }
 
-        return !empty($this->customerSelected) ? $this->customerSelected['name'] : '<span class="text-danger">'. (count($this->cart) ? '* Fill in customer information' : '* add products in cart') .'</span>';
+        return !empty($this->customerSelected) ? '<span class="badge bg-light-success">'.$this->customerSelected['name'].' (#'.$this->customerSelected['sx_customer_number'].')</span>' : '<span class="text-danger">'. (count($this->cart) ? '* Fill in customer information' : '* add products in cart') .'</span>';
     }
     
 
