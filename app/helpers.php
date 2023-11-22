@@ -79,3 +79,11 @@ function ordinal($n)
     }
     return $n.'th';
 }
+
+
+if (! function_exists('format_money')) {
+    function format_money($number, $decimal = 2)
+    {
+        return "$" . number_format($number, $decimal, '.', ',');
+    }
+}

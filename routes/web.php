@@ -71,6 +71,10 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('reporting-dashboard', \App\Http\Livewire\ReportingDashboard\Index::class)->name('reporting-dashboard.index');
         Route::get('reporting-dashboard/{dashboard}/show', \App\Http\Livewire\ReportingDashboard\Show::class)->name('reporting-dashboard.show');
 
+        Route::get('pos', \App\Http\Livewire\POS\Index::class)->name('pos.index');
+        //Route::get('orders/{order}/show', \App\Http\Livewire\Order\Show::class)->name('order.show');
+
+
     });
 });
 
