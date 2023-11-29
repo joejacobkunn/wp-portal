@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\POS;
 
+use App\Classes\Fortis;
 use App\Classes\SX;
 use App\Helpers\StringHelper;
 use App\Models\Core\Customer;
@@ -32,6 +33,11 @@ class Index extends Component
     public $priceDetails = [];
     public $netPrice;
     public $priceBreakdownModal = false;
+    public $paymentMethod = 'cash';
+    public $terminals = [];
+    public $selectedTerminal;
+    public $orderStatus;
+    public $orderData = [];
 
     protected $listeners = [
         'closeProductSearch',
@@ -54,6 +60,15 @@ class Index extends Component
         }
 
         return !empty($this->customerSelected) ? '<span class="badge bg-light-success">'.$this->customerSelected['name'].' (#'.$this->customerSelected['sx_customer_number'].')</span>' : '<span class="text-danger">'. (count($this->cart) ? '* Fill in customer information' : '* add products in cart') .'</span>';
+    }
+
+    public function getIsOrderReadyProperty()
+    {
+        if ($this->paymentMethod == 'cash') {
+            return true;
+        }
+
+        return $this->paymentMethod == 'card' && count($this->terminals) && $this->selectedTerminal;
     }
     
 
@@ -343,6 +358,7 @@ class Index extends Component
         $this->customerResultSelected['full_address'] = $customer->getFullAddress();
         $this->closeNewCustomer();
         $this->proceedToPayment();
+        $this->preparePriceData();
 
         $this->alert('success', 'Created customer');
     }
@@ -378,20 +394,93 @@ class Index extends Component
         $this->priceBreakdownModal = false;    
     }
 
-    public function cc_sale_data()
+    public function setPaymentMethod($type)
     {
-        return [
+        $this->paymentMethod = $type;
+
+        $fortis = app()->make(Fortis::class);
+        if ($type == 'card') {
+            $terminalData = json_decode($fortis->fetchTerminals('11ee78b091324c7ca5b2b30e'), true);
+
+            $this->terminals = [];
+            foreach ($terminalData['list'] as $index => $terminal) {
+                if ($terminal['active'])
+                $this->terminals[$index]['id'] = $terminal['id'];
+                $this->terminals[$index]['title'] = $terminal['title'];
+                $this->terminals[$index]['location_id'] = $terminal['location_id'];
+                $this->terminals[$index]['active'] = $terminal['active'];
+                $this->terminals[$index]['is_provisioned'] = $terminal['is_provisioned'];
+                $this->terminals[$index]['available'] = $terminal['active'] && !$terminal['is_provisioned'];
+            }
+        }
+    }
+
+    public function setTerminal($terminalId)
+    {
+        $this->selectedTerminal = $terminalId;
+    }
+
+    public function refreshOrder()
+    {
+        $this->reset();
+    }
+
+    public function proceedToOrder()
+    {
+        if ($this->paymentMethod == 'card') {
+            $this->placeCardOrder();
+        } else {
+            $this->placeCashOrder();
+        }
+    }
+
+    private function getOrderData()
+    {
+        $data = [
             'checkin_date' => date('Y-m-d'),
             'checkout_date' => date('Y-m-d'),
             'clerk_number' => auth()->user()->sx_operator_id,
             'custom_data' => [
                 'sx_order_id' => '',
-                'location' => auth()->user()->location()->location,
                 'portal_user_id' => auth()->user()->id
             ],
-            'customer_id' => $sx_customer_number,
-            'terminal_id' => $terminal_id,
-            'location_id' => auth()->user()->location()->fortis_location_id
+            'location_id' => auth()->user()->location()->fortis_location_id,
+            'transaction_amount' => $this->netPrice * 100,
         ];
+
+        if (!$this->waiveCustomerInfo && $this->customerResultSelected) {
+            $data['customer_id'] = (string) $this->customerResultSelected['sx_customer_number'];
+        }
+
+        return $data;
+    }
+    
+    public function placeCashOrder()
+    {
+        $orderData = $this->getOrderData();
+        $fortis = app()->make(Fortis::class);
+        $transaction = $fortis->cashSale($orderData);
+        
+        if (isset($transaction['data']['id'])) {
+            $this->orderStatus = 'completed';
+            $this->orderData = $transaction['data'];
+            $this->alert('success', 'Order successfully placed!');
+        }
+    }
+
+    public function placeCardOrder()
+    {
+        $orderData = $this->getOrderData();
+        $orderData['terminal_id'] = (string) $this->selectedTerminal;
+
+        $fortis = app()->make(Fortis::class);
+        $transaction = $fortis->terminalSale($orderData);
+        $orderData = $fortis->transactionStatus($transaction['data']['async']['code']);
+
+        if ($orderData['data']['id'] && $orderData['data']['progress'] == 100) {
+            $this->orderStatus = 'completed';
+            $this->orderData = $orderData['data'];
+            $this->alert('success', 'Order successfully placed!');
+        }
     }
 }

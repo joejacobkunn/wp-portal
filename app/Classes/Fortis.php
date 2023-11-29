@@ -47,9 +47,41 @@ class Fortis
     {
         $response = Http::withHeaders($this->headers())
             ->acceptJson()
-            ->get($this->endpoint.'/v1/terminals',['filter[location_id]' => $location_id]);
+            ->get($this->endpoint.'/v1/terminals',[
+                'filter[location_id]' => $location_id,
+                'sort' => [
+                    "title" => "asc"
+                ]
+            ]);
         
             return $response->body();
+    }
+
+    public function cashSale($data)
+    {
+        $response = Http::withHeaders($this->headers())
+            ->acceptJson()
+            ->post($this->endpoint.'/v1/transactions/cash/sale', $data);
+        
+            return $response->json();
+    }
+
+    public function terminalSale($data)
+    {
+        $response = Http::withHeaders($this->headers())
+            ->acceptJson()
+            ->post($this->endpoint.'/v1/transactions/cc/sale/terminal', $data);
+        
+            return $response->json();
+    }
+
+    public function transactionStatus($id)
+    {
+        $response = Http::withHeaders($this->headers())
+            ->acceptJson()
+            ->get($this->endpoint.'/v1/async/status/' . $id);
+        
+            return $response->json();
     }
 
 }
