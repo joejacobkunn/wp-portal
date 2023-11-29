@@ -97,5 +97,19 @@
 
     @endif
 
+    @if (auth()->user()->account->hasModule('products'))
+
+        @canany(['products.view'])
+            <li class="menu-item  {{ request()->is('products*') ? 'active' : '' }}">
+                <a href="{{ route('products.index') }}" class='menu-link'>
+                    <i class="fas fa-list-alt"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+        @endcan
+
+    @endif
+
+
 
     @endif

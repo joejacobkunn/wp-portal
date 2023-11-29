@@ -347,3 +347,45 @@
     font-size: initial;
     text-decoration: underline;
 }
+.payment-outer-div .method-selection {
+    width: 510px;
+}
+.payment-outer-div .method-selection div {
+    width: 40%;
+}
+.item-selection-div div {
+    display: inline-block;
+    text-align: center;
+    border: 2px solid #f1f1f1;
+    padding: 8px 26px;
+    margin-right: 6px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+.item-selection-div .active {
+    border-color: rgb(67 94 190);
+    box-shadow: -1px 5px 13px 2px rgba(51,73,156,0.66);
+    -webkit-box-shadow: -1px 5px 13px 2px rgba(51,73,156,0.66);
+    -moz-box-shadow: -1px 5px 13px 2px rgba(51,73,156,0.66);
+    color: #435ebe;
+}
+.item-selection-div .disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+.item-selection-div .error-alert {
+    display: block;
+    color: var(--bs-danger);
+    font-size: .8em;
+}
+.order-response-div {
+    background: #fff;
+    padding: 15px 15px;
+    text-align: center;
+}
+.order-response-div .title-div h2{
+    color: var(--bs-success);
+}
+.order-response-div .title-div .bi {
+    font-size: 1.2em;
+}

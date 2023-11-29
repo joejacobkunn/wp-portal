@@ -227,6 +227,67 @@ class SX
 
     }
 
+    public function search_product($request)
+    {
+        if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
+        
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapiicgetwhseproductlistv3');
+
+        if ($response->ok()) {
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response;
+            $error_message = $return_data->cErrorMessage;
+
+            if(!empty($error_message)){
+                return [
+                    'status' => 'error',
+                    'message' => 'Product not found',
+                ];
+            }
+
+            $key_var = 't-srprodwhsedata';
+
+            $product_name = $return_data->tSrprodwhsedata->$key_var[0]->descrip1.' '.$return_data->tSrprodwhsedata->$key_var[0]->descrip2.' ('.$return_data->tSrprodwhsedata->$key_var[0]->prod.')';
+            $look_up_name = $return_data->tSrprodwhsedata->$key_var[0]->prodcat;
+            $category = $return_data->tSrprodwhsedata->$key_var[0]->prodcat;
+            $price =  $return_data->tSrprodwhsedata->$key_var[0]->sellprice;
+            $stock = $return_data->tSrprodwhsedata->$key_var[0]->netavail;
+            $prodline = $return_data->tSrprodwhsedata->$key_var[0]->prodline;
+            $bin_location = $return_data->tSrprodwhsedata->$key_var[0]->binloc1;
+            $product_code = $return_data->tSrprodwhsedata->$key_var[0]->prod;
+
+            return [
+                'status' => 'success',
+                'product_name' => $product_name,
+                'look_up_name' => $look_up_name,
+                'category' => $category,
+                'price' => $price,
+                'stock' => $stock,
+                'prodline' => $prodline,
+                'bin_location' => $bin_location,
+                'product_code' => $product_code
+            ];
+
+        }
+
+        if ($response->badRequest()) {
+            
+            $response_body = json_decode($response->body());
+
+            return [
+                'status' => 'error',
+                'message' => $response_body->response->cErrorMessage,
+            ];
+
+        }
+
+    }
+
+
 
     public function mock($function, $request)
     {
@@ -249,5 +310,22 @@ class SX
                 'product_code' => $faker->word()
             ];
         }
+
+        if($function == 'create_order')
+        {
+            return [
+                'status' => $faker->randomElement(['success']),
+                'order_id' => $faker->randomNumber(7, true)
+            ];
+        }
+
+        if($function == 'create_customer')
+        {
+            return [
+                'status' => $faker->randomElement(['success']),
+                'sx_customer_number' => $faker->randomNumber(7, true)
+            ];
+        }
+
     }
 }

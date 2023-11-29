@@ -1,0 +1,20 @@
+[
+    {
+        "group": "Products",
+        "user_groups": [
+            "super-admin"
+        ],
+        "items": [
+            {
+                "name": "products.view",
+                "label": "View Products",
+                "description": "User can view products"
+            },
+            {
+                "name": "products.manage",
+                "label": "Manage Products",
+                "description": "User can manage products"
+            }
+        ]
+    }
+]

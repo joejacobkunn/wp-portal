@@ -6,6 +6,7 @@ use App\Exports\CustomerEquipmentExport;
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\SRO\Customer as SROCustomer;
 use App\Models\SRO\Equipment;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
@@ -101,6 +102,11 @@ class EquipmentTable extends DataTableComponent
                 ->html(),
 
             Column::make('Last Repair', 'last_repair_date')
+            ->format(function ($value, $row) {
+                $last_repair_date = $this->getLastRepairDate($row->serial_no);
+                return (!empty($last_repair_date['last_repair_date'])) ? Carbon::parse($last_repair_date['last_repair_date'])->toFormattedDateString() : "";
+            })
+
                 ->html(),
 
             Column::make('Transmission Number', 'transmission_no')
@@ -219,5 +225,18 @@ class EquipmentTable extends DataTableComponent
 
 
         return ['status' => $status[0]->YEPP_Status, 'year' => $status[0]->YEPP_Year, 'last_service' => $status[0]->YEPP_LastService];
+    }
+
+    private function getLastRepairDate($serial_number)
+    {
+        $last_repair_date = DB::connection('sro')->select("select max(ro.work_completed_date) as last_repair_date  from
+                                equipment e
+                                left join repair_orders ro
+                                on ro.equipment_id = e.id
+                                WHERE e.serial_no = '".$serial_number."'");
+        
+                                if(is_null($last_repair_date) || empty($last_repair_date)) return ['last_repair_date' => ''];
+
+                                return ['last_repair_date' => $last_repair_date[0]->last_repair_date];
     }
 }
