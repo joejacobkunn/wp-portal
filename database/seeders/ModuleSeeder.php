@@ -43,6 +43,12 @@ class ModuleSeeder extends Seeder
                 'slug' => 'reporting',
                 'description' => 'Enables reporting to query SX database',
             ],
+            [
+                'name' => 'Products',
+                'slug' => 'products',
+                'description' => 'Displays and search for products',
+            ],
+
         ];
 
         foreach ($modules as $module) {

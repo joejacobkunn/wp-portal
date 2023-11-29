@@ -74,6 +74,8 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('pos', \App\Http\Livewire\POS\Index::class)->name('pos.index');
         //Route::get('orders/{order}/show', \App\Http\Livewire\Order\Show::class)->name('order.show');
 
+        Route::get('products', \App\Http\Livewire\Product\Index::class)->name('products.index');
+
 
     });
 });
