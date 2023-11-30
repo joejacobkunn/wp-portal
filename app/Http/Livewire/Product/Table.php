@@ -83,9 +83,13 @@ class Table extends DataTableComponent
                 ->searchable(),
 
             Column::make('Vend No', 'vend_no')
+                ->hideIf(1)
                 ->searchable(),
 
             Column::make('Vendor', 'vendor')
+                ->format(function ($value, $row) {
+                    return $value.'('.$row->vend_no.')';
+                })
                 ->searchable(),
 
             Column::make('Category', 'category')
