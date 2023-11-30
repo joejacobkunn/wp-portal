@@ -79,15 +79,21 @@ class Table extends DataTableComponent
 
 
             Column::make('Brand', 'brand')
+                ->secondaryHeader($this->getFilterByKey('brand'))
                 ->searchable(),
 
             Column::make('Vend No', 'vend_no')
+                ->hideIf(1)
                 ->searchable(),
 
             Column::make('Vendor', 'vendor')
+                ->format(function ($value, $row) {
+                    return $value.'('.$row->vend_no.')';
+                })
                 ->searchable(),
 
             Column::make('Category', 'category')
+                ->secondaryHeader($this->getFilterByKey('category'))
                 ->format(function ($value, $row) {
                     return strtoupper($value);
                 })
@@ -150,6 +156,19 @@ class Table extends DataTableComponent
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('look_up_name', 'like', '%'.$value.'%');
                 }),
+
+            SelectFilter::make('brand')
+                ->hiddenFromAll()
+                ->options(['' => 'All Brands'] + Product::orderBy('brand', 'asc')->pluck('brand','brand')->unique()->toArray())->filter(function (Builder $builder, string $value) {
+                    $builder->where('brand', $value);
+                }),
+
+            SelectFilter::make('category')
+                ->hiddenFromAll()
+                ->options(['' => 'All Categories'] + Product::orderBy('category', 'asc')->pluck('category','category')->unique()->toArray())->filter(function (Builder $builder, string $value) {
+                    $builder->where('category', $value);
+                }),
+
 
 
         ];

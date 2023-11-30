@@ -400,7 +400,7 @@ class Index extends Component
 
         $fortis = app()->make(Fortis::class);
         if ($type == 'card') {
-            $terminalData = json_decode($fortis->fetchTerminals('11ee78b091324c7ca5b2b30e'), true);
+            $terminalData = json_decode($fortis->fetchTerminals(auth()->user()->location()->fortis_location_id), true);
 
             $this->terminals = [];
             foreach ($terminalData['list'] as $index => $terminal) {

@@ -17,6 +17,7 @@
     composer
     artisan
     queue
+    permissions
     live
 @endstory
 
@@ -77,6 +78,12 @@
     echo 'Restarting queues';
     cd {{ $app_dir }}
     php artisan queue:restart --no-interaction
+@endtask
+
+@task('permissions')
+    echo 'Setting permissions';
+    sudo chmod -R 755 {{ $app_dir }}/storage
+    sudo chmod -R 755 {{ $app_dir }}/bootstrap/cache
 @endtask
 
 @task('live')
