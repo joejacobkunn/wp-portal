@@ -3,7 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Core\Account;
+use App\Models\Product\Brand;
+use App\Models\Product\Category;
+use App\Models\Product\Line;
 use App\Models\Product\Product;
+use App\Models\Product\Vendor;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -30,6 +34,30 @@ class ProductSeeder extends Seeder
         }
         foreach($products as $product){
             if(!empty($product->Prod)){
+
+                //fetch or create category
+                $category = Category::firstOrCreate([
+                    'name' => $product->ProdCat ?? 'Unknown'
+                ]);
+
+                //fetch or create brand
+                $brand = Brand::firstOrCreate([
+                    'name' => $product->Brand ?? 'Unknown'
+                ]);
+
+                //fetch or create line
+                $line = Line::firstOrCreate([
+                    'name' => $product->ProdLine ?? 'Unknown',
+                    'brand_id' => $brand->id
+                ]);
+
+                //fetch or create vendor
+                $vendor = Vendor::firstOrCreate([
+                    'name' => $product->Vendor ?? 'Unknown',
+                    'vendor_number' => $product->VendNo ?? 'Unknown'
+                ]);
+
+
                 Product::updateOrCreate(
                     ['prod' => $product->Prod],
                     [
@@ -37,11 +65,10 @@ class ProductSeeder extends Seeder
                         'prod' => $product->Prod ?? '',
                         'description' => $product->Description ?? '',
                         'look_up_name' => $product->LookupNm ?? '',
-                        'brand' => $product->Brand ?? '',
-                        'vend_no' => $product->VendNo ?? '',
-                        'vendor' => $product->Vendor ?? '',
-                        'category' => $product->ProdCat ?? '',
-                        'product_line' => $product->ProdLine ?? '',
+                        'brand_id' => $brand->id ?? '',
+                        'vendor_id' => $vendor->id ?? '',
+                        'category_id' => $category->id,
+                        'product_line_id' => $line->id ?? '',
                         'active' => $this->translateActive($product->Active),
                         'status' => $this->translateStatus($product->Status),
                         'list_price' => $product->ListPrice ?? '',

@@ -47,7 +47,6 @@
     cd {{ $app_dir }}
     composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
     composer dump-autoload
-    sudo chown -R www-data:www-data storage
 @endtask
 
 //task : artisan (run laravel tasks)
@@ -82,8 +81,8 @@
 
 @task('permissions')
     echo 'Setting permissions';
-    sudo chmod -R 755 {{ $app_dir }}/storage
-    sudo chmod -R 755 {{ $app_dir }}/bootstrap/cache
+    sudo chmod -R 775 {{ $app_dir }}/storage
+    sudo chmod -R 775 {{ $app_dir }}/bootstrap/cache
 @endtask
 
 @task('live')

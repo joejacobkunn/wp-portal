@@ -2,6 +2,10 @@
 
 namespace App\Models\SX;
 
+use App\Models\Product\Brand;
+use App\Models\Product\Category;
+use App\Models\Product\Line;
+use App\Models\Product\Vendor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,5 +18,6 @@ class Product extends Model
     protected $table = 'icsp';
 
     protected $primaryKey = 'prod';
+
 
 }
