@@ -12,4 +12,25 @@ class Product extends Model
     protected $table = 'products';
 
     protected $guarded = ['id'];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function line()
+    {
+        return $this->belongsTo(Line::class, 'product_line_id');
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
 }

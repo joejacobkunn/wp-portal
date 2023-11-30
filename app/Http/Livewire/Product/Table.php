@@ -7,11 +7,16 @@ use App\Models\Core\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Models\Product\Brand;
+use App\Models\Product\Category;
+use App\Models\Product\Line;
 use App\Models\Product\Product;
+use App\Models\Product\Vendor;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectDropdownFilter;
+use Illuminate\Support\Str;
 
 class Table extends DataTableComponent
 {
@@ -78,28 +83,34 @@ class Table extends DataTableComponent
                 ->html(),
 
 
-            Column::make('Brand', 'brand')
+            Column::make('Brand', 'brand.name')
                 ->secondaryHeader($this->getFilterByKey('brand'))
                 ->searchable(),
 
-            Column::make('Vend No', 'vend_no')
-                ->hideIf(1)
-                ->searchable(),
 
-            Column::make('Vendor', 'vendor')
+            Column::make('Vendor', 'vendor.name')
+            ->secondaryHeader($this->getFilterByKey('vendor'))
+
                 ->format(function ($value, $row) {
-                    return $value.'('.$row->vend_no.')';
+                    $attribute = 'vendor.vendor_number';
+                    return $value.'('.$row->$attribute.')';
                 })
                 ->searchable(),
 
-            Column::make('Category', 'category')
+            Column::make('Vendor', 'vendor.vendor_number')
+                ->hideIf(1)
+                ->searchable(),
+
+
+            Column::make('Category', 'category.name')
                 ->secondaryHeader($this->getFilterByKey('category'))
                 ->format(function ($value, $row) {
                     return strtoupper($value);
                 })
                 ->html(),
 
-            Column::make('Product Line', 'product_line')
+            Column::make('Product Line', 'line.name')
+            ->secondaryHeader($this->getFilterByKey('line'))
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->html(),
@@ -114,9 +125,15 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect(),
 
             Column::make('Active', 'active')
+                ->format(function ($value, $row) {
+                    return Str::headline($value);
+                })
                 ->excludeFromColumnSelect(),
 
                 Column::make('Status', 'status')
+                ->format(function ($value, $row) {
+                    return Str::headline($value);
+                })
                 ->excludeFromColumnSelect(),
 
 
@@ -159,15 +176,28 @@ class Table extends DataTableComponent
 
             SelectFilter::make('brand')
                 ->hiddenFromAll()
-                ->options(['' => 'All Brands'] + Product::orderBy('brand', 'asc')->pluck('brand','brand')->unique()->toArray())->filter(function (Builder $builder, string $value) {
-                    $builder->where('brand', $value);
+                ->options(['' => 'All Brands'] + Brand::orderBy('name', 'asc')->pluck('name','id')->toArray())->filter(function (Builder $builder, string $value) {
+                    $builder->where('products.brand_id', $value);
                 }),
 
             SelectFilter::make('category')
                 ->hiddenFromAll()
-                ->options(['' => 'All Categories'] + Product::orderBy('category', 'asc')->pluck('category','category')->unique()->toArray())->filter(function (Builder $builder, string $value) {
-                    $builder->where('category', $value);
+                ->options(['' => 'All Categories'] + Category::orderBy('name', 'asc')->pluck('name','id')->toArray())->filter(function (Builder $builder, string $value) {
+                    $builder->where('products.category_id', $value);
                 }),
+
+            SelectFilter::make('vendor')
+                ->hiddenFromAll()
+                ->options(['' => 'All Vendors'] + Vendor::orderBy('name', 'asc')->pluck('name','id')->toArray())->filter(function (Builder $builder, string $value) {
+                    $builder->where('products.vendor_id', $value);
+                }),
+
+            SelectFilter::make('line')
+                ->hiddenFromAll()
+                ->options(['' => 'All Product Lines'] + Line::orderBy('name', 'asc')->pluck('name','id')->toArray())->filter(function (Builder $builder, string $value) {
+                    $builder->where('products.product_line_id', $value);
+                }),
+
 
 
 
