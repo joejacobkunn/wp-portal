@@ -256,7 +256,7 @@
     background: #f1f1f1;
 }
 .checkout-outer-div .search-btn {
-    width: 100px;
+    width: 180px;
 }
 .checkout-outer-div .accordion {
     --bs-accordion-color: var(--bs-body-color);
@@ -388,4 +388,7 @@
 }
 .order-response-div .title-div .bi {
     font-size: 1.2em;
+}
+.product-search-modal #table-bulkActionsDropdown {
+    display: none !important;
 }

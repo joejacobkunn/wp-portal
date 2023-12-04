@@ -19,28 +19,27 @@
         </h2>
         <div id="flush-collapseOne"
             class="accordion-collapse collapse {{ $activeTab == 1 ? 'show' : '' }}"
-            aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample"
-            style="">
+            aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
                 <div>
                     <div class="row">
-                        <div class="col-sm-4">
-                            <x-forms.input label="Search Product" model="productQuery"
-                                defer />
-                        </div>
-                        <div class="col-sm-4">
-                            <button class="btn btn-primary mt-4 search-btn" type="button"
-                                wire:click="searchProduct">
-                                <div wire:loading wire:target="searchProduct">
-                                    <span class="spinner-border spinner-border-sm"
-                                        role="status" aria-hidden="true"></span>
-                                </div>
+                        <div class="col-sm-8">
+                            @if($loadingCart)
+                                <h5 class="my-3"><small><i class="fa fa-spinner fa-spin"></i> Loading selected items to cart</small></h5>
+                            @else
+                                <button class="btn btn-outline-primary my-3 search-btn" type="button"
+                                    wire:click="showProductSearchModal">
+                                    <div wire:loading wire:target="showProductSearchModal">
+                                        <span class="spinner-border spinner-border-sm"
+                                            role="status" aria-hidden="true"></span>
+                                    </div>
 
-                                <div wire:loading.class="d-none"
-                                    wire:target="searchProduct">
-                                    <i class="fa fa-search"></i> Search
-                                </div>
-                            </button>
+                                    <div wire:loading.class="d-none"
+                                        wire:target="showProductSearchModal">
+                                        <i class="fa fa-search"></i> Select Products
+                                    </div>
+                                </button>
+                            @endif
                         </div>
                     </div>
 
@@ -71,7 +70,7 @@
                                                 <div class="input-group w-75">
                                                     <div class="input-group-prepend">
                                                         <button
-                                                            class="btn btn-{{ $item['quantity'] == 1 ? 'danger' : 'secondary' }}"
+                                                            class="btn btn-{{ $item['quantity'] < 2 ? 'danger' : 'secondary' }}"
                                                             type="button"
                                                             wire:click="updateQuantity(-1, '{{ $item['product_code'] }}')">{!! $item['quantity'] == 1 ? '<i class="fa fa-trash"></i>' : '<i class="fa fa-minus"></i>' !!}</button>
                                                     </div>
@@ -101,7 +100,7 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="flush-headingTwo">
             <button class="accordion-button {{ $activeTab == 2 ? '' : 'collapsed' }}"
-                type="button" {{ count($cart) ? '' : 'disabled' }}
+                type="button" {{ count($cart) || $loadingCart ? '' : 'disabled' }}
                 wire:click="selectTab(2)">
                 2. <span class="title-span"><i class="fas fa-user-edit"></i> Customer
                     Details
