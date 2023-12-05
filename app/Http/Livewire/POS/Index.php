@@ -8,6 +8,7 @@ use App\Helpers\StringHelper;
 use App\Models\Core\Customer;
 use App\Http\Livewire\Component\Component;
 use App\Models\Product\Product;
+use App\Models\Product\Warehouse;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
@@ -21,6 +22,8 @@ class Index extends Component
     public $productSearchModal = false;
     public $loadingCart = false;
     public $cart = [];
+    public $warehouses = [];
+    public $selectedWareHouse;
 
     public $customerSearchModal = false;
     public $waiveCustomerInfo = 0;
@@ -55,6 +58,7 @@ class Index extends Component
     public function mount()
     {
         $this->account = account();
+        $this->warehouses = Warehouse::pluck('title', 'short')->toArray();
     }
 
     public function render()
@@ -193,6 +197,16 @@ class Index extends Component
         $this->preparePriceData();
         $this->alert('success', 'Added to cart');
         $this->loadingCart = false;
+    }
+
+    public function selectWareHouse($shortName)
+    {
+        if (! isset($this->warehouses[$shortName])) {    
+            return $this->alert('error', 'Failed to select warehouse');
+        }
+
+        $this->selectedWareHouse = $shortName;
+        return $this->alert('success', 'Updated warehouse to ' . $this->warehouses[$shortName]);
     }
 
     public function searchCustomer()

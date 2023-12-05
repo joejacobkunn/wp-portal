@@ -27,7 +27,7 @@
                             @if($loadingCart)
                                 <h5 class="my-3"><small><i class="fa fa-spinner fa-spin"></i> Loading selected items to cart</small></h5>
                             @else
-                                <button class="btn btn-outline-primary my-3 search-btn" type="button"
+                                <button class="btn btn-primary my-3 search-btn" type="button"
                                     wire:click="showProductSearchModal">
                                     <div wire:loading wire:target="showProductSearchModal">
                                         <span class="spinner-border spinner-border-sm"
@@ -39,6 +39,24 @@
                                         <i class="fa fa-search"></i> Select Products
                                     </div>
                                 </button>
+
+                                <div class="btn-group mb-1 mt-1">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle ms-2" 
+                                            type="button" 
+                                            data-bs-toggle="dropdown"
+                                            aria-haspopup="true" 
+                                            aria-expanded="true">
+                                            <i class="fas fa-warehouse me-2"></i> Warehouse: <strong>{{ $selectedWareHouse ? $warehouses[$selectedWareHouse] : '- Not Selected -' }}</strong>
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-popper-placement="bottom-start">
+                                            <h6 class="dropdown-header">Select Warehouse</h6>
+                                            @foreach($warehouses as $warehouseShort => $warehouseName)
+                                                <a class="dropdown-item" href="javascript:;" wire:click="selectWareHouse('{{ $warehouseShort }}')">{{ $warehouseName }}</a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
                         </div>
                     </div>
