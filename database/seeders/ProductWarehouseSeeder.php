@@ -25,16 +25,12 @@ class ProductWarehouseSeeder extends Seeder
             'short' => 'farm',
             'title' => 'Farmington Hills'
         ],
-        3 => [
+        4 => [
             'short' => 'livo',
             'title' => 'Livonia'
         ],
-        3 => [
-            'short' => 'clark',
-            'title' => 'Clarkston'
-        ],
-        3 => [
-            'short' => 'ricj',
+        5 => [
+            'short' => 'rich',
             'title' => 'Richmond'
         ],
     ];
