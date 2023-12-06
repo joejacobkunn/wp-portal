@@ -53,17 +53,23 @@ class Index extends Component
         'customer:form:cancel' => 'closeNewCustomer',
         'product:cart:selected' => 'ackAddToCart', //ack prod selection from table
         'pos:processAddToCart' => 'addToCart', //process prod selection adn add to cart
+        'pos:addedToCart' => '$refresh'
     ];
 
     public function mount()
     {
         $this->account = account();
-        $this->warehouses = Warehouse::pluck('title', 'short')->toArray();
+        $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->pluck('title', 'short')->toArray();
     }
 
     public function render()
     {
         return $this->renderView('livewire.pos.index');
+    }
+
+    public function setWarehouse()
+    {
+        $this->selectWareHouse(Warehouse::where('title', auth()->user()->office_location)->first()->short ?? 'utic');
     }
 
     public function getCustomerPanelHintProperty()
@@ -101,7 +107,7 @@ class Index extends Component
                 "shipTo" => "",
                 "unitOfMeasure" => "EA",
                 "includeSellingPrice" => true,
-                "warehouse" => "utic",
+                "warehouse" => $this->selectedWareHouse ?? 'utic',
                 "quantityOrdered" =>  0,
                 "tInfieldvalue" => [
                     "t-infieldvalue" => [
@@ -120,6 +126,7 @@ class Index extends Component
 
         $sx = new SX();
         $searchResponse = $sx->get_product($pricingRequest);
+        //dd($searchResponse);
 
         if ($searchResponse['status'] == 'success') {
             $this->priceModel[$productCode][$this->customerSelected['sx_customer_number'] ?? 1] = $searchResponse['price'];
@@ -197,6 +204,7 @@ class Index extends Component
         $this->preparePriceData();
         $this->alert('success', 'Added to cart');
         $this->loadingCart = false;
+        $this->emit('pos:addedToCart');
     }
 
     public function selectWareHouse($shortName)
@@ -416,18 +424,23 @@ class Index extends Component
         $this->paymentMethod = $type;
 
         $fortis = app()->make(Fortis::class);
-        if ($type == 'card') {
-            $terminalData = json_decode($fortis->fetchTerminals(auth()->user()->location()->fortis_location_id), true);
+        $this->terminals = [];
 
-            $this->terminals = [];
-            foreach ($terminalData['list'] as $index => $terminal) {
-                if ($terminal['active'])
-                $this->terminals[$index]['id'] = $terminal['id'];
-                $this->terminals[$index]['title'] = $terminal['title'];
-                $this->terminals[$index]['location_id'] = $terminal['location_id'];
-                $this->terminals[$index]['active'] = $terminal['active'];
-                $this->terminals[$index]['is_provisioned'] = $terminal['is_provisioned'];
-                $this->terminals[$index]['available'] = $terminal['active'] && !$terminal['is_provisioned'];
+        if ($type == 'card') {
+            if(!empty(auth()->user()->location()->fortis_location_id)){
+                $terminalData = json_decode($fortis->fetchTerminals(auth()->user()->location()->fortis_location_id), true);
+                foreach ($terminalData['list'] as $index => $terminal) {
+                    if ($terminal['active']){
+                        $this->terminals[$index]['id'] = $terminal['id'];
+                        $this->terminals[$index]['title'] = $terminal['title'];
+                        $this->terminals[$index]['location_id'] = $terminal['location_id'];
+                        $this->terminals[$index]['active'] = $terminal['active'];
+                        $this->terminals[$index]['is_provisioned'] = $terminal['is_provisioned'];
+                        $this->terminals[$index]['available'] = $terminal['active'] && !$terminal['is_provisioned'];
+        
+                    }
+                }
+    
             }
         }
     }

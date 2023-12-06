@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('product_warehouses', function (Blueprint $table) {
             $table->id();
-            $table->string('short', 100)->index();
+            $table->string('short', 6)->index();
             $table->string('title');
+            $table->unsignedInteger('cono')->index();
             $table->timestamps();
         });
     }

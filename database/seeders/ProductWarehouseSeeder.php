@@ -11,28 +11,45 @@ class ProductWarehouseSeeder extends Seeder
     public $warehouses = [
         0 => [
             'short' => 'ceda',
-            'title' => 'Chesterfield'
+            'title' => 'Cedar Springs',
+            'cono' => 10
         ],
         1 => [
             'short' => 'utic',
-            'title' => 'Utica'
+            'title' => 'Utica',
+            'cono' => 10
         ],
         2 => [
             'short' => 'ann',
-            'title' => 'Ann Arbor'
+            'title' => 'Ann Arbor',
+            'cono' => 10
         ],
         3 => [
             'short' => 'farm',
-            'title' => 'Farmington Hills'
+            'title' => 'Farmington Hills',
+            'cono' => 10
         ],
         4 => [
             'short' => 'livo',
-            'title' => 'Livonia'
+            'title' => 'Livonia',
+            'cono' => 10
         ],
         5 => [
             'short' => 'rich',
-            'title' => 'Richmond'
+            'title' => 'Richmond',
+            'cono' => 40
         ],
+        6 => [
+            'short' => 'wate',
+            'title' => 'Waterford',
+            'cono' => 10
+        ],
+        7 => [
+            'short' => 'mcdo',
+            'title' => 'McDonough',
+            'cono' => 40
+        ]
+
     ];
 
     /**
@@ -45,7 +62,8 @@ class ProductWarehouseSeeder extends Seeder
                 'short' => $warehouse['short']
             ], [
                 'short' => $warehouse['short'],
-                'title' => $warehouse['title']
+                'title' => $warehouse['title'],
+                'cono' => $warehouse['cono']
             ]);
         }
     }
