@@ -7,18 +7,23 @@ use App\Classes\SX;
 use App\Helpers\StringHelper;
 use App\Models\Core\Customer;
 use App\Http\Livewire\Component\Component;
+use App\Models\Product\Product;
+use App\Models\Product\Warehouse;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
 {
     use LivewireAlert;
 
-    public $activeTab = 1;
-    public $productSearchModal = false;
+    public $account;
 
-    public $productQuery = '';
-    public $productResult;
+    public $activeTab = 1;
+
+    public $productSearchModal = false;
+    public $loadingCart = false;
     public $cart = [];
+    public $warehouses = [];
+    public $selectedWareHouse;
 
     public $customerSearchModal = false;
     public $waiveCustomerInfo = 0;
@@ -45,12 +50,26 @@ class Index extends Component
         'closeNewCustomer',
         'closeBreakdownModal',
         'customer:created' => 'newCustomerCreated',
-        'customer:form:cancel' => 'closeNewCustomer'
+        'customer:form:cancel' => 'closeNewCustomer',
+        'product:cart:selected' => 'ackAddToCart', //ack prod selection from table
+        'pos:processAddToCart' => 'addToCart', //process prod selection adn add to cart
+        'pos:addedToCart' => '$refresh'
     ];
+
+    public function mount()
+    {
+        $this->account = account();
+        $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->pluck('title', 'short')->toArray();
+    }
 
     public function render()
     {
         return $this->renderView('livewire.pos.index');
+    }
+
+    public function setWarehouse()
+    {
+        $this->selectWareHouse(Warehouse::where('title', auth()->user()->office_location)->first()->short ?? 'utic');
     }
 
     public function getCustomerPanelHintProperty()
@@ -71,42 +90,9 @@ class Index extends Component
         return $this->paymentMethod == 'card' && count($this->terminals) && $this->selectedTerminal;
     }
     
-
-    public function searchProduct()
+    public function showProductSearchModal()
     {
-        $this->resetValidation();
-        $this->resetErrorBag();
-
-        if (!$this->productQuery) {
-            return $this->addError('productQuery', 'Enter Product Code.' );
-        }
-
-        $searchResponse = $this->getproductData($this->productQuery);
-        if (empty($searchResponse['status']) || $searchResponse['status'] == 'error') {
-            return $this->addError('productQuery', 'Invalid Product Code.' );
-        }
-
-        if ($searchResponse['stock'] < 1) {
-            return $this->addError('productQuery', 'Out of stock.' );
-        }
-
-        $this->productResult = [
-            'product_code' => $this->productQuery,
-            'product_name' => $searchResponse['product_name'],
-            'look_up_name' => $searchResponse['look_up_name'],
-            'category' => $searchResponse['category'],
-            'price' => $searchResponse['price'],
-            'stock' => $searchResponse['stock'],
-            'bin_location' => $searchResponse['bin_location'],
-            'prodline' => $searchResponse['prodline'],
-            'quantity' => isset($this->cart[$this->productQuery]) ? ($this->cart[$this->productQuery]['quantity'] > $searchResponse['stock'] ? $searchResponse['stock'] :  $this->cart[$this->productQuery]['quantity']) : 1,
-        ];
-        $this->reset('productQuery');
-
-        if (! isset($this->customerSelected['sx_customer_number'])) {
-        }
-
-        $this->productSearchModal = true;
+        $this->productSearchModal = true;    
     }
 
     public function getproductData($productCode)
@@ -121,7 +107,7 @@ class Index extends Component
                 "shipTo" => "",
                 "unitOfMeasure" => "EA",
                 "includeSellingPrice" => true,
-                "warehouse" => "utic",
+                "warehouse" => $this->selectedWareHouse ?? 'utic',
                 "quantityOrdered" =>  0,
                 "tInfieldvalue" => [
                     "t-infieldvalue" => [
@@ -140,6 +126,7 @@ class Index extends Component
 
         $sx = new SX();
         $searchResponse = $sx->get_product($pricingRequest);
+        //dd($searchResponse);
 
         if ($searchResponse['status'] == 'success') {
             $this->priceModel[$productCode][$this->customerSelected['sx_customer_number'] ?? 1] = $searchResponse['price'];
@@ -148,46 +135,86 @@ class Index extends Component
         return $searchResponse;
     }
 
-    public function updateQuantity($qty, $productCode = null)
+    public function updateQuantity($qty, $productCode)
     {
         //skip empty requests
-        if ($productCode && !isset($this->cart[$productCode])) {
+        if (!isset($this->cart[$productCode])) {
             return;
         }
 
-        $product = $productCode ? $this->cart[$productCode] : $this->productResult;
-
+        $product = $this->cart[$productCode];
         $product['quantity'] = $product['quantity'] + ((int) $qty);
 
         if ($product['quantity'] < 1) {
             //if empty remove item from cart
-            if ($productCode) {
-                unset($this->cart[$productCode]);
-                $this->preparePriceData();
-                return;
-            }
-
-            $product['quantity'] = 1;
+            unset($this->cart[$productCode]);
+            $this->preparePriceData();
+            return;
         }
 
         if ($product['quantity'] > $product['stock']) {
             $product['quantity'] = $product['stock'];
         }
 
-        if ($productCode) {
-            $this->cart[$productCode]['quantity'] = $product['quantity'];
-            $this->preparePriceData();
-        } else {
-            $this->productResult['quantity'] = $product['quantity'];
-        }
+        $this->cart[$productCode]['quantity'] = $product['quantity'];
+        $this->preparePriceData();
     }
 
-    public function addToCart()
+    /**
+     * Invoke event to fetch selected products
+     */
+    public function invokeAddToCart()
     {
-        $this->cart[$this->productResult['product_code']] = $this->productResult;
+        $this->loadingCart = true;
+        $this->emit('product:table:addToCart');
+    }
+
+    /**
+     * Invoke event to disaply loader in frontend
+     */
+    public function ackAddToCart($selected)
+    {
         $this->productSearchModal = false;
+        $this->emit('pos:processAddToCart', $selected);
+    }
+
+    /**
+     * Fetch product data and add in cart.
+     */
+    public function addToCart($selected)
+    {
+        $productsSelected = Product::select('id', 'prod')->whereIn('id', $selected)->get();
+        foreach ($productsSelected as $product) {
+            $productCode = $product->prod;
+            $searchResponse = $this->getproductData($productCode);
+
+            $this->cart[$productCode] = [
+                'product_code' => $productCode,
+                'product_name' => $searchResponse['product_name'],
+                'look_up_name' => $searchResponse['look_up_name'],
+                'category' => $searchResponse['category'],
+                'price' => $searchResponse['price'],
+                'stock' => $searchResponse['stock'],
+                'bin_location' => $searchResponse['bin_location'],
+                'prodline' => $searchResponse['prodline'],
+                'quantity' => isset($this->cart[$productCode]) ? ($this->cart[$productCode]['quantity'] > $searchResponse['stock'] ? $searchResponse['stock'] :  $this->cart[$productCode]['quantity']) : 1,
+            ];
+        }
+
         $this->preparePriceData();
         $this->alert('success', 'Added to cart');
+        $this->loadingCart = false;
+        $this->emit('pos:addedToCart');
+    }
+
+    public function selectWareHouse($shortName)
+    {
+        if (! isset($this->warehouses[$shortName])) {    
+            return $this->alert('error', 'Failed to select warehouse');
+        }
+
+        $this->selectedWareHouse = $shortName;
+        return $this->alert('success', 'Updated warehouse to ' . $this->warehouses[$shortName]);
     }
 
     public function searchCustomer()
@@ -307,8 +334,6 @@ class Index extends Component
     public function closeProductSearch()
     {
         $this->reset(
-            'productQuery',
-            'productResult',
             'productSearchModal',
         );
     }
@@ -399,18 +424,23 @@ class Index extends Component
         $this->paymentMethod = $type;
 
         $fortis = app()->make(Fortis::class);
-        if ($type == 'card') {
-            $terminalData = json_decode($fortis->fetchTerminals(auth()->user()->location()->fortis_location_id), true);
+        $this->terminals = [];
 
-            $this->terminals = [];
-            foreach ($terminalData['list'] as $index => $terminal) {
-                if ($terminal['active'])
-                $this->terminals[$index]['id'] = $terminal['id'];
-                $this->terminals[$index]['title'] = $terminal['title'];
-                $this->terminals[$index]['location_id'] = $terminal['location_id'];
-                $this->terminals[$index]['active'] = $terminal['active'];
-                $this->terminals[$index]['is_provisioned'] = $terminal['is_provisioned'];
-                $this->terminals[$index]['available'] = $terminal['active'] && !$terminal['is_provisioned'];
+        if ($type == 'card') {
+            if(!empty(auth()->user()->location()->fortis_location_id)){
+                $terminalData = json_decode($fortis->fetchTerminals(auth()->user()->location()->fortis_location_id), true);
+                foreach ($terminalData['list'] as $index => $terminal) {
+                    if ($terminal['active']){
+                        $this->terminals[$index]['id'] = $terminal['id'];
+                        $this->terminals[$index]['title'] = $terminal['title'];
+                        $this->terminals[$index]['location_id'] = $terminal['location_id'];
+                        $this->terminals[$index]['active'] = $terminal['active'];
+                        $this->terminals[$index]['is_provisioned'] = $terminal['is_provisioned'];
+                        $this->terminals[$index]['available'] = $terminal['active'] && !$terminal['is_provisioned'];
+        
+                    }
+                }
+    
             }
         }
     }

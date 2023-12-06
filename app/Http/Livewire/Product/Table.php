@@ -24,6 +24,18 @@ class Table extends DataTableComponent
 
     public Account $account;
 
+    //the page loaded from pos checkout
+    public $fromCheckout = false;
+
+    public $brands = [];
+    public $categories = [];
+    public $vendors = [];
+    public $productLines = [];
+
+    protected $listeners = [
+        'product:table:addToCart' => 'addToCart',
+    ];
+
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -34,7 +46,12 @@ class Table extends DataTableComponent
         //         return '_blank';
         //     });
 
-        $this->setPerPageAccepted([25, 50, 100]);
+        $paginationOptions = [25, 50, 100];
+        if ($this->fromCheckout) {
+            array_unshift($paginationOptions, 10);
+        }
+
+        $this->setPerPageAccepted($paginationOptions);
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
@@ -45,9 +62,15 @@ class Table extends DataTableComponent
         $this->setEmptyMessage('No customers found. Use global search to search on all columns and make sure no filters are applied.');
 
     }
-
-    public function boot(): void
+    
+    public function mount()
     {
+        parent::mount();
+
+        $this->brands = Brand::orderBy('name', 'asc')->pluck('name','id')->toArray();
+        $this->categories = Category::orderBy('name', 'asc')->pluck('name','id')->toArray();
+        $this->vendors = Vendor::orderBy('name', 'asc')->pluck('name','id')->toArray();
+        $this->productLines = Line::orderBy('name', 'asc')->pluck('name','id')->toArray();
     }
 
     public function columns(): array
@@ -72,7 +95,7 @@ class Table extends DataTableComponent
             
                 Column::make('List Price', 'list_price')
                 ->format(function ($value, $row) {
-                    return '$'.number_format($value);
+                    return number_format($value,2);
                 })
                 ->html(),
 
@@ -176,25 +199,25 @@ class Table extends DataTableComponent
 
             SelectFilter::make('brand')
                 ->hiddenFromAll()
-                ->options(['' => 'All Brands'] + Brand::orderBy('name', 'asc')->pluck('name','id')->toArray())->filter(function (Builder $builder, string $value) {
+                ->options(['' => 'All Brands'] + $this->brands)->filter(function (Builder $builder, string $value) {
                     $builder->where('products.brand_id', $value);
                 }),
 
             SelectFilter::make('category')
                 ->hiddenFromAll()
-                ->options(['' => 'All Categories'] + Category::orderBy('name', 'asc')->pluck('name','id')->toArray())->filter(function (Builder $builder, string $value) {
+                ->options(['' => 'All Categories'] + $this->categories)->filter(function (Builder $builder, string $value) {
                     $builder->where('products.category_id', $value);
                 }),
 
             SelectFilter::make('vendor')
                 ->hiddenFromAll()
-                ->options(['' => 'All Vendors'] + Vendor::orderBy('name', 'asc')->pluck('name','id')->toArray())->filter(function (Builder $builder, string $value) {
+                ->options(['' => 'All Vendors'] + $this->vendors)->filter(function (Builder $builder, string $value) {
                     $builder->where('products.vendor_id', $value);
                 }),
 
             SelectFilter::make('line')
                 ->hiddenFromAll()
-                ->options(['' => 'All Product Lines'] + Line::orderBy('name', 'asc')->pluck('name','id')->toArray())->filter(function (Builder $builder, string $value) {
+                ->options(['' => 'All Product Lines'] + $this->productLines)->filter(function (Builder $builder, string $value) {
                     $builder->where('products.product_line_id', $value);
                 }),
 
@@ -209,5 +232,22 @@ class Table extends DataTableComponent
         return Product::where('account_id', $this->account->id)
             ->without('account')
             ->orderBy('last_sold_date', 'DESC');
+    }
+
+    //Bulk Update
+    public function bulkActions(): array
+    {
+        if ($this->fromCheckout) {
+            return [
+                'addToCart' => 'Add To Cart',
+            ];
+        }
+
+        return [];
+    }
+
+    public function addToCart()
+    {
+        $this->emit('product:cart:selected', $this->selected);
     }
 }

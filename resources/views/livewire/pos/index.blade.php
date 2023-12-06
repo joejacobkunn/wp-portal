@@ -1,4 +1,4 @@
-<div>
+<div wire:init="setWarehouse">
 
     <x-page :breadcrumbs="$breadcrumbs">
         <x-slot:title>Checkout</x-slot>
@@ -6,9 +6,9 @@
             <div class="card border-light shadow-sm mb-4">
                 <div class="card-content">
                     <div class="card-body">
-                        
+
                         <div class="checkout-outer-div p-3">
-                            @if($orderStatus == 'completed')
+                            @if ($orderStatus == 'completed')
                                 @include('livewire.pos.partials.order_success')
                             @else
                                 @include('livewire.pos.partials.checkout')

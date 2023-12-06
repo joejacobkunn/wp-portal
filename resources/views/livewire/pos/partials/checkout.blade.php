@@ -1,15 +1,12 @@
-
 <div class="accordion accordion-flush {{ $orderStatus == 'completed' ? 'd-none' : '' }}" id="accordionFlushExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="flush-headingOne">
             <button class="accordion-button {{ $activeTab == 1 ? '' : 'collapsed' }}"
-                {{ $activeTab == 1 ? 'disabled' : '' }} type="button"
-                wire:click="selectTab(1)">
+                {{ $activeTab == 1 ? 'disabled' : '' }} type="button" wire:click="selectTab(1)">
                 1. <span class="title-span"><i class="fas fa-cart-plus"></i> Cart
 
                     <label class=" ms-2" wire:loading wire:target="selectTab(1)">
-                        <span class="spinner-border spinner-border-sm" role="status"
-                            aria-hidden="true"></span>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </label>
                 </span>
                 <span class="badge bg-light-primary">
@@ -17,30 +14,46 @@
                 </span>
             </button>
         </h2>
-        <div id="flush-collapseOne"
-            class="accordion-collapse collapse {{ $activeTab == 1 ? 'show' : '' }}"
-            aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample"
-            style="">
+        <div id="flush-collapseOne" class="accordion-collapse collapse {{ $activeTab == 1 ? 'show' : '' }}"
+            aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
                 <div>
                     <div class="row">
-                        <div class="col-sm-4">
-                            <x-forms.input label="Search Product" model="productQuery"
-                                defer />
-                        </div>
-                        <div class="col-sm-4">
-                            <button class="btn btn-primary mt-4 search-btn" type="button"
-                                wire:click="searchProduct">
-                                <div wire:loading wire:target="searchProduct">
-                                    <span class="spinner-border spinner-border-sm"
-                                        role="status" aria-hidden="true"></span>
-                                </div>
+                        <div class="col-sm-8">
+                            @if ($loadingCart)
+                                <h5 class="my-3"><small><i class="fa fa-spinner fa-spin"></i> Loading selected items
+                                        to cart</small></h5>
+                            @else
+                                <button class="btn btn-primary my-3 search-btn" type="button"
+                                    wire:click="showProductSearchModal">
+                                    <div wire:loading wire:target="showProductSearchModal">
+                                        <span class="spinner-border spinner-border-sm" role="status"
+                                            aria-hidden="true"></span>
+                                    </div>
 
-                                <div wire:loading.class="d-none"
-                                    wire:target="searchProduct">
-                                    <i class="fa fa-search"></i> Search
+                                    <div wire:loading.class="d-none" wire:target="showProductSearchModal">
+                                        <i class="fa fa-search"></i> Select Products
+                                    </div>
+                                </button>
+
+                                <div class="btn-group mb-1 mt-1">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle ms-2" type="button"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            <i class="fas fa-warehouse me-2"></i> Warehouse:
+                                            <strong>{{ $selectedWareHouse ? $warehouses[$selectedWareHouse] : '- Not Selected -' }}</strong>
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                                            data-popper-placement="bottom-start">
+                                            <h6 class="dropdown-header">Select Warehouse</h6>
+                                            @foreach ($warehouses as $warehouseShort => $warehouseName)
+                                                <a class="dropdown-item" href="javascript:;"
+                                                    wire:click="selectWareHouse('{{ $warehouseShort }}')">{{ $warehouseName }}</a>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
-                            </button>
+                            @endif
                         </div>
                     </div>
 
@@ -64,25 +77,28 @@
                                         </td>
                                         <td>{{ $item['prodline'] }}</td>
                                         <td>{{ $item['bin_location'] }}</td>
-                                        <td>{{ $item['stock'] }}</td>
+                                        <td>
+                                            @if ($item['stock'] > 0)
+                                                {{ $item['stock'] }}
+                                            @else
+                                                <span class="text-danger">{{ $item['stock'] }}</span>
+                                            @endif
+                                        </td>
                                         <td>${{ number_format($item['price'], 2) }}</td>
                                         <td>
                                             <div class="quantity-div">
                                                 <div class="input-group w-75">
                                                     <div class="input-group-prepend">
                                                         <button
-                                                            class="btn btn-{{ $item['quantity'] == 1 ? 'danger' : 'secondary' }}"
+                                                            class="btn btn-{{ $item['quantity'] < 2 ? 'danger' : 'secondary' }}"
                                                             type="button"
                                                             wire:click="updateQuantity(-1, '{{ $item['product_code'] }}')">{!! $item['quantity'] == 1 ? '<i class="fa fa-trash"></i>' : '<i class="fa fa-minus"></i>' !!}</button>
                                                     </div>
-                                                    <input type="text"
-                                                        class="form-control text-center"
-                                                        value="{{ $item['quantity'] }}"
-                                                        id="quantityInput"
+                                                    <input type="text" class="form-control text-center"
+                                                        value="{{ $item['quantity'] }}" id="quantityInput"
                                                         aria-describedby="basic-addon1">
                                                     <div class="input-group-append">
-                                                        <button class="btn btn-secondary"
-                                                            type="button"
+                                                        <button class="btn btn-secondary" type="button"
                                                             wire:click="updateQuantity(1, '{{ $item['product_code'] }}')"><i
                                                                 class="fa fa-plus"></i></button>
                                                     </div>
@@ -100,27 +116,23 @@
     </div>
     <div class="accordion-item">
         <h2 class="accordion-header" id="flush-headingTwo">
-            <button class="accordion-button {{ $activeTab == 2 ? '' : 'collapsed' }}"
-                type="button" {{ count($cart) ? '' : 'disabled' }}
-                wire:click="selectTab(2)">
+            <button class="accordion-button {{ $activeTab == 2 ? '' : 'collapsed' }}" type="button"
+                {{ count($cart) || $loadingCart ? '' : 'disabled' }} wire:click="selectTab(2)">
                 2. <span class="title-span"><i class="fas fa-user-edit"></i> Customer
                     Details
                     <label class=" ms-2" wire:loading wire:target="selectTab(2)">
-                        <span class="spinner-border spinner-border-sm" role="status"
-                            aria-hidden="true"></span>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </label>
                 </span>
                 <p class="mb-0 brief-info">{!! $this->customerPanelHint !!}</p>
             </button>
         </h2>
-        <div id="flush-collapseTwo"
-            class="accordion-collapse collapse {{ $activeTab == 2 ? 'show' : '' }}"
+        <div id="flush-collapseTwo" class="accordion-collapse collapse {{ $activeTab == 2 ? 'show' : '' }}"
             aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
                 <div>
                     <strong>
-                        <x-forms.checkbox label="Waive Customer Info"
-                            name="waive_customer_info" :value="1"
+                        <x-forms.checkbox label="Waive Customer Info" name="waive_customer_info" :value="1"
                             :model="'waiveCustomerInfo'" />
                     </strong>
 
@@ -130,34 +142,30 @@
                         @if (empty($customerSelected))
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <x-forms.input label="Search Customer"
-                                        model="customerQuery"
-                                        placeholder="Search By Name / SX # / Address / Phone # / Email"
-                                        defer />
+                                    <x-forms.input label="Search Customer" model="customerQuery"
+                                        placeholder="Search By Name / SX # / Address / Phone # / Email" defer />
                                 </div>
                                 <div class="col-sm-8">
-                                    <button class="btn btn-primary mt-4 search-btn"
-                                        type="button" wire:click="searchCustomer">
+                                    <button class="btn btn-primary mt-4 search-btn" type="button"
+                                        wire:click="searchCustomer">
                                         <div wire:loading wire:target="searchCustomer">
-                                            <span class="spinner-border spinner-border-sm"
-                                                role="status" aria-hidden="true"></span>
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
                                         </div>
 
-                                        <div wire:loading.class="d-none"
-                                            wire:target="searchCustomer">
+                                        <div wire:loading.class="d-none" wire:target="searchCustomer">
                                             <i class="fa fa-search"></i> Search
                                         </div>
                                     </button>
 
-                                    <button class="btn btn-outline-success ms-2 mt-4"
-                                        type="button" wire:click="newCustomer">
+                                    <button class="btn btn-outline-success ms-2 mt-4" type="button"
+                                        wire:click="newCustomer">
                                         <div wire:loading wire:target="newCustomer">
-                                            <span class="spinner-border spinner-border-sm"
-                                                role="status" aria-hidden="true"></span>
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
                                         </div>
 
-                                        <div wire:loading.class="d-none"
-                                            wire:target="newCustomer">
+                                        <div wire:loading.class="d-none" wire:target="newCustomer">
                                             <i class="fa fa-plus"></i> New Customer
                                         </div>
                                     </button>
@@ -189,16 +197,14 @@
     </div>
     <div class="accordion-item">
         <h2 class="accordion-header" id="flush-headingThree">
-            <button class="accordion-button {{ $activeTab == 3 ? '' : 'collapsed' }}"
-                type="button"
+            <button class="accordion-button {{ $activeTab == 3 ? '' : 'collapsed' }}" type="button"
                 {{ !empty($customerSelected) || !empty($waiveCustomerInfo) ? '' : 'disabled' }}
                 wire:click="selectTab(3)">
                 3. <span class="title-span"><i class="far fa-credit-card"></i>
                     Payment
 
                     <label class=" ms-2" wire:loading wire:target="selectTab(3)">
-                        <span class="spinner-border spinner-border-sm" role="status"
-                            aria-hidden="true"></span>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </label>
                 </span>
                 <span class="badge bg-light-secondary">Total:
@@ -206,8 +212,7 @@
                 </span>
             </button>
         </h2>
-        <div id="flush-collapseThree"
-            class="accordion-collapse collapse  {{ $activeTab == 3 ? 'show' : '' }}"
+        <div id="flush-collapseThree" class="accordion-collapse collapse  {{ $activeTab == 3 ? 'show' : '' }}"
             aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
                 <div class="payment-outer-div mt-3 mb-4 d-none1">
@@ -218,8 +223,8 @@
                         <div class="col-sm-9">
                             <div class="price-value-div">{{ format_money($netPrice) }}
                             </div>
-                            <a href="javascript:;" wire:click="showPriceBreakdown"
-                                class="view-breakup"><small>View Breakdown</small></a>
+                            <a href="javascript:;" wire:click="showPriceBreakdown" class="view-breakup"><small>View
+                                    Breakdown</small></a>
                         </div>
                     </div>
                     <div class="row">
@@ -228,44 +233,59 @@
                         </div>
                         <div class="col-sm-8">
                             <div class="method-selection item-selection-div">
-                                <div wire:click="setPaymentMethod('cash')" class="{{ $paymentMethod == 'cash' ? 'active' : '' }}"><i class="far fa-money-bill-alt me-1"></i> By Cash {!! $paymentMethod == 'cash' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}</div>
-                                <div wire:click="setPaymentMethod('card')" class="{{ $paymentMethod == 'card' ? 'active' : '' }}"><i class="far fa-credit-card me-1"></i> By Card {!! $paymentMethod == 'card' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}</div>
+                                <div wire:click="setPaymentMethod('cash')"
+                                    class="{{ $paymentMethod == 'cash' ? 'active' : '' }}"><i
+                                        class="far fa-money-bill-alt me-1"></i> By Cash {!! $paymentMethod == 'cash' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}</div>
+                                <div wire:click="setPaymentMethod('card')"
+                                    class="{{ $paymentMethod == 'card' ? 'active' : '' }}"><i
+                                        class="far fa-credit-card me-1"></i> By Card {!! $paymentMethod == 'card' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}</div>
                             </div>
 
                             <small class="mt-4" wire:loading wire:target="setPaymentMethod('card')">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Fetching Terminals
+                                <span class="spinner-border spinner-border-sm" role="status"
+                                    aria-hidden="true"></span> Fetching Terminals
                             </small>
 
-                            @if($paymentMethod == 'card')
-                            <div class="payment-process-div mt-5">
-                                <label class="mb-2">Select Terminal</label>
-                                <div class="item-selection-div">
-                                    @foreach($terminals as $terminal)
-                                        <div class="{{ $selectedTerminal == $terminal['id'] ? 'active' : '' }} {{ !$terminal['available'] ? 'disabled' : '' }}" {!! $terminal['available'] ? 'wire:click="setTerminal(\'' . $terminal['id'] .'\') ' : '' !!}">
-                                            <i class="fas fa-cash-register"></i> {{ $terminal['title'] }}
-                                            <small wire:loading wire:target="setTerminal('{{ $terminal['id'] }}')">
-                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                            </small>
+                            @if ($paymentMethod == 'card')
+                                <div class="payment-process-div mt-5">
+                                    <label class="mb-2">Select Terminal</label>
+                                    <div class="item-selection-div">
+                                        @forelse($terminals as $terminal)
+                                            <div class="{{ $selectedTerminal == $terminal['id'] ? 'active' : '' }} {{ !$terminal['available'] ? 'disabled' : '' }}"
+                                                {!! $terminal['available'] ? 'wire:click="setTerminal(\'' . $terminal['id'] . '\') ' : '' !!}">
+                                                <i class="fas fa-cash-register"></i> {{ $terminal['title'] }}
+                                                <small wire:loading
+                                                    wire:target="setTerminal('{{ $terminal['id'] }}')">
+                                                    <span class="spinner-border spinner-border-sm" role="status"
+                                                        aria-hidden="true"></span>
+                                                </small>
 
-                                            @if(!$terminal['available'])
-                                            <small class="error-alert ">(Not Available)</small>
-                                            @endif
-                                        </div>
-                                    @endforeach
+                                                @if (!$terminal['available'])
+                                                    <small class="error-alert ">(Not Available)</small>
+                                                @endif
+                                            </div>
+                                        @empty
+                                            <div class="alert alert-warning" role="alert">
+                                                No terminals found. Make sure its active or check if locations are
+                                                configured by your administrator
+                                            </div>
+                                        @endforelse
+                                    </div>
                                 </div>
-                            </div>
                             @endif
 
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-2 offset-md-3">
-                            <button wire:click="proceedToOrder" class="btn btn-primary mt-5 w-100 btn-lg {{ !$this->isOrderReady ? 'disabled' : '' }}">
+                            <button wire:click="proceedToOrder"
+                                class="btn btn-primary mt-5 w-100 btn-lg {{ !$this->isOrderReady ? 'disabled' : '' }}">
                                 <label wire:loading wire:target="proceedToOrder">
                                     <span class="spinner-border spinner-border-sm" role="status"
                                         aria-hidden="true"></span> Processing
                                 </label>
-                                <label wire:loading.remove wire:target="proceedToOrder"><i class="fas fa-shopping-basket me-2"></i> Place Order</label>
+                                <label wire:loading.remove wire:target="proceedToOrder"><i
+                                        class="fas fa-shopping-basket me-2"></i> Place Order</label>
                             </button>
                         </div>
                     </div>
