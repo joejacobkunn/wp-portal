@@ -6,7 +6,7 @@
         'inline' => $isBootstrap,
     ])>
         <select
-            wire:model.live="filterComponents.{{ $filter->getKey() }}"
+            field-key="filterComponents.{{ $filter->getKey() }}"
             wire:key="{{ $filter->generateWireKey($tableName, 'select') }}"
             id="{{ $tableName }}-filter-{{ $filter->getKey() }}@if($filter->hasCustomPosition())-{{ $filter->getCustomPosition() }}@endif"
             @class([

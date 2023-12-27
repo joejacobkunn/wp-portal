@@ -3,7 +3,7 @@
 
 <div x-cloak x-show="!currentlyReorderingStatus && filtersOpen" 
     @class([
-        'container' => $component->isBootstrap(),
+        'container table-filter-div' => $component->isBootstrap(),
     ])
     @if($component->isTailwind())
     x-transition:enter="transition ease-out duration-100"
@@ -63,4 +63,64 @@
             @endforeach
         </div>
     @endforeach
+
+
+    @script
+    <script>
+        (function () {
+            let inProcessFlag = 0;
+            let firstLoad = true
+
+            if (typeof SlimSelect == 'function') {
+                initSelect()
+            } else {
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initSelect);
+            }
+
+            function initSelect() {
+                if (inProcessFlag) return
+
+                if (! document.querySelector('#datatable-{{ $component->getId() }} .table-filter-div select')) return
+
+                inProcessFlag = 1
+                document.querySelectorAll('#datatable-{{$component->getId() }} .table-filter-div select').forEach((el) => {
+                    el.classList.remove('form-select')
+                    if (typeof SlimSelect == 'function') {
+
+
+                        let id = '#' + el.getAttribute('id')
+                        let select = new SlimSelect({ 
+                            select: id,
+                            onChange: (info) => {
+                                
+                                if (firstLoad) {
+                                    firstLoad = false 
+                                    return
+                                };
+
+                                let val = info.value
+                                if (el.hasAttribute('multiple')) {
+                                    val = info.map((v) => v.value)
+                                }
+                                
+                                $wire.set(el.getAttribute('field-key'), val).then(() => {
+                                    initSelect()
+                                })
+
+                            },
+                        })
+                        
+                        if (firstLoad && el.getAttribute('field-key')) {
+                            let values = $wire.get(el.getAttribute('field-key'))
+                            select.set(values)
+                        }
+                    }
+                })
+
+                inProcessFlag = 0
+            }
+
+        })()
+    </script>
+    @endscript
 </div>
