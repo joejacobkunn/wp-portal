@@ -1,5 +1,4 @@
 <div>
-    @if($loaded)
     <div class="card border-light shadow-sm mb-4">
         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew' . time()">
             <livewire:component.action-button :actionButtons="$actionButtons" :key="'comments' . time()">
@@ -70,5 +69,4 @@
             </ul>
         </div>
     </div>
-    @endif
 </div>

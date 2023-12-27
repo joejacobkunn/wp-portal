@@ -16,6 +16,5 @@
     <link type="text/css" href="/assets/css/spatiemedia.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
 </head>

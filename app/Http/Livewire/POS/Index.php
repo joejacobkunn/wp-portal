@@ -166,7 +166,7 @@ class Index extends Component
     public function invokeAddToCart()
     {
         $this->loadingCart = true;
-        $this->emit('product:table:addToCart');
+        $this->dispatch('product:table:addToCart');
     }
 
     /**
@@ -175,7 +175,7 @@ class Index extends Component
     public function ackAddToCart($selected)
     {
         $this->productSearchModal = false;
-        $this->emit('pos:processAddToCart', $selected);
+        $this->dispatch('pos:processAddToCart', $selected);
     }
 
     /**
@@ -204,7 +204,7 @@ class Index extends Component
         $this->preparePriceData();
         $this->alert('success', 'Added to cart');
         $this->loadingCart = false;
-        $this->emit('pos:addedToCart');
+        $this->dispatch('pos:addedToCart');
     }
 
     public function selectWareHouse($shortName)

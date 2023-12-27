@@ -1,0 +1,17 @@
+<livewire:media-library
+    :key="'media-library-component' . $name"
+    :media="$media"
+    :model="$model"
+    :name="$name"
+    :rules="$rules"
+    :accept="$accept"
+    :maxItems="$maxItems"
+    :multiple="$multiple"
+    :sortable="$sortable"
+    :view="$componentView ?? null"
+    :listView="$listView"
+    :itemView="$itemView"
+    :propertiesView="$propertiesView ?? null"
+    :fieldsView="$fieldsView ?? null"
+    :editableName="$editableName"
+/>

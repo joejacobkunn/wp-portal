@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 /** Global urls */
 
-Route::post('livewire/message/{name}', [\Livewire\Controllers\HttpConnectionHandler::class, '__invoke'])->name('livewire.message')->middleware('subdomain');
+//Route::post('livewire/message/{name}', [\Livewire\Controllers\HttpConnectionHandler::class, '__invoke'])->name('livewire.message')->middleware('subdomain');
+Route::any('livewire/update', [\Livewire\Mechanisms\HandleRequests\HandleRequests::class, 'handleUpdate'])->name('livewire.update')->middleware('subdomain');
 
 /** Global urls ends */
 

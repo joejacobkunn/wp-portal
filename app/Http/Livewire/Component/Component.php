@@ -15,16 +15,6 @@ abstract class Component extends BaseComponent
 
     public $moduleName;
 
-    public $loaded = false;
-
-    public $lazyLoad = false;
-    public $contentLoaded = false;
-
-    public function init()
-    {
-        $this->loaded = true;
-    }
-
     /**
      * Dynamic listener definitions
      */
@@ -85,10 +75,5 @@ abstract class Component extends BaseComponent
             'type' => $type,
             'message' => $message,
         ]);
-    }
-
-    public function loadLazyContent()
-    {
-        $this->contentLoaded = true;
     }
 }

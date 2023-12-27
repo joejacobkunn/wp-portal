@@ -8,7 +8,7 @@
 
             <h3 class="h5 mb-0">
                 Existing Users
-                <a href="{{route('core.user.authentication')}}"
+                <a href="{{ route('core.user.authentication') }}"
                     class="btn btn-sm btn-link link-secondary ms-4">Authentication Log</a>
             </h3>
         </div>

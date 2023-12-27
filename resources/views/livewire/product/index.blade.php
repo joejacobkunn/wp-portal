@@ -18,12 +18,8 @@
                             <h3 class="h5 mb-0">Product List for {{ $account->name }}</h3>
                         </div>
 
-                        <div class="card-body" {!! $lazyLoad ? 'wire:init="loadLazyContent"' : '' !!}>
-                            @if ($lazyLoad && !$contentLoaded)
-                                <x-skelton type='table' />
-                            @else
-                                <livewire:product.table :account="$account" key="{{ now() }}" />
-                            @endif
+                        <div class="card-body">
+                            <livewire:product.table :account="$account" key="{{ now() }}" lazy />
                         </div>
 
                     </div>

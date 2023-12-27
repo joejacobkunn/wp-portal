@@ -65,8 +65,6 @@ class Table extends DataTableComponent
     
     public function mount()
     {
-        parent::mount();
-
         $this->brands = Brand::orderBy('name', 'asc')->pluck('name','id')->toArray();
         $this->categories = Category::orderBy('name', 'asc')->pluck('name','id')->toArray();
         $this->vendors = Vendor::orderBy('name', 'asc')->pluck('name','id')->toArray();
@@ -248,6 +246,11 @@ class Table extends DataTableComponent
 
     public function addToCart()
     {
-        $this->emit('product:cart:selected', $this->selected);
+        $this->dispatch('product:cart:selected', $this->selected);
+    }
+
+    public function placeholder()
+    {
+        return view('components.skelton', ['type' => 'table']);
     }
 }

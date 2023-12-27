@@ -11,9 +11,11 @@ class MediaAttachment extends Component
 
     /*
     |--------------------------------------------------------------------------
-    | Configurable Attributes
+    | Configurable Attributes 
     |--------------------------------------------------------------------------
     */
+
+    public $fieldId;
 
     /** Media libray collection Name */
     public $collection;
@@ -25,16 +27,16 @@ class MediaAttachment extends Component
 
     /** Eloquent Model */
     public $entity;
-
+    
     /** Multiple upload */
     public $multiple = false;
 
     /**
      * MIME Rules
-     *
+     * 
      * eg: mimes:jpg,jpeg
      */
-    public $rules = '';
+    public $mediaRules = '';
 
     /** Show edit field */
     public $editable = false;
@@ -50,7 +52,7 @@ class MediaAttachment extends Component
 
     /** Media grid view layout */
     public $gridView;
-
+    
     /**
      * Listener
      */
@@ -61,14 +63,17 @@ class MediaAttachment extends Component
      */
     public $gridWidth = 25;
 
+    public $parentComponent;
+
     /*
     |--------------------------------------------------------------------------
-    | Non-Configurable Attributes
+    | Non-Configurable Attributes 
     |--------------------------------------------------------------------------
     */
-    public $fieldId;
 
     public $medias = [];
+
+    public $mediaRendered = [];
 
     public $previewImage;
 
@@ -77,13 +82,19 @@ class MediaAttachment extends Component
     public $mediaComponentNames = [];
 
     /**
-     * Custom listeners
+     * Custom listeners 
      */
     public function getListeners()
     {
         return array_merge(parent::getListeners(), [
-            'refreshMedia' => 'refreshMedia',
+            $this->fieldId.':mediaUpdated' => 'mediaUpdated',
         ]);
+    }
+
+    public function mount()
+    {
+        $this->loadMedia();
+        $this->fileVar = uniqid();
     }
 
     /**
@@ -91,7 +102,9 @@ class MediaAttachment extends Component
      */
     public function render()
     {
-        $this->fieldId = $this->collection . "-library-" . uniqid();
+        if (!$this->editable) {
+            $this->medias = $this->entity->media()->where('collection_name', $this->collection)->get();
+        }
 
         return view('livewire.component.media-attachment');
     }
@@ -106,6 +119,23 @@ class MediaAttachment extends Component
         }
 
         $this->medias = $this->entity->getMedia($this->collection);
+
+        $this->mediaRendered = [];
+        foreach ($this->medias as $media) {
+            $this->mediaRendered[$media->uuid] =  [
+                'name' => $media->name,
+                'file_name' => $media->file_name,
+                'uuid' => $media->uuid,
+                'preview_url' => $media->hasGeneratedConversion('preview') ? $media->getUrl('preview') : '',
+                'order' => $media->order_column,
+                'custom_properties' => $media->custom_properties,
+                'extension' => $media->extension,
+                'size' => $media->size,
+                'created_at' => $media->created_at->timestamp,
+                'mime_type' => $media->mime_type,
+                'extension' => pathinfo($media->file_name, PATHINFO_EXTENSION),
+            ];
+        }
     }
 
     /**
@@ -131,9 +161,9 @@ class MediaAttachment extends Component
     public function loadUploaderMedia()
     {
         if ($this->multiple || !isset($this->medias[0])) return;
-
+        
         $media = $this->medias[0];
-        $this->emit("{$this->fileVar}:fileAdded", [
+        $this->dispatch("{$this->fileVar}:fileAdded", [
             'name' => $media->name,
             'fileName' => $media->file_name,
             'oldUuid' => "",
@@ -152,6 +182,7 @@ class MediaAttachment extends Component
     public function toggleView($viewType)
     {
         $this->viewType = $viewType;
+        $this->dispatch('browser:media-library:view-update', $viewType);
     }
 
     /**
@@ -159,7 +190,37 @@ class MediaAttachment extends Component
      */
     public function refreshMedia()
     {
-        $this->emit('$refresh');
-        $this->dispatchBrowserEvent('contentChanged');
+        $this->dispatch('$refresh');
+        $this->dispatch('contentChanged');
     }
+
+    public function setValue($value)
+    {
+        $values = array_merge($this->mediaRendered, [
+            $value['uuid'] => $value
+        ]);
+
+        
+        $this->dispatch($this->listener, $this->model, $values)->to($this->parentComponent); 
+    }
+
+    public function mediaUpdated($items)
+    {
+        $mediaItems = [];
+        foreach ($items as $item) {
+            $item = $item[0] ?? [];
+
+            if (isset($item['custom_properties']) && !empty($item['custom_properties'][0]['description'])) {
+                $item['custom_properties'] = $item['custom_properties'][0];
+            } else {
+                $item['custom_properties'] = [];   
+            }
+
+            $mediaItems[] = $item;
+        }
+        
+        $this->dispatch($this->listener, $this->model, array_filter($mediaItems))->to($this->parentComponent);
+        
+    }
+
 }

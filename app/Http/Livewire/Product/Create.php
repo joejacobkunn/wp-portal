@@ -37,6 +37,6 @@ class Create extends Component
 
     public function cancel()
     {
-        $this->emit('customer:form:cancel');
+        $this->dispatch('customer:form:cancel');
     }
 }

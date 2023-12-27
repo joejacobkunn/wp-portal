@@ -283,4 +283,9 @@ class Table extends DataTableComponent
             ->orderBy('name', 'ASC')
             ->orderBy('last_sale_date', 'DESC');
     }
+
+    public function placeholder()
+    {
+        return view('components.skelton', ['type' => 'table']);
+    }
 }
