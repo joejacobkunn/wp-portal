@@ -49,7 +49,7 @@ class OrderSXTransfomer extends JsonResource
                     ],
                 ],
                 'sxt_itemV4' => [
-                    'sxt_itemV4' => $this->create_items_array($request->items),
+                    'sxt_itemV4' => $this->create_items_array($request->items, $request->customer_type),
                 ],
                 'sxt_shipfm' => [
                     'sxt_shipfm' => [],
@@ -121,7 +121,7 @@ class OrderSXTransfomer extends JsonResource
         return $ship_to ?: '';
     }
 
-    private function create_items_array($order_items)
+    private function create_items_array($order_items, $customer_type)
     {
         $items = [];
 
@@ -134,13 +134,15 @@ class OrderSXTransfomer extends JsonResource
             ];
         }
 
-        //fake line item for reporting, keep this!!!
-        $items[] = [
-            'buyerProd' => 'EXSHOPLOCAL',
-            'qtyOrd' => 1,
-            'sellerProd' => 'EXSHOPLOCAL',
-            'upc' => 'EXSHOPLOCAL',
-        ];
+        if ($customer_type == 'exmark') {
+            //fake line item for reporting, keep this!!!
+            $items[] = [
+                'buyerProd' => 'EXSHOPLOCAL',
+                'qtyOrd' => 1,
+                'sellerProd' => 'EXSHOPLOCAL',
+                'upc' => 'EXSHOPLOCAL',
+            ];
+        }
 
         return $items;
     }

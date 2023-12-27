@@ -287,6 +287,32 @@ class SX
 
     }
 
+    //get total invoice price with tax
+
+    public function get_total_invoice_data($request)
+    {
+        if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapisfoeordertotloadv4');
+
+        if ($response->ok()) {
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response;
+            $key_var = 't-ordtotdata';
+
+            return [
+                'status' => 'success',
+                'total_tax' => $return_data->tOrdtotdata->$key_var[0]->tottaxamt,
+                'total_line_amount' => $return_data->tOrdtotdata->$key_var[0]->totlineamt,
+                'total_invoice_amount' => $return_data->tOrdtotdata->$key_var[0]->totinvamt,
+            ];
+        }
+    }
+
 
 
     public function mock($function, $request)
@@ -325,6 +351,17 @@ class SX
                 'status' => $faker->randomElement(['success']),
                 'sx_customer_number' => $faker->randomNumber(7, true)
             ];
+        }
+
+        if($function == 'get_total_invoice_data')
+        {
+            return [
+                'status' => 'success',
+                'total_tax' => $faker->randomFloat(2,1,10),
+                'total_line_amount' => $faker->randomFloat(2,20,100),
+                'total_invoice_amount' => $faker->randomFloat(2,30,110),
+            ];
+
         }
 
     }
