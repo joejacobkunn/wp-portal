@@ -44,6 +44,9 @@ class Index extends Component
     public $orderStatus;
     public $orderData = [];
 
+    public $unitOfMeasure = 'EA';
+    public $webTransactionType = 'tsf';
+
     protected $listeners = [
         'closeProductSearch',
         'closeCustomerSearch',
@@ -100,12 +103,12 @@ class Index extends Component
         $pricingRequest = [
             'request' => [
                 "companyNumber" => 10,
-                "operatorInit" => "wpa",
+                "operatorInit" => auth()->user()->sx_operator_id ?? "wpa",
                 "operatorPassword" =>  "",
                 "productCode" => $productCode,
                 "customerNumber" => $this->customerSelected['sx_customer_number'] ?? 1,
                 "shipTo" => "",
-                "unitOfMeasure" => "EA",
+                "unitOfMeasure" => $this->unitOfMeasure,
                 "includeSellingPrice" => true,
                 "warehouse" => $this->selectedWareHouse ?? 'utic',
                 "quantityOrdered" =>  0,
@@ -126,13 +129,57 @@ class Index extends Component
 
         $sx = new SX();
         $searchResponse = $sx->get_product($pricingRequest);
-        //dd($searchResponse);
 
         if ($searchResponse['status'] == 'success') {
             $this->priceModel[$productCode][$this->customerSelected['sx_customer_number'] ?? 1] = $searchResponse['price'];
         }
 
         return $searchResponse;
+    }
+
+    public function getTotalInvoiceData($items)
+    {
+        $line_items = [];
+
+        $sx_customer_number = $this->customerSelected['sx_customer_number'] ?? 1;
+
+        foreach($items as $item){
+            $line_items[] = [
+                "itemnumber" => $item['product_code'],
+                "orderqty" => $item['quantity'],
+                "unitofmeasure" => $this->unitOfMeasure,
+                "warehouseid" => $this->selectedWareHouse ?? 'utic',
+            ];
+        }
+
+        $invoice_request = [
+            "request" => [
+                "companyNumber" => 10,
+                "operatorInit" => auth()->user()->sx_operator_id ?? "wpa",
+                "operatorPassword" => "",
+                "tInputccdata" => ["t-inputccdata" => []],
+                "tInputheaderdata" => [
+                    "t-inputheaderdata" => [
+                        [
+                            "customerid" => "0010".$sx_customer_number,
+                            "warehouseid" => $this->selectedWareHouse ?? 'utic',
+                            "webtransactiontype" => $this->webTransactionType,
+                        ],
+                    ],
+                ],
+                "tInputlinedata" => [
+                    "t-inputlinedata" => $line_items,
+                ],
+                "tInputheaderextradata" => ["t-inputheaderextradata" => []],
+                "tInputlineextradata" => ["t-inputlineextradata" => []],
+                "tInfieldvalue" => ["t-infieldvalue" => []],
+            ],
+        ];
+
+
+        $sx = new SX();
+        return $sx->get_total_invoice_data($invoice_request);
+
     }
 
     public function updateQuantity($qty, $productCode)
