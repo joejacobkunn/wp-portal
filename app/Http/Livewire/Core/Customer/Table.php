@@ -29,6 +29,9 @@ class Table extends DataTableComponent
             });
 
         $this->setPerPageAccepted([25, 50, 100]);
+
+        $this->setPerPage(25);
+        
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
