@@ -293,9 +293,44 @@ class SX
     {
         if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
 
+        $line_items = [];
+        foreach($request['cart'] as $item) {
+            $line_items[] = [
+                "itemnumber" => $item['product_code'],
+                "orderqty" => $item['quantity'],
+                "unitofmeasure" => $request['unit_of_measure'] ?? 'EA',
+                "warehouseid" => $request['warehouse'] ?? 'utic',
+            ];
+        }
+
+        $invoice_request = [
+            "request" => [
+                "companyNumber" => $request['company_number'] ?? 10,
+                "operatorInit" => $request['sx_operator_id'] ?? "wpa",
+                "operatorPassword" => "",
+                "tInputccdata" => ["t-inputccdata" => []],
+                "tInputheaderdata" => [
+                    "t-inputheaderdata" => [
+                        [
+                            "customerid" => "0010". $request['sx_customer_number'],
+                            "warehouseid" => $request['warehouse'] ?? 'utic',
+                            "webtransactiontype" => $request['web_transaction_type'] ?? 'tsf',
+                        ],
+                    ],
+                ],
+                "tInputlinedata" => [
+                    "t-inputlinedata" => $line_items,
+                ],
+                "tInputheaderextradata" => ["t-inputheaderextradata" => []],
+                "tInputlineextradata" => ["t-inputlineextradata" => []],
+                "tInfieldvalue" => ["t-infieldvalue" => []],
+            ],
+        ];
+
+
         $response = Http::withToken($this->token())
             ->acceptJson()
-            ->withBody(json_encode($request), 'application/json')
+            ->withBody(json_encode($invoice_request), 'application/json')
             ->post($this->endpoint.'/sxapisfoeordertotloadv4');
 
         if ($response->ok()) {

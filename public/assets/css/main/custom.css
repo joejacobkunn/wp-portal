@@ -248,6 +248,9 @@
 .ss-main .ss-content .ss-list .ss-option.ss-disabled {
     color: #bfb9b9;
 }
+.ss-main .ss-single-selected .placeholder {
+    cursor: inherit;
+}
 /** SLIM Select Ends */
 
 
@@ -256,7 +259,7 @@
     background: #f1f1f1;
 }
 .checkout-outer-div .search-btn {
-    width: 180px;
+    width: 200px;
 }
 .checkout-outer-div .accordion {
     --bs-accordion-color: var(--bs-body-color);

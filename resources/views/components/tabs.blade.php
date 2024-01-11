@@ -2,11 +2,12 @@
     @php
         $id = $tabId;
         $urlParam = $urlParam ?? 'tab';
+        $xid = preg_replace("/[^a-zA-Z0-9]+/", "", $id);
     @endphp
-    <div id="{{ $id }}" >
+    <div id="{{ $id }}" x-data="{{ $xid }}">
         <div class="nav nav-tabs nav-tabs-ul mb-3 {{ $class ?? '' }}" id="nav-tab" role="tablist" wire:ignore >
-            @foreach($tabs as $tabIndex => $tabTitle)
-                <a class="nav-item nav-link {{ $this->{$activeTabIndex} == $tabIndex ? 'active' : '' }}" data-tab="{{ $tabIndex }}" role="tab" aria-controls="nav-pending-approval" aria-selected="false">
+            @foreach($tabs[$tabId]['links'] as $tabIndex => $tabTitle)
+                <a class="nav-item nav-link {{ $tabs[$tabId]['active'] == $tabIndex ? 'active' : '' }}" data-tab="{{ $tabIndex }}" role="tab" aria-controls="nav-pending-approval" aria-selected="false">
                 @if(!empty(${"tab_header_" . $tabIndex}))
                     {{ ${"tab_header_" . $tabIndex} }}
                 @else
@@ -19,45 +20,38 @@
             @if(!empty($content))
                 {{ $content }}
             @endif
-            @foreach($tabs as $tabIndex => $tabTitle)
-                @if($this->{$activeTabIndex} == $tabIndex && !empty(${"tab_content_". $tabIndex}))
+            
+            @foreach($tabs[$tabId]['links'] as $tabIndex => $tabTitle)
+                @if($tabs[$tabId]['active'] == $tabIndex && !empty(${"tab_content_". $tabIndex}))
                     @if(isset(${"tab_content_". $tabIndex}->attributes['component']))
                         @livewire(${"tab_content_". $tabIndex}->attributes['component'], (${"tab_content_". $tabIndex}->attributes->except('component')->getAttributes()), key('item-'.$tabIndex))
                     @endif
-
+                    
                     {{ ${"tab_content_". $tabIndex} }}
                 @endif
             @endforeach
         </div>
-    </div>
-    <div>
-<script>
-    (function () {
-        var tabId = '{{ $id }}';
-        var initialRun = true;
-        var requestProcessing = false;
 
-        document.addEventListener('livewire:load', function () {
-            initializeTabs();
-            initialRun = false
-            let url = new URL(window.location.href);
-            let searchParams = url.searchParams;
-            if (!document.querySelectorAll('#{{$id }} .nav-item.active').length) {
-                if (searchParams.get('{{ $urlParam }}') && document.querySelector('#{{$id }} .nav-item[data-tab='+ searchParams.get('{{ $urlParam }}') +']')) {
-                    document.querySelector('#{{$id }} .nav-item[data-tab='+ searchParams.get('{{ $urlParam }}') +']').click()
-                } else {
-                    document.querySelector('#{{$id }} .nav-item').click()
-                }
-            }
-        });
+    <script>
+    
+    (function () {
+
+        var tabId = '{{ $id }}';
+        let initialRun = true;
+        var requestProcessing = false;
+        let tabComponentId;
+
         function initializeTabs() {
-            document.addEventListener('click', function(event) {
+            document.querySelector('#{{$id }}').addEventListener('click', function(event) {
                 if (event.target.matches('#{{$id }} .nav-item')) {
                     event.preventDefault();
                     indexActiveTabChanged(event.target)
+                } else if (event.target.matches('#{{$id }} .nav-item .badge')) {
+                    event.target.closest('a').click()
                 }
             }, false);
         }
+
         function indexActiveTabChanged (el) {
             if (el.classList.contains('active')) return
             let status = el.dataset.tab
@@ -84,14 +78,14 @@
                 if (requestProcessing) {
                   setInterval(() => {
                     resolve(true)
-                  }, 500)
+                  }, 500)  
                 } else {
                     resolve(true)
                 }
 
             }).then(() => {
-
-                @this.processActiveTabChange(status, '{{ $activeTabIndex }}', '{{ $id }}').then(() => {
+                let component = Livewire.find(tabComponentId)
+                component.processActiveTabChange(status, '{{ $tabId }}', '{{ $id }}').then(() => {
                     let element = document.querySelector('#{{$id }} [data-tab='+ (el.dataset.tab) +']')
                     if (element.querySelector('.badge')) {
                         element.querySelector('.badge').style.visibility = "visible"
@@ -107,14 +101,51 @@
                         }
                     }, 800)
                 })
-
+                
             })
         }
 
 
-        document.addEventListener("DOMContentLoaded", () => {
+        let hookListeners = []
+        if (typeof(Livewire) == 'object') {
+            initListeners();
+        } else {
+            document.addEventListener("DOMContentLoaded", () => {
+                initListeners();
+            });
+        }
+
+        function initListeners() {
             let counter = 0;
-            Livewire.hook('message.sent', (message, component) => {
+
+            Alpine.data('{{ $xid }}', () => ({
+                listeners: [],
+                init() {
+                    
+                },
+                destroy() {
+                    hookListeners.forEach((v) => v())
+                }
+            }));
+            
+            hookListeners.push(Livewire.hook('component.init', ({ component, cleanup }) => {
+                if (component.snapshot.data.hasTabs && Object.keys(component.snapshot.data.tabs[0]).filter((v) => v == '{{ $tabId }}').length) {
+                    tabComponentId = component.id;
+
+                    initializeTabs();
+                    initialRun = false
+                    let url = new URL(window.location.href);
+                    let searchParams = url.searchParams;
+                    
+                    if (!document.querySelectorAll('#{{$id }} .nav-item.active').length) {
+                        if (searchParams.get('{{ $urlParam }}') && document.querySelector('#{{$id }} .nav-item[data-tab='+ searchParams.get('{{ $urlParam }}') +']')) {
+                            document.querySelector('#{{$id }} .nav-item[data-tab='+ searchParams.get('{{ $urlParam }}') +']').click()
+                        }
+                    }
+                }
+            }))
+
+            hookListeners.push(Livewire.hook('commit.prepare', ({ component, commit }) => {
                 counter++;
                 requestProcessing = true
 
@@ -123,13 +154,13 @@
                     loaderDom.classList.add('div-overlay')
                     document.querySelector('#{{ $id }} .nav-tabs').appendChild(loaderDom)
                 }
-            })
+            }))
 
-            Livewire.hook('message.processed', (message, component) => {
-                counter--;
+            hookListeners.push(Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                respond(() => {
+                    counter--;
 
-                if (counter == 0 && document.querySelector('#{{ $id }} .tab-content')) {
-                    setTimeout(() => {
+                    if (counter == 0 && document.querySelector('#{{ $id }} .tab-content')) {
                         let tabContentDom = document.querySelector('#{{$id }} .tab-content')
                         if (tabContentDom) {
                             tabContentDom.classList.remove('loading-skeleton');
@@ -137,10 +168,11 @@
                                 document.querySelector('#{{ $id }} .nav-tabs .div-overlay').remove()
                             }
                         }
-                    }, 500)
-                }
-            })
-        });
+                    }
+                })
+            }))
+        }
+        
     })()
     </script>
 </div>

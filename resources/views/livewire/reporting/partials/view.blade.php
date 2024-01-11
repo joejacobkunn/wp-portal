@@ -47,7 +47,7 @@
     <div class="card border-light shadow-sm mb-4">
         <div class="card-header border-gray-300 p-3 mb-2 mb-md-0">
 
-            <button wire:click="$emit('refreshDatatable')" class="btn btn-sm icon btn-primary float-end"><i
+            <button wire:click="$dispatch('refreshDatatable')" class="btn btn-sm icon btn-primary float-end"><i
                     class="fas fa-sync-alt"></i></button>
 
             <h3 class="h5 mb-0">

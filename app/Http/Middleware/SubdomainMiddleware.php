@@ -17,7 +17,7 @@ class SubdomainMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if ($request->route()->getName() == 'livewire.message') {
+        if ($request->route()->getName() == 'livewire.update') {
             $hostSplit = explode('.', $request->header('host'));
             $request->request->add(['route_subdomain' => $hostSplit[0]]);
         }

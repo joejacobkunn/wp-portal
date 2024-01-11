@@ -112,7 +112,7 @@ class ReportingTable extends DataTableComponent
 
     public function updateTimestamp()
     {
-        $this->emitUp('updateTimestamp');
+        $this->dispatch('updateTimestamp');
     }
 
     private function clean($string)

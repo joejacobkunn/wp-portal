@@ -102,7 +102,7 @@ trait FormRequest
             $this->account
                 ->syncFromMediaLibraryRequest($this->documents)
                 ->toMediaCollection(Account::DOCUMENT_COLLECTION);
-            $this->emit("refreshMedia");
+            $this->dispatch("refreshMedia");
         }
 
         $this->setAdminUser();
@@ -127,7 +127,7 @@ trait FormRequest
             $this->account
                 ->syncFromMediaLibraryRequest($this->documents)
                 ->toMediaCollection(Account::DOCUMENT_COLLECTION);
-            $this->emit("refreshMedia");
+            $this->dispatch("refreshMedia");
         }
 
         $this->setAdminUser();

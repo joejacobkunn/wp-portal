@@ -4,10 +4,12 @@ namespace App\Traits;
 
 trait HasTabs
 {
-    public function processActiveTabChange($activeTab, $tabElement, $tabId)
+    public $hasTabs = true;
+
+    public function processActiveTabChange($activeTab, $tabElement, $tabId, $queryString = null)
     {
-        $this->$tabElement = $activeTab;
-        $this->emitSelf($tabId . ':tab:changed', $activeTab);
-        $this->dispatchBrowserEvent($tabId . ':tabContentChanged');
+        $this->tabs[$tabElement]['active'] = $activeTab;
+        $this->dispatch($tabId . ':tab:changed', $activeTab)->self();
+        $this->dispatch($tabId . ':tabContentChanged');
     }
 }

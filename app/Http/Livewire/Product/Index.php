@@ -18,8 +18,6 @@ class Index extends Component
 
     public $open_order_details = [];
 
-    public $lazyLoad = true;
-
     public $breadcrumbs = [
         [
             'title' => 'Products',

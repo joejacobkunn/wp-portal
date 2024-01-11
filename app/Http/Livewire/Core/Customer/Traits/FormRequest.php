@@ -116,7 +116,7 @@ trait FormRequest
             if (empty($this->sourcePopup)) {
                 return redirect()->route('core.customer.show', $this->customer);
             } else {
-                $this->emit('customer:created', $this->customer->id);
+                $this->dispatch('customer:created', $this->customer->id);
                 return;
             }
 

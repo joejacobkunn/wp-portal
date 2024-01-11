@@ -48,17 +48,21 @@ class Show extends Component
     ];
 
     public $editRecord = false;
-    public $activeTab = 'general';
 
     public $tabs = [
-        'general' => 'General',
-        'locations' => 'Locations',
-        'modules' => 'Modules',
-        'credentials' => 'API Credentials',
+        'account-view-tabs' => [
+            'active' => 'general',
+            'links' => [
+                'general' => 'General',
+                'locations' => 'Locations',
+                'modules' => 'Modules',
+                'credentials' => 'API Credentials',
+            ],
+        ]
     ];
 
-    public $queryString = [
-        'activeTab' => ['except' => '', 'as' => 'tab'],
+    protected $queryString = [
+        'tabs.account-view-tabs.active' => ['except' => '', 'as' => 'tab'],
     ];
 
     public function mount()
