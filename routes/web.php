@@ -64,6 +64,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('vehicles/{vehicle}/show', \App\Http\Livewire\Vehicle\Vehicle\Show::class)->name('vehicle.show');
 
         Route::get('orders', \App\Http\Livewire\Order\Index::class)->name('order.index');
+        Route::get('orders/backorders/{orderno}/{ordersuf}/show', \App\Http\Livewire\Order\BackorderShow::class)->name('backorder.show');
         Route::get('orders/{order}/show', \App\Http\Livewire\Order\Show::class)->name('order.show');
 
         Route::get('reporting', \App\Http\Livewire\Reporting\Index::class)->name('reporting.index');

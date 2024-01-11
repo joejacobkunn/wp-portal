@@ -24,29 +24,32 @@
                                 <h5 class="my-3"><small><i class="fa fa-spinner fa-spin"></i> Loading selected items
                                         to cart</small></h5>
                             @else
-
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <div class="row">
                                             <div class="col-sm-7">
-                                                <label>Search Product</label>
+                                                <label>Add Product</label>
                                                 <div class="input-group mb-3">
-                                                    <input type="text" class="form-control"  wire:model="productQuery" placeholder="Enter Product Code">
+                                                    <input type="text" class="form-control" wire:model="productQuery"
+                                                        placeholder="Enter Product Code">
                                                     <div class="input-group-append">
-                                                        <button class="btn btn-primary px-4"
-                                                            wire:click="searchProduct" type="button">
+                                                        <button class="btn btn-primary px-4" wire:click="searchProduct"
+                                                            type="button">
                                                             <div wire:loading wire:target="searchProduct">
-                                                                <span class="spinner-border spinner-border-sm mx-4" role="status"
-                                                                    aria-hidden="true"></span>
+                                                                <span class="spinner-border spinner-border-sm mx-4"
+                                                                    role="status" aria-hidden="true"></span>
                                                             </div>
-                                                            <div wire:loading.class="d-none" wire:target="searchProduct">
-                                                                <i class="fa fa-search"></i> Search
+                                                            <div wire:loading.class="d-none"
+                                                                wire:target="searchProduct">
+                                                                <i class="fas fa-cart-plus"></i> Add
                                                             </div>
                                                         </button>
                                                     </div>
                                                 </div>
-                                                @if(isset($productQuery))
-                                                    @error('productQuery') <span class="text-danger d-block mb-3">{{ $message }}</span> @enderror
+                                                @if (isset($productQuery))
+                                                    @error('productQuery')
+                                                        <span class="text-danger d-block mb-3">{{ $message }}</span>
+                                                    @enderror
                                                 @endif
                                             </div>
                                             <div class="col-sm-5">
@@ -58,8 +61,9 @@
                                                             aria-hidden="true"></span>
                                                     </div>
 
-                                                    <div wire:loading.class="d-none" wire:target="showProductSearchModal">
-                                                        <i class="fas fa-tasks me-1"></i> Select Our Products
+                                                    <div wire:loading.class="d-none"
+                                                        wire:target="showProductSearchModal">
+                                                        <i class="fas fa-search"></i> Search for Products
                                                     </div>
                                                 </button>
                                             </div>
@@ -68,8 +72,9 @@
                                     <div class="col-sm-6">
                                         <div class="btn-group mb-1 mt-3 float-end">
                                             <div class="dropdown">
-                                                <button class="btn btn-outline-secondary dropdown-toggle ms-2" type="button"
-                                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                <button class="btn btn-outline-secondary dropdown-toggle ms-2"
+                                                    type="button" data-bs-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="true">
                                                     <i class="fas fa-warehouse me-2"></i> Warehouse:
                                                     <strong>{{ $selectedWareHouse ? $warehouses[$selectedWareHouse] : '- Not Selected -' }}</strong>
                                                 </button>
