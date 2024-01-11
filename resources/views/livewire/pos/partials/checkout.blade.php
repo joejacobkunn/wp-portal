@@ -19,45 +19,78 @@
             <div class="accordion-body">
                 <div>
                     <div class="row">
-                        <div class="col-sm-8">
+                        <div class="col-sm-12">
                             @if ($loadingCart)
                                 <h5 class="my-3"><small><i class="fa fa-spinner fa-spin"></i> Loading selected items
                                         to cart</small></h5>
                             @else
-                                <button class="btn btn-primary my-3 search-btn" type="button"
-                                    wire:click="showProductSearchModal">
-                                    <div wire:loading wire:target="showProductSearchModal">
-                                        <span class="spinner-border spinner-border-sm" role="status"
-                                            aria-hidden="true"></span>
-                                    </div>
 
-                                    <div wire:loading.class="d-none" wire:target="showProductSearchModal">
-                                        <i class="fa fa-search"></i> Select Products
-                                    </div>
-                                </button>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-7">
+                                                <label>Search Product</label>
+                                                <div class="input-group mb-3">
+                                                    <input type="text" class="form-control"  wire:model="productQuery" placeholder="Enter Product Code">
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary px-4"
+                                                            wire:click="searchProduct" type="button">
+                                                            <div wire:loading wire:target="searchProduct">
+                                                                <span class="spinner-border spinner-border-sm mx-4" role="status"
+                                                                    aria-hidden="true"></span>
+                                                            </div>
+                                                            <div wire:loading.class="d-none" wire:target="searchProduct">
+                                                                <i class="fa fa-search"></i> Search
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                @if(isset($productQuery))
+                                                    @error('productQuery') <span class="text-danger d-block mb-3">{{ $message }}</span> @enderror
+                                                @endif
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label class="mt-4 float-start pt-2 me-3">- OR -</label>
+                                                <button class="btn btn-outline-primary mt-4 search-btn" type="button"
+                                                    wire:click="showProductSearchModal">
+                                                    <div wire:loading wire:target="showProductSearchModal">
+                                                        <span class="spinner-border spinner-border-sm" role="status"
+                                                            aria-hidden="true"></span>
+                                                    </div>
 
-                                <div class="btn-group mb-1 mt-1">
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-secondary dropdown-toggle ms-2" type="button"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <i class="fas fa-warehouse me-2"></i> Warehouse:
-                                            <strong>{{ $selectedWareHouse ? $warehouses[$selectedWareHouse] : '- Not Selected -' }}</strong>
-                                        </button>
-                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
-                                            data-popper-placement="bottom-start">
-                                            <h6 class="dropdown-header">Select Warehouse</h6>
-                                            @foreach ($warehouses as $warehouseShort => $warehouseName)
-                                                <a class="dropdown-item" href="javascript:;"
-                                                    wire:click="selectWareHouse('{{ $warehouseShort }}')">{{ $warehouseName }}</a>
-                                            @endforeach
+                                                    <div wire:loading.class="d-none" wire:target="showProductSearchModal">
+                                                        <i class="fas fa-tasks me-1"></i> Select Our Products
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="btn-group mb-1 mt-3 float-end">
+                                            <div class="dropdown">
+                                                <button class="btn btn-outline-secondary dropdown-toggle ms-2" type="button"
+                                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <i class="fas fa-warehouse me-2"></i> Warehouse:
+                                                    <strong>{{ $selectedWareHouse ? $warehouses[$selectedWareHouse] : '- Not Selected -' }}</strong>
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                                                    data-popper-placement="bottom-start">
+                                                    <h6 class="dropdown-header">Select Warehouse</h6>
+                                                    @foreach ($warehouses as $warehouseShort => $warehouseName)
+                                                        <a class="dropdown-item" href="javascript:;"
+                                                            wire:click="selectWareHouse('{{ $warehouseShort }}')">{{ $warehouseName }}</a>
+                                                    @endforeach
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
                             @endif
                         </div>
                     </div>
 
-                    @if (count($cart))
+                    @if (count($cart) && !$loadingCart)
                         <hr />
                         <h4 class="mt-4">Total Items selected ({{ count($cart) }})</h4>
                         <table class="table table-hover">

@@ -31,9 +31,11 @@ class Table extends DataTableComponent
     public $categories = [];
     public $vendors = [];
     public $productLines = [];
+    public $cartInProgress = false;
 
     protected $listeners = [
         'product:table:addToCart' => 'addToCart',
+        'pos:addedToCart' => 'cartProcessed',
     ];
 
     public function configure(): void
@@ -73,7 +75,7 @@ class Table extends DataTableComponent
 
     public function columns(): array
     {
-        return [
+        $columns = [
 
             Column::make('Id', 'id')
                 ->excludeFromColumnSelect()
@@ -156,9 +158,21 @@ class Table extends DataTableComponent
                     return Str::headline($value);
                 })
                 ->excludeFromColumnSelect(),
-
-
         ];
+
+
+        if ($this->fromCheckout) {
+            array_unshift($columns , Column::make('Action', 'id')
+                ->sortable()
+                ->searchable()
+                ->format(function ($value, $row) {
+                    return '<button class="btn btn-primary btn-sm text-nowrap" type="button" ' . ($this->cartInProgress ? 'disabled' : '') . ' wire:click="addToCart('. $value .')">Add To Cart</button>';
+                })
+                ->excludeFromColumnSelect()
+                ->html());
+        }
+
+        return $columns;
     }
 
     public function filters(): array
@@ -232,21 +246,15 @@ class Table extends DataTableComponent
             ->orderBy('last_sold_date', 'DESC');
     }
 
-    //Bulk Update
-    public function bulkActions(): array
+    public function addToCart($prodId)
     {
-        if ($this->fromCheckout) {
-            return [
-                'addToCart' => 'Add To Cart',
-            ];
-        }
-
-        return [];
+        $this->cartInProgress = true;
+        $this->dispatch('product:cart:selected', $prodId);
     }
 
-    public function addToCart()
+    public function cartProcessed()
     {
-        $this->dispatch('product:cart:selected', $this->selected);
+        $this->cartInProgress = false;
     }
 
     public function placeholder()
