@@ -72,7 +72,9 @@
             let firstLoad = true
 
             if (typeof SlimSelect == 'function') {
-                initSelect()
+                setTimeout(() => {
+                    initSelect()
+                }, 50)
             } else {
                 loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initSelect);
             }
@@ -83,7 +85,7 @@
                 if (! document.querySelector('#datatable-{{ $component->getId() }} .table-filter-div select')) return
 
                 inProcessFlag = 1
-                document.querySelectorAll('#datatable-{{$component->getId() }} .table-filter-div select').forEach((el) => {
+                document.querySelectorAll('#datatable-{{ $component->getId() }} .table-filter-div select').forEach((el) => {
                     el.classList.remove('form-select')
                     if (typeof SlimSelect == 'function') {
 
