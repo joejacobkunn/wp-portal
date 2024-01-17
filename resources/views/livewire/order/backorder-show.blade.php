@@ -91,26 +91,31 @@
                         <div class="card-content">
                             <div class="card-body">
                                 <h4 class="card-title">Line Items</h4>
-                                @if ($backorder->status == 'Pending Review')
-                                    <div class="alert alert-light-primary color-primary"><i
-                                            class="fas fa-info-circle"></i> This Backorder
-                                        is Pending
-                                        Review
-                                        <div class="btn-group float-end" role="group">
-                                            <button id="btnGroupDrop1" type="button"
-                                                class="btn btn-primary dropdown-toggle btn-sm" data-bs-toggle="dropdown"
-                                                aria-expanded="false">
-                                                Review
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <li><a class="dropdown-item" href="#">Ignore</a></li>
-                                                <li><a class="dropdown-item" href="#">Cancel and Notify
-                                                        Customer</a></li>
-                                                <li><a class="dropdown-item" href="#">Add Internal Note</a></li>
-                                            </ul>
-                                        </div>
+                                <div class="alert alert-light-{{ $this->statusAlertClass }} color-primary"><i
+                                        class="fas fa-info-circle"></i> {{ $this->statusAlertMessage }}
+                                    <div class="btn-group float-end" role="group">
+                                        <button id="btnGroupDrop1" type="button"
+                                            class="btn btn-primary dropdown-toggle btn-sm" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            Review
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                            @if($backorder->status->value != \App\Enums\Order\BackOrderStatus::Ignore->value)
+                                            <li><a class="dropdown-item" href="javascript:;" wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Ignore->value }}')">Ignore</a></li>
+                                            @endif
+
+                                            @if($backorder->status->value != \App\Enums\Order\BackOrderStatus::PendingReview->value)
+                                            <li><a class="dropdown-item" href="javascript:;" wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::PendingReview->value }}')">Pending Review</a></li>
+                                            @endif
+
+                                            @if($backorder->status->value != \App\Enums\Order\BackOrderStatus::Cancelled->value)
+                                            <li><a class="dropdown-item" href="javascript:;" wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Cancelled->value }}')">Cancel and Notify Customer</a></li>
+                                            @endif
+
+                                            <li><a class="dropdown-item" href="javascript:;">Add Internal Note</a></li>
+                                        </ul>
                                     </div>
-                                @endif
+                                </div>
 
                                 @unless (config('sx.mock'))
                                     <div class="list-group">
@@ -221,6 +226,28 @@
 
                 </div>
             </div>
+
+            <x-modal :toggle="$cancelOrderModal" size="xl">
+                <x-slot name="title">Cancel Order</x-slot>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="pre-genkey-div">
+                            <x-forms.textarea
+                                label="Email Content"
+                                model="cancelEmailContent"
+                                rows="6"
+                                hint="This is to identify your app, eg Mobile App"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <x-slot name="footer">
+                    <button wire:click="cancelOrder" type="button" class="pre-genkey-div btn btn-success">Cancel & Notify</button>
+                    <button wire:click="closePopup('cancelOrderModal')" type="button" class="btn btn-outline-secondary">Close</button>
+                </x-slot>
+
+            </x-modal>
 
         </x-slot>
 

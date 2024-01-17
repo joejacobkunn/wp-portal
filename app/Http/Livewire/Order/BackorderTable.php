@@ -64,7 +64,7 @@ class BackorderTable extends DataTableComponent
 
             Column::make('Status', 'status')
                 ->format(function ($value, $row) {
-                    return '<span class="badge bg-light-'.$this->statusColor($value).'">'.$value.'</span>';
+                    return '<span class="badge bg-light-'. $value->class() .'">'. $value->label() .'</span>';
                 })
                 ->html()
                 ->excludeFromColumnSelect(),
@@ -92,14 +92,5 @@ class BackorderTable extends DataTableComponent
     public function builder(): Builder
     {
         return DnrBackorder::where('cono', auth()->user()->account->sx_company_number);
-    }
-
-    private function statusColor($status)
-    {
-        $colors = [
-            'Pending Review' => 'primary'
-        ];
-
-        return $colors[$status];
     }
 }

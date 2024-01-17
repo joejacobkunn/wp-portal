@@ -29,6 +29,11 @@ class EventServiceProvider extends ServiceProvider
             // ... other providers
             \SocialiteProviders\Azure\AzureExtendSocialite::class.'@handle',
         ],
+
+        \App\Events\Orders\OrderCancelled::class => [
+            \App\Listeners\Orders\OrderCancelledListener::class,
+        ],
+        
     ];
 
     /**

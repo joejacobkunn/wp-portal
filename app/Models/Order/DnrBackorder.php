@@ -2,6 +2,7 @@
 
 namespace App\Models\Order;
 
+use App\Enums\Order\BackOrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,6 +26,12 @@ class DnrBackorder extends Model
     ];
 
     protected $casts = [
-        'order_date' => 'date'
+        'order_date' => 'date',
+        'status' => BackOrderStatus::class
     ];
+    
+    public function isPendingReview()
+    {
+        return $this->status == BackOrderStatus::PendingReview;
+    }
 }
