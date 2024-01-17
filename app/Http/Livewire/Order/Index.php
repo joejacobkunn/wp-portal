@@ -5,9 +5,12 @@ namespace App\Http\Livewire\Order;
 use App\Http\Livewire\Component\Component;
 use App\Models\SX\Company;
 use App\Models\SX\Order;
+use App\Traits\HasTabs;
 
 class Index extends Component
 {
+    use HasTabs;
+
     public $account;
 
     public $orders = [];
@@ -16,6 +19,24 @@ class Index extends Component
         [
             'title' => 'Orders',
         ],
+    ];
+
+    public $orderTab = 'orders';
+
+    public $tabs = [
+        'back-order-tabs' => [
+            'active' => 'PendingReview',
+            'links' => [
+                'PendingReview' => 'Pending Review',
+                'ignored' => 'Ignored',
+                'cancelled' => 'Cancelled',
+                'Closed' => 'Closed',
+            ],
+        ]
+    ];
+
+    protected $queryString = [
+        'orderTab' => ['except' => '', 'as' => 'tab'],
     ];
 
     public function mount()

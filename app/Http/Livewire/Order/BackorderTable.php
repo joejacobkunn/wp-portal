@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Order;
 
+use App\Enums\Order\BackOrderStatus;
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\User;
 use App\Models\Order\DnrBackorder;
@@ -16,6 +17,8 @@ use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 class BackorderTable extends DataTableComponent
 {
     use AuthorizesRequests;
+
+    public $activeTab;
 
     public function configure(): void
     {
@@ -91,6 +94,26 @@ class BackorderTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return DnrBackorder::where('cono', auth()->user()->account->sx_company_number);
+        $query = DnrBackorder::where('cono', auth()->user()->account->sx_company_number);
+
+        switch ($this->activeTab) {
+            case 'PendingReview':
+                $query->where('status', BackOrderStatus::PendingReview->value);
+                break;
+
+            case 'ignored':
+                $query->where('status', BackOrderStatus::Ignore->value);
+                break;
+
+            case 'cancelled':
+                $query->where('status', BackOrderStatus::Cancelled->value);
+                break;
+
+            case 'Closed':
+                $query->where('status', 'Closed');
+                break;
+        }
+
+        return $query;
     }
 }
