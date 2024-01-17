@@ -26,10 +26,10 @@ class Index extends Component
         // $company->save();
         //dd($company);
         //dd($company->on('sx')->update(['state' => 'MI']));
-        $this->orders = Order::where('cono', 10)
-            ->where('invoicedt', '=', '2022-03-30')
-            ->where('whse', 'UTIC')
-            ->get();
+        // $this->orders = Order::where('cono', 10)
+        //     ->where('invoicedt', '=', '2022-03-30')
+        //     ->where('whse', 'UTIC')
+        //     ->get();
     }
 
     public function render()
