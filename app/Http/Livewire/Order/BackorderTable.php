@@ -65,6 +65,14 @@ class BackorderTable extends DataTableComponent
                 ->sortable()
                 ->excludeFromColumnSelect(),
 
+                Column::make('Stage Code', 'stage_code')
+                ->format(function ($value, $row) {
+                    return $this->getStageCode($value);
+                })
+                ->sortable()
+                ->excludeFromColumnSelect(),
+
+
             Column::make('Status', 'status')
                 ->format(function ($value, $row) {
                     return '<span class="badge bg-light-'. $value->class() .'">'. $value->label() .'</span>';
@@ -115,5 +123,20 @@ class BackorderTable extends DataTableComponent
         }
 
         return $query;
+    }
+
+    private function getStageCode($code)
+    {
+        $stage_codes = [
+            0 => 'Quoted',
+            1 => 'Ordered',
+            2 => 'Picked',
+            3 => 'Shipped',
+            4 => 'Invoiced',
+            5 => 'Paid',
+            9 => 'Cancelled',
+        ];
+
+        return $stage_codes[$code];
     }
 }

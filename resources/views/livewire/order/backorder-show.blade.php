@@ -18,6 +18,10 @@
                         <div class="card-body">
 
                             @unless (config('sx.mock'))
+                                <div class="alert alert-light-secondary color-secondary">
+                                    Order is in stage code <strong> {{ $order->getStageCode() }} </strong>
+                                </div>
+
                                 <ul class="list-group list-group-flush">
 
 
@@ -100,16 +104,22 @@
                                             Review
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                            @if($backorder->status->value != \App\Enums\Order\BackOrderStatus::Ignore->value)
-                                            <li><a class="dropdown-item" href="javascript:;" wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Ignore->value }}')">Ignore</a></li>
+                                            @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::Ignore->value)
+                                                <li><a class="dropdown-item" href="javascript:;"
+                                                        wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Ignore->value }}')">Ignore</a>
+                                                </li>
                                             @endif
 
-                                            @if($backorder->status->value != \App\Enums\Order\BackOrderStatus::PendingReview->value)
-                                            <li><a class="dropdown-item" href="javascript:;" wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::PendingReview->value }}')">Pending Review</a></li>
+                                            @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::PendingReview->value)
+                                                <li><a class="dropdown-item" href="javascript:;"
+                                                        wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::PendingReview->value }}')">Pending
+                                                        Review</a></li>
                                             @endif
 
-                                            @if($backorder->status->value != \App\Enums\Order\BackOrderStatus::Cancelled->value)
-                                            <li><a class="dropdown-item" href="javascript:;" wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Cancelled->value }}')">Cancel and Notify Customer</a></li>
+                                            @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::Cancelled->value)
+                                                <li><a class="dropdown-item" href="javascript:;"
+                                                        wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Cancelled->value }}')">Cancel
+                                                        and Notify Customer</a></li>
                                             @endif
 
                                             <li><a class="dropdown-item" href="javascript:;">Add Internal Note</a></li>
@@ -151,7 +161,7 @@
                                                                 str_replace(
                                                                     ';',
                                                                     ",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
                                                                     $item->descrip,
                                                                 ),
                                                                 ', ',
@@ -297,19 +307,17 @@
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
-                            <x-forms.textarea
-                                label="Email Content"
-                                model="cancelEmailContent"
-                                rows="6"
-                                hint="This is to identify your app, eg Mobile App"
-                            />
+                            <x-forms.textarea label="Email Content" model="cancelEmailContent" rows="6"
+                                hint="This is to identify your app, eg Mobile App" />
                         </div>
                     </div>
                 </div>
 
                 <x-slot name="footer">
-                    <button wire:click="cancelOrder" type="button" class="pre-genkey-div btn btn-success">Cancel & Notify</button>
-                    <button wire:click="closePopup('cancelOrderModal')" type="button" class="btn btn-outline-secondary">Close</button>
+                    <button wire:click="cancelOrder" type="button" class="pre-genkey-div btn btn-success">Cancel &
+                        Notify</button>
+                    <button wire:click="closePopup('cancelOrderModal')" type="button"
+                        class="btn btn-outline-secondary">Close</button>
                 </x-slot>
 
             </x-modal>
