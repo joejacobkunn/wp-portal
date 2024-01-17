@@ -37,7 +37,7 @@ class FetchDnrBackorders extends Command
         //Loop thru each warehouse and fetch all orders where stagecd <=3 and transtype <> 'QU'
 
         foreach($warehouses as $warehouse){
-            $orders = Order::select('cono', 'orderno', 'ordersuf', 'enterdt')->where('cono', 10)->where('whse',$warehouse->whse)->where('stagecd', '<=', 3)->whereNot('transtype','QU')->get();
+            $orders = Order::select('cono', 'orderno', 'ordersuf', 'enterdt', 'custno', 'stagecd')->where('cono', 10)->where('whse',$warehouse->whse)->where('stagecd', '<=', 3)->whereNot('transtype','QU')->get();
             
             //loop thru each orders line item
 
@@ -52,7 +52,7 @@ class FetchDnrBackorders extends Command
                     if($dnr_warehouse_product->isNotEmpty()) {
                         DnrBackorder::updateOrCreate(
                             ['cono' => 10, 'order_number' => $line_item->orderno, 'order_number_suffix' => $line_item->ordersuf],
-                            ['cono' => 10, 'order_number' => $line_item->orderno, 'order_number_suffix' => $line_item->ordersuf, 'whse' => $warehouse->whse, 'order_date' => $order->enterdt, 'status' => 'Pending Review']
+                            ['cono' => 10, 'order_number' => $line_item->orderno, 'order_number_suffix' => $line_item->ordersuf, 'whse' => $warehouse->whse, 'order_date' => $order->enterdt, 'stage_code' => $order->stagecd, 'sx_customer_number' => $order->custno, 'status' => 'Pending Review']
                         );
                     }
                 }

@@ -19,6 +19,8 @@ class DnrBackorder extends Model
         'whse',
         'status',
         'order_date',
+        'stage_code',
+        'sx_customer_number',
         'last_updated_by'
     ];
 

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('order_number_suffix');
             $table->string('whse');
             $table->date('order_date');
+            $table->unsignedInteger('stage_code');
+            $table->string('sx_customer_number');
             $table->string('status');
             $table->unsignedInteger('last_updated_by')->nullable();
             $table->softDeletes();

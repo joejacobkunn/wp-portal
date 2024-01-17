@@ -17,71 +17,72 @@
 
                         <div class="card-body">
 
-
-                            <ul class="list-group list-group-flush">
-
-
-                                <li
-                                    class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                                    <div>
-                                        <h3 class="h6 mb-1">Order Number</h3>
-                                        <p class="small pe-4">{{ $order->orderno . '-' . $order->ordersuf ?? '-' }}</p>
-                                    </div>
-                                    <div>
-                                </li>
-
-                                <li
-                                    class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                                    <div>
-                                        <h3 class="h6 mb-1">Warehouse</h3>
-                                        <p class="small pe-4">{{ strtoupper($order->whse) }}</p>
-                                    </div>
-                                    <div>
-                                </li>
+                            @unless (config('sx.mock'))
+                                <ul class="list-group list-group-flush">
 
 
-                                <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                    <div>
-                                        <h3 class="h6 mb-1">Order Date</h3>
-                                        <p class="small pe-4">{{ date('F j, Y', strtotime($order->enterdt)) }}</p>
-                                    </div>
-                                </li>
+                                    <li
+                                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                        <div>
+                                            <h3 class="h6 mb-1">Order Number</h3>
+                                            <p class="small pe-4">{{ $order->orderno . '-' . $order->ordersuf ?? '-' }}</p>
+                                        </div>
+                                        <div>
+                                    </li>
 
-                                <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                    <div>
-                                        <h3 class="h6 mb-1">Order Total</h3>
-                                        <p class="small pe-4">${{ number_format($order->totordamt, 2) }}</p>
-                                    </div>
-                                </li>
-
-                                <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                    <div>
-                                        <h3 class="h6 mb-1">{{ strtoupper($order->getShippingStage($order->stagecd)) }}
-                                        </h3>
-                                        <p class="small pe-4">
-                                            {{ intval($order->totqtyshp) + intval($order->totqtyret) }}</p>
-                                    </div>
-                                </li>
-
-                                <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                    <div>
-                                        <h3 class="h6 mb-1">TRANS Type</h3>
-                                        <p class="small pe-4">{{ strtoupper($order->transtype) }}</p>
-                                    </div>
-                                </li>
-
-                                <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                    <div>
-                                        <h3 class="h6 mb-1">TAKEN BY</h3>
-                                        <p class="small pe-4">{{ strtoupper($order->takenby) }}</p>
-                                    </div>
-                                </li>
+                                    <li
+                                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                        <div>
+                                            <h3 class="h6 mb-1">Warehouse</h3>
+                                            <p class="small pe-4">{{ strtoupper($order->whse) }}</p>
+                                        </div>
+                                        <div>
+                                    </li>
 
 
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Order Date</h3>
+                                            <p class="small pe-4">{{ date('F j, Y', strtotime($order->enterdt)) }}</p>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Order Total</h3>
+                                            <p class="small pe-4">${{ number_format($order->totordamt, 2) }}</p>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">{{ strtoupper($order->getShippingStage($order->stagecd)) }}
+                                            </h3>
+                                            <p class="small pe-4">
+                                                {{ intval($order->totqtyshp) + intval($order->totqtyret) }}</p>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">TRANS Type</h3>
+                                            <p class="small pe-4">{{ strtoupper($order->transtype) }}</p>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">TAKEN BY</h3>
+                                            <p class="small pe-4">{{ strtoupper($order->takenby) }}</p>
+                                        </div>
+                                    </li>
 
 
 
-                            </ul>
+
+
+                                </ul>
+                            @endunless
                         </div>
                     </div>
                 </div>
@@ -111,106 +112,108 @@
                                     </div>
                                 @endif
 
-                                <div class="list-group">
-                                    @if (!empty($this->order_line_items))
-                                        @forelse ($this->order_line_items as $item)
-                                            @php
-                                                $is_dnr = false;
+                                @unless (config('sx.mock'))
+                                    <div class="list-group">
+                                        @if (!empty($this->order_line_items))
+                                            @forelse ($this->order_line_items as $item)
+                                                @php
+                                                    $is_dnr = false;
 
-                                                if (strtoupper($item->statustype) == 'A') {
-                                                    $available = $item->qtyship + $item->qtyrel;
-                                                    if ($item->qtyord != $available) {
-                                                        $dnr_warehouse_product = App\Models\SX\WarehouseProduct::where('cono', 10)
-                                                            ->where('whse', $item->whse)
-                                                            ->where('prod', $item->shipprod)
-                                                            ->where('statustype', 'X')
-                                                            ->get();
+                                                    if (strtoupper($item->statustype) == 'A') {
+                                                        $available = $item->qtyship + $item->qtyrel;
+                                                        if ($item->qtyord != $available) {
+                                                            $dnr_warehouse_product = App\Models\SX\WarehouseProduct::where('cono', 10)
+                                                                ->where('whse', $item->whse)
+                                                                ->where('prod', $item->shipprod)
+                                                                ->where('statustype', 'X')
+                                                                ->get();
 
-                                                        if ($dnr_warehouse_product->isNotEmpty()) {
-                                                            $is_dnr = true;
+                                                            if ($dnr_warehouse_product->isNotEmpty()) {
+                                                                $is_dnr = true;
+                                                            }
                                                         }
                                                     }
-                                                }
 
-                                            @endphp
-                                            <a href="https://weingartz.com//searchPage.action?keyWord={{ $item->shipprod }}"
-                                                target="_blank"
-                                                class="list-group-item list-group-item-action @if ($is_dnr) list-group-item-danger @endif"
-                                                aria-current="true">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h6 class="mb-1">Line #{{ $item->lineno }} :
-                                                        {{ $item->user3 }} {{ $item->shipprod }}
-                                                        {{ rtrim(
-                                                            str_replace(
-                                                                ';',
-                                                                ",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
-                                                                $item->descrip,
-                                                            ),
-                                                            ', ',
-                                                        ) }}
-                                                    </h6>
-                                                    <small><span class="badge bg-light-success">Category
-                                                            :
-                                                            {{ strtoupper($item->prodcat) }} / Prod Line
-                                                            :
-                                                            {{ strtoupper($item->prodline) }}</span>
-                                                    </small>
-                                                </div>
-                                                <small>
-                                                    <span class="badge bg-light-secondary">Type :
-                                                        {{ $item->getSpecType() }}</span>
-                                                </small>
-                                                <small>
-                                                    <span class="badge bg-light-primary">Qty Ordered :
-                                                        @if ($item->returnfl == '1')
-                                                            -
-                                                        @endif
-                                                        {{ intval($item->qtyord) }}
-                                                    </span>
-                                                </small>
-                                                <small>
-                                                    <span class="badge bg-light-info">Qty Shipped :
-                                                        @if ($item->returnfl == '1')
-                                                            -
-                                                        @endif
-                                                        {{ intval($item->qtyship) }}
-                                                    </span>
-                                                </small>
-
-                                                <small>
-                                                    <span class="badge bg-light-warning">Price :
-                                                        ${{ number_format($item->price, 2) }}</span>
-                                                </small>
-                                                <small>
-                                                    <span class="badge bg-light-primary">Net Amt :
-                                                        ${{ number_format($item->netamt, 2) }}</span>
-                                                </small>
-                                                <small>
-                                                    <span class="badge bg-light-secondary">Tied :
-                                                        {{ $item->getTied() }}</span>
-                                                </small>
-                                                <small>
-                                                    <span class="badge bg-light-warning">Related Order#
-                                                        :
-                                                        {{ strtoupper($item->orderaltno) ?: 'N/A' }}</span>
-                                                </small>
-
-                                                @if (!empty($item->user8))
+                                                @endphp
+                                                <a href="https://weingartz.com//searchPage.action?keyWord={{ $item->shipprod }}"
+                                                    target="_blank"
+                                                    class="list-group-item list-group-item-action @if ($is_dnr) list-group-item-danger @endif"
+                                                    aria-current="true">
+                                                    <div class="d-flex w-100 justify-content-between">
+                                                        <h6 class="mb-1">Line #{{ $item->lineno }} :
+                                                            {{ $item->user3 }} {{ $item->shipprod }}
+                                                            {{ rtrim(
+                                                                str_replace(
+                                                                    ';',
+                                                                    ",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ",
+                                                                    $item->descrip,
+                                                                ),
+                                                                ', ',
+                                                            ) }}
+                                                        </h6>
+                                                        <small><span class="badge bg-light-success">Category
+                                                                :
+                                                                {{ strtoupper($item->prodcat) }} / Prod Line
+                                                                :
+                                                                {{ strtoupper($item->prodline) }}</span>
+                                                        </small>
+                                                    </div>
                                                     <small>
-                                                        <span class="badge bg-light-info">Exp Date :
-                                                            {{ date('M j, Y', strtotime($item->user8)) ?: 'N/A' }}</span>
+                                                        <span class="badge bg-light-secondary">Type :
+                                                            {{ $item->getSpecType() }}</span>
                                                     </small>
-                                                @endif
+                                                    <small>
+                                                        <span class="badge bg-light-primary">Qty Ordered :
+                                                            @if ($item->returnfl == '1')
+                                                                -
+                                                            @endif
+                                                            {{ intval($item->qtyord) }}
+                                                        </span>
+                                                    </small>
+                                                    <small>
+                                                        <span class="badge bg-light-info">Qty Shipped :
+                                                            @if ($item->returnfl == '1')
+                                                                -
+                                                            @endif
+                                                            {{ intval($item->qtyship) }}
+                                                        </span>
+                                                    </small>
 
-                                            </a>
-                                        @empty
-                                            <div class="alert alert-light-warning color-warning">
-                                                No line items on this order
-                                            </div>
-                                        @endforelse
-                                    @endif
-                                </div>
+                                                    <small>
+                                                        <span class="badge bg-light-warning">Price :
+                                                            ${{ number_format($item->price, 2) }}</span>
+                                                    </small>
+                                                    <small>
+                                                        <span class="badge bg-light-primary">Net Amt :
+                                                            ${{ number_format($item->netamt, 2) }}</span>
+                                                    </small>
+                                                    <small>
+                                                        <span class="badge bg-light-secondary">Tied :
+                                                            {{ $item->getTied() }}</span>
+                                                    </small>
+                                                    <small>
+                                                        <span class="badge bg-light-warning">Related Order#
+                                                            :
+                                                            {{ strtoupper($item->orderaltno) ?: 'N/A' }}</span>
+                                                    </small>
+
+                                                    @if (!empty($item->user8))
+                                                        <small>
+                                                            <span class="badge bg-light-info">Exp Date :
+                                                                {{ date('M j, Y', strtotime($item->user8)) ?: 'N/A' }}</span>
+                                                        </small>
+                                                    @endif
+
+                                                </a>
+                                            @empty
+                                                <div class="alert alert-light-warning color-warning">
+                                                    No line items on this order
+                                                </div>
+                                            @endforelse
+                                        @endif
+                                    </div>
+                                @endunless
 
                             </div>
                         </div>

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Columns\BooleanColumn;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectDropdownFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class BackorderTable extends DataTableComponent
@@ -73,8 +75,17 @@ class BackorderTable extends DataTableComponent
 
     public function filters(): array
     {
-        return [
-          
+        return  [
+            MultiSelectFilter::make('Status')
+                ->options(
+                    [
+                        'Pending Review',
+                        'Ignored',
+                        'Cancelled'
+                    ]
+                )->filter(function(Builder $builder, string $value) {
+                    $builder->whereIn('status', $value);
+                })
         ];
     }
 
