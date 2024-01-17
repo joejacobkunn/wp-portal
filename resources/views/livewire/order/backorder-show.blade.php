@@ -151,7 +151,7 @@
                                                                 str_replace(
                                                                     ';',
                                                                     ",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ",
                                                                     $item->descrip,
                                                                 ),
                                                                 ', ',
@@ -227,6 +227,71 @@
                 </div>
             </div>
 
+            <div class="row px-2">
+                <div class="col-sm-4">
+                    <div class="card border-light shadow-sm mb-4">
+                        <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                            <h3 class="h5 mb-0">Customer Overview</h3>
+                        </div>
+
+                        <div class="card-body">
+
+                            @unless (config('sx.mock'))
+                                <ul class="list-group list-group-flush">
+
+
+                                    <li
+                                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                        <div>
+                                            <h3 class="h6 mb-1">Customer SX Number</h3>
+                                            <p class="small pe-4">{{ $customer->custno }}</p>
+                                        </div>
+                                        <div>
+                                    </li>
+
+                                    <li
+                                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                        <div>
+                                            <h3 class="h6 mb-1">Name</h3>
+                                            <p class="small pe-4">{{ strtoupper($customer->name) }}</p>
+                                        </div>
+                                        <div>
+                                    </li>
+
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Phone</h3>
+                                            <p class="small pe-4">{{ $customer->phoneno }}</p>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Address</h3>
+                                            <p class="small pe-4">
+                                                {{ $customer->addr . ', ' . $customer->city . ', ' . $customer->state . ', ' . $customer->zipcd }}
+                                            </p>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Type
+                                            </h3>
+                                            <p class="small pe-4">
+                                                {{ $customer->custtype }}</p>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            @endunless
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
             <x-modal :toggle="$cancelOrderModal" size="xl">
                 <x-slot name="title">Cancel Order</x-slot>
                 <div class="row">
@@ -248,7 +313,6 @@
                 </x-slot>
 
             </x-modal>
-
         </x-slot>
 
     </x-page>
