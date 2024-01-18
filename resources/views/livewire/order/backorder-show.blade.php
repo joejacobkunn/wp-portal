@@ -19,7 +19,7 @@
 
                             @unless (config('sx.mock'))
                                 <div class="alert alert-light-secondary color-secondary">
-                                    Order is in stage code <strong> {{ $order->getStageCode() }} </strong>
+                                    Order is in stage code : <strong> {{ $this->order->getStageCode() }} </strong>
                                 </div>
 
                                 <ul class="list-group list-group-flush">
@@ -29,7 +29,8 @@
                                         class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                                         <div>
                                             <h3 class="h6 mb-1">Order Number</h3>
-                                            <p class="small pe-4">{{ $order->orderno . '-' . $order->ordersuf ?? '-' }}</p>
+                                            <p class="small pe-4">
+                                                {{ $this->order->orderno . '-' . $this->order->ordersuf ?? '-' }}</p>
                                         </div>
                                         <div>
                                     </li>
@@ -38,7 +39,7 @@
                                         class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                                         <div>
                                             <h3 class="h6 mb-1">Warehouse</h3>
-                                            <p class="small pe-4">{{ strtoupper($order->whse) }}</p>
+                                            <p class="small pe-4">{{ strtoupper($this->order->whse) }}</p>
                                         </div>
                                         <div>
                                     </li>
@@ -47,37 +48,38 @@
                                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                                         <div>
                                             <h3 class="h6 mb-1">Order Date</h3>
-                                            <p class="small pe-4">{{ date('F j, Y', strtotime($order->enterdt)) }}</p>
+                                            <p class="small pe-4">{{ date('F j, Y', strtotime($this->order->enterdt)) }}</p>
                                         </div>
                                     </li>
 
                                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                                         <div>
                                             <h3 class="h6 mb-1">Order Total</h3>
-                                            <p class="small pe-4">${{ number_format($order->totordamt, 2) }}</p>
+                                            <p class="small pe-4">${{ number_format($this->order->totordamt, 2) }}</p>
                                         </div>
                                     </li>
 
                                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                                         <div>
-                                            <h3 class="h6 mb-1">{{ strtoupper($order->getShippingStage($order->stagecd)) }}
+                                            <h3 class="h6 mb-1">
+                                                {{ strtoupper($this->order->getShippingStage($this->order->stagecd)) }}
                                             </h3>
                                             <p class="small pe-4">
-                                                {{ intval($order->totqtyshp) + intval($order->totqtyret) }}</p>
+                                                {{ intval($this->order->totqtyshp) + intval($this->order->totqtyret) }}</p>
                                         </div>
                                     </li>
 
                                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                                         <div>
                                             <h3 class="h6 mb-1">TRANS Type</h3>
-                                            <p class="small pe-4">{{ strtoupper($order->transtype) }}</p>
+                                            <p class="small pe-4">{{ strtoupper($this->order->transtype) }}</p>
                                         </div>
                                     </li>
 
                                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                                         <div>
                                             <h3 class="h6 mb-1">TAKEN BY</h3>
-                                            <p class="small pe-4">{{ strtoupper($order->takenby) }}</p>
+                                            <p class="small pe-4">{{ strtoupper($this->order->takenby) }}</p>
                                         </div>
                                     </li>
 
@@ -89,6 +91,67 @@
                             @endunless
                         </div>
                     </div>
+
+                    <div class="card border-light shadow-sm mb-4">
+                        <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                            <h3 class="h5 mb-0">Customer Overview</h3>
+                        </div>
+
+                        <div class="card-body">
+
+                            @unless (config('sx.mock'))
+                                <ul class="list-group list-group-flush">
+
+
+                                    <li
+                                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                        <div>
+                                            <h3 class="h6 mb-1">Customer SX Number</h3>
+                                            <p class="small pe-4">{{ $this->customer->custno }}</p>
+                                        </div>
+                                        <div>
+                                    </li>
+
+                                    <li
+                                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                        <div>
+                                            <h3 class="h6 mb-1">Name</h3>
+                                            <p class="small pe-4">{{ strtoupper($this->customer->name) }}</p>
+                                        </div>
+                                        <div>
+                                    </li>
+
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Phone</h3>
+                                            <p class="small pe-4">{{ $this->customer->phoneno }}</p>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Address</h3>
+                                            <p class="small pe-4">
+                                                {{ $this->customer->addr . ', ' . $this->customer->city . ', ' . $this->customer->state . ', ' . $this->customer->zipcd }}
+                                            </p>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Type
+                                            </h3>
+                                            <p class="small pe-4">
+                                                {{ $this->customer->custtype }}</p>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            @endunless
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-sm-8">
                     <div class="card">
@@ -98,9 +161,15 @@
                                 <div class="alert alert-light-{{ $this->statusAlertClass }} color-primary"><i
                                         class="fas fa-info-circle"></i> {{ $this->statusAlertMessage }}
                                     <div class="btn-group float-end" role="group">
+
                                         <button id="btnGroupDrop1" type="button"
                                             class="btn btn-primary dropdown-toggle btn-sm" data-bs-toggle="dropdown"
                                             aria-expanded="false">
+                                            <div wire:loading>
+                                                <span class="spinner-border spinner-border-sm" role="status"
+                                                    aria-hidden="true"></span>
+                                            </div>
+
                                             Review
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
@@ -129,28 +198,9 @@
                                     <div class="list-group">
                                         @if (!empty($this->order_line_items))
                                             @forelse ($this->order_line_items as $item)
-                                                @php
-                                                    $is_dnr = false;
-
-                                                    if (strtoupper($item->statustype) == 'A') {
-                                                        $available = $item->qtyship + $item->qtyrel;
-                                                        if ($item->qtyord != $available) {
-                                                            $dnr_warehouse_product = App\Models\SX\WarehouseProduct::where('cono', 10)
-                                                                ->where('whse', $item->whse)
-                                                                ->where('prod', $item->shipprod)
-                                                                ->where('statustype', 'X')
-                                                                ->get();
-
-                                                            if ($dnr_warehouse_product->isNotEmpty()) {
-                                                                $is_dnr = true;
-                                                            }
-                                                        }
-                                                    }
-
-                                                @endphp
                                                 <a href="https://weingartz.com//searchPage.action?keyWord={{ $item->shipprod }}"
                                                     target="_blank"
-                                                    class="list-group-item list-group-item-action @if ($is_dnr) list-group-item-danger @endif"
+                                                    class="list-group-item list-group-item-action @if (in_array($item->shipprod, $this->dnr_line_items)) list-group-item-danger @endif"
                                                     aria-current="true">
                                                     <div class="d-flex w-100 justify-content-between">
                                                         <h6 class="mb-1">Line #{{ $item->lineno }} :
@@ -159,7 +209,7 @@
                                                                 str_replace(
                                                                     ';',
                                                                     ",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ",
                                                                     $item->descrip,
                                                                 ),
                                                                 ', ',
@@ -232,102 +282,29 @@
                         </div>
                     </div>
 
-                </div>
-            </div>
-
-            <div class="row px-2">
-                <div class="col-sm-4">
-                    <div class="card border-light shadow-sm mb-4">
-                        <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
-                            <h3 class="h5 mb-0">Customer Overview</h3>
-                        </div>
-
-                        <div class="card-body">
-
-                            @unless (config('sx.mock'))
-                                <ul class="list-group list-group-flush">
-
-
-                                    <li
-                                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                                        <div>
-                                            <h3 class="h6 mb-1">Customer SX Number</h3>
-                                            <p class="small pe-4">{{ $customer->custno }}</p>
-                                        </div>
-                                        <div>
-                                    </li>
-
-                                    <li
-                                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                                        <div>
-                                            <h3 class="h6 mb-1">Name</h3>
-                                            <p class="small pe-4">{{ strtoupper($customer->name) }}</p>
-                                        </div>
-                                        <div>
-                                    </li>
-
-
-                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                        <div>
-                                            <h3 class="h6 mb-1">Phone</h3>
-                                            <p class="small pe-4">{{ $customer->phoneno }}</p>
-                                        </div>
-                                    </li>
-
-                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                        <div>
-                                            <h3 class="h6 mb-1">Address</h3>
-                                            <p class="small pe-4">
-                                                {{ $customer->addr . ', ' . $customer->city . ', ' . $customer->state . ', ' . $customer->zipcd }}
-                                            </p>
-                                        </div>
-                                    </li>
-
-                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                        <div>
-                                            <h3 class="h6 mb-1">Type
-                                            </h3>
-                                            <p class="small pe-4">
-                                                {{ $customer->custtype }}</p>
-                                        </div>
-                                    </li>
-
-                                </ul>
-                            @endunless
-                        </div>
+                    <div class="px-2">
+                        <livewire:x-comments :entity="$backorder" :key="'comments' . time()" />
                     </div>
 
+
                 </div>
             </div>
 
-            <div class="px-2">
-                <livewire:x-comments
-                    :entity="$backorder"
-                    :key="'comments' . time()"                           
-                />
-            </div>
 
             <x-modal :toggle="$cancelOrderModal" size="xl">
                 <x-slot name="title">Cancel Order</x-slot>
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
-                            <x-forms.input
-                                label="Email Subject"
-                                model="cancelEmailSubject"
-                            />
+                            <x-forms.input label="Email Subject" model="cancelEmailSubject" />
 
-                            <x-forms.textarea
-                                label="Email Content"
-                                model="cancelEmailContent"
-                                rows="6"
-                            />
+                            <x-forms.textarea label="Email Content" model="cancelEmailContent" rows="6" />
                         </div>
                     </div>
                 </div>
 
                 <x-slot name="footer">
-                    <button wire:click="cancelOrder" type="button" class="pre-genkey-div btn btn-success">Cancel &
+                    <button wire:click="cancelOrder" type="button" class="pre-genkey-div btn btn-danger">Cancel &
                         Notify</button>
                     <button wire:click="closePopup('cancelOrderModal')" type="button"
                         class="btn btn-outline-secondary">Close</button>

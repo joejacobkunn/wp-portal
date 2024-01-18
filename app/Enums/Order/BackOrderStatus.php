@@ -38,7 +38,7 @@ enum BackOrderStatus:string
         return match ($value) {
             self::PendingReview => 'primary',
             self::Ignore => 'warning',
-            self::Cancelled => 'secondary',
+            self::Cancelled => 'danger',
             default => 'info'
         };
     }

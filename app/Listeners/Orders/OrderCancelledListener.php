@@ -27,7 +27,7 @@ class OrderCancelledListener
      */
     public function routeNotificationForMail()
     {
-        return "jkunnummyalil@wandpmanagement.com";
+        return "mmeister@powereqp.com";
     }
 
     /**
