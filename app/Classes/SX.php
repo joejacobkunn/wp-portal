@@ -90,6 +90,53 @@ class SX
 
     }
 
+    public function cancel_order($order_number, $order_suffix, $reason)
+    {
+
+        $request = [
+            'request' => [
+                'companyNumber' => 10,
+                'operatorInit' => 'web',
+                'operatorPassword' => '',
+                'orderNumber' => $order_number,
+                'orderSuffix' => $order_suffix,
+                "deleteOrderFlag" => false,
+                "lostBusinessReason" => $reason
+            ]
+
+        ];
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapioeorderdeleteorcancel');
+
+            if ($response->ok()) {
+                $response_body = json_decode($response->body());
+                $message = $response_body->response->cErrorMessage;
+
+                if(empty($message))
+                {
+                    return [
+                        'status' => 'success',
+                    ];
+         
+                }
+                else{
+                    return [
+                        'status' => 'error',
+                        'message' => $message
+                    ];
+
+                }
+            }
+
+            return [
+                'status' => 'error',
+            ];
+    
+    }
+
     public function check_credit_status($request)
     {
         $response = Http::withToken($this->token())

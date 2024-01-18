@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Orders;
 
+use App\Classes\SX;
 use App\Events\Orders\OrderCancelled;
 use App\Notifications\Orders\OrderCancelledNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -160,38 +160,41 @@
                                 <h4 class="card-title">Line Items</h4>
                                 <div class="alert alert-light-{{ $this->statusAlertClass }} color-primary"><i
                                         class="fas fa-info-circle"></i> {{ $this->statusAlertMessage }}
-                                    <div class="btn-group float-end" role="group">
 
-                                        <button id="btnGroupDrop1" type="button"
-                                            class="btn btn-primary dropdown-toggle btn-sm" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            <div wire:loading>
-                                                <span class="spinner-border spinner-border-sm" role="status"
-                                                    aria-hidden="true"></span>
-                                            </div>
+                                    @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::Cancelled->value)
+                                        <div class="btn-group float-end" role="group">
 
-                                            Review
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                            @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::Ignore->value)
-                                                <li><a class="dropdown-item" href="javascript:;"
-                                                        wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Ignore->value }}')">Ignore</a>
-                                                </li>
-                                            @endif
+                                            <button id="btnGroupDrop1" type="button"
+                                                class="btn btn-primary dropdown-toggle btn-sm" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                                <div wire:loading wire:target="toggleOrderStatus">
+                                                    <span class="spinner-border spinner-border-sm" role="status"
+                                                        aria-hidden="true"></span>
+                                                </div>
 
-                                            @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::PendingReview->value)
-                                                <li><a class="dropdown-item" href="javascript:;"
-                                                        wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::PendingReview->value }}')">Pending
-                                                        Review</a></li>
-                                            @endif
+                                                Review
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                                @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::Ignore->value)
+                                                    <li><a class="dropdown-item" href="javascript:;"
+                                                            wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Ignore->value }}')">Ignore</a>
+                                                    </li>
+                                                @endif
 
-                                            @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::Cancelled->value)
-                                                <li><a class="dropdown-item" href="javascript:;"
-                                                        wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Cancelled->value }}')">Cancel
-                                                        and Notify Customer</a></li>
-                                            @endif
-                                        </ul>
-                                    </div>
+                                                @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::PendingReview->value)
+                                                    <li><a class="dropdown-item" href="javascript:;"
+                                                            wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::PendingReview->value }}')">Pending
+                                                            Review</a></li>
+                                                @endif
+
+                                                @if ($backorder->status->value != \App\Enums\Order\BackOrderStatus::Cancelled->value)
+                                                    <li><a class="dropdown-item" href="javascript:;"
+                                                            wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Cancelled->value }}')">Cancel
+                                                            and Notify Customer</a></li>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 @unless (config('sx.mock'))
@@ -209,7 +212,7 @@
                                                                 str_replace(
                                                                     ';',
                                                                     ",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
                                                                     $item->descrip,
                                                                 ),
                                                                 ', ',
@@ -293,6 +296,15 @@
 
             <x-modal :toggle="$cancelOrderModal" size="xl">
                 <x-slot name="title">Cancel Order</x-slot>
+
+                <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+                    This action cannot be reverted. Cancelling will also update the SX order</div>
+
+                @if (!empty($errorMessage))
+                    <div class="alert alert-light-danger color-danger"><i class="bi bi-exclamation-circle"></i>
+                        {{ $errorMessage }}</div>
+                @endif
+
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
@@ -304,8 +316,13 @@
                 </div>
 
                 <x-slot name="footer">
-                    <button wire:click="cancelOrder" type="button" class="pre-genkey-div btn btn-danger">Cancel &
-                        Notify</button>
+                    <button wire:click="cancelOrder" type="button" class="pre-genkey-div btn btn-danger">
+                        <div wire:loading wire:target="cancelOrder">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Cancel &
+                        Notify
+                    </button>
                     <button wire:click="closePopup('cancelOrderModal')" type="button"
                         class="btn btn-outline-secondary">Close</button>
                 </x-slot>

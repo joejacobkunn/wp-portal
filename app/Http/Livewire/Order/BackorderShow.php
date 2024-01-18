@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Order;
 
+use App\Classes\SX;
 use App\Models\SX\Order;
 use App\Models\SX\Customer;
 use App\Models\SX\OrderLineItem;
@@ -19,6 +20,7 @@ class BackorderShow extends Component
     public $cancelEmailContent;
     public $order_number;
     public $order_suffix;
+    public $errorMessage = '';
     
     public $breadcrumbs = [
         [
@@ -99,11 +101,21 @@ class BackorderShow extends Component
 
     public function cancelOrder()
     {
-        $this->backorder->status = BackOrderStatus::Cancelled->value;
-        $this->backorder->save();
-        $this->reset('cancelOrderModal');
+        $sx_client = new SX();
 
-        event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent));
+        $sx_response = $sx_client->cancel_order($this->backorder->order_number, $this->backorder->order_suffix, "NL");
+
+        if($sx_response['status'] == 'success')
+        {
+            $this->backorder->status = BackOrderStatus::Cancelled->value;
+            $this->backorder->save();
+            $this->reset('cancelOrderModal');
+    
+            event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent));
+    
+        }else{
+            $this->errorMessage = $sx_response['message'];
+        }
     }
 
     public function getCustomerProperty()
