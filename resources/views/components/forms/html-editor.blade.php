@@ -6,7 +6,8 @@
         :model="$model ?? ''"
         :value="$value ?? ''"
         :height="$height ?? 200"
-        :key="($model ?? 'text').'editor'"
+        :listener="$listener ?? 'fieldUpdated'"
+        parentComponent="{{ $parentComponent ?? $this::class }}"
     />
 
     @if(isset($model))

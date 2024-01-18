@@ -17,6 +17,7 @@ class BackorderShow extends Component
     public DnrBackorder $backorder;
     public $order_line_items = [];
     public $cancelOrderModal = false;
+    public $cancelEmailSubject;
     public $cancelEmailContent;
     
     public $breadcrumbs = [
@@ -82,6 +83,10 @@ class BackorderShow extends Component
             case BackOrderStatus::Cancelled->value:
                 $this->cancelOrderModal = true;
                 
+                if (! $this->cancelEmailSubject) {
+                    $this->cancelEmailSubject = 'Order Cancelled!';
+                }
+
                 if (! $this->cancelEmailContent) {
                     $this->cancelEmailContent = 'We regret to inform you that the manufacture has let us know that Part Number: is no longer available without any replacement. I have cancelled the order and refunded your credit authorization, but your financial institution may hold the authorization for a short time. We apologize for any inconvenience this may cause. If you have any questions, please feel free to reply to this email.';
                 }
@@ -96,7 +101,7 @@ class BackorderShow extends Component
         $this->backorder->save();
         $this->reset('cancelOrderModal');
 
-        event(new OrderCancelled($this->backorder, $this->cancelEmailContent));
+        event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent));
     }
 
 }

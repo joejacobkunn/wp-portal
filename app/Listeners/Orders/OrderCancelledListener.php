@@ -37,6 +37,6 @@ class OrderCancelledListener
      */
     public function handle(OrderCancelled $event): void
     {
-        $this->notify(new OrderCancelledNotification($event->order, $event->mailContent));
+        $this->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent));
     }
 }

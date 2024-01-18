@@ -2,10 +2,11 @@
 
 namespace App\Models\Order;
 
+use App\Models\Core\Comment;
 use App\Enums\Order\BackOrderStatus;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DnrBackorder extends Model
 {
@@ -33,5 +34,10 @@ class DnrBackorder extends Model
     public function isPendingReview()
     {
         return $this->status == BackOrderStatus::PendingReview;
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

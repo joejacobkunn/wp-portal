@@ -13,14 +13,17 @@ class OrderCancelledNotification extends Notification
 
     public $order;
 
+    public $mailSubject;
+
     public $mailContent;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($order, $mailContent)
+    public function __construct($order, $mailSubject, $mailContent)
     {
         $this->order = $order;
+        $this->mailSubject = $mailSubject;
         $this->mailContent = $mailContent;
     }
 
@@ -40,7 +43,7 @@ class OrderCancelledNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                ->subject("Order #{$this->order->order_number} has been cancelled!")
+                ->subject($this->mailSubject)
                 ->greeting('Hello!')
                 ->line(nl2br($this->mailContent));
     }

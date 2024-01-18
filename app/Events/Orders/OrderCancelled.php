@@ -16,14 +16,17 @@ class OrderCancelled
 
     public $order;
 
+    public $mailSubject;
+
     public $mailContent;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($order, $mailContent)
+    public function __construct($order, $mailSubject, $mailContent)
     {
         $this->order = $order;
+        $this->mailSubject = $mailSubject;
         $this->mailContent = $mailContent;
     }
 

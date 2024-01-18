@@ -121,8 +121,6 @@
                                                         wire:click="toggleOrderStatus('{{ \App\Enums\Order\BackOrderStatus::Cancelled->value }}')">Cancel
                                                         and Notify Customer</a></li>
                                             @endif
-
-                                            <li><a class="dropdown-item" href="javascript:;">Add Internal Note</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -302,13 +300,28 @@
                 </div>
             </div>
 
+            <div class="px-2">
+                <livewire:x-comments
+                    :entity="$backorder"
+                    :key="'comments' . time()"                           
+                />
+            </div>
+
             <x-modal :toggle="$cancelOrderModal" size="xl">
                 <x-slot name="title">Cancel Order</x-slot>
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
-                            <x-forms.textarea label="Email Content" model="cancelEmailContent" rows="6"
-                                hint="This is to identify your app, eg Mobile App" />
+                            <x-forms.input
+                                label="Email Subject"
+                                model="cancelEmailSubject"
+                            />
+
+                            <x-forms.textarea
+                                label="Email Content"
+                                model="cancelEmailContent"
+                                rows="6"
+                            />
                         </div>
                     </div>
                 </div>

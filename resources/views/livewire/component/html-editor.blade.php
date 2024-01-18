@@ -1,8 +1,15 @@
 <div>
+    <div wire:ignore>
     <trix-editor id="{{ $fieldId }}" style="min-height: {{ $height }}px !important; overflow: auto; max-height: {{ $maxHeight }}px;"></trix-editor>
-</div>
+    </div>
+@assets
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>
+@endassets
 
+@script
 <script>
+(function () {
     var editorInits = editorInits || []
     var editorTimer = editorTimer || null
     var styles = Array
@@ -27,20 +34,29 @@
         document.getElementsByTagName('body')[0].appendChild(tag);
     }
 
+    let running = 0;
     function emitChange(target) {
         if (editorTimer) {
             clearTimeout(editorTimer)
         }
 
+        if (running) {
+            return;
+        }
+
         editorTimer = setTimeout(() => {
-            window.livewire.emit('fieldUpdated' , '{{ $model }}', target.value)
+            running = 1
+            $wire.setValue(target.value).then(() => {
+                running = 0
+            })
+           //window.livewire.dispatch('fieldUpdated', '{{ $model }}' , e.target.value)
         }, 600)
     }
 
     document.addEventListener('trix-initialize', function (e) {
         if (!editorInits.includes(e.target.getAttribute('id'))) {
             editorInits.push(e.target.getAttribute('id'))
-            e.target.editor.insertHTML('{!! $value !!}')
+            e.target.editor.insertHTML('{!! str_replace("\n", "", nl2br($value)) !!}')
             afterEditorInit()
         }
     })
@@ -56,5 +72,7 @@
             e.attachment.remove()
         })
     }
-
+    });
 </script>
+@endscript
+</div>
