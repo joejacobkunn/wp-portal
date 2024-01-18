@@ -33,6 +33,10 @@ class BackorderShow extends Component
 
     ];
 
+    protected $listeners = [
+        'newCommentCreated'
+    ];
+
     public function render()
     {
         return $this->renderView('livewire.order.backorder-show');
@@ -108,6 +112,7 @@ class BackorderShow extends Component
         if($sx_response['status'] == 'success')
         {
             $this->backorder->status = BackOrderStatus::Cancelled->value;
+            $this->backorder->stage_code = 9;
             $this->backorder->save();
             $this->reset('cancelOrderModal');
     
@@ -160,6 +165,14 @@ class BackorderShow extends Component
         }
 
         return $dnrs;
+    }
+
+    public function newCommentCreated($comment)
+    {
+        $sx_client = new SX();
+
+        $sx_response = $sx_client->create_order_note($comment['comment'], $this->backorder->order_number);
+
     }
 
 

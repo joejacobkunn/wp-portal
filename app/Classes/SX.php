@@ -155,6 +155,67 @@ class SX
         }
     }
 
+    public function create_order_note($note,$order_number)
+    {
+        $request = [
+            'request' => [
+                "companyNumber" => 10,
+                "operatorInit" => "web",
+                "operatorPassword" => "",
+                "notesTable" => 'oeeh',
+                "primaryKey" => $order_number,
+                "secondaryKey" => "",
+                "tInnotes" => [
+                    "t-innotes" => [
+                        "notestype" => "o",
+                        "pageno" => 0,
+                        "primarykey" => $order_number,
+                        "secondarykey" => "",
+                        "newrecordfl" => true,
+                        "newrecordglobalfl" => false,
+                        "deleterecordfl" => false,
+                        "changerecordfl" => false,
+                        "forcerefreshallpagesfl" => false,
+                        "securefl" => false,
+                        "notedata" => $note,
+                        "printfl" => false,
+                        "printfl2" => false,
+                        "printfl3" => false,
+                        "printfl4" => false,
+                        "printfl5" => false,
+                        "requirefl" => false,
+                        "extradata" => ""
+                    ]
+                ]
+            ]
+        ];
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapisanotechange');
+
+        if ($response->ok()) {
+            $response_body = json_decode($response->body());
+
+            return [
+                'status' => 'success',
+            ];
+
+        }
+
+        if ($response->badRequest()) {
+            $response_body = json_decode($response->body());
+
+            return [
+                'status' => 'error',
+                'message' => $response_body->response->cErrorMessage,
+            ];
+
+        }
+
+    }
+
+
     public function get_notes($request)
     {
         $response = Http::withToken($this->token())
