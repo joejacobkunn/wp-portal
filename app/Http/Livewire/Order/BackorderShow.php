@@ -16,8 +16,11 @@ class BackorderShow extends Component
 {
     public DnrBackorder $backorder;
     public $cancelOrderModal = false;
+    public $followUpModal = false;
     public $cancelEmailSubject;
     public $cancelEmailContent;
+    public $followUpSubject;
+    public $followUpEmailContent;
     public $order_number;
     public $order_suffix;
     public $errorMessage = '';
@@ -71,7 +74,15 @@ class BackorderShow extends Component
 
     public function getStatusAlertMessageProperty()
     {
-        return 'This Backorder is '. $this->backorder->status->label();
+        return 'This Backorder is currently in <strong>'. $this->backorder->status->label().'</strong> status';
+    }
+
+    public function getCommentAlertProperty()
+    {
+        if($this->backorder->status == BackOrderStatus::PendingReview->value)
+            return 'Adding a comment will update this backorder to <strong>Follow Up</strong> status. All comments are internal only and will be synced to OEEH notes in SX.';
+        else
+            return 'All comments are internal only and will be synced to OEEH notes in SX.';
     }
     /** Properties Ends */
 
@@ -96,10 +107,24 @@ class BackorderShow extends Component
                 }
 
                 if (! $this->cancelEmailContent) {
-                    $this->cancelEmailContent = 'We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(", ",$this->dnr_line_items).' is no longer available without any replacement. I have cancelled the order and refunded your credit authorization, but your financial institution may hold the authorization for a short time. We apologize for any inconvenience this may cause. If you have any questions, please feel free to reply to this email.';
+                    $this->cancelEmailContent = 'We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(', ',$this->dnr_line_items).' is no longer available without any replacement. I have cancelled the order and refunded your credit authorization, but your financial institution may hold the authorization for a short time. We apologize for any inconvenience this may cause. If you have any questions, please feel free to reply to this email.';
                 }
 
                 break;
+
+            case BackOrderStatus::FollowUp->value:
+                    $this->followUpModal = true;
+                    
+                    if (! $this->followUpSubject) {
+                        $this->followUpSubject = 'Follow Up on Order #'.$this->order_number;
+                    }
+    
+                    if (! $this->followUpEmailContent) {
+                        $this->followUpEmailContent = 'Hello , We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(", ",$this->dnr_line_items).'  is no longer available without any replacement. I apologize for this inconvenience, Would you like to go ahead with your remaining parts : '.implode(", ",$this->non_dnr_line_items).' ?';
+                    }
+    
+                    break;
+    
         }
     }
 
@@ -121,6 +146,14 @@ class BackorderShow extends Component
         }else{
             $this->errorMessage = $sx_response['message'];
         }
+    }
+
+    public function sendEmail()
+    {
+            $this->backorder->status = BackOrderStatus::FollowUp->value;
+            $this->backorder->save();
+            $this->reset('followUpModal');
+            //event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent));
     }
 
     public function getCustomerProperty()
@@ -157,7 +190,7 @@ class BackorderShow extends Component
                         ->get();
 
                     if ($dnr_warehouse_product->isNotEmpty()) {
-                        $dnrs[] = $item->shipprod;
+                        $dnrs[] = substr($item->shipprod,2).'-'.$item->descrip;
                     }
                 }
             }
@@ -167,11 +200,32 @@ class BackorderShow extends Component
         return $dnrs;
     }
 
+    public function getNonDnrLineItemsProperty()
+    {
+        $non_dnrs = [];
+
+        $line_items = OrderLineItem::where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->whereNotIn('shipprod', $this->dnr_line_items)->get();
+
+        foreach($line_items as $item){
+            $non_dnrs[] = substr($item->shipprod,2).'-'.$item->descrip;
+
+        }
+
+        return $non_dnrs;
+    }
+
+
     public function newCommentCreated($comment)
     {
         $sx_client = new SX();
 
         $sx_response = $sx_client->create_order_note($comment['comment'], $this->backorder->order_number);
+
+        if($this->backorder->status->value == BackOrderStatus::PendingReview->value)
+        {
+            $this->backorder->status = BackOrderStatus::FollowUp->value;
+            $this->backorder->save();
+        }
 
     }
 

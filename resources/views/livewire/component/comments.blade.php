@@ -4,6 +4,9 @@
         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
             <h3 class="h5 mb-0"><i class="fas fa-comment-dots"></i> Comments</h3>
             <div class="card-body">
+                @if (!empty($alert))
+                    <div class="alert alert-light-primary color-primary">{!! $alert !!}</div>
+                @endif
                 <form wire:submit.prevent="createComment()" class="mt-1 mb-4">
                     <textarea class="form-control border-2 mb-4" wire:model.defer="comment" placeholder="Your Comment" rows="3"
                         maxlength="1000" required=""></textarea>

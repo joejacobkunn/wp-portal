@@ -34,10 +34,10 @@ class FetchDnrBackorders extends Command
         //Get all weingartz warehouses
         $warehouses = Warehouse::select('whse')->where('cono', 10)->where('salesfl',1)->where('custno',0)->get();
 
-        //Loop thru each warehouse and fetch all orders where stagecd <=3 and transtype <> 'QU'
+        //Loop thru each warehouse and fetch all orders where stagecd <=2 and transtype <> 'QU'
 
         foreach($warehouses as $warehouse){
-            $orders = Order::select('cono', 'orderno', 'ordersuf', 'enterdt', 'custno', 'stagecd')->where('cono', 10)->where('whse',$warehouse->whse)->where('stagecd', '<=', 3)->whereNot('transtype','QU')->get();
+            $orders = Order::select('cono', 'orderno', 'ordersuf', 'enterdt', 'custno', 'stagecd')->where('cono', 10)->where('whse',$warehouse->whse)->whereIn('stagecd', [1,2])->where('takenby', 'WEB')->whereNot('transtype','QU')->get();
             
             //loop thru each orders line item
 

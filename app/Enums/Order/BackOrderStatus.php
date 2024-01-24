@@ -7,6 +7,8 @@ enum BackOrderStatus:string
     case PendingReview = 'Pending Review';
     case Ignore = 'ignore';
     case Cancelled = 'cancelled';
+    case FollowUp = 'Follow Up';
+    case Error = 'Error';
 
     public function label(): string
     {
@@ -29,6 +31,8 @@ enum BackOrderStatus:string
             self::PendingReview => 'Pending Review',
             self::Ignore => 'Ignored',
             self::Cancelled => 'Cancelled',
+            self::FollowUp => 'Follow Up',
+            self::Error => 'Error',
             default => '-'
         };
     }
@@ -39,6 +43,8 @@ enum BackOrderStatus:string
             self::PendingReview => 'primary',
             self::Ignore => 'warning',
             self::Cancelled => 'danger',
+            self::FollowUp => 'info',
+            self::Error => 'secondary',
             default => 'info'
         };
     }

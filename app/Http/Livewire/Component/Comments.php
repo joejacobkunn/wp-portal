@@ -29,6 +29,8 @@ class Comments extends Component
 
     public $deferLoad = false;
 
+    public $alert = '';
+
 
     /*
     |--------------------------------------------------------------------------

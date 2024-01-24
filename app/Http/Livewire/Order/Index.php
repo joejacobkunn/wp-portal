@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Order;
 
 use App\Http\Livewire\Component\Component;
+use App\Models\Order\DnrBackorder;
 use App\Models\SX\Company;
 use App\Models\SX\Order;
 use App\Traits\HasTabs;
@@ -15,13 +16,15 @@ class Index extends Component
 
     public $orders = [];
 
+    public $pendingReviewCount = 0;
+
     public $breadcrumbs = [
         [
             'title' => 'Orders',
         ],
     ];
 
-    public $orderTab = 'orders';
+    public $orderTab = 'back_orders';
 
     public $tabs = [
         'back-order-tabs' => [
@@ -29,7 +32,9 @@ class Index extends Component
             'links' => [
                 'PendingReview' => 'Pending Review',
                 'ignored' => 'Ignored',
+                'follow_up' => 'Follow Up',
                 'cancelled' => 'Cancelled',
+                'errors' => 'Errors',
                 'Closed' => 'Closed',
             ],
         ]
@@ -42,15 +47,8 @@ class Index extends Component
     public function mount()
     {
         $this->account = account();
-        // $company = Company::find(40);
-        // $company->state = 'MI';
-        // $company->save();
-        //dd($company);
-        //dd($company->on('sx')->update(['state' => 'MI']));
-        // $this->orders = Order::where('cono', 10)
-        //     ->where('invoicedt', '=', '2022-03-30')
-        //     ->where('whse', 'UTIC')
-        //     ->get();
+        $this->pendingReviewCount = DnrBackorder::where('status', 'Pending Review')->count();
+
     }
 
     public function render()
