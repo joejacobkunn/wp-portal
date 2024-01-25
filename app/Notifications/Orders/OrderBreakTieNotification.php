@@ -41,9 +41,9 @@ class OrderBreakTieNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
-            ->subject('Tied Order #'.$this->backorder->order_number.'-'.$this->backorder->order_number_suffix.' has been cancelled from a DNR backorder.')
+            ->subject('Tied OE Order #'.$this->backorder->order_number.'-'.$this->backorder->order_number_suffix.' has been cancelled from a DNR backorder.')
             ->greeting('Hello!')
-            ->line('Tied Order #'.$this->backorder->order_number.' has been cancelled. Please fix the tie at your earliest convenience. Details are given below:')
+            ->line('Tied Order #'.$this->backorder->order_number.' has been cancelled. Please update the PO/WT at your earliest convenience. Details are given below:')
             ->line(new HtmlString("<br>"));
 
         foreach($this->lines as $line)
@@ -53,7 +53,7 @@ class OrderBreakTieNotification extends Notification
 
         $mail->line(new HtmlString("<br>"));
 
-        $mail->line('To view more details about this backorder, you can visit the Portal by clicking the link below.');
+        $mail->line('To view more details about this DNR backorder, you can visit the Portal by clicking the link below.');
 
         $mail->action('View in Portal', url('/orders/backorders/'.$this->backorder->order_number.'/'.$this->backorder->order_number_suffix.'/show'));
 
