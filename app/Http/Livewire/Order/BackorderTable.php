@@ -117,8 +117,17 @@ class BackorderTable extends DataTableComponent
                 $query->where('status', BackOrderStatus::Cancelled->value);
                 break;
 
+            case 'follow_up':
+                $query->where('status', BackOrderStatus::FollowUp->value);
+                break;
+
+            case 'errors':
+                $query->where('status', BackOrderStatus::Error->value);
+                break;
+    
+
             case 'Closed':
-                $query->where('status', 'Closed');
+                $query->where('status', BackOrderStatus::Closed->value);
                 break;
         }
 

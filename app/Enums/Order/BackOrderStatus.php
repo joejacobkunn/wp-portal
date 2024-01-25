@@ -5,10 +5,11 @@ namespace App\Enums\Order;
 enum BackOrderStatus:string
 {
     case PendingReview = 'Pending Review';
-    case Ignore = 'ignore';
-    case Cancelled = 'cancelled';
+    case Ignore = 'Ignored';
+    case Cancelled = 'Cancelled';
     case FollowUp = 'Follow Up';
     case Error = 'Error';
+    case Closed = 'Closed';
 
     public function label(): string
     {
@@ -33,6 +34,7 @@ enum BackOrderStatus:string
             self::Cancelled => 'Cancelled',
             self::FollowUp => 'Follow Up',
             self::Error => 'Error',
+            self::Closed => 'Closed',
             default => '-'
         };
     }
@@ -45,6 +47,7 @@ enum BackOrderStatus:string
             self::Cancelled => 'danger',
             self::FollowUp => 'info',
             self::Error => 'secondary',
+            self::Closed => 'success',
             default => 'info'
         };
     }

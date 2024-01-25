@@ -8,6 +8,7 @@ use App\Notifications\Orders\OrderCancelledNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\App;
 
 class OrderCancelledListener
 {
@@ -26,9 +27,9 @@ class OrderCancelledListener
      *
      * @return string
      */
-    public function routeNotificationForMail()
+    public function routeNotificationForMail(OrderCancelled $event)
     {
-        return "mmeister@powereqp.com";
+        return App::environment() == 'production' ? $event->email : "mmeister@powereqp.com";
     }
 
     /**

@@ -13,7 +13,7 @@ class Comment extends Model
 
     protected $table = 'comments';
 
-    protected $fillable = ['user_id', 'comment', 'created_at'];
+    protected $fillable = ['user_id', 'comment', 'created_at', 'commentable_type', 'commentable_id'];
     
     protected $hidden = [
         'deleted_at',

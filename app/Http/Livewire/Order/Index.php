@@ -16,6 +16,8 @@ class Index extends Component
 
     public $orders = [];
 
+    public $statusCount = [];
+
     public $pendingReviewCount = 0;
 
     public $breadcrumbs = [
@@ -47,7 +49,14 @@ class Index extends Component
     public function mount()
     {
         $this->account = account();
-        $this->pendingReviewCount = DnrBackorder::where('status', 'Pending Review')->count();
+
+        $this->statusCount = [
+            'pendingReviewCount' => DnrBackorder::where('status', 'Pending Review')->count(),
+            'ignoredCount' => DnrBackorder::where('status', 'Ignored')->count(),
+            'followUpCount' => DnrBackorder::where('status', 'Follow Up')->count(),
+            'cancelledCount' => DnrBackorder::where('status', 'Cancelled')->count(),
+            'errorsCount' => DnrBackorder::where('status', 'Error')->count()
+        ];
 
     }
 

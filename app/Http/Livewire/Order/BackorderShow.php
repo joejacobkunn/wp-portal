@@ -8,9 +8,14 @@ use App\Models\SX\Customer;
 use App\Models\SX\OrderLineItem;
 use App\Models\Order\DnrBackorder;
 use App\Enums\Order\BackOrderStatus;
+use App\Events\Orders\OrderBreakTie;
 use App\Events\Orders\OrderCancelled;
 use App\Http\Livewire\Component\Component;
+use App\Models\Core\Comment;
+use App\Models\SX\Operator;
 use App\Models\SX\WarehouseProduct;
+use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Arr;
 
 class BackorderShow extends Component
 {
@@ -24,6 +29,12 @@ class BackorderShow extends Component
     public $order_number;
     public $order_suffix;
     public $errorMessage = '';
+    public $currentSession = '';
+    public $tiedOrderAcknowledgement = false;
+    public $operator;
+
+    public $emailFrom = 'weborders@weingartz.com';
+    public $emailTo = '';
     
     public $breadcrumbs = [
         [
@@ -39,6 +50,34 @@ class BackorderShow extends Component
     protected $listeners = [
         'newCommentCreated'
     ];
+
+    public $required_line_item_columns = [
+        'oeel.orderno',
+        'oeel.ordersuf',
+        'oeel.shipto',
+        'oeel.lineno',
+        'oeel.qtyord',
+        'oeel.proddesc',
+        'oeel.price',
+        'oeel.shipprod',
+        'oeel.statustype',
+        'oeel.prodcat',
+        'oeel.prodline',
+        'oeel.specnstype',
+        'oeel.qtyship',
+        'oeel.ordertype',
+        'oeel.netamt',
+        'oeel.orderaltno',
+        'oeel.user8',
+        'oeel.vendno',
+        'oeel.whse',
+        'oeel.returnfl',
+        'icsp.descrip',
+        'icsl.user3',
+        'icsl.whse',
+        'icsl.prodline',
+    ];
+
 
     public function render()
     {
@@ -79,7 +118,7 @@ class BackorderShow extends Component
 
     public function getCommentAlertProperty()
     {
-        if($this->backorder->status == BackOrderStatus::PendingReview->value)
+        if($this->backorder->status->value == BackOrderStatus::PendingReview->value)
             return 'Adding a comment will update this backorder to <strong>Follow Up</strong> status. All comments are internal only and will be synced to OEEH notes in SX.';
         else
             return 'All comments are internal only and will be synced to OEEH notes in SX.';
@@ -101,26 +140,36 @@ class BackorderShow extends Component
                 break;
             case BackOrderStatus::Cancelled->value:
                 $this->cancelOrderModal = true;
+                $this->emailTo = $this->customer->email;
+
                 
                 if (! $this->cancelEmailSubject) {
                     $this->cancelEmailSubject = 'Order #'.$this->order_number.'-'.$this->order_suffix.' Cancelled';
                 }
 
                 if (! $this->cancelEmailContent) {
-                    $this->cancelEmailContent = 'We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(', ',$this->dnr_line_items).' is no longer available without any replacement. I have cancelled the order and refunded your credit authorization, but your financial institution may hold the authorization for a short time. We apologize for any inconvenience this may cause. If you have any questions, please feel free to reply to this email.';
+                    $this->cancelEmailContent = 'We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(', ',Arr::pluck($this->dnr_line_items,'full_name')).' is no longer available without any replacement. I have cancelled the order and refunded your credit authorization, but your financial institution may hold the authorization for a short time. We apologize for any inconvenience this may cause. If you have any questions, please feel free to reply to this email.';
                 }
+
+                $this->currentSession = $this->getCurrentSession();
+
+                if(!empty($this->currentSession)){
+                    $this->operator = $this->getOperatorInfo($this->currentSession);
+                }
+
 
                 break;
 
             case BackOrderStatus::FollowUp->value:
                     $this->followUpModal = true;
+                    $this->emailTo = $this->customer->email;
                     
                     if (! $this->followUpSubject) {
                         $this->followUpSubject = 'Follow Up on Order #'.$this->order_number;
                     }
     
                     if (! $this->followUpEmailContent) {
-                        $this->followUpEmailContent = 'Hello , We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(", ",$this->dnr_line_items).'  is no longer available without any replacement. I apologize for this inconvenience, Would you like to go ahead with your remaining parts : '.implode(", ",$this->non_dnr_line_items).' ?';
+                        $this->followUpEmailContent = 'Hello , We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(", ",Arr::pluck($this->dnr_line_items,'full_name')).'  is no longer available without any replacement. I apologize for this inconvenience, Would you like to go ahead with your remaining parts : '.implode(", ",Arr::pluck($this->non_dnr_line_items,'full_name')).' ?';
                     }
     
                     break;
@@ -130,6 +179,11 @@ class BackorderShow extends Component
 
     public function cancelOrder()
     {
+
+        //break ties if this is a tied order
+
+        if($this->is_tied_order) $this->breakTieForOrder(); 
+
         $sx_client = new SX();
 
         $sx_response = $sx_client->cancel_order($this->backorder->order_number, $this->backorder->order_suffix, "NL");
@@ -141,7 +195,7 @@ class BackorderShow extends Component
             $this->backorder->save();
             $this->reset('cancelOrderModal');
     
-            event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent));
+            event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent, $this->emailTo));
     
         }else{
             $this->errorMessage = $sx_response['message'];
@@ -169,16 +223,29 @@ class BackorderShow extends Component
 
     public function getOrderLineItemsProperty()
     {
-        return OrderLineItem::where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->get();
+        return OrderLineItem::select($this->required_line_item_columns)
+        ->leftJoin('icsp', function (JoinClause $join) {
+            $join->on('oeel.cono','=','icsp.cono')
+            ->on('oeel.shipprod', '=', 'icsp.prod');
+                //->where('icsp.cono', $this->customer->account->sx_company_number);
+        })
+        ->leftJoin('icsl', function (JoinClause $join) {
+            $join->on('oeel.cono','=','icsl.cono')
+                ->on('oeel.whse', '=', 'icsl.whse')
+                ->on('oeel.vendno', '=', 'icsl.vendno')
+                ->on('oeel.prodline', '=', 'icsl.prodline');
+        })
+        ->where('oeel.orderno', $this->order_number)->where('oeel.ordersuf', $this->order_suffix)
+        ->where('oeel.cono', auth()->user()->account->sx_company_number)
+        ->orderBy('oeel.lineno', 'asc')
+        ->get();
     }
 
     public function getDnrLineItemsProperty()
     {
         $dnrs = [];
 
-        $line_items = OrderLineItem::where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->get();
-
-        foreach($line_items as $item){
+        foreach($this->order_line_items as $item){
             
             if (strtoupper($item->statustype) == 'A') {
                 $available = $item->qtyship + $item->qtyrel;
@@ -190,7 +257,10 @@ class BackorderShow extends Component
                         ->get();
 
                     if ($dnr_warehouse_product->isNotEmpty()) {
-                        $dnrs[] = substr($item->shipprod,2).'-'.$item->descrip;
+                        $dnrs[] = [
+                            'shipprod' => $item->shipprod,
+                            'full_name' => substr($item->shipprod,2).'-'.trim($item->descrip)
+                        ];
                     }
                 }
             }
@@ -204,10 +274,11 @@ class BackorderShow extends Component
     {
         $non_dnrs = [];
 
-        $line_items = OrderLineItem::where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->whereNotIn('shipprod', $this->dnr_line_items)->get();
-
-        foreach($line_items as $item){
-            $non_dnrs[] = substr($item->shipprod,2).'-'.$item->descrip;
+        foreach($this->order_line_items->whereNotIn('shipprod', Arr::pluck($this->dnr_line_items,'shipprod')) as $item){
+            $non_dnrs[] = [
+                'shipprod' => $item->shipprod,
+                'full_name' => substr($item->shipprod,2).'-'.trim($item->descrip)
+            ];
 
         }
 
@@ -217,9 +288,6 @@ class BackorderShow extends Component
 
     public function newCommentCreated($comment)
     {
-        $sx_client = new SX();
-
-        $sx_response = $sx_client->create_order_note($comment['comment'], $this->backorder->order_number);
 
         if($this->backorder->status->value == BackOrderStatus::PendingReview->value)
         {
@@ -227,6 +295,63 @@ class BackorderShow extends Component
             $this->backorder->save();
         }
 
+        $sx_client = new SX();
+
+        $sx_response = $sx_client->create_order_note($comment['comment'], $this->backorder->order_number);
+
+
+    }
+
+    //check to see if any end user has an active session for the order
+    public function getCurrentSession()
+    {
+        return Order::select('openinit')->where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->first()->openinit;
+    }
+
+    public function getOperatorInfo($operator)
+    {
+        return Operator::select('name', 'email', 'phoneno', 'modphoneno', 'site', 'slstitle')->where('cono',auth()->user()->account->sx_company_number)->where('slsrep',$operator)->first();
+    }
+
+    public function getIsTiedOrderProperty()
+    {
+        foreach($this->order_line_items as $item){
+            if(in_array($item->getTied() ,['PO', 'Warehouse Transfer'])) return true;
+        }
+        
+        return false;
+    }
+
+    public function breakTieForOrder()
+    {
+        $tied_line_items = [];
+
+        foreach($this->order_line_items as $item){
+            if(in_array($item->getTied() ,['PO', 'Warehouse Transfer'])) {
+                $line_item = OrderLineItem::where('cono', auth()->user()->account->sx_company_number)->where('orderno', $item->orderno)->where('ordersuf', $item->ordersuf)->first();
+                $tied_line_items[] = $line_item;
+                $line_item->update(['orderaltno' => 0, 'linealtno' => 0, 'ordertype' => '']);
+            }
+        }
+
+        event(new OrderBreakTie($this->backorder, $tied_line_items, auth()->user()));
+    }
+
+    public function moveToErrorsTab($error)
+    {
+        //update status to error
+        $this->backorder->status = BackOrderStatus::Error->value;
+        $this->backorder->save();
+
+        //add comment about the error response
+        Comment::create([
+            'user_id' => auth()->user()->id,
+            'commentable_type' => 'App\Models\Order\DnrBackorder',
+            'commentable_id' => $this->backorder->id,
+            'comment' => 'SX prevented cancellation : '.$error,
+        ]);
+
+        $this->reset('cancelOrderModal');
     }
 
 

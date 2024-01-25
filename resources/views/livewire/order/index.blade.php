@@ -20,8 +20,8 @@
                             data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile"
                             aria-selected="true" tabindex="-1" wire:click="$set('orderTab', 'back_orders')">DNR
                             Backorders <span class="badge bg-light-primary float-end">
-                                @if ($pendingReviewCount > 0)
-                                    {{ $pendingReviewCount }}
+                                @if ($statusCount['pendingReviewCount'] > 0)
+                                    {{ $statusCount['pendingReviewCount'] }}
                                 @endif
                             </span></a>
                     </div>
@@ -97,6 +97,23 @@
                                     </div>
 
                                     <x-tabs :tabs="$tabs" tabId="back-order-tabs" class="mb-5">
+                                        <x-slot:tab_header_PendingReview>Pending Review <span
+                                                class="badge badge-lg bg-primary ml-2">{{ $statusCount['pendingReviewCount'] }}</span></x-slot>
+                                        <x-slot:tab_header_ignored>Ignored <span
+                                                class="badge badge-lg bg-primary ml-2">{{ $statusCount['ignoredCount'] }}</span></x-slot>
+                                        <x-slot:tab_header_follow_up>Follow Up <span
+                                                class="badge badge-lg bg-primary ml-2">{{ $statusCount['followUpCount'] }}</span></x-slot>
+                                        <x-slot:tab_header_cancelled>Cancelled <span
+                                                class="badge badge-lg bg-primary ml-2">{{ $statusCount['cancelledCount'] }}</span></x-slot>
+                                        <x-slot:tab_header_errors>Errors <span
+                                                class="badge badge-lg bg-primary  ml-2">{{ $statusCount['errorsCount'] }}</span></x-slot>
+                                        <x-slot:tab_header_Closed>Closed <span
+                                                class="badge badge-lg bg-primary ml-2">0</span></x-slot>
+
+
+
+
+
                                         <x-slot:content>
                                             <livewire:order.backorder-table :activeTab="$tabs['back-order-tabs']['active']"
                                                 key="{{ $tabs['back-order-tabs']['active'] }}" lazy />

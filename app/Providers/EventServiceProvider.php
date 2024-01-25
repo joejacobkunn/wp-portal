@@ -33,6 +33,11 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\Orders\OrderCancelled::class => [
             \App\Listeners\Orders\OrderCancelledListener::class,
         ],
+
+        \App\Events\Orders\OrderBreakTie::class => [
+            \App\Listeners\Orders\OrderBreakTieListener::class,
+        ],
+
         
     ];
 

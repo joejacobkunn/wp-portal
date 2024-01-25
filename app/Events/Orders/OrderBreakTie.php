@@ -10,27 +10,24 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCancelled
+class OrderBreakTie
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $order;
+    public $backorder;
 
-    public $mailSubject;
+    public $tied_line_items;
 
-    public $mailContent;
-
-    public $email;
+    public $auth_user;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($order, $mailSubject, $mailContent, $email)
+    public function __construct($backorder, $tied_line_items, $auth_user)
     {
-        $this->order = $order;
-        $this->mailSubject = $mailSubject;
-        $this->mailContent = $mailContent;
-        $this->email = $email;
+        $this->backorder = $backorder;
+        $this->tied_line_items = $tied_line_items;
+        $this->auth_user = $auth_user;
     }
 
     /**

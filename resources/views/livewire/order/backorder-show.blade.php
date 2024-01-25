@@ -23,8 +23,6 @@
                                 </div>
 
                                 <ul class="list-group list-group-flush">
-
-
                                     <li
                                         class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                                         <div>
@@ -131,6 +129,14 @@
 
                                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                                         <div>
+                                            <h3 class="h6 mb-1">Email</h3>
+                                            <p class="small pe-4">{{ $this->customer->email ?? $this->order->user13 }}</p>
+                                        </div>
+                                    </li>
+
+
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
                                             <h3 class="h6 mb-1">Address</h3>
                                             <p class="small pe-4">
                                                 {{ $this->customer->addr . ', ' . $this->customer->city . ', ' . $this->customer->state . ', ' . $this->customer->zipcd }}
@@ -209,16 +215,16 @@
                                             @forelse ($this->order_line_items as $item)
                                                 <a href="https://weingartz.com//searchPage.action?keyWord={{ $item->shipprod }}"
                                                     target="_blank"
-                                                    class="list-group-item list-group-item-action @if (in_array(substr($item->shipprod, 2) . '-' . $item->descrip, $this->dnr_line_items)) list-group-item-danger @endif"
+                                                    class="list-group-item list-group-item-action @if (in_array($item->shipprod, Illuminate\Support\Arr::pluck($this->dnr_line_items, 'shipprod'))) list-group-item-danger @endif"
                                                     aria-current="true">
                                                     <div class="d-flex w-100 justify-content-between">
-                                                        <h6 class="mb-1">Line #{{ $item->lineno }} :
+                                                        <h6 class="mb-1">#{{ $item->lineno }} :
                                                             {{ $item->user3 }} {{ $item->shipprod }}
                                                             {{ rtrim(
                                                                 str_replace(
                                                                     ';',
                                                                     ",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ",
                                                                     $item->descrip,
                                                                 ),
                                                                 ', ',
@@ -264,11 +270,13 @@
                                                         <span class="badge bg-light-secondary">Tied :
                                                             {{ $item->getTied() }}</span>
                                                     </small>
-                                                    <small>
-                                                        <span class="badge bg-light-warning">Related Order#
-                                                            :
-                                                            {{ strtoupper($item->orderaltno) ?: 'N/A' }}</span>
-                                                    </small>
+                                                    @if ($item->getTied() != 'N/A')
+                                                        <small>
+                                                            <span class="badge bg-light-warning">Related Order#
+                                                                :
+                                                                {{ strtoupper($item->orderaltno) ?: 'N/A' }}</span>
+                                                        </small>
+                                                    @endif
 
                                                     @if (!empty($item->user8))
                                                         <small>
@@ -307,13 +315,59 @@
                     This action cannot be reverted. Cancelling will also update the SX order</div>
 
                 @if (!empty($errorMessage))
-                    <div class="alert alert-light-danger color-danger"><i class="bi bi-exclamation-circle"></i>
-                        {{ $errorMessage }}</div>
+                    <div class="alert alert-light-danger color-danger">
+                        <button wire:click="moveToErrorsTab('{{ $errorMessage }}')"
+                            class="btn btn-sm btn-outline-danger float-end">
+                            <div wire:loading wire:target="moveToErrorsTab">
+                                <span class="spinner-border spinner-border-sm" role="status"
+                                    aria-hidden="true"></span>
+                            </div>
+                            Move to Errors Tab
+                        </button>
+                        {!! $errorMessage !!}<br>
+                    </div>
+                @endif
+
+                @if (!empty($currentSession))
+                    <div class="alert alert-light-danger color-danger">
+                        <div class="spinner-grow spinner-grow-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div> This order has an active session by <strong>{{ $operator->name }}</strong> at
+                        {{ $operator->site }}. Try ending the session and reloading the page to retry<br><br>
+                        <strong>E-Mail</strong> : {{ $operator->email }}<br><strong>Phone</strong> :
+                        {{ $operator->phoneno }}<br><strong>Extension</strong> : {{ $operator->modphoneno }}
+                    </div>
+                @endif
+
+                @if ($this->is_tied_order)
+                    <div class="alert alert-light-danger color-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        This is a <strong>Tied Order</strong>, the system will break the tie if you decide to
+                        Cancel. The
+                        Purchasing Department will be notified via email and may need to manually intervene after the
+                        Cancellation.
+                        <div class="row">
+                            <div class="col-md-12 mt-3">
+                                <div class="float-end" wire:loading wire:target="tiedOrderAcknowledgement">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+
+                                <x-forms.checkbox label="I understand, proceed to Cancel Order"
+                                    model="tiedOrderAcknowledgement" />
+
+                            </div>
+                        </div>
+
+                    </div>
                 @endif
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
+                            <x-forms.input label="From" model="emailFrom" disabled />
+                            <x-forms.input label="To" model="emailTo" />
                             <x-forms.input label="Email Subject" model="cancelEmailSubject" />
 
                             <x-forms.textarea label="Email Content" model="cancelEmailContent" rows="6" />
@@ -322,7 +376,8 @@
                 </div>
 
                 <x-slot name="footer">
-                    <button wire:click="cancelOrder" type="button" class="pre-genkey-div btn btn-danger">
+                    <button wire:click="cancelOrder" wire:loading.attr="disabled" type="button"
+                        class="pre-genkey-div btn btn-danger" @if (!empty($currentSession) || ($this->is_tied_order && !$tiedOrderAcknowledgement)) disabled @endif>
                         <div wire:loading wire:target="cancelOrder">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
@@ -330,7 +385,13 @@
                         Notify
                     </button>
                     <button wire:click="closePopup('cancelOrderModal')" type="button"
-                        class="btn btn-outline-secondary">Close</button>
+                        class="btn btn-outline-secondary">
+                        <div wire:loading wire:target="closePopup('cancelOrderModal')">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+
+                        Close
+                    </button>
                 </x-slot>
 
             </x-modal>
@@ -344,11 +405,16 @@
                 @if (empty($this->non_dnr_line_items))
                     <div class="alert alert-light-danger color-danger">
                         All line items in this order are DNR
+                    </div>
                 @endif
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
+                            <x-forms.input label="From" model="emailFrom" disabled />
+
+                            <x-forms.input label="To" model="emailTo" />
+
                             <x-forms.input label="Email Subject" model="followUpSubject" />
 
                             <x-forms.textarea label="Email Content" model="followUpEmailContent" rows="6" />
@@ -357,7 +423,8 @@
                 </div>
 
                 <x-slot name="footer">
-                    <button wire:click="sendEmail" type="button" class="pre-genkey-div btn btn-success">
+                    <button wire:click="sendEmail" type="button" class="pre-genkey-div btn btn-success"
+                        wire:loading.attr="disabled">
                         <div wire:loading wire:target="sendEmail">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
