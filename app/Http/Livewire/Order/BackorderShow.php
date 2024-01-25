@@ -16,6 +16,7 @@ use App\Models\SX\Operator;
 use App\Models\SX\WarehouseProduct;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class BackorderShow extends Component
 {
@@ -330,7 +331,7 @@ class BackorderShow extends Component
             if(in_array($item->getTied() ,['PO', 'Warehouse Transfer'])) {
                 $line_item = OrderLineItem::where('cono', auth()->user()->account->sx_company_number)->where('orderno', $item->orderno)->where('ordersuf', $item->ordersuf)->first();
                 $tied_line_items[] = $line_item;
-                $line_item->update(['orderaltno' => 0, 'linealtno' => 0, 'ordertype' => '']);
+                DB::connection('sx')->statement("UPDATE pub.oeel SET orderaltno = 0, linealtno = 0, ordertype = '' WHERE cono = ".auth()->user()->account->sx_company_number." AND orderno = ".$item->orderno." AND ordersuf = ".$item->ordersuf." AND lineno =".$item->lineno);
             }
         }
 
