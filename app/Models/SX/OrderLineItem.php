@@ -14,6 +14,8 @@ class OrderLineItem extends Model
 
     protected $table = 'oeel';
 
+    protected $fillable = ['orderaltno', 'linealtno', 'ordertype'];
+
     protected static function booted(): void
     {
         parent::boot();
