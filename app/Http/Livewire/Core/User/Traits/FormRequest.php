@@ -79,6 +79,8 @@ trait FormRequest
             $this->user->name = null;
             $this->user->email = null;
             $this->user->affiliate_id = null;
+        } else {
+            $this->selectedRole = $this->user->roles()->first()->name;
         }
 
         $this->userEmail = $this->user->email;

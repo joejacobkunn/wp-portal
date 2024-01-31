@@ -62,7 +62,7 @@ class ActivityLog extends Component
 
     public function render()
     {
-        return view('livewire.components.activity-log');
+        return view('livewire.component.activity-log');
     }
 
     public function mount()

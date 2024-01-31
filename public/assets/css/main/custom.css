@@ -395,3 +395,30 @@
 .product-search-modal #table-bulkActionsDropdown {
     display: none !important;
 }
+
+.input-loading {
+    position: absolute;
+    top: 0.75em;
+    right: 1em;
+    background: #fff;
+}
+
+/** Activity Log */
+.activity-log {
+    font-size: 14px;
+}
+.activity-log .timestamp-div {
+    font-size: 13px;
+    float: right;
+}
+.activity-log .activity-change-info {
+    font-size: 13px;
+    border-left: 2px solid #e3e3e3;
+}
+.activity-log .activity-change-info label {
+    font-weight: 500;
+}
+.activity-log .activity-change-info .desc {
+    font-weight: 300;
+}
+/** Activity Log Ends */

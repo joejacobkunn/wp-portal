@@ -4,20 +4,27 @@ namespace App\Models\Core;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use Illuminate\Support\Str;
+use App\Traits\LogsActivity;
+use Laravel\Sanctum\HasApiTokens;
 use App\Enums\User\UserStatusEnum;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Str;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes, AuthenticationLoggable;
+    use HasApiTokens,
+        HasFactory,
+        Notifiable,
+        HasRoles,
+        SoftDeletes,
+        AuthenticationLoggable,
+        LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -59,6 +66,28 @@ class User extends Authenticatable
     const ACTIVE = 1;
 
     const INACTIVE = 1;
+
+    const LOG_FIELD_MAPS = [
+        'name' => [
+            'field_label' => 'Name',
+        ],
+        'email' => [
+            'field_label' => 'Email',
+        ],
+        'abbreviation' => [
+            'field_label' => 'Abbreviation',
+        ],
+        'title' => [
+            'field_label' => 'Title',
+        ],
+        'office_location' => [
+            'field_label' => 'Office Location',
+        ],
+        'is_active' => [
+            'field_label' => 'Status',
+            'resolve' => 'resolveStatus'
+        ],
+    ];
 
     public function scopeActive($query)
     {
@@ -117,5 +146,10 @@ class User extends Authenticatable
         $nameString = $this->name && $this->name !="" ? $this->name : $this->email;
 
         return abbreviation($nameString);
+    }
+
+    public function resolveStatus($value, $cache = true)
+    {
+        return $value ? 'Active' : 'Inactive';
     }
 }
