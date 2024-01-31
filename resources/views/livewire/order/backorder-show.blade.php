@@ -224,7 +224,7 @@
                                                                 str_replace(
                                                                     ';',
                                                                     ",
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ",
                                                                     $item->descrip,
                                                                 ),
                                                                 ', ',
@@ -311,88 +311,114 @@
             <x-modal :toggle="$cancelOrderModal" size="xl">
                 <x-slot name="title">Cancel Order</x-slot>
 
-                <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
-                    This action cannot be reverted. Cancelling will also update the SX order</div>
+                @if ($order_is_cancelled_manually_via_sx)
+                    <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+                        This action cannot be reverted. Cancelling will also update the SX order</div>
 
-                @if (!empty($errorMessage))
-                    <div class="alert alert-light-danger color-danger">
-                        <button wire:click="moveToErrorsTab('{{ $errorMessage }}')"
-                            class="btn btn-sm btn-outline-danger float-end">
-                            <div wire:loading wire:target="moveToErrorsTab">
+
+
+                    @if (!empty($errorMessage))
+                        <div class="alert alert-light-danger color-danger">
+                            <button wire:click="moveToErrorsTab('{{ $errorMessage }}')"
+                                class="btn btn-sm btn-outline-danger float-end">
+                                <div wire:loading wire:target="moveToErrorsTab">
+                                    <span class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
+                                </div>
+                                Move to Errors Tab
+                            </button>
+                            {!! $errorMessage !!}<br>
+                        </div>
+                    @endif
+
+                    @if (!empty($currentSession))
+                        <div class="alert alert-light-danger color-danger">
+                            <div class="spinner-grow spinner-grow-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div> This order has an active session by <strong>{{ $operator->name }}</strong> at
+                            {{ $operator->site }}. Try ending the session and reloading the page to retry<br><br>
+                            <strong>E-Mail</strong> : {{ $operator->email }}<br><strong>Phone</strong> :
+                            {{ $operator->phoneno }}<br><strong>Extension</strong> : {{ $operator->modphoneno }}
+                        </div>
+                    @endif
+
+                    @if ($this->is_tied_order)
+                        <div class="alert alert-light-danger color-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            This is a <strong>Tied Order</strong>, the system will break the tie if you decide to
+                            Cancel. The
+                            Purchasing Department will be notified via email and may need to manually intervene after
+                            the
+                            Cancellation.
+                            <div class="row">
+                                <div class="col-md-12 mt-3">
+                                    <div class="float-end" wire:loading wire:target="tiedOrderAcknowledgement">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+
+                                    <x-forms.checkbox label="I understand, proceed to Cancel Order"
+                                        model="tiedOrderAcknowledgement" />
+
+                                </div>
+                            </div>
+
+                        </div>
+                    @endif
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="pre-genkey-div">
+                                <x-forms.input label="From" model="emailFrom" disabled />
+                                <x-forms.input label="To" model="emailTo" />
+                                <x-forms.input label="Email Subject" model="cancelEmailSubject" />
+
+                                <x-forms.textarea label="Email Content" model="cancelEmailContent" rows="6" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <x-slot name="footer">
+                        <button wire:click="cancelOrder" wire:loading.attr="disabled" type="button"
+                            class="pre-genkey-div btn btn-danger" @if (!empty($currentSession) || ($this->is_tied_order && !$tiedOrderAcknowledgement)) disabled @endif>
+                            <div wire:loading wire:target="cancelOrder">
                                 <span class="spinner-border spinner-border-sm" role="status"
                                     aria-hidden="true"></span>
                             </div>
-                            Move to Errors Tab
+                            Cancel &
+                            Notify
                         </button>
-                        {!! $errorMessage !!}<br>
-                    </div>
-                @endif
-
-                @if (!empty($currentSession))
-                    <div class="alert alert-light-danger color-danger">
-                        <div class="spinner-grow spinner-grow-sm" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div> This order has an active session by <strong>{{ $operator->name }}</strong> at
-                        {{ $operator->site }}. Try ending the session and reloading the page to retry<br><br>
-                        <strong>E-Mail</strong> : {{ $operator->email }}<br><strong>Phone</strong> :
-                        {{ $operator->phoneno }}<br><strong>Extension</strong> : {{ $operator->modphoneno }}
-                    </div>
-                @endif
-
-                @if ($this->is_tied_order)
-                    <div class="alert alert-light-danger color-danger">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        This is a <strong>Tied Order</strong>, the system will break the tie if you decide to
-                        Cancel. The
-                        Purchasing Department will be notified via email and may need to manually intervene after the
-                        Cancellation.
-                        <div class="row">
-                            <div class="col-md-12 mt-3">
-                                <div class="float-end" wire:loading wire:target="tiedOrderAcknowledgement">
-                                    <div class="spinner-border spinner-border-sm" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                </div>
-
-                                <x-forms.checkbox label="I understand, proceed to Cancel Order"
-                                    model="tiedOrderAcknowledgement" />
-
+                        <button wire:click="closePopup('cancelOrderModal')" type="button"
+                            class="btn btn-outline-secondary">
+                            <div wire:loading wire:target="closePopup('cancelOrderModal')">
+                                <span class="spinner-border spinner-border-sm" role="status"
+                                    aria-hidden="true"></span>
                             </div>
-                        </div>
 
+                            Close
+                        </button>
+                    </x-slot>
+                @else
+                    <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+                        <button wire:click="checkOrderCancelStatus" class="btn btn-sm btn-warning float-end mt-n1">
+                            <div wire:loading wire:target="checkOrderCancelStatus">
+                                <span class="spinner-border spinner-border-sm" role="status"
+                                    aria-hidden="true"></span>
+                            </div>
+
+                            Ok,
+                            I have
+                            Cancelled
+                        </button>
+                        You will need to manually <strong>Cancel</strong> this Order <u class="clipboard"
+                            data-clipboard-text="{{ $this->order->orderno }}">{{ $this->order->orderno }}</u> in
+                        SX before proceeding to the next
+                        step.
                     </div>
                 @endif
 
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="pre-genkey-div">
-                            <x-forms.input label="From" model="emailFrom" disabled />
-                            <x-forms.input label="To" model="emailTo" />
-                            <x-forms.input label="Email Subject" model="cancelEmailSubject" />
 
-                            <x-forms.textarea label="Email Content" model="cancelEmailContent" rows="6" />
-                        </div>
-                    </div>
-                </div>
-
-                <x-slot name="footer">
-                    <button wire:click="cancelOrder" wire:loading.attr="disabled" type="button"
-                        class="pre-genkey-div btn btn-danger" @if (!empty($currentSession) || ($this->is_tied_order && !$tiedOrderAcknowledgement)) disabled @endif>
-                        <div wire:loading wire:target="cancelOrder">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-                        Cancel &
-                        Notify
-                    </button>
-                    <button wire:click="closePopup('cancelOrderModal')" type="button"
-                        class="btn btn-outline-secondary">
-                        <div wire:loading wire:target="closePopup('cancelOrderModal')">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-
-                        Close
-                    </button>
-                </x-slot>
 
             </x-modal>
 
@@ -441,7 +467,23 @@
 
             </x-modal>
 
+
         </x-slot>
 
     </x-page>
+    @script
+        <script>
+            clipboard = new ClipboardJS('.clipboard');
+
+            clipboard.on('success', function(e) {
+                console.info('Action:', e.action);
+                console.info('Text:', e.text);
+                console.info('Trigger:', e.trigger);
+                Livewire.dispatch('clipboardCopied');
+
+                e.clearSelection();
+            });
+        </script>
+    @endscript
+
 </div>
