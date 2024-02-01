@@ -54,7 +54,8 @@ class BackorderShow extends Component
 
     protected $listeners = [
         'newCommentCreated',
-        'clipboardCopied'
+        'clipboardCopied',
+        'closeModal'
     ];
 
     public $required_line_item_columns = [
@@ -356,6 +357,12 @@ class BackorderShow extends Component
     public function clipboardCopied()
     {
         $this->alert('success','Copied to clipboard');
+    }
+
+    public function closeModal()
+    {
+        $this->reset('cancelOrderModal');
+        $this->reset('followUpModal');
     }
 
 

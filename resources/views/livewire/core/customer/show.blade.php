@@ -1,9 +1,8 @@
 <div wire:init="loadData">
-    <div>
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
-            <div class="d-block mb-4 mb-md-0 mt-2">
-                <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
-            </div>
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+        <div class="d-block mb-4 mb-md-0 mt-2">
+            <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
         </div>
     </div>
 
@@ -42,9 +41,9 @@
                                 ? ($credit_status['message'] ?:
                                     'OK')
                                 : '<div
-                                                                class="spinner-border spinner-border-sm" role="status">
-                                                                <span class="visually-hidden">Loading...</span>
-                                                            </div> Verifying...' !!}</strong>
+                                                                                            class="spinner-border spinner-border-sm" role="status">
+                                                                                            <span class="visually-hidden">Loading...</span>
+                                                                                        </div> Verifying...' !!}</strong>
                         </div>
                     </div>
                 </div>

@@ -21,8 +21,6 @@ class EquipmentTable extends DataTableComponent
 
     public SROCustomer $customer;
 
-    public $type;
-
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -136,7 +134,7 @@ class EquipmentTable extends DataTableComponent
                     }
 
                 })
-                ->hideIf(strtolower($this->type) != 'hom')
+                ->hideIf(strtolower($this->customer->sxCustomer->customer_type) != 'hom')
                 ->html(),
 
             Column::make('Purchase Date', 'purchase_date')
