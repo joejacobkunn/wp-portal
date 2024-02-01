@@ -1,4 +1,4 @@
-<div class="row px-2">
+<div>
     <div class="card border-light shadow-sm mb-4">
         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
             <livewire:component.action-button :actionButtons="$actionButtons">
@@ -42,4 +42,11 @@
             </ul>
         </div>
     </div>
+
+    <livewire:x-activity-log
+        :entity="$user"
+        recordType="user"
+        :key="'activity-'. time()"
+    />
+
 </div>

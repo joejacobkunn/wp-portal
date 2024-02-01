@@ -20,6 +20,9 @@ class Kernel extends ConsoleKernel
         //task to sync customer last sale dates from sx to local database
         $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->dailyAt('21:15');
 
+        //task to fetch dnr orders
+        $schedule->command('sx:fetch-dnr-backorders')->timezone('America/New_York')->dailyAt('20:15');
+
         //task to refresh open order data
         $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->dailyAt('03:15');
 

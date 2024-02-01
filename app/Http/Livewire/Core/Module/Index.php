@@ -44,6 +44,6 @@ class Index extends Component
             $this->account->modules()->detach([$module_id]);
         }
 
-        $this->emit('refreshPage');
+        $this->dispatch('refreshPage');
     }
 }

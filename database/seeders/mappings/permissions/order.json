@@ -12,6 +12,14 @@
             {
                 "name": "order.manage",
                 "label": "Manage Orders"
+            },
+            {
+                "name": "order.dnr-backorder.view",
+                "label": "View DNR Backorders"
+            },
+            {
+                "name": "order.dnr-backorder.manage",
+                "label": "Manage DNR Backorders"
             }
         ]
     }

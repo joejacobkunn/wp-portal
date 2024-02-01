@@ -248,6 +248,9 @@
 .ss-main .ss-content .ss-list .ss-option.ss-disabled {
     color: #bfb9b9;
 }
+.ss-main .ss-single-selected .placeholder {
+    cursor: inherit;
+}
 /** SLIM Select Ends */
 
 
@@ -256,7 +259,7 @@
     background: #f1f1f1;
 }
 .checkout-outer-div .search-btn {
-    width: 180px;
+    width: 200px;
 }
 .checkout-outer-div .accordion {
     --bs-accordion-color: var(--bs-body-color);
@@ -392,3 +395,30 @@
 .product-search-modal #table-bulkActionsDropdown {
     display: none !important;
 }
+
+.input-loading {
+    position: absolute;
+    top: 0.75em;
+    right: 1em;
+    background: #fff;
+}
+
+/** Activity Log */
+.activity-log {
+    font-size: 14px;
+}
+.activity-log .timestamp-div {
+    font-size: 13px;
+    float: right;
+}
+.activity-log .activity-change-info {
+    font-size: 13px;
+    border-left: 2px solid #e3e3e3;
+}
+.activity-log .activity-change-info label {
+    font-weight: 500;
+}
+.activity-log .activity-change-info .desc {
+    font-weight: 300;
+}
+/** Activity Log Ends */

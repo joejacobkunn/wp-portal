@@ -9,7 +9,7 @@ class XSelectField extends Component
 {
     /*
     |--------------------------------------------------------------------------
-    | Configurable Attributes
+    | Configurable Attributes 
     |--------------------------------------------------------------------------
     */
 
@@ -32,7 +32,7 @@ class XSelectField extends Component
      * Check if multiselect
      */
     public $multiple = false;
-
+    
     /**
      * Dropdown placeholder text
      */
@@ -109,12 +109,12 @@ class XSelectField extends Component
      * Show clear option
      */
     public $allowDeselect = true;
-
+    
     public $parentComponent;
 
     /*
     |--------------------------------------------------------------------------
-    | Non-Configurable Attributes
+    | Non-Configurable Attributes 
     |--------------------------------------------------------------------------
     */
 
@@ -122,7 +122,7 @@ class XSelectField extends Component
      * Field DOM ID
      */
     public $fieldDomId;
-
+    
     /**
      * Rendered Options
      */
@@ -140,6 +140,8 @@ class XSelectField extends Component
 
     public function mount()
     {
+        $this->fieldName = str_replace('.', '--', $this->fieldId);
+        $this->fieldDomId = $this->fieldName . '_' . uniqid();
         if ($this->options instanceof \Illuminate\Support\Collection) {
             $this->options = $this->options->toArray();
         }
@@ -148,7 +150,7 @@ class XSelectField extends Component
             if (empty($this->labelIndex)) {
                 throw new Exception('attribute: label-index required');
             }
-
+            
             if (empty($this->valueIndex)) {
                 throw new Exception('attribute: value-index required');
             }
@@ -160,7 +162,7 @@ class XSelectField extends Component
         } else {
             $this->selectAllOption = false;
         }
-
+        
         if ($this->selected) {
             $this->selectedItem = is_array($this->selected) ? $this->selected : [$this->selected];
         }
@@ -171,8 +173,6 @@ class XSelectField extends Component
      */
     public function render()
     {
-        $this->fieldName = str_replace('.', '--', $this->fieldId);
-        $this->fieldDomId = $this->fieldName . '_' . uniqid();
         $this->items = $this->getItems();
 
         return view('livewire.component.x-select-field', ['items' => $this->items]);
@@ -217,6 +217,6 @@ class XSelectField extends Component
     public function setValue($value)
     {
         $this->selectedItem = $this->multiple ? $value : [$value];
-        $this->emitTo($this->parentComponent, $this->listener, $this->fieldId, $value);
+        $this->dispatch($this->listener, $this->fieldId, $value)->to($this->parentComponent);
     }
 }

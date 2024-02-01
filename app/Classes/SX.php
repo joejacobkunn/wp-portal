@@ -90,6 +90,53 @@ class SX
 
     }
 
+    public function cancel_order($order_number, $order_suffix, $reason)
+    {
+
+        $request = [
+            'request' => [
+                'companyNumber' => 10,
+                'operatorInit' => 'web',
+                'operatorPassword' => '',
+                'orderNumber' => $order_number,
+                'orderSuffix' => $order_suffix,
+                "deleteOrderFlag" => false,
+                "lostBusinessReason" => $reason
+            ]
+
+        ];
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapioeorderdeleteorcancel');
+
+            if ($response->ok()) {
+                $response_body = json_decode($response->body());
+                $message = $response_body->response->cErrorMessage;
+
+                if(empty($message))
+                {
+                    return [
+                        'status' => 'success',
+                    ];
+         
+                }
+                else{
+                    return [
+                        'status' => 'error',
+                        'message' => $message
+                    ];
+
+                }
+            }
+
+            return [
+                'status' => 'error',
+            ];
+    
+    }
+
     public function check_credit_status($request)
     {
         $response = Http::withToken($this->token())
@@ -107,6 +154,67 @@ class SX
 
         }
     }
+
+    public function create_order_note($note,$order_number)
+    {
+        $request = [
+            'request' => [
+                "companyNumber" => 10,
+                "operatorInit" => "web",
+                "operatorPassword" => "",
+                "notesTable" => 'oeeh',
+                "primaryKey" => $order_number,
+                "secondaryKey" => "",
+                "tInnotes" => [
+                    "t-innotes" => [
+                        "notestype" => "o",
+                        "pageno" => 0,
+                        "primarykey" => $order_number,
+                        "secondarykey" => "",
+                        "newrecordfl" => true,
+                        "newrecordglobalfl" => false,
+                        "deleterecordfl" => false,
+                        "changerecordfl" => false,
+                        "forcerefreshallpagesfl" => false,
+                        "securefl" => false,
+                        "notedata" => $note,
+                        "printfl" => false,
+                        "printfl2" => false,
+                        "printfl3" => false,
+                        "printfl4" => false,
+                        "printfl5" => false,
+                        "requirefl" => false,
+                        "extradata" => ""
+                    ]
+                ]
+            ]
+        ];
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapisanotechange');
+
+        if ($response->ok()) {
+            $response_body = json_decode($response->body());
+
+            return [
+                'status' => 'success',
+            ];
+
+        }
+
+        if ($response->badRequest()) {
+            $response_body = json_decode($response->body());
+
+            return [
+                'status' => 'error',
+                'message' => $response_body->response->cErrorMessage,
+            ];
+
+        }
+
+    }
+
 
     public function get_notes($request)
     {
@@ -287,6 +395,67 @@ class SX
 
     }
 
+    //get total invoice price with tax
+
+    public function get_total_invoice_data($request)
+    {
+        if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
+
+        $line_items = [];
+        foreach($request['cart'] as $item) {
+            $line_items[] = [
+                "itemnumber" => $item['product_code'],
+                "orderqty" => $item['quantity'],
+                "unitofmeasure" => $request['unit_of_measure'] ?? 'EA',
+                "warehouseid" => $request['warehouse'] ?? 'utic',
+            ];
+        }
+
+        $invoice_request = [
+            "request" => [
+                "companyNumber" => $request['company_number'] ?? 10,
+                "operatorInit" => $request['sx_operator_id'] ?? "wpa",
+                "operatorPassword" => "",
+                "tInputccdata" => ["t-inputccdata" => []],
+                "tInputheaderdata" => [
+                    "t-inputheaderdata" => [
+                        [
+                            "customerid" => "0010". $request['sx_customer_number'],
+                            "warehouseid" => $request['warehouse'] ?? 'utic',
+                            "webtransactiontype" => $request['web_transaction_type'] ?? 'tsf',
+                        ],
+                    ],
+                ],
+                "tInputlinedata" => [
+                    "t-inputlinedata" => $line_items,
+                ],
+                "tInputheaderextradata" => ["t-inputheaderextradata" => []],
+                "tInputlineextradata" => ["t-inputlineextradata" => []],
+                "tInfieldvalue" => ["t-infieldvalue" => []],
+            ],
+        ];
+
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($invoice_request), 'application/json')
+            ->post($this->endpoint.'/sxapisfoeordertotloadv4');
+
+        if ($response->ok()) {
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response;
+            $key_var = 't-ordtotdata';
+
+            return [
+                'status' => 'success',
+                'total_tax' => $return_data->tOrdtotdata->$key_var[0]->tottaxamt,
+                'total_line_amount' => $return_data->tOrdtotdata->$key_var[0]->totlineamt,
+                'total_invoice_amount' => $return_data->tOrdtotdata->$key_var[0]->totinvamt,
+            ];
+        }
+    }
+
 
 
     public function mock($function, $request)
@@ -325,6 +494,17 @@ class SX
                 'status' => $faker->randomElement(['success']),
                 'sx_customer_number' => $faker->randomNumber(7, true)
             ];
+        }
+
+        if($function == 'get_total_invoice_data')
+        {
+            return [
+                'status' => 'success',
+                'total_tax' => $faker->randomFloat(2,1,10),
+                'total_line_amount' => $faker->randomFloat(2,20,100),
+                'total_invoice_amount' => $faker->randomFloat(2,30,110),
+            ];
+
         }
 
     }

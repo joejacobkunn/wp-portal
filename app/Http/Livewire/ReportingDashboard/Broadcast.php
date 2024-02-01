@@ -24,8 +24,8 @@ class Broadcast extends Component
 
     public function updateTableData()
     {
-        $this->emitTo('reporting.reporting-table', 'refreshDatatable');
-        $this->emitTo('reporting.second-reporting-table', 'refreshDatatable');
+        $this->dispatch('refreshDatatable')->to('reporting.reporting-table');
+        $this->dispatch('refreshDatatable')->to('reporting.second-reporting-table');
         $this->timestamp = now();
     }
 }

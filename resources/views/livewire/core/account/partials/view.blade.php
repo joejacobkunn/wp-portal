@@ -2,10 +2,9 @@
     <x-tabs
         :tabs="$tabs"
         tabId="account-view-tabs"
-        activeTabIndex="activeTab"
     >
         <x-slot:tab_content_general>
-            @if($activeTab == 'general')
+            @if($tabs['account-view-tabs']['active'] == 'general')
                 @include('livewire.core.account.partials.general')
             @endif
         </x-slot>

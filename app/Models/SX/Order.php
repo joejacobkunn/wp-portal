@@ -65,9 +65,9 @@ class Order extends Model
     }
 
 
-    public function getStageCode($stage_code)
+    public function getStageCode()
     {
-        return $this->stage_codes[$stage_code];
+        return $this->stage_codes[$this->stagecd];
     }
 
     public function getShippingStage($stage_code)

@@ -29,6 +29,9 @@ class Table extends DataTableComponent
             });
 
         $this->setPerPageAccepted([25, 50, 100]);
+
+        $this->setPerPage(25);
+        
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
@@ -282,5 +285,10 @@ class Table extends DataTableComponent
             ->orderBy('open_order_count', 'DESC')
             ->orderBy('name', 'ASC')
             ->orderBy('last_sale_date', 'DESC');
+    }
+
+    public function placeholder()
+    {
+        return view('components.skelton', ['type' => 'table']);
     }
 }

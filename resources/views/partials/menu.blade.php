@@ -1,5 +1,5 @@
 <li class="menu-item  {{ request()->is('dashboard*') ? 'active' : '' }}">
-    <a href="{{ route('core.dashboard.index', ['route_subdomain' => request('route_subdomain')]) }}" class='menu-link'>
+    <a href="{{ route('core.dashboard.index', ['route_subdomain' => request('route_subdomain')]) }}" wire:navigate class='menu-link'>
         <i class="fas fa-tachometer-alt-fast"></i>
         <span>Dashboard</span>
     </a>
@@ -7,7 +7,7 @@
 
 @canany(['accounts.view'])
     <li class="menu-item  {{ request()->is('accounts*') ? 'active' : '' }}">
-        <a href="{{ route('core.account.index') }}" class='menu-link'>
+        <a href="{{ route('core.account.index') }}" wire:navigate class='menu-link'>
             <i class="fas fa-building"></i>
             <span>Accounts</span>
         </a>
@@ -16,7 +16,7 @@
 
 @canany(['users.view'])
     <li class="menu-item  {{ request()->is('users*') ? 'active' : '' }}">
-        <a href="{{ route('core.user.index') }}" class='menu-link'>
+        <a href="{{ route('core.user.index') }}" wire:navigate class='menu-link'>
             <i class="fas fa-users"></i>
             <span>Users</span>
         </a>
@@ -25,7 +25,7 @@
 
 @canany(['roles.view'])
     <li class="menu-item {{ request()->is('roles*') ? 'active' : '' }}">
-        <a href="{{ route('core.role.index') }}" class='menu-link'>
+        <a href="{{ route('core.role.index') }}" wire:navigate class='menu-link'>
             <i class="fas fa-shield-alt"></i>
             <span>Roles</span>
         </a>
@@ -37,7 +37,7 @@
     @if (auth()->user()->account->hasModule('customers'))
         @canany(['customers.view'])
             <li class="menu-item  {{ request()->is('customers*') ? 'active' : '' }}">
-                <a href="{{ route('core.customer.index') }}" class='menu-link'>
+                <a href="{{ route('core.customer.index') }}" wire:navigate class='menu-link'>
                     <i class="fas fa-address-card"></i>
                     <span>Customers</span>
                 </a>
@@ -49,7 +49,7 @@
     @if (auth()->user()->account->hasModule('reporting'))
         @canany(['reporting.view'])
             <li class="menu-item {{ request()->is('reporting*') ? 'active' : '' }}">
-                <a href="{{ route('reporting.index') }}" class='menu-link'>
+                <a href="{{ route('reporting.index') }}" wire:navigate class='menu-link'>
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Reporting</span>
                 </a>
@@ -62,7 +62,7 @@
 
         @canany(['vehicle.view'])
             <li class="menu-item  {{ request()->is('vehicle*') ? 'active' : '' }}">
-                <a href="{{ route('vehicle.index') }}" class='menu-link'>
+                <a href="{{ route('vehicle.index') }}" wire:navigate class='menu-link'>
                     <i class="fas fa-truck"></i>
                     <span>Vehicle</span>
                 </a>
@@ -75,7 +75,7 @@
 
         @canany(['order.view'])
             <li class="menu-item  {{ request()->is('order*') ? 'active' : '' }}">
-                <a href="{{ route('order.index') }}" class='menu-link'>
+                <a href="{{ route('order.index') }}" wire:navigate class='menu-link'>
                     <i class="far fa-list-alt"></i>
                     <span>Orders</span>
                 </a>
@@ -88,7 +88,7 @@
 
         @canany(['terminals.view', 'transactions.view'])
             <li class="menu-item  {{ request()->is('pos*') ? 'active' : '' }}">
-                <a href="{{ route('pos.index') }}" class='menu-link'>
+                <a href="{{ route('pos.index') }}" wire:navigate class='menu-link'>
                     <i class="fas fa-cash-register"></i>
                     <span>POS</span>
                 </a>
@@ -101,7 +101,7 @@
 
         @canany(['products.view'])
             <li class="menu-item  {{ request()->is('products*') ? 'active' : '' }}">
-                <a href="{{ route('products.index') }}" class='menu-link'>
+                <a href="{{ route('products.index') }}" wire:navigate class='menu-link'>
                     <i class="fas fa-list-alt"></i>
                     <span>Products</span>
                 </a>
