@@ -17,9 +17,12 @@ use App\Models\SX\WarehouseProduct;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class BackorderShow extends Component
 {
+    use LivewireAlert;
+
     public DnrBackorder $backorder;
     public $cancelOrderModal = false;
     public $followUpModal = false;
@@ -33,6 +36,7 @@ class BackorderShow extends Component
     public $currentSession = '';
     public $tiedOrderAcknowledgement = false;
     public $operator;
+    public $order_is_cancelled_manually_via_sx = false;
 
     public $emailFrom = 'weborders@weingartz.com';
     public $emailTo = '';
@@ -49,7 +53,9 @@ class BackorderShow extends Component
     ];
 
     protected $listeners = [
-        'newCommentCreated'
+        'newCommentCreated',
+        'clipboardCopied',
+        'closeModal'
     ];
 
     public $required_line_item_columns = [
@@ -141,6 +147,7 @@ class BackorderShow extends Component
                 break;
             case BackOrderStatus::Cancelled->value:
                 $this->cancelOrderModal = true;
+                $this->order_is_cancelled_manually_via_sx = $this->order->stagecd == 9 ? 1 : 0;
                 $this->emailTo = $this->customer->email;
 
                 
@@ -180,27 +187,13 @@ class BackorderShow extends Component
 
     public function cancelOrder()
     {
+        $this->backorder->status = BackOrderStatus::Cancelled->value;
+        $this->backorder->stage_code = 9;
+        $this->backorder->save();
+        $this->reset('cancelOrderModal');
 
-        //break ties if this is a tied order
+        event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent, $this->emailTo));
 
-        if($this->is_tied_order) $this->breakTieForOrder(); 
-
-        $sx_client = new SX();
-
-        $sx_response = $sx_client->cancel_order($this->backorder->order_number, $this->backorder->order_suffix, "NL");
-
-        if($sx_response['status'] == 'success')
-        {
-            $this->backorder->status = BackOrderStatus::Cancelled->value;
-            $this->backorder->stage_code = 9;
-            $this->backorder->save();
-            $this->reset('cancelOrderModal');
-    
-            event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent, $this->emailTo));
-    
-        }else{
-            $this->errorMessage = $sx_response['message'];
-        }
     }
 
     public function sendEmail()
@@ -353,6 +346,23 @@ class BackorderShow extends Component
         ]);
 
         $this->reset('cancelOrderModal');
+    }
+
+    public function checkOrderCancelStatus()
+    {
+        $stage_code = Order::select('stagecd')->where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->first()->stagecd;
+        return ($stage_code == 9) ? $this->order_is_cancelled_manually_via_sx = true : $this->order_is_cancelled_manually_via_sx = false;
+    }
+
+    public function clipboardCopied()
+    {
+        $this->alert('success','Copied to clipboard');
+    }
+
+    public function closeModal()
+    {
+        $this->reset('cancelOrderModal');
+        $this->reset('followUpModal');
     }
 
 
