@@ -45,6 +45,8 @@ class Index extends Component
         'orderTab' => ['except' => '', 'as' => 'tab'],
     ];
 
+    protected $listeners = ['refresh' => '$refresh'];
+
     public function mount()
     {
         $this->account = account();
@@ -78,6 +80,8 @@ class Index extends Component
                 if(in_array($stage_code, [9])) $status = 'Cancelled';
                 $pending_order->update(['status' => $status, 'stage_code' => $stage_code]);
             }
+
+            $this->dispatch('refresh');
 
         }
     }
