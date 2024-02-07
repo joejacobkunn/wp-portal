@@ -16,16 +16,19 @@
                         <a class="nav-link disabled {{ $orderTab == 'orders' ? 'active' : '' }}" id="v-pills-home-tab"
                             data-bs-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home"
                             aria-selected="false" wire:click="$set('orderTab', 'orders')">Orders</a>
-                        <a class="nav-link {{ $orderTab == 'back_orders' ? 'active' : '' }}" id="v-pills-profile-tab"
-                            data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile"
-                            aria-selected="true" tabindex="-1" wire:click="$set('orderTab', 'back_orders')">DNR
-                            Backorders
-                            @if ($statusCount['pendingReviewCount'] > 0)
-                                <span class="badge bg-light-primary float-end">
-                                    {{ $statusCount['pendingReviewCount'] }}
-                                </span>
-                            @endif
-                        </a>
+
+                        @can('order.dnr-backorder.view')
+                            <a class="nav-link {{ $orderTab == 'back_orders' ? 'active' : '' }}" id="v-pills-profile-tab"
+                                data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile"
+                                aria-selected="true" tabindex="-1" wire:click="$set('orderTab', 'back_orders')">DNR
+                                Backorders
+                                @if ($statusCount['pendingReviewCount'] > 0)
+                                    <span class="badge bg-light-primary float-end">
+                                        {{ $statusCount['pendingReviewCount'] }}
+                                    </span>
+                                @endif
+                            </a>
+                        @endcan
                     </div>
                 </div>
                 <div class="col-10">

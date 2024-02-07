@@ -7,10 +7,12 @@ use App\Models\Order\DnrBackorder;
 use App\Models\SX\Company;
 use App\Models\SX\Order;
 use App\Traits\HasTabs;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 
 class Index extends Component
 {
-    use HasTabs;
+    use HasTabs, AuthorizesRequests;
 
     public $account;
 
@@ -49,6 +51,8 @@ class Index extends Component
 
     public function mount()
     {
+        $this->authorize('viewAny', DnrBackorder::class);
+
         $this->account = account();
 
         $this->statusCount = [
