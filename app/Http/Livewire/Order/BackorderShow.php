@@ -93,6 +93,7 @@ class BackorderShow extends Component
 
     public function mount($orderno, $ordersuf) 
     {
+        $this->authorize('view', DnrBackorder::class);
         $this->order_number = $orderno;
         $this->order_suffix = $ordersuf;
         $this->backorder = DnrBackorder::where('cono', auth()->user()->account->sx_company_number)->where('order_number', $orderno)->where('order_number_suffix', $ordersuf)->first();

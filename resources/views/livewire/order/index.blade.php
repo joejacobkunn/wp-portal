@@ -1,4 +1,4 @@
-<div>
+<div wire:init='updateExistingOrders'>
 
     <x-page :breadcrumbs="$breadcrumbs">
 
@@ -16,14 +16,19 @@
                         <a class="nav-link disabled {{ $orderTab == 'orders' ? 'active' : '' }}" id="v-pills-home-tab"
                             data-bs-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home"
                             aria-selected="false" wire:click="$set('orderTab', 'orders')">Orders</a>
-                        <a class="nav-link {{ $orderTab == 'back_orders' ? 'active' : '' }}" id="v-pills-profile-tab"
-                            data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile"
-                            aria-selected="true" tabindex="-1" wire:click="$set('orderTab', 'back_orders')">DNR
-                            Backorders <span class="badge bg-light-primary float-end">
+
+                        @can('order.dnr-backorder.view')
+                            <a class="nav-link {{ $orderTab == 'back_orders' ? 'active' : '' }}" id="v-pills-profile-tab"
+                                data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile"
+                                aria-selected="true" tabindex="-1" wire:click="$set('orderTab', 'back_orders')">DNR
+                                Backorders
                                 @if ($statusCount['pendingReviewCount'] > 0)
-                                    {{ $statusCount['pendingReviewCount'] }}
+                                    <span class="badge bg-light-primary float-end">
+                                        {{ $statusCount['pendingReviewCount'] }}
+                                    </span>
                                 @endif
-                            </span></a>
+                            </a>
+                        @endcan
                     </div>
                 </div>
                 <div class="col-10">
@@ -85,9 +90,10 @@
                                         This list is populated nightly by these rules :
                                         <ul class="mt-2">
                                             <li>Order stage code is <strong>Ordered</strong> or <strong>Picked</strong>
-                                                and TransType = <strong>QU</strong> and Taken By is <strong>WEB</strong>
+                                                and TransType != <strong>QU</strong> and Taken By is
+                                                <strong>WEB</strong>
                                             </li>
-                                            <li>A Line item Quantity does not meet <strong>(qtyship + qtyrel)</strong>
+                                            <li>quantity_ord does not equal <strong>(qtyship + qtyrel)</strong>
                                                 and Status = <strong>A</strong>
                                             </li>
                                             <li>Warehouse Product StatusType = <strong>X</strong></li>
@@ -105,8 +111,6 @@
                                                 class="badge badge-lg bg-primary ml-2">{{ $statusCount['followUpCount'] }}</span></x-slot>
                                         <x-slot:tab_header_cancelled>Cancelled <span
                                                 class="badge badge-lg bg-primary ml-2">{{ $statusCount['cancelledCount'] }}</span></x-slot>
-                                        <x-slot:tab_header_errors>Errors <span
-                                                class="badge badge-lg bg-primary  ml-2">{{ $statusCount['errorsCount'] }}</span></x-slot>
                                         <x-slot:tab_header_Closed>Closed <span
                                                 class="badge badge-lg bg-primary ml-2">0</span></x-slot>
 

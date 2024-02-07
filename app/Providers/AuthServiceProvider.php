@@ -32,7 +32,7 @@ class AuthServiceProvider extends ServiceProvider
         $policies += $this->getCorePolicies();
         $policies += $this->getVehiclePolicies();
         $policies += $this->getReportingPolicies();
-
+        $policies += $this->getOrderPolicies();
         return $policies;
     }
 
@@ -65,5 +65,13 @@ class AuthServiceProvider extends ServiceProvider
             \App\Models\Report\Dashboard::class => \App\Policies\ReportDashboardPolicy::class
         ];
     }
+
+    private function getOrderPolicies()
+    {
+        return [
+            \App\Models\Order\DnrBackorder::class => \App\Policies\Order\BackorderPolicy::class,
+        ];
+    }
+
 
 }
