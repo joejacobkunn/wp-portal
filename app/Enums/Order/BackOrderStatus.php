@@ -8,7 +8,6 @@ enum BackOrderStatus:string
     case Ignore = 'Ignored';
     case Cancelled = 'Cancelled';
     case FollowUp = 'Follow Up';
-    case Error = 'Error';
     case Closed = 'Closed';
 
     public function label(): string
@@ -33,7 +32,6 @@ enum BackOrderStatus:string
             self::Ignore => 'Ignored',
             self::Cancelled => 'Cancelled',
             self::FollowUp => 'Follow Up',
-            self::Error => 'Error',
             self::Closed => 'Closed',
             default => '-'
         };
@@ -46,7 +44,6 @@ enum BackOrderStatus:string
             self::Ignore => 'warning',
             self::Cancelled => 'danger',
             self::FollowUp => 'info',
-            self::Error => 'secondary',
             self::Closed => 'success',
             default => 'info'
         };

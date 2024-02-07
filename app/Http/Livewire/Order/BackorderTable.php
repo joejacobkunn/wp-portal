@@ -87,16 +87,6 @@ class BackorderTable extends DataTableComponent
     public function filters(): array
     {
         return  [
-            MultiSelectFilter::make('Status')
-                ->options(
-                    [
-                        'Pending Review',
-                        'Ignored',
-                        'Cancelled'
-                    ]
-                )->filter(function(Builder $builder, string $value) {
-                    $builder->whereIn('status', $value);
-                })
         ];
     }
 

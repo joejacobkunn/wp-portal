@@ -36,7 +36,6 @@ class Index extends Component
                 'ignored' => 'Ignored',
                 'follow_up' => 'Follow Up',
                 'cancelled' => 'Cancelled',
-                'errors' => 'Errors',
                 'Closed' => 'Closed',
             ],
         ]
@@ -63,5 +62,23 @@ class Index extends Component
     public function render()
     {
         return $this->renderView('livewire.order.index');
+    }
+
+    public function updateExistingOrders()
+    {
+        $pending_orders = DnrBackorder::where('status', 'Pending Review')->get();
+
+        foreach($pending_orders as $pending_order)
+        {
+            $stage_code = Order::select('stagecd')->where('cono', auth()->user()->account->sx_company_number)->where('orderno', $pending_order->order_number)->where('ordersuf', $pending_order->order_number_suffix)->first()->stagecd;
+            
+            if($stage_code > 2)
+            {
+                if(in_array($stage_code, [3,4,5])) $status = 'Closed';
+                if(in_array($stage_code, [9])) $status = 'Cancelled';
+                $pending_order->update(['status' => $status, 'stage_code' => $stage_code]);
+            }
+
+        }
     }
 }

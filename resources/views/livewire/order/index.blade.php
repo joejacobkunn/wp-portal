@@ -1,4 +1,4 @@
-<div>
+<div wire:init='updateExistingOrders'>
 
     <x-page :breadcrumbs="$breadcrumbs">
 
@@ -19,11 +19,13 @@
                         <a class="nav-link {{ $orderTab == 'back_orders' ? 'active' : '' }}" id="v-pills-profile-tab"
                             data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile"
                             aria-selected="true" tabindex="-1" wire:click="$set('orderTab', 'back_orders')">DNR
-                            Backorders <span class="badge bg-light-primary float-end">
-                                @if ($statusCount['pendingReviewCount'] > 0)
+                            Backorders
+                            @if ($statusCount['pendingReviewCount'] > 0)
+                                <span class="badge bg-light-primary float-end">
                                     {{ $statusCount['pendingReviewCount'] }}
-                                @endif
-                            </span></a>
+                                </span>
+                            @endif
+                        </a>
                     </div>
                 </div>
                 <div class="col-10">
@@ -85,9 +87,10 @@
                                         This list is populated nightly by these rules :
                                         <ul class="mt-2">
                                             <li>Order stage code is <strong>Ordered</strong> or <strong>Picked</strong>
-                                                and TransType = <strong>QU</strong> and Taken By is <strong>WEB</strong>
+                                                and TransType != <strong>QU</strong> and Taken By is
+                                                <strong>WEB</strong>
                                             </li>
-                                            <li>A Line item Quantity does not meet <strong>(qtyship + qtyrel)</strong>
+                                            <li>quantity_ord does not equal <strong>(qtyship + qtyrel)</strong>
                                                 and Status = <strong>A</strong>
                                             </li>
                                             <li>Warehouse Product StatusType = <strong>X</strong></li>
@@ -105,8 +108,6 @@
                                                 class="badge badge-lg bg-primary ml-2">{{ $statusCount['followUpCount'] }}</span></x-slot>
                                         <x-slot:tab_header_cancelled>Cancelled <span
                                                 class="badge badge-lg bg-primary ml-2">{{ $statusCount['cancelledCount'] }}</span></x-slot>
-                                        <x-slot:tab_header_errors>Errors <span
-                                                class="badge badge-lg bg-primary  ml-2">{{ $statusCount['errorsCount'] }}</span></x-slot>
                                         <x-slot:tab_header_Closed>Closed <span
                                                 class="badge badge-lg bg-primary ml-2">0</span></x-slot>
 
