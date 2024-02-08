@@ -39,6 +39,10 @@ class EquipmentTable extends DataTableComponent
 
         $this->setDefaultSort('purchase_date', 'desc');
 
+        $this->setSearchDebounce(500);
+        $this->setLoadingPlaceholderEnabled();
+
+
     }
 
     public function boot(): void
