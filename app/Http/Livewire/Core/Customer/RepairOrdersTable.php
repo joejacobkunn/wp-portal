@@ -38,6 +38,10 @@ class RepairOrdersTable extends DataTableComponent
 
         $this->setFilterSlideDownDefaultStatusEnabled();
 
+        $this->setSearchDebounce(500);
+        $this->setLoadingPlaceholderEnabled();
+
+
     }
 
     public function boot(): void

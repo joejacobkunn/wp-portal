@@ -39,6 +39,9 @@ class Table extends DataTableComponent
         $this->setFilterLayout('slide-down');
         $this->setFilterSlideDownDefaultStatusEnabled();
 
+        $this->setSearchDebounce(500);
+        $this->setLoadingPlaceholderEnabled();
+
         $this->setEmptyMessage('No customers found. Use global search to search on all columns and make sure no filters are applied.');
 
     }
