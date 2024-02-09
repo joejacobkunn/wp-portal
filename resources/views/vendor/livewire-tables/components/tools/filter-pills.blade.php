@@ -55,7 +55,7 @@
                                 ])>
                                     @lang('Remove filter option')
                                 </span>
-                                <x-heroicon-m-x-mark style="width:.5em;height:.5em" />
+                                <x-heroicon-m-x-mark style="width:1em;height:1em" />
                             </a>
                         @endif
                     </span>
@@ -77,7 +77,7 @@
                     wire:click.prevent="setFilterDefaults"
                     @class([
                         'badge badge-pill badge-light' => $component->isBootstrap4(),
-                        'badge rounded-pill bg-light text-dark text-decoration-none' => $component->isBootstrap5(),
+                        'badge rounded-pill bg-light-secondary text-decoration-none' => $component->isBootstrap5(),
                     ])
                 >
                     @lang('Clear')

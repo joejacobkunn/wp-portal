@@ -29,6 +29,8 @@
     @elseif ($isBootstrap)
         <select multiple
             field-key="filterComponents.{{ $filter->getKey() }}"
+            field-index="{{ $filter->getKey() }}"
+            wire:model="filterComponents.{{ $filter->getKey() }}"
             wire:key="{{ $filter->generateWireKey($tableName, 'multiselectdropdown') }}"
             id="{{ $tableName }}-filter-{{ $filter->getKey() }}@if($filter->hasCustomPosition())-{{ $filter->getCustomPosition() }}@endif"
             class="{{ $isBootstrap4 ? 'form-control' : 'form-select' }}"

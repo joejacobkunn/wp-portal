@@ -7,6 +7,8 @@
     ])>
         <select
             field-key="filterComponents.{{ $filter->getKey() }}"
+            wire:model="filterComponents.{{ $filter->getKey() }}"
+            field-index="{{ $filter->getKey() }}"
             wire:key="{{ $filter->generateWireKey($tableName, 'select') }}"
             id="{{ $tableName }}-filter-{{ $filter->getKey() }}@if($filter->hasCustomPosition())-{{ $filter->getCustomPosition() }}@endif"
             @class([
