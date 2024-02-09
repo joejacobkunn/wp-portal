@@ -1,6 +1,9 @@
-@php($tableName = $this->getTableName())
+@php
+    $tableName = $this->getTableName();
+    $tableId = str_replace('.', '-', $this->getName());
+@endphp
 
-<div>
+<div class="{{ $tableId }}">
     <x-livewire-tables::wrapper :component="$this" :tableName="$tableName">
         @if ($this->hasConfigurableAreaFor('before-tools'))
             @include($this->getConfigurableAreaFor('before-tools'), $this->getParametersForConfigurableArea('before-tools'))

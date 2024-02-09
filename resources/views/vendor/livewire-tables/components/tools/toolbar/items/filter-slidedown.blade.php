@@ -1,7 +1,27 @@
 @aware(['component', 'tableName'])
 @props(['filterGenericData'])
 
+@php
+    $tableId = str_replace('.', '-', $component->getName());
+@endphp
+
 <div x-cloak x-show="!currentlyReorderingStatus && filtersOpen" 
+    x-data="{
+        filterComponents: @entangle('filterComponents'),
+        sendEvent(filterComponents) {
+            window.dispatchEvent(new CustomEvent('{{ $tableId }}:table-filter:emit', {
+                detail: {
+                    value: Alpine.raw(filterComponents)
+                }
+            }))
+        }
+    }"
+    x-init="() => {
+        sendEvent(filterComponents);
+    },
+    $watch('filterComponents', (data) => {
+        sendEvent(filterComponents);
+    })"
     @class([
         'container table-filter-div' => $component->isBootstrap(),
     ])
@@ -25,6 +45,7 @@
             @foreach ($filterRow as $filter)
                 <div
                     @class([
+                        'table-filter-col',
                         'space-y-1 mb-4' => 
                             $component->isBootstrap(),
                         'col-12 col-sm-9 col-md-6 col-lg-3' => 
@@ -71,21 +92,17 @@
             let inProcessFlag = 0;
             let firstLoad = true
 
-            if (typeof SlimSelect == 'function') {
-                setTimeout(() => {
-                    initSelect()
-                }, 50)
-            } else {
+            if (typeof SlimSelect != 'function') {
                 loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initSelect);
             }
 
             function initSelect() {
                 if (inProcessFlag) return
 
-                if (! document.querySelector('#datatable-{{ $component->getId() }} .table-filter-div select')) return
+                if (! document.querySelector('#datatable-{{ $component->getId() }} .table-filter-div select:not([data-ssid]')) return
 
                 inProcessFlag = 1
-                document.querySelectorAll('#datatable-{{ $component->getId() }} .table-filter-div select').forEach((el) => {
+                document.querySelectorAll('#datatable-{{ $component->getId() }} .table-filter-div select:not([data-ssid]').forEach((el) => {
                     el.classList.remove('form-select')
                     if (typeof SlimSelect == 'function') {
 
@@ -122,6 +139,11 @@
                 inProcessFlag = 0
             }
 
+            window.addEventListener('{{ $tableId }}:table-filter:emit', (e) => {
+                if (! document.querySelector('{{ $tableId }} .table-filter-col .ss-main')) {
+                    initSelect(e.detail.value);
+                }
+            })
         })()
     </script>
     @endscript
