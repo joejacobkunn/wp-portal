@@ -48,7 +48,7 @@ class Index extends Component
         $this->role = new Role;
         $this->role->label = NULL;
 
-        parent::__construct($id);
+        //parent::__construct($id);
     }
 
     public function updated($propertyName)
