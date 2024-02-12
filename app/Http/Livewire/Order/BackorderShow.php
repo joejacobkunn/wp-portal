@@ -202,7 +202,7 @@ class BackorderShow extends Component
             $this->backorder->status = BackOrderStatus::FollowUp->value;
             $this->backorder->save();
             $this->reset('followUpModal');
-            //event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent));
+            event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent, $this->emailTo));
     }
 
     public function getCustomerProperty()

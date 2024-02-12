@@ -27,9 +27,9 @@ class OrderCancelledListener
      *
      * @return string
      */
-    public function routeNotificationForMail()
+    public function routeNotificationForMail(OrderCancelled $event)
     {
-        return App::environment() == 'production' ? "mmeister@powereqp.com" : "mmeister@powereqp.com";
+        return App::environment() == 'production' ? $event->email : "mmeister@powereqp.com";
     }
 
     /**
