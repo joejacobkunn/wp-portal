@@ -74,7 +74,7 @@
 
     @if (auth()->user()->account->hasModule('orders'))
 
-        @canany(['order.view'])
+        @canany(['order.view', 'order.dnr-backorder.view'])
             <li class="menu-item  {{ request()->is('orders*') ? 'active' : '' }}">
                 <a href="{{ route('order.index') }}" wire:navigate class='menu-link'>
                     <i class="far fa-list-alt"></i>
