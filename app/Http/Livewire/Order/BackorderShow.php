@@ -255,7 +255,7 @@ class BackorderShow extends Component
                     if ($dnr_warehouse_product->isNotEmpty()) {
                         $dnrs[] = [
                             'shipprod' => $item->shipprod,
-                            'full_name' => substr($item->shipprod,2).'-'.trim($item->descrip)
+                            'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription())
                         ];
                     }
                 }
@@ -273,7 +273,7 @@ class BackorderShow extends Component
         foreach($this->order_line_items->whereNotIn('shipprod', Arr::pluck($this->dnr_line_items,'shipprod')) as $item){
             $non_dnrs[] = [
                 'shipprod' => $item->shipprod,
-                'full_name' => substr($item->shipprod,2).'-'.trim($item->descrip)
+                'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription())
             ];
 
         }
