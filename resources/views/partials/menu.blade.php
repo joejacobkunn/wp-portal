@@ -1,5 +1,6 @@
 <li class="menu-item  {{ request()->is('dashboard*') ? 'active' : '' }}">
-    <a href="{{ route('core.dashboard.index', ['route_subdomain' => request('route_subdomain')]) }}" wire:navigate class='menu-link'>
+    <a href="{{ route('core.dashboard.index', ['route_subdomain' => request('route_subdomain')]) }}" wire:navigate
+        class='menu-link'>
         <i class="fas fa-tachometer-alt-fast"></i>
         <span>Dashboard</span>
     </a>
@@ -74,7 +75,7 @@
     @if (auth()->user()->account->hasModule('orders'))
 
         @canany(['order.view'])
-            <li class="menu-item  {{ request()->is('order*') ? 'active' : '' }}">
+            <li class="menu-item  {{ request()->is('orders*') ? 'active' : '' }}">
                 <a href="{{ route('order.index') }}" wire:navigate class='menu-link'>
                     <i class="far fa-list-alt"></i>
                     <span>Orders</span>

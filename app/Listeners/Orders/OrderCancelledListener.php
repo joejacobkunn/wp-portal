@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Notification;
 
 class OrderCancelledListener
 {
@@ -22,15 +23,6 @@ class OrderCancelledListener
         //
     }
 
-    /**
-     * Route notifications for the mail channel.
-     *
-     * @return string
-     */
-    public function routeNotificationForMail(OrderCancelled $event)
-    {
-        return App::environment() == 'production' ? $event->email : "mmeister@powereqp.com";
-    }
 
     /**
      * Handle the event.
@@ -39,6 +31,7 @@ class OrderCancelledListener
      */
     public function handle(OrderCancelled $event): void
     {
-        $this->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent));
+        Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
+                    ->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent));
     }
 }

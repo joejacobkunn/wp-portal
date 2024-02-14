@@ -22,7 +22,6 @@ trait FormRequest
     {
         $rules = [
             'user.name' => 'required',
-            'user.email' => 'required|email|unique:users,email'.($this->user->email ? ','.$this->user->id : ''),
         ];
 
         if(auth()->user()->can('manageRole', auth()->user())) {
