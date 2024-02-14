@@ -145,6 +145,7 @@ class BackorderShow extends Component
             case BackOrderStatus::PendingReview->value:
             case BackOrderStatus::Ignore->value:
                 $this->backorder->status = $status;
+                $this->backorder->last_updated_by = auth()->user()->id;
                 $this->backorder->save();
                 break;
             case BackOrderStatus::Cancelled->value:
@@ -191,6 +192,7 @@ class BackorderShow extends Component
     {
         $this->backorder->status = BackOrderStatus::Cancelled->value;
         $this->backorder->stage_code = 9;
+        $this->backorder->last_updated_by = auth()->user()->id;
         $this->backorder->save();
         $this->reset('cancelOrderModal');
 
@@ -201,9 +203,10 @@ class BackorderShow extends Component
     public function sendEmail()
     {
             $this->backorder->status = BackOrderStatus::FollowUp->value;
+            $this->backorder->last_updated_by = auth()->user()->id;
             $this->backorder->save();
             $this->reset('followUpModal');
-            event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent, $this->emailTo));
+            event(new OrderCancelled($this->backorder, $this->followUpSubject, $this->followUpEmailContent, $this->emailTo));
     }
 
     public function getCustomerProperty()
@@ -288,6 +291,7 @@ class BackorderShow extends Component
         if($this->backorder->status->value == BackOrderStatus::PendingReview->value)
         {
             $this->backorder->status = BackOrderStatus::FollowUp->value;
+            $this->backorder->last_updated_by = auth()->user()->id;
             $this->backorder->save();
         }
 
