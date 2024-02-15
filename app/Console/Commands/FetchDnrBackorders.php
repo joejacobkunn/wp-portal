@@ -42,6 +42,9 @@ class FetchDnrBackorders extends Command
             //loop thru each orders line item
 
             foreach($orders as $order){
+                
+                $dnr_items = [];
+
                 $line_items = OrderLineItem::select('orderno','ordersuf','statustype','qtyord', 'qtyship', 'qtyrel', 'shipprod')->where('cono', 10)->where('orderno', $order->orderno)->where('ordersuf', $order->ordersuf)->where('statustype',"A")->whereColumn('qtyord', '<>', DB::raw('(qtyship + qtyrel)'))->get();
 
                 //loop thru each line items
@@ -50,12 +53,21 @@ class FetchDnrBackorders extends Command
                     $dnr_warehouse_product = WarehouseProduct::where('cono',10)->where('whse', $warehouse->whse)->where('prod', $line_item->shipprod)->where('statustype',"X")->get();
                     
                     if($dnr_warehouse_product->isNotEmpty()) {
-                        DnrBackorder::updateOrCreate(
-                            ['cono' => 10, 'order_number' => $line_item->orderno, 'order_number_suffix' => $line_item->ordersuf],
-                            ['cono' => 10, 'order_number' => $line_item->orderno, 'order_number_suffix' => $line_item->ordersuf, 'whse' => $warehouse->whse, 'order_date' => $order->enterdt, 'stage_code' => $order->stagecd, 'sx_customer_number' => $order->custno, 'status' => 'Pending Review']
-                        );
+                        $dnr_items [] = $line_item->shipprod;
                     }
                 }
+
+                //if atleast one dnr item, add to table
+
+                if(!empty($dnr_items))
+                {
+                    DnrBackorder::firstOrCreate(
+                        ['cono' => 10, 'order_number' => $order->orderno, 'order_number_suffix' => $order->ordersuf],
+                        ['cono' => 10, 'order_number' => $order->orderno, 'order_number_suffix' => $order->ordersuf, 'whse' => $warehouse->whse, 'order_date' => $order->enterdt, 'stage_code' => $order->stagecd, 'sx_customer_number' => $order->custno,'dnr_items' =>  $dnr_items ,'status' => 'Pending Review']
+                    );
+    
+                }
+
             }
         }
 
