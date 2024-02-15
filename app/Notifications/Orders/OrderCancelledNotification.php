@@ -48,7 +48,7 @@ class OrderCancelledNotification extends Notification
                 ->subject($this->mailSubject)
                 ->greeting('Hello!')
                 ->line(nl2br($this->mailContent))
-                ->salutation("\r\n\r\n Regards,  \r\n Weingartz Support.");
+                ->salutation("\r\n Regards,  \r\n Weingartz Support.");
     }
 
     /**
