@@ -48,7 +48,7 @@ class OrderCancelledNotification extends Notification
                 ->subject($this->mailSubject)
                 ->greeting('Hello!')
                 ->line(nl2br($this->mailContent))
-                ->view(resource_path('views/vendor/notifications/email'),['logo' => url('/assets/images/weingartz-logo.png'), 'signature' => 'Weingartz Support']);
+                ->salutation("\r\n\r\n Regards,  \r\n Weingartz Support.");
     }
 
     /**

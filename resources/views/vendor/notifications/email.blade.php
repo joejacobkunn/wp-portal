@@ -48,7 +48,7 @@
         {{ $salutation }}
     @else
         @lang('Regards'),<br>
-        {{ $signature ?? config('app.name') }}
+        {{ config('app.name') }}
     @endif
 
     {{-- Subcopy --}}
