@@ -43,10 +43,12 @@ class OrderCancelledNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                ->from('weborders@weingartz.com', 'Weingartz Web Orders')
+                ->from('orders@weingartz.com', 'Weingartz Web Orders')
+                ->cc('orders@weingartz.com')
                 ->subject($this->mailSubject)
                 ->greeting('Hello!')
-                ->line(nl2br($this->mailContent));
+                ->line(nl2br($this->mailContent))
+                ->with(['logo' => url('/assets/images/weingartz-logo.png'), 'signature' => 'Weingartz Support']);
     }
 
     /**
