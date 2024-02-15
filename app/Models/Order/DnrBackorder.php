@@ -24,12 +24,14 @@ class DnrBackorder extends Model
         'order_date',
         'stage_code',
         'sx_customer_number',
-        'last_updated_by'
+        'last_updated_by',
+        'dnr_items'
     ];
 
     protected $casts = [
         'order_date' => 'date',
-        'status' => BackOrderStatus::class
+        'status' => BackOrderStatus::class,
+        'dnr_items' => 'array'
     ];
 
     const LOG_FIELD_MAPS = [

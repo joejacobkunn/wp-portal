@@ -38,7 +38,7 @@ class BackorderShow extends Component
     public $operator;
     public $order_is_cancelled_manually_via_sx = false;
 
-    public $emailFrom = 'weborders@weingartz.com';
+    public $emailFrom = 'orders@weingartz.com';
     public $emailTo = '';
     
     public $breadcrumbs = [
