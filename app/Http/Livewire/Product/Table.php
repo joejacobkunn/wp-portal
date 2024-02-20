@@ -241,9 +241,15 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Product::where('account_id', $this->account->id)
+        $productQuery = Product::where('account_id', $this->account->id)
+            ->with('vendor:name')
+            ->with('brand:name')
+            ->with('category:name')
+            ->with('line:name')
             ->without('account')
             ->orderBy('last_sold_date', 'DESC');
+
+        return $productQuery;
     }
 
     public function addToCart($prodId)
