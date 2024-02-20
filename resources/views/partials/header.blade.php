@@ -23,14 +23,14 @@
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="topbarUserDropdown">
                         <li><a class="dropdown-item" href="javascript:void(0);">{{ auth()->user()->email }}</a></li>
                         <li><a class="dropdown-item" href="javascript:void(0);"><i class="fas fa-user-tag"></i> Title :
-                                {{
-                                auth()->user()->title }} </a></li>
+                                {{ auth()->user()->title }} </a></li>
                         <li><a class="dropdown-item" href="javascript:void(0);"><i class="fas fa-id-card-alt"></i>
-                                Operator : {{
-                                auth()->user()->sx_operator_id }} </a></li>
+                                Operator : {{ auth()->user()->sx_operator_id }} </a></li>
                         <li><a class="dropdown-item" href="javascript:void(0);"><i class="fas fa-map-marker-alt"></i>
-                                Office : {{
-                                auth()->user()->office_location }} </a></li>
+                                Office : {{ auth()->user()->office_location }} </a></li>
+
+                        <li><a class="dropdown-item" href="javascript:void(0);"><i class="fas fa-map-marker-alt"></i>
+                                Role : {{ auth()->user()->roles->first()->label }} </a></li>
 
 
 

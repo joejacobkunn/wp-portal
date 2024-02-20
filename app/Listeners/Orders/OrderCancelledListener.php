@@ -4,11 +4,13 @@ namespace App\Listeners\Orders;
 
 use App\Classes\SX;
 use App\Events\Orders\OrderCancelled;
+use App\Models\Core\User;
 use App\Notifications\Orders\OrderCancelledNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Notification;
 
 class OrderCancelledListener
 {
@@ -22,15 +24,6 @@ class OrderCancelledListener
         //
     }
 
-    /**
-     * Route notifications for the mail channel.
-     *
-     * @return string
-     */
-    public function routeNotificationForMail()
-    {
-        return App::environment() == 'production' ? "mmeister@powereqp.com" : "mmeister@powereqp.com";
-    }
 
     /**
      * Handle the event.
@@ -39,6 +32,18 @@ class OrderCancelledListener
      */
     public function handle(OrderCancelled $event): void
     {
-        $this->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent));
+    
+        //send email
+
+        Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
+                    ->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent));
+
+        //add custom log
+
+        activity()
+            ->causedBy(User::find($event->order->last_updated_by))
+            ->performedOn($event->order)
+            ->event('custom')
+            ->log('Sent Email "'.$event->mailSubject.'" to customer');
     }
 }

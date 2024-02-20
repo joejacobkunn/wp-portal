@@ -51,4 +51,11 @@ class OrderLineItem extends Model
 
         return $this->tied[strtolower($this->ordertype)];
     }
+
+    public function cleanDescription()
+    {
+        $description = str_replace(';', '', $this->descrip);
+        $description = str_replace('>>NO LONGER AVAILABLE<<', '', $description);
+        return trim($description);
+    }
 }

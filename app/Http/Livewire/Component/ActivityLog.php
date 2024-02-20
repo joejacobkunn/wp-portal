@@ -99,7 +99,7 @@ class ActivityLog extends Component
             ];
 
             if (!isset($causersList[$log->causer_id]) && $log->causer_id) {
-                $causersList[$log->causer_id] = $log->causer()->select('user_id', 'name_full')->first()->name;
+                $causersList[$log->causer_id] = $log->causer()->first()->name;
             }
 
             if ($log->event == 'created') {

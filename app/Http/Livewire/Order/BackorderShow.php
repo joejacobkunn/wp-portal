@@ -38,7 +38,7 @@ class BackorderShow extends Component
     public $operator;
     public $order_is_cancelled_manually_via_sx = false;
 
-    public $emailFrom = 'weborders@weingartz.com';
+    public $emailFrom = 'orders@weingartz.com';
     public $emailTo = '';
     
     public $breadcrumbs = [
@@ -93,10 +93,11 @@ class BackorderShow extends Component
 
     public function mount($orderno, $ordersuf) 
     {
-        $this->authorize('view', DnrBackorder::class);
         $this->order_number = $orderno;
         $this->order_suffix = $ordersuf;
         $this->backorder = DnrBackorder::where('cono', auth()->user()->account->sx_company_number)->where('order_number', $orderno)->where('order_number_suffix', $ordersuf)->first();
+        $this->authorize('view', $this->backorder);
+
         
         if(!config('sx.mock'))
         {
@@ -144,6 +145,7 @@ class BackorderShow extends Component
             case BackOrderStatus::PendingReview->value:
             case BackOrderStatus::Ignore->value:
                 $this->backorder->status = $status;
+                $this->backorder->last_updated_by = auth()->user()->id;
                 $this->backorder->save();
                 break;
             case BackOrderStatus::Cancelled->value:
@@ -190,6 +192,7 @@ class BackorderShow extends Component
     {
         $this->backorder->status = BackOrderStatus::Cancelled->value;
         $this->backorder->stage_code = 9;
+        $this->backorder->last_updated_by = auth()->user()->id;
         $this->backorder->save();
         $this->reset('cancelOrderModal');
 
@@ -200,9 +203,10 @@ class BackorderShow extends Component
     public function sendEmail()
     {
             $this->backorder->status = BackOrderStatus::FollowUp->value;
+            $this->backorder->last_updated_by = auth()->user()->id;
             $this->backorder->save();
             $this->reset('followUpModal');
-            //event(new OrderCancelled($this->backorder, $this->cancelEmailSubject, $this->cancelEmailContent));
+            event(new OrderCancelled($this->backorder, $this->followUpSubject, $this->followUpEmailContent, $this->emailTo));
     }
 
     public function getCustomerProperty()
@@ -254,7 +258,7 @@ class BackorderShow extends Component
                     if ($dnr_warehouse_product->isNotEmpty()) {
                         $dnrs[] = [
                             'shipprod' => $item->shipprod,
-                            'full_name' => substr($item->shipprod,2).'-'.trim($item->descrip)
+                            'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription())
                         ];
                     }
                 }
@@ -272,7 +276,7 @@ class BackorderShow extends Component
         foreach($this->order_line_items->whereNotIn('shipprod', Arr::pluck($this->dnr_line_items,'shipprod')) as $item){
             $non_dnrs[] = [
                 'shipprod' => $item->shipprod,
-                'full_name' => substr($item->shipprod,2).'-'.trim($item->descrip)
+                'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription())
             ];
 
         }
@@ -287,6 +291,7 @@ class BackorderShow extends Component
         if($this->backorder->status->value == BackOrderStatus::PendingReview->value)
         {
             $this->backorder->status = BackOrderStatus::FollowUp->value;
+            $this->backorder->last_updated_by = auth()->user()->id;
             $this->backorder->save();
         }
 
