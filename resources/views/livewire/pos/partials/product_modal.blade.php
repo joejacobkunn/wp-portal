@@ -4,7 +4,11 @@
             <div>Select Products</div>
         </x-slot>
 
-        <livewire:product.table :account="$account" from-checkout />
+        <livewire:product.table
+            :account="$account"
+            from-checkout
+            :key="'product' . time()"
+        />
 
     </x-modal>
 </div>
