@@ -59,15 +59,14 @@
                 }
         }
         
+
+        let isMultiple =  Boolean({{ $multiple ? 1 : 0 }});
+        var selectTimer = selectTimer || null;
         if (typeof SlimSelect == 'function') {
             initPlugin()
         } else {
             loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initPlugin);
         }
-
-        let isMultiple =  Boolean({{ $multiple ? 1 : 0 }});
-
-        var selectTimer = selectTimer || null;
         
         if (typeof SlimSelect == 'function') {
             initPlugin()

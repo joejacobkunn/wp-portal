@@ -19,7 +19,7 @@
             'relative block md:inline-block text-left' => $component->isTailwind(),
         ])
     >
-        <div>
+        <div class="filter-down-div">
             <button
                 type="button"
                 @class([

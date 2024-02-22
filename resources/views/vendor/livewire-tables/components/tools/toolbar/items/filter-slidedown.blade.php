@@ -99,10 +99,10 @@
             function initSelect() {
                 if (inProcessFlag) return
 
-                if (! document.querySelector('#datatable-{{ $component->getId() }} .table-filter-div select:not([data-ssid]')) return
+                if (! document.querySelector('#datatable-{{ $component->getId() }} select:not([data-ssid]')) return
 
                 inProcessFlag = 1
-                document.querySelectorAll('#datatable-{{ $component->getId() }} .table-filter-div select:not([data-ssid]').forEach((el) => {
+                document.querySelectorAll('#datatable-{{ $component->getId() }} select:not([data-ssid]').forEach((el) => {
                     el.classList.remove('form-select')
                     if (typeof SlimSelect == 'function') {
 
@@ -110,6 +110,7 @@
                         let id = '#' + el.getAttribute('id')
                         let select = new SlimSelect({ 
                             select: id,
+                            allowDeselect: true,
                             onChange: (info) => {
                                 
                                 if (firstLoad) {
