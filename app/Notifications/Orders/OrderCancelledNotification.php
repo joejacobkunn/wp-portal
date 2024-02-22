@@ -17,14 +17,17 @@ class OrderCancelledNotification extends Notification
 
     public $mailContent;
 
+    public $customerName;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct($order, $mailSubject, $mailContent)
+    public function __construct($order, $mailSubject, $mailContent, $customerName)
     {
         $this->order = $order;
         $this->mailSubject = $mailSubject;
         $this->mailContent = $mailContent;
+        $this->customerName = $customerName ?? 'Customer';
     }
 
     /**
@@ -46,7 +49,7 @@ class OrderCancelledNotification extends Notification
                 ->from('orders@weingartz.com', 'Weingartz Orders')
                 ->cc('orders@weingartz.com')
                 ->subject($this->mailSubject)
-                ->greeting('Hello!')
+                ->greeting('Hello '.ucwords(strtolower($this->customerName)))
                 ->line(nl2br($this->mailContent))
                 ->salutation("\r\n Regards,  \r\n Weingartz Support.");
     }

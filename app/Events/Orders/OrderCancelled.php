@@ -2,6 +2,7 @@
 
 namespace App\Events\Orders;
 
+use App\Models\Core\Customer;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -22,6 +23,8 @@ class OrderCancelled
 
     public $email;
 
+    public $customer_name;
+
     /**
      * Create a new event instance.
      */
@@ -31,6 +34,7 @@ class OrderCancelled
         $this->mailSubject = $mailSubject;
         $this->mailContent = $mailContent;
         $this->email = $email;
+        $this->customer_name = Customer::where('sx_customer_number', $order->sx_customer_number)->first()?->name;
     }
 
     /**
