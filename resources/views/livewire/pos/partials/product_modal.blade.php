@@ -4,11 +4,18 @@
             <div>Select Products</div>
         </x-slot>
 
-        <livewire:product.table
-            :account="$account"
-            from-checkout
-            :key="'product' . time()"
-        />
+        @if($loadingCart)
+            <div class="prod-loading-cart">
+                Updating Cart <i class="fa fa-spin fa-spinner ms-1"></i>
+            </div>
+        @endif
+        <div wire:ignore>
+            <livewire:product.table
+                :account="$account"
+                from-checkout
+                :key="'product'"
+            />
+        </div>
 
     </x-modal>
 </div>

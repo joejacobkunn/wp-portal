@@ -12,6 +12,8 @@ class Create extends Component
     use AuthorizesRequests,FormRequest,LivewireAlert;
 
     public $account;
+    
+    public $customer;
 
     public $sourcePopup = false;
 

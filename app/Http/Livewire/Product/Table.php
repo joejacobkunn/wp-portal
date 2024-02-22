@@ -59,7 +59,6 @@ class Table extends DataTableComponent
         ]);
 
         $this->setFilterLayout('slide-down');
-        $this->setFilterSlideDownDefaultStatusEnabled();
 
         $this->setEmptyMessage('No customers found. Use global search to search on all columns and make sure no filters are applied.');
 
@@ -216,7 +215,6 @@ class Table extends DataTableComponent
                 }),
 
             SelectFilter::make('category')
-                ->hiddenFromAll()
                 ->options(['' => 'All Categories'] + $this->categories)->filter(function (Builder $builder, string $value) {
                     $builder->where('products.category_id', $value);
                 }),
