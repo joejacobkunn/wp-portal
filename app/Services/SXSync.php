@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Core\Account;
 use App\Models\Core\Customer;
+use App\Models\Order\Order as PortalOrder;
 use App\Models\SX\Customer as SXCustomer;
 use App\Models\SX\Order;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class SXSync
@@ -39,6 +41,11 @@ class SXSync
         if ($this->payload['event'] == 'order.shipped') {
             $this->orderShipped($this->payload['data']);
         }
+
+        if ($this->payload['event'] == 'order.created') {
+            $this->orderCreated($this->payload['data']);
+        }
+
 
     }
 
@@ -222,6 +229,29 @@ class SXSync
                 ->header('Content-Type', 'application/json');
         }
     }
+
+    private function orderCreated($data)
+    {
+        $sx_order = Order::where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
+        
+        $portal_order = PortalOrder::select()->updateOrCreate(
+            [
+                'order_number' => $data['order_no'], 
+                'order_number_suffix' => $data['order_suffix'], 'cono' => $data['cono']],
+            [
+                'whse' => $sx_order['whse'],
+                'taken_by' => $sx_order['takenby'],
+                'order_date' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
+                'stage_code' => $sx_order['stagecd'],
+                'sx_customer_number' => $sx_order['custno'],
+                'status' => 'Pending Review'
+            ]
+        );
+
+        return response()->json(['status' => 'success', 'portal_order_id' => $portal_order->id], 201);
+
+    }
+
 
     private function split_address($address)
     {

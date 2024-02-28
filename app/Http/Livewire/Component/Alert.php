@@ -52,6 +52,6 @@ class Alert extends Component
 
     public function callAction()
     {
-        $this->emitUp($this->actionButtonAction);
+        $this->dispatch($this->actionButtonAction);
     }
 }

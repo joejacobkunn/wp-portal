@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class DnrBackorder extends Model
+class Order extends Model
 {
     use HasFactory,SoftDeletes,LogsActivity;
 
-    protected $table = 'dnr_backorders';
+    protected $table = 'orders';
 
     protected $fillable = [
         'cono',
@@ -25,7 +25,9 @@ class DnrBackorder extends Model
         'stage_code',
         'sx_customer_number',
         'last_updated_by',
-        'dnr_items'
+        'dnr_items',
+        'taken_by',
+        'is_dnr'
     ];
 
     protected $casts = [

@@ -132,11 +132,11 @@ class EquipmentTable extends DataTableComponent
 
                         if(!empty($yepp_status['last_service'])) $last_service = '(Last Serv '.date('m-d-Y',strtotime($yepp_status['last_service'])).')';
 
-                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\',\'%s\')" class="badge bg-light-secondary"><abbr title="Click to view 7YEPP history">Inactive %s</abbr></span></a></ul>',$row->model,$row->serial_no,false,$last_service);
+                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="fetchServicePlans(\'%s\',\'%s\',\'%s\')" class="badge bg-light-secondary"><abbr title="Click to view 7YEPP history">Inactive %s</abbr></span></a></ul>',$row->model,$row->serial_no,false,$last_service);
                     }
                     else
                     {
-                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="$emitUp(\'fetchServicePlans\',\'%s\',\'%s\',\'%s\')" class="badge bg-light-success"><abbr title="Click to view 7YEPP history">Active: Year %s (Last Serv %s)</abbr></span></a></ul>',$row->model,$row->serial_no,true,intval($yepp_status['year']),$yepp_status['last_service'] ? date('m-d-Y',strtotime($yepp_status['last_service'])) : ' - None');
+                        return sprintf('<ul><a href="javascript:void(0)"><span wire:click="fetchServicePlans(\'%s\',\'%s\',\'%s\')" class="badge bg-light-success"><abbr title="Click to view 7YEPP history">Active: Year %s (Last Serv %s)</abbr></span></a></ul>',$row->model,$row->serial_no,true,intval($yepp_status['year']),$yepp_status['last_service'] ? date('m-d-Y',strtotime($yepp_status['last_service'])) : ' - None');
                     }
 
                 })
@@ -242,5 +242,10 @@ class EquipmentTable extends DataTableComponent
                                 if(is_null($last_repair_date) || empty($last_repair_date)) return ['last_repair_date' => ''];
 
                                 return ['last_repair_date' => $last_repair_date[0]->last_repair_date];
+    }
+
+    private function fetchServicePlans($model,$serial_no,$is_7yepp_active)
+    {
+        $this->dispatch('fetchServicePlans',$model,$serial_no,$is_7yepp_active)->to(Show::class);
     }
 }

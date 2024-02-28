@@ -29,6 +29,14 @@
                                 @endif
                             </a>
                         @endcan
+
+                        @can('order.web-order.view')
+                            <a class="nav-link {{ $orderTab == 'web_orders' ? 'active' : '' }}" id="v-pills-profile-tab"
+                                data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile"
+                                aria-selected="true" tabindex="-1" wire:click="$set('orderTab', 'back_orders')">Web
+                                Orders
+                            </a>
+                        @endcan
                     </div>
                 </div>
                 <div class="col-10">
@@ -131,10 +139,6 @@
                     </div>
                 </div>
             </div>
-
-
         </x-slot>
-
     </x-page>
-
 </div>
