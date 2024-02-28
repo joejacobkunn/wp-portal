@@ -234,7 +234,7 @@ class SXSync
     {
         $sx_order = Order::where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
         
-        $portal_order = PortalOrder::select()->updateOrCreate(
+        $portal_order = PortalOrder::updateOrCreate(
             [
                 'order_number' => $data['order_no'], 
                 'order_number_suffix' => $data['order_suffix'], 'cono' => $data['cono']],
