@@ -3,7 +3,7 @@
 namespace App\Models\Order;
 
 use App\Models\Core\Comment;
-use App\Enums\Order\BackOrderStatus;
+use App\Enums\Order\OrderStatus;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -32,7 +32,7 @@ class Order extends Model
 
     protected $casts = [
         'order_date' => 'date',
-        'status' => BackOrderStatus::class,
+        'status' => OrderStatus::class,
         'dnr_items' => 'array'
     ];
 
@@ -54,7 +54,7 @@ class Order extends Model
     
     public function isPendingReview()
     {
-        return $this->status == BackOrderStatus::PendingReview;
+        return $this->status == OrderStatus::PendingReview;
     }
 
     public function comments()

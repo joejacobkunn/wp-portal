@@ -2,7 +2,7 @@
 
 namespace App\Enums\Order;
 
-enum BackOrderStatus:string
+enum OrderStatus:string
 {
     case PendingReview = 'Pending Review';
     case Ignore = 'Ignored';
@@ -41,7 +41,7 @@ enum BackOrderStatus:string
     {
         return match ($value) {
             self::PendingReview => 'primary',
-            self::Ignore => 'warning',
+            self::Ignore => 'secondary',
             self::Cancelled => 'danger',
             self::FollowUp => 'info',
             self::Closed => 'success',
