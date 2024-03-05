@@ -41,6 +41,7 @@ class Table extends DataTableComponent
         $this->setSearchDebounce(500);
         $this->setLoadingPlaceholderEnabled();
         $this->setEmptyMessage('No orders found. Use global search to search on all columns and make sure no filters are applied.');
+        $this->setFilterLayout('slide-down');
 
         $this->setConfigurableAreas([
             'toolbar-right-start' => [

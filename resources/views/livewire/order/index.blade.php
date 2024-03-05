@@ -21,7 +21,7 @@
                         </div>
                     @endif
 
-                    <livewire:order.table>
+                    <livewire:order.table key="{{ now() }}" lazy>
                 </div>
             </div>
 
