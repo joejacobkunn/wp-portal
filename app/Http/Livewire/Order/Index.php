@@ -49,13 +49,16 @@ class Index extends Component
         return $this->renderView('livewire.order.index');
     }
 
-    public function filterDNROrders()
+    public function setFilter($filter, $value)
     {
-        $this->dispatch('setFilter', 'is_dnr', '2');
+        $this->dispatch('setFilter', $filter, $value);
     }
 
     public function getStatusCounts()
     {
         $this->dnr_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('is_dnr', 1)->where('status', 'Pending Review')->count();
+        $this->pending_review_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('status', 'Pending Review')->count();;
+        $this->follow_up_count = Order::where('cono', auth()->user()->account->sx_company_number)->whereIn('status', ['Follow Up','Shipment Follow Up'])->count();
+        $this->ignored_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('status', 'Ignored')->count();
     }
 }

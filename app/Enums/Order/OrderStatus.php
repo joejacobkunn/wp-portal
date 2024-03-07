@@ -8,6 +8,7 @@ enum OrderStatus:string
     case Ignore = 'Ignored';
     case Cancelled = 'Cancelled';
     case FollowUp = 'Follow Up';
+    case ShipmentFollowUp = 'Shipment Follow Up';
     case Closed = 'Closed';
 
     public function label(): string
@@ -32,6 +33,7 @@ enum OrderStatus:string
             self::Ignore => 'Ignored',
             self::Cancelled => 'Cancelled',
             self::FollowUp => 'Follow Up',
+            self::ShipmentFollowUp => 'Shipment Follow Up',
             self::Closed => 'Closed',
             default => '-'
         };
@@ -44,6 +46,7 @@ enum OrderStatus:string
             self::Ignore => 'secondary',
             self::Cancelled => 'danger',
             self::FollowUp => 'info',
+            self::ShipmentFollowUp => 'warning',
             self::Closed => 'success',
             default => 'info'
         };

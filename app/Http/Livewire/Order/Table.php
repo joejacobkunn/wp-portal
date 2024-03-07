@@ -43,16 +43,6 @@ class Table extends DataTableComponent
         $this->setEmptyMessage('No orders found. Use global search to search on all columns and make sure no filters are applied.');
         $this->setFilterLayout('slide-down');
 
-        $this->setConfigurableAreas([
-            'toolbar-right-start' => [
-                'livewire.order.partials.table-status-count', [
-                    'pending_review_count' => $this->pending_review_count,
-                    'follow_up_count' => $this->follow_up_count,
-                    'ignored_count' => $this->ignored_count
-                ]
-            ],
-          ]);
-
     }
 
 
@@ -63,9 +53,6 @@ class Table extends DataTableComponent
 
     public function configuring()
     {
-        $this->pending_review_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('status', 'Pending Review')->count();;
-        $this->follow_up_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('status', 'Follow Up')->count();
-        $this->ignored_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('status', 'Ignored')->count();
 
     }
 
@@ -76,11 +63,16 @@ class Table extends DataTableComponent
                 ->searchable()->excludeFromColumnSelect()
                 ->secondaryHeader($this->getFilterByKey('order_number'))
                 ->format(function ($value, $row) {
-                    $link = '<a href="'.route('backorder.show', ['orderno' => $value, 'ordersuf' => $row->order_number_suffix]).'" class="text-decoration-underline">'.$value.'-'.$row->order_number_suffix.'</a>';
+                    $link = '<a href="'.route('order.show', $row->id).'" class="text-decoration-underline">'.$value.'-'.$row->order_number_suffix.'</a>';
                     if($row->is_dnr) $link = $link.'<span class="badge bg-light-warning float-end">DNR</span>';
                     return $link;
                 })
                 ->html(),
+
+            Column::make('Id', 'id')
+                ->hideIf(1)
+                ->html(),
+
 
             Column::make('Is DNR', 'is_dnr')
                 ->hideIf(1)
@@ -161,6 +153,18 @@ class Table extends DataTableComponent
                     $builder->where('is_dnr', $value);
                 }),
 
+                SelectFilter::make('Follow Up Visibility', 'is_follow_up')
+                ->options([
+                    '' => 'All',
+                    0 => 'Show only orders with any Follow Ups',
+                    1 => 'Show only orders with Customer Follow Ups',
+                    2 => 'Show only orders with Shipment Follow Ups'
+                ])->filter(function (Builder $builder, string $value) {
+                    if($value == 0) $builder->whereIn('status', ['Follow Up', 'Shipment Follow Up']);
+                    if($value == 1) $builder->where('status', 'Follow Up');
+                    if($value == 2) $builder->where('status', 'Shipment Follow Up');
+                }),
+
             SelectFilter::make('Warehouse', 'whse')
             ->hiddenFromMenus()
                 ->options(['' => 'All Warehouses'] + Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray())->filter(function (Builder $builder, string $value) {
@@ -205,6 +209,7 @@ class Table extends DataTableComponent
                     'Ignored' => 'Ignored',
                     'Cancelled' => 'Cancelled',
                     'Follow Up' => 'Follow Up',
+                    'Shipment Follow Up' => 'Shipment Follow Up',
                     'Closed' => 'Closed',
                 ])
                 ->filter(function (Builder $builder, string $value) {
