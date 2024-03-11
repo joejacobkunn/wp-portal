@@ -99,10 +99,10 @@
             function initSelect() {
                 if (inProcessFlag) return
 
-                if (! document.querySelector('#datatable-{{ $component->getId() }} select:not([data-ssid]')) return
+                if (! document.querySelector('#datatable-{{ $component->getId() }} .table select:not([data-ssid]')) return
 
                 inProcessFlag = 1
-                document.querySelectorAll('#datatable-{{ $component->getId() }} select:not([data-ssid]').forEach((el) => {
+                document.querySelectorAll('#datatable-{{ $component->getId() }} .table select:not([data-ssid]').forEach((el) => {
                     el.classList.remove('form-select')
                     if (typeof SlimSelect == 'function') {
 
@@ -131,7 +131,7 @@
                         })
                         
                         if (firstLoad && el.getAttribute('field-key')) {
-                            let values = $wire.get(el.getAttribute('field-key'))
+                            let values = $wire.get(el.getAttribute('field-key'));
                             select.set(values)
                         }
                     }

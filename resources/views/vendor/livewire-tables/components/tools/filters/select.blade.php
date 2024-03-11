@@ -7,7 +7,6 @@
         'inline' => $isBootstrap,
     ])>
         <select field-key="filterComponents.{{ $filter->getKey() }}"
-            wire:model.live.debounce.150ms="filterComponents.{{ $filter->getKey() }}"
             field-index="{{ $filter->getKey() }}" wire:key="{{ $filter->generateWireKey($tableName, 'select') }}"
             id="{{ $tableName }}-filter-{{ $filter->getKey() }}{{ $filter->hasCustomPosition() ? '-' . $filter->getCustomPosition() : '' }}"
             @class([
