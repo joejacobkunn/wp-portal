@@ -29,6 +29,8 @@ class Index extends Component
 
     public $ignored_count = 0;
 
+    public $metricFilter = [];
+
     public $breadcrumbs = [
         [
             'title' => 'Orders',
@@ -51,7 +53,10 @@ class Index extends Component
 
     public function setFilter($filter, $value)
     {
-        $this->dispatch('setFilter', $filter, $value);
+        $this->metricFilter = [
+            'filter' => $filter,
+            'value' => $value
+        ];
     }
 
     public function getStatusCounts()

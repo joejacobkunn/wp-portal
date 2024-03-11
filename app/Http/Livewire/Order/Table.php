@@ -30,6 +30,8 @@ class Table extends DataTableComponent
 
     public $ignored_count = 0;
 
+    public $metricFilter = [];
+
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -221,7 +223,13 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Order::where('cono', auth()->user()->account->sx_company_number);
+        $query = Order::where('cono', auth()->user()->account->sx_company_number);
+
+        if (!empty($this->metricFilter)) {
+            $this->setFilter($this->metricFilter['filter'], $this->metricFilter['value']);
+        }
+
+        return $query;
     }
 
     public function setFilterValue($filter, $value)

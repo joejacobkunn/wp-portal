@@ -23,7 +23,10 @@
                         </div>
                     @endif
 
-                    <livewire:order.table key="{{ now() }}" lazy>
+                    <livewire:order.table
+                        :metricFilter="$metricFilter"
+                        key="{{ now() }}"
+                        lazy>
                 </div>
             </div>
 

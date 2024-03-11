@@ -559,3 +559,6 @@
     --bs-btn-font-size: .875rem;
     --bs-btn-border-radius: .2rem
 }
+.text-link {
+    cursor: pointer;
+}
