@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('orders', function (Blueprint $table) {
             $table->unsignedInteger('order_number')->change();
             $table->unsignedTinyInteger('order_number_suffix')->change();
-            $table->index(['order_number', 'order_number_suffix', 'status']);
+            $table->index(['order_number', 'order_number_suffix', 'status', 'stage_code']);
         });
     }
 
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropIndex(['order_number', 'order_number_suffix', 'status']);
+            $table->dropIndex(['order_number', 'order_number_suffix', 'status', 'stage_code']);
             $table->string('order_number')->change();
             $table->string('order_number_suffix')->change();
         });

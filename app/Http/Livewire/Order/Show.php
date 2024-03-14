@@ -20,8 +20,11 @@ use App\Services\Kinect;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Laravel\Telescope\Storage\EntryModel;
+use Laravel\Telescope\Telescope;
 
 class Show extends Component
 {
@@ -47,11 +50,14 @@ class Show extends Component
     public $tiedOrderAcknowledgement = false;
     public $operator;
     public $order_is_cancelled_manually_via_sx = false;
+    public $order_data_sync_timestamp;
 
-    public $emailFrom = 'orders@weingartz.com'; //oeehp, sro, add taken by number, sms
-    public $shippingEmail = 'shipping@weingartz.com'; //uticarecieving@weingartz.com, follow up on recieving
-    public $receivingEmail = 'shipping@weingartz.com';
+    public $emailFrom = 'orders@weingartz.com';
+    public $shippingEmail = 'shipping@weingartz.com';
+    public $receivingEmail;
     public $emailTo = '';
+    public $smsPhone;
+    public $smsMessage;
     
     public $breadcrumbs = [
         [
@@ -105,8 +111,6 @@ class Show extends Component
 
     public function mount() 
     {
-        // $kinect = new Kinect();
-        // dd($kinect->send('5863658884', 'hi this is a test'));
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
         $this->authorize('view', $this->order);
@@ -179,6 +183,8 @@ class Show extends Component
             case OrderStatus::FollowUp->value:
                     $this->followUpModal = true;
                     $this->emailTo = $this->customer->email;
+                    $this->smsPhone = $this->customer->phoneno;
+                    $this->smsMessage = 'SMS message goes there';
                     
                     if (! $this->followUpSubject) {
                         $this->followUpSubject = 'Follow Up on Order #'.$this->order_number;
@@ -202,7 +208,20 @@ class Show extends Component
                     }
     
                     break;
+
+            case OrderStatus::ReceivingFollowUp->value:
+                    $this->receivingModal = true;
+                    $this->receivingEmail = $this->order->getWarehouseEmail();
+                    
+                    if (! $this->receivingSubject) {
+                        $this->receivingSubject = 'Follow Up on Receiving for Order #'.$this->order_number;
+                    }
     
+                    if (! $this->receivingEmailContent) {
+                        $this->receivingEmailContent = 'All items are in stock for Order #'.$this->order_number.'. Please ship today if possible.';
+                    }
+    
+                    break;
     
         }
     }
@@ -239,6 +258,16 @@ class Show extends Component
         $this->reset('shippingModal');
         event(new OrderFollowUp($this->order, $this->shippingSubject, $this->shippingEmailContent, $this->shippingEmail));
 
+    }
+
+    public function sendReceivingEmail()
+    {
+        $this->authorize('manage', $this->order);
+        $this->order->status = OrderStatus::ReceivingFollowUp->value;
+        $this->order->last_updated_by = auth()->user()->id;
+        $this->order->save();
+        $this->reset('receivingModal');
+        event(new OrderFollowUp($this->order, $this->receivingSubject, $this->receivingEmailContent, $this->receivingEmail));
     }
 
     public function getCustomerProperty()
@@ -384,6 +413,7 @@ class Show extends Component
     {
         $this->reset('cancelOrderModal');
         $this->reset('followUpModal');
+        $this->reset('receivingModal');
     }
 
 

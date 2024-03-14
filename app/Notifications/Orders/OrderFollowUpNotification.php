@@ -47,13 +47,21 @@ class OrderFollowUpNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        $mail = (new MailMessage)
                 ->from('orders@weingartz.com', 'Weingartz Orders')
                 ->cc('orders@weingartz.com')
                 ->subject($this->mailSubject)
                 ->greeting('Hello '.ucwords(strtolower($this->customerName)))
-                ->line(nl2br($this->mailContent))
-                ->salutation("\r\n Regards,  \r\n Weingartz Support.");
+                ->line(nl2br($this->mailContent));
+
+        if(in_array($this->order->status->value,[OrderStatus::ShipmentFollowUp->value,OrderStatus::ReceivingFollowUp->value]))
+        {
+            $mail->action('View Order', route('order.show', $this->order->id));
+        }
+
+        $mail->salutation("\r\n Regards,  \r\n Weingartz Support.");
+
+        return $mail;
     }
 
     /**

@@ -241,13 +241,13 @@ class SXSync
                 'cono' => $data['cono']
             ],
             [
-                'whse' => $sx_order['whse'],
+                'whse' => strtolower($sx_order['whse']),
                 'taken_by' => $sx_order['takenby'],
                 'order_date' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
                 'stage_code' => $sx_order['stagecd'],
                 'sx_customer_number' => $sx_order['custno'],
                 'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
-                'ship_via' => $sx_order['shipviaty'],
+                'ship_via' => strtolower($sx_order['shipviaty']),
                 'qty_ship' => $sx_order['qtyship'],
                 'qty_ord' => $sx_order['qty_ord'],
                 'promise_date' => $sx_order['promisedt'],

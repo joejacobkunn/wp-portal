@@ -436,10 +436,10 @@
             </x-modal>
 
             <x-modal :toggle="$followUpModal" size="xl">
-                <x-slot name="title">Email Customer</x-slot>
+                <x-slot name="title">Notify Customer</x-slot>
 
                 <div class="alert alert-light-warning color-warning">
-                    Emailing the customer will update this backorder to <strong>Follow Up</strong> status</div>
+                    Notifying the customer will update this backorder to <strong>Follow Up</strong> status</div>
 
                 @if (empty($this->non_dnr_line_items))
                     <div class="alert alert-light-danger color-danger">
@@ -447,19 +447,66 @@
                     </div>
                 @endif
 
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="pre-genkey-div">
-                            <x-forms.input label="From" model="emailFrom" disabled />
+                <div class="card">
+                    <div class="card-body">
+                        <h5>
+                            <div class="form-check">
+                                <div class="checkbox">
+                                    <input type="checkbox" id="checkbox1" class="form-check-input" checked="">
+                                    <label for="checkbox1"
+                                        style="
+                                    margin-top: 4px;
+                                ">Email</label>
+                                </div>
+                            </div>
+                        </h5>
 
-                            <x-forms.input label="To" model="emailTo" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="pre-genkey-div">
+                                    <x-forms.input label="From" model="emailFrom" disabled />
 
-                            <x-forms.input label="Email Subject" model="followUpSubject" />
+                                    <x-forms.input label="To" model="emailTo" />
 
-                            <x-forms.textarea label="Email Content" model="followUpEmailContent" rows="6" />
+                                    <x-forms.input label="Email Subject" model="followUpSubject" />
+
+                                    <x-forms.textarea label="Email Content" model="followUpEmailContent"
+                                        rows="6" />
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5>
+                            <div class="form-check">
+                                <div class="checkbox">
+                                    <input type="checkbox" id="checkbox1" class="form-check-input" checked="">
+                                    <label for="checkbox1"
+                                        style="
+                                    margin-top: 4px;
+                                ">SMS</label>
+                                </div>
+                            </div>
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="pre-genkey-div">
+
+                                    <x-forms.input label="To" model="smsPhone" />
+
+                                    <x-forms.textarea label="Message" model="smsMessage" rows="6" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
 
                 <x-slot name="footer">
                     <button wire:click="sendEmail" type="button" class="pre-genkey-div btn btn-success"
@@ -467,7 +514,7 @@
                         <div wire:loading wire:target="sendEmail">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        <i class="fas fa-paper-plane"></i> Send Email
+                        <i class="fas fa-paper-plane"></i> Notify Customer
                     </button>
                     <button wire:click="closePopup('followUpModal')" type="button"
                         class="btn btn-outline-secondary">

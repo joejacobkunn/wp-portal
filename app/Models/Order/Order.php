@@ -75,6 +75,16 @@ class Order extends Model
         3 => 'Shipped',
     ];
 
+    private $warehouse_emails = [
+        'utic' => 'uticareceiving@weingartz.com',
+        'ann' => 'annarborreceiving@weingartz.com',
+        'ceda' => 'cedareceing@weingartz.com',
+        'farm' => 'farmreceing@weingartz.com',
+        'livo' => 'livoniareceiving@weingartz.com',
+        'wate' => 'watereceiving@weingartz.com'
+    ];
+
+
 
     
     public function isPendingReview()
@@ -105,6 +115,11 @@ class Order extends Model
         }
 
         return $this->shipping_stages[$stage_code];
+    }
+
+    public function getWarehouseEmail()
+    {
+        return $this->warehouse_emails[strtolower($this->whse)];
     }
 
 }

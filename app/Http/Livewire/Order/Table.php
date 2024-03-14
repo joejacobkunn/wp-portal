@@ -41,7 +41,11 @@ class Table extends DataTableComponent
         $this->setSearchDebounce(500);
         $this->setLoadingPlaceholderEnabled();
         $this->setEmptyMessage('No orders found. Use global search to search on all columns and make sure no filters are applied.');
-        $this->setFilterLayout('slide-down');
+        //$this->setFilterLayout('slide-down');
+        
+        $this->setConfigurableAreas([
+            'toolbar-right-start' => 'livewire.order.partials.settings-table-btn',
+          ]);
 
     }
 
@@ -79,6 +83,7 @@ class Table extends DataTableComponent
                     $link = '<a href="'.route('order.show', $row->id).'" class="text-decoration-underline">'.$value.'-'.$row->order_number_suffix.'</a>';
                     if($row->is_dnr) $link = $link.'<span class="badge bg-light-danger float-end">DNR</span>';
                     if($row->qty_ord > $row->qty_ship) $link = $link.'<span class="badge bg-light-warning float-end">BACKORDER</span>';
+                    if($row->is_sro) $link = $link.'<span class="badge bg-light-info float-end">SRO</span>';
                     return $link;
                 })
                 ->html(),
@@ -143,6 +148,13 @@ class Table extends DataTableComponent
                 })
                 ->excludeFromColumnSelect(),
 
+            Column::make('Ship Via', 'ship_via')
+                ->format(function ($value, $row) {
+                    return $value;
+                })
+                ->html(),
+
+
 
             Column::make('SX Stage Code', 'stage_code')
                 ->format(function ($value, $row) {
@@ -206,11 +218,12 @@ class Table extends DataTableComponent
                     '' => 'All',
                     'backorder' => 'Show orders with Backorders',
                     'completed' => 'Show orders that are Completed',
+                    'sro' => 'Show orders that are SRO'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
                     if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
+                    if($value == 'sro') $builder->where('is_sro','=',1);
                 }),
-
 
             SelectFilter::make('Warehouse', 'whse')
             ->hiddenFromMenus()

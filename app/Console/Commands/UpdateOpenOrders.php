@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Order\Order;
 use App\Models\SX\Order as SXOrder;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class UpdateOpenOrders extends Command
 {
@@ -55,6 +56,9 @@ class UpdateOpenOrders extends Command
 
         }
 
-        echo "Updated ".$updated_count." from ".count($open_orders)." open orders";
+        //store last time in Cache
+
+        Cache::put('order_data_sync_timestamp', now());
+
     }
 }

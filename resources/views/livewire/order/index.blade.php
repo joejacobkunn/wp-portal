@@ -13,18 +13,25 @@
                 </div>
 
                 <div class="card-body">
-                    @if ($dnr_count > 0)
-                        <div class="alert alert-light-warning color-warning">
-                            <button type="button" wire:click="filter('is_dnr', '2')"
-                                class="btn btn-sm btn-outline-secondary float-end">Show Pending DNR
-                                Orders</button>
-                            <i class="fas fa-exclamation-circle"></i>
-                            There are <strong>{{ $dnr_count }} DNR Order(s)</strong> that are Pending Review
+                    @if ($order_data_sync_timestamp)
+                        <div class="alert alert-light-info color-warning">
+                            <button type="button" wire:click="updateOpenOrders" wire:loading.attr="disabled"
+                                class="btn btn-sm btn-outline-primary float-end">
+                                <div wire:loading wire:target="updateOpenOrders">
+                                    <span class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
+                                </div>
+                                Update Open Orders
+                            </button>
+                            <i class="fas fa-sync"></i>
+                            Last refreshed
+                            <strong>{{ Carbon\Carbon::parse($order_data_sync_timestamp)->diffForHumans() }}</strong>.
+                            <span wire:loading wire:target="updateOpenOrders">Please wait, this might take a
+                                minute</span>
                         </div>
                     @endif
 
-                    <livewire:order.table
-                        lazy>
+                    <livewire:order.table lazy>
                 </div>
             </div>
 
