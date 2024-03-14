@@ -72,6 +72,9 @@
 .ss-main .placeholder {
     background: #fff !important;
 }
+.ss-main .ss-single-selected .placeholder .ss-disabled {
+    color: #5e5e5e;
+}
 
 /** SLIM Select Ends */
 

@@ -24,8 +24,6 @@
                     @endif
 
                     <livewire:order.table
-                        :metricFilter="$metricFilter"
-                        key="{{ now() }}"
                         lazy>
                 </div>
             </div>

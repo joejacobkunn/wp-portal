@@ -30,8 +30,6 @@ class Table extends DataTableComponent
 
     public $ignored_count = 0;
 
-    public $metricFilter = [];
-
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -47,6 +45,19 @@ class Table extends DataTableComponent
 
     }
 
+    /**
+     * Dynamic listener definitions
+     */
+    public function getListeners()
+    {
+        $listeners = $this->listeners;
+
+        $listeners = array_merge($listeners, [
+            'order-table:filter' => 'setFilterValue',
+        ]);
+
+        return $listeners;
+    }
 
     public function boot(): void
     {
@@ -270,15 +281,12 @@ class Table extends DataTableComponent
     {
         $query = Order::where('cono', auth()->user()->account->sx_company_number);
 
-        if (!empty($this->metricFilter)) {
-            $this->setFilter($this->metricFilter['filter'], $this->metricFilter['value']);
-        }
-
         return $query;
     }
 
     public function setFilterValue($filter, $value)
     {
+        $this->setFilterDefaults();
         $this->setFilter($filter, $value);
     }
 
