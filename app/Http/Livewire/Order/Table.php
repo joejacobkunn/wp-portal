@@ -50,7 +50,7 @@ class Table extends DataTableComponent
 
     public function boot(): void
     {
-        //$this->authorize('viewAny', Location::class);
+        $this->authorize('viewAny', Order::class);
     }
 
     public function configuring()
@@ -66,7 +66,8 @@ class Table extends DataTableComponent
                 ->secondaryHeader($this->getFilterByKey('order_number'))
                 ->format(function ($value, $row) {
                     $link = '<a href="'.route('order.show', $row->id).'" class="text-decoration-underline">'.$value.'-'.$row->order_number_suffix.'</a>';
-                    if($row->is_dnr) $link = $link.'<span class="badge bg-light-warning float-end">DNR</span>';
+                    if($row->is_dnr) $link = $link.'<span class="badge bg-light-danger float-end">DNR</span>';
+                    if($row->qty_ord > $row->qty_ship) $link = $link.'<span class="badge bg-light-warning float-end">BACKORDER</span>';
                     return $link;
                 })
                 ->html(),
@@ -77,6 +78,18 @@ class Table extends DataTableComponent
 
 
             Column::make('Is DNR', 'is_dnr')
+                ->hideIf(1)
+                ->html(),
+
+            Column::make('Is SRO', 'is_sro')
+                ->hideIf(1)
+                ->html(),
+
+            Column::make('Quantity Ordered', 'qty_ord')
+                ->hideIf(1)
+                ->html(),
+
+            Column::make('Quantity Shipped', 'qty_ship')
                 ->hideIf(1)
                 ->html(),
 
@@ -101,6 +114,16 @@ class Table extends DataTableComponent
                 ->html()
                 ->sortable()
                 ->excludeFromColumnSelect(),
+
+            Column::make('Promise Date', 'promise_date')
+                ->secondaryHeader($this->getFilterByKey('promise_date'))
+                ->format(function ($value, $row) {
+                    return $value->toFormattedDateString();
+                })
+                ->html()
+                ->sortable()
+                ->excludeFromColumnSelect(),
+
 
             Column::make('Taken By', 'taken_by')
                 ->secondaryHeader($this->getFilterByKey('operator'))
@@ -167,6 +190,17 @@ class Table extends DataTableComponent
                     if($value == 2) $builder->where('status', 'Shipment Follow Up');
                 }),
 
+                SelectFilter::make('Order Standing', 'order_standing')
+                ->options([
+                    '' => 'All',
+                    'backorder' => 'Show orders with Backorders',
+                    'completed' => 'Show orders that are Completed',
+                ])->filter(function (Builder $builder, string $value) {
+                    if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
+                    if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
+                }),
+
+
             SelectFilter::make('Warehouse', 'whse')
             ->hiddenFromMenus()
                 ->options(['' => 'All Warehouses'] + Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray())->filter(function (Builder $builder, string $value) {
@@ -182,9 +216,19 @@ class Table extends DataTableComponent
                         ->whereDate('order_date', '<=', $dateRange['maxDate']); // maxDate is the end date selected
                 }),
 
+            DateRangeFilter::make('Promise Date', 'promise_date')
+            ->hiddenFromMenus()
+                ->config(['placeholder' => 'Enter Date Range'])
+                ->filter(function (Builder $builder, array $dateRange) { // Expects an array.
+                    $builder
+                        ->whereDate('promise_date', '>=', $dateRange['minDate']) // minDate is the start date selected
+                        ->whereDate('promise_date', '<=', $dateRange['maxDate']); // maxDate is the end date selected
+                }),
+    
+
             SelectFilter::make('Operators', 'operator')
             ->hiddenFromMenus()
-                ->options(['' => 'All'] + Operator::where('cono', auth()->user()->account->sx_company_number)->orderBy('name')->pluck('name', 'operator')->toArray())
+                ->options(['' => 'All'] + Operator::where('cono', auth()->user()->account->sx_company_number)->orderBy('name')->get()->pluck('full_name', 'operator')->toArray())
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where(DB::raw('lower(taken_by)'), strtolower($value));
             }),
@@ -212,6 +256,7 @@ class Table extends DataTableComponent
                     'Cancelled' => 'Cancelled',
                     'Follow Up' => 'Follow Up',
                     'Shipment Follow Up' => 'Shipment Follow Up',
+                    'Receiving Follow Up' => 'Receiving Follow Up',
                     'Closed' => 'Closed',
                 ])
                 ->filter(function (Builder $builder, string $value) {

@@ -69,7 +69,7 @@ class AuthServiceProvider extends ServiceProvider
     private function getOrderPolicies()
     {
         return [
-            \App\Models\Order\DnrBackorder::class => \App\Policies\Order\BackorderPolicy::class,
+            \App\Models\Order\Order::class => \App\Policies\Order\OrderPolicy::class,
         ];
     }
 

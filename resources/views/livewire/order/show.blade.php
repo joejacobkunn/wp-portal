@@ -197,7 +197,7 @@
                                                     @endif
 
                                                     <li><a class="dropdown-item" href="javascript:;"
-                                                            wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::FollowUp->value }}')">Email
+                                                            wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::FollowUp->value }}')">Notify
                                                             Customer</a>
                                                     </li>
 
@@ -212,6 +212,12 @@
                                                             wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::ShipmentFollowUp->value }}')">Email
                                                             Shipping Dept</a>
                                                     </li>
+
+                                                    <li><a class="dropdown-item" href="javascript:;"
+                                                            wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::ReceivingFollowUp->value }}')">Email
+                                                            Receiving</a>
+                                                    </li>
+
 
                                                 </ul>
                                             @endcan
@@ -513,6 +519,47 @@
                 </x-slot>
 
             </x-modal>
+
+            <x-modal :toggle="$receivingModal" size="xl">
+                <x-slot name="title">Email Receiving Department</x-slot>
+
+                <div class="alert alert-light-warning color-warning">
+                    Emailing receiving will update this order to <strong>Receiving Follow Up</strong>
+                    status</div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="pre-genkey-div">
+                            <x-forms.input label="From" model="emailFrom" disabled />
+
+                            <x-forms.input label="To" model="receivingEmail" />
+
+                            <x-forms.input label="Email Subject" model="receivingSubject" />
+
+                            <x-forms.textarea label="Email Content" model="receivingEmailContent" rows="6" />
+                        </div>
+                    </div>
+                </div>
+
+                <x-slot name="footer">
+                    <button wire:click="sendReceivingEmail" type="button" class="pre-genkey-div btn btn-success"
+                        wire:loading.attr="disabled">
+                        <div wire:loading wire:target="sendReceivingEmail">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        <i class="fas fa-paper-plane"></i> Send Email
+                    </button>
+                    <button wire:click="closePopup('receivingModal')" type="button"
+                        class="btn btn-outline-secondary">
+                        <div wire:loading wire:target="closePopup('receivingModal')">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Close
+                    </button>
+                </x-slot>
+
+            </x-modal>
+
 
 
 

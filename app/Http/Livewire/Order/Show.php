@@ -16,8 +16,10 @@ use App\Models\Core\Comment;
 use App\Models\Order\Order;
 use App\Models\SX\Operator;
 use App\Models\SX\WarehouseProduct;
+use App\Services\Kinect;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
@@ -29,12 +31,15 @@ class Show extends Component
     public $cancelOrderModal = false;
     public $followUpModal = false;
     public $shippingModal = false;
+    public $receivingModal = false;
     public $cancelEmailSubject;
     public $cancelEmailContent;
     public $followUpSubject;
     public $followUpEmailContent;
     public $shippingSubject;
     public $shippingEmailContent;
+    public $receivingSubject;
+    public $receivingEmailContent;
     public $order_number;
     public $order_suffix;
     public $errorMessage = '';
@@ -43,8 +48,9 @@ class Show extends Component
     public $operator;
     public $order_is_cancelled_manually_via_sx = false;
 
-    public $emailFrom = 'orders@weingartz.com';
-    public $shippingEmail = 'shipping@weingartz.com';
+    public $emailFrom = 'orders@weingartz.com'; //oeehp, sro, add taken by number, sms
+    public $shippingEmail = 'shipping@weingartz.com'; //uticarecieving@weingartz.com, follow up on recieving
+    public $receivingEmail = 'shipping@weingartz.com';
     public $emailTo = '';
     
     public $breadcrumbs = [
@@ -99,9 +105,11 @@ class Show extends Component
 
     public function mount() 
     {
+        // $kinect = new Kinect();
+        // dd($kinect->send('5863658884', 'hi this is a test'));
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
-        //$this->authorize('view', $this->order);
+        $this->authorize('view', $this->order);
     }
 
     /**
@@ -201,6 +209,7 @@ class Show extends Component
 
     public function cancelOrder()
     {
+        $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::Cancelled->value;
         $this->order->stage_code = 9;
         $this->order->last_updated_by = auth()->user()->id;
@@ -213,6 +222,7 @@ class Show extends Component
 
     public function sendEmail()
     {
+        $this->authorize('manage', $this->order);
             $this->order->status = OrderStatus::FollowUp->value;
             $this->order->last_updated_by = auth()->user()->id;
             $this->order->save();
@@ -222,6 +232,7 @@ class Show extends Component
 
     public function sendShippingEmail()
     {
+        $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::ShipmentFollowUp->value;
         $this->order->last_updated_by = auth()->user()->id;
         $this->order->save();
@@ -326,7 +337,7 @@ class Show extends Component
     //check to see if any end user has an active session for the order
     public function getCurrentSession()
     {
-        return Order::select('openinit')->where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->first()->openinit;
+        return SXOrder::select('openinit')->where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->first()->openinit;
     }
 
     public function getOperatorInfo($operator)
@@ -336,7 +347,7 @@ class Show extends Component
 
     public function getIsTiedOrderProperty()
     {
-        foreach($this->order_line_items as $item){
+        foreach($this->sx_order_line_items as $item){
             if(in_array($item->getTied() ,['PO', 'Warehouse Transfer'])) return true;
         }
         
@@ -360,8 +371,8 @@ class Show extends Component
 
     public function checkOrderCancelStatus()
     {
-        $stage_code = Order::select('stagecd')->where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->first()->stagecd;
-        return ($stage_code == 9) ? $this->order_is_cancelled_manually_via_sx = true : $this->order_is_cancelled_manually_via_sx = false;
+        $stage_code = SXOrder::select('stagecd')->where('cono', auth()->user()->account->sx_company_number)->where('orderno', $this->order_number)->where('ordersuf', $this->order_suffix)->first()->stagecd;
+        return ($stage_code == 9 || App::environment('local')) ? $this->order_is_cancelled_manually_via_sx = true : $this->order_is_cancelled_manually_via_sx = false;
     }
 
     public function clipboardCopied()

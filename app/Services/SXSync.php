@@ -237,13 +237,20 @@ class SXSync
         $portal_order = PortalOrder::updateOrCreate(
             [
                 'order_number' => $data['order_no'], 
-                'order_number_suffix' => $data['order_suffix'], 'cono' => $data['cono']],
+                'order_number_suffix' => $data['order_suffix'], 
+                'cono' => $data['cono']
+            ],
             [
                 'whse' => $sx_order['whse'],
                 'taken_by' => $sx_order['takenby'],
                 'order_date' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
                 'stage_code' => $sx_order['stagecd'],
                 'sx_customer_number' => $sx_order['custno'],
+                'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
+                'ship_via' => $sx_order['shipviaty'],
+                'qty_ship' => $sx_order['qtyship'],
+                'qty_ord' => $sx_order['qty_ord'],
+                'promise_date' => $sx_order['promisedt'],
                 'status' => 'Pending Review'
             ]
         );

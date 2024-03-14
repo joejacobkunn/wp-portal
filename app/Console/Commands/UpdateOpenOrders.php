@@ -36,14 +36,23 @@ class UpdateOpenOrders extends Command
         foreach($open_orders as $open_order)
         {
             //fetch sx order
-            $sx_order = SXOrder::select('stagecd')->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
+            $sx_order = SXOrder::select('user1','stagecd','shipviaty','totqtyshp','totqtyord','promisedt')->where('cono',$open_order->cono)->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
+            $status = $open_order->status;
 
-            if($sx_order->stagecd != $open_order->stage_code){
-                $updated_count++;
-                if(in_array($sx_order->stagecd, [3,4,5])) $status = 'Closed';
-                if(in_array($sx_order->stagecd, [9])) $status = 'Cancelled';
-                $open_order->update(['status' => $status, 'stage_code' => $sx_order->stagecd]);
-            }
+            $updated_count++;
+            if(in_array($sx_order->stagecd, [3,4,5])) $status = 'Closed';
+            if(in_array($sx_order->stagecd, [9])) $status = 'Cancelled';
+
+            $open_order->update([
+                'status' => $status, 
+                'stage_code' => $sx_order->stagecd,
+                'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
+                'ship_via' => $sx_order['shipviaty'],
+                'qty_ship' => $sx_order['totqtyshp'],
+                'qty_ord' => $sx_order['totqtyord'],
+                'promise_date' => $sx_order['promisedt'],
+            ]);
+
         }
 
         echo "Updated ".$updated_count." from ".count($open_orders)." open orders";

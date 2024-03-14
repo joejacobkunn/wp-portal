@@ -29,11 +29,17 @@ class Order extends Model
         'last_updated_by',
         'dnr_items',
         'taken_by',
-        'is_dnr'
+        'is_dnr',
+        'promise_date',
+        'is_sro',
+        'ship_via',
+        'qty_ship',
+        'qty_ord'
     ];
 
     protected $casts = [
         'order_date' => 'date',
+        'promise_date' => 'date',
         'status' => OrderStatus::class,
         'dnr_items' => 'array'
     ];

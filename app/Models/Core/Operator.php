@@ -12,5 +12,10 @@ class Operator extends Model
 
     protected $table = 'operators';
 
+    public function getFullNameAttribute()
+{
+    return $this->name . ' (' . $this->operator.')';
+}
+
     protected $fillable = ['cono', 'name', 'operator', 'email'];
 }

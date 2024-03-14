@@ -53,7 +53,7 @@ class UpdateDnrBackorders extends Command
                 //loop thru each line items
                 foreach($line_items as $line_item){
 
-                    $dnr_warehouse_product = WarehouseProduct::where('cono',10)->where('whse', $warehouse->whse)->where('prod', $line_item->shipprod)->where('statustype',"X")->get();
+                    $dnr_warehouse_product = WarehouseProduct::select('cono')->where('cono',10)->where('whse', $warehouse->whse)->where('prod', $line_item->shipprod)->where('statustype',"X")->get();
                     
                     if($dnr_warehouse_product->isNotEmpty()) {
                         $dnr_items [] = $line_item->shipprod;
