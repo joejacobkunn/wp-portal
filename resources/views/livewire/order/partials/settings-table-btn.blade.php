@@ -5,7 +5,7 @@
             <i class="fas fa-cog"></i>
         </button>
         <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">Templates</a>
+            <a class="dropdown-item" wire:navigate href="{{ route('order.email-template.index') }}">Templates</a>
             <a class="dropdown-item" href="#">Option 2</a>
             <a class="dropdown-item" href="#">Option 3</a>
         </div>
