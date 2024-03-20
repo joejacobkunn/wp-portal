@@ -13,6 +13,7 @@ use App\Events\Orders\OrderCancelled;
 use App\Events\Orders\OrderFollowUp;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Comment;
+use App\Models\Order\NotificationTemplate;
 use App\Models\Order\Order;
 use App\Models\SX\Operator;
 use App\Models\SX\WarehouseProduct;
@@ -58,6 +59,8 @@ class Show extends Component
     public $emailTo = '';
     public $smsPhone;
     public $smsMessage;
+    public $templates = [];
+    public $templateId;
     
     public $breadcrumbs = [
         [
@@ -116,6 +119,11 @@ class Show extends Component
         $this->authorize('view', $this->order);
     }
 
+    // public function updatedTemplateId()
+    // {
+
+    // }
+
     /**
      * Properties
      */
@@ -161,6 +169,7 @@ class Show extends Component
                 $this->cancelOrderModal = true;
                 $this->order_is_cancelled_manually_via_sx = $this->order->stagecd == 9 ? 1 : 0;
                 $this->emailTo = $this->customer->email;
+                $this->templates = NotificationTemplate::active()->where('type','Cancelled')->pluck('name', 'id')->toArray();
 
                 
                 if (! $this->cancelEmailSubject) {
@@ -185,6 +194,7 @@ class Show extends Component
                     $this->emailTo = $this->customer->email;
                     $this->smsPhone = $this->customer->phoneno;
                     $this->smsMessage = 'SMS message goes there';
+                    $this->templates = NotificationTemplate::active()->where('type','Customer Follow Up')->pluck('name', 'id')->toArray();
                     
                     if (! $this->followUpSubject) {
                         $this->followUpSubject = 'Follow Up on Order #'.$this->order_number;
@@ -198,6 +208,7 @@ class Show extends Component
 
             case OrderStatus::ShipmentFollowUp->value:
                     $this->shippingModal = true;
+                    $this->templates = NotificationTemplate::active()->where('type','Shipment Follow Up')->pluck('name', 'id')->toArray();
                     
                     if (! $this->shippingSubject) {
                         $this->shippingSubject = 'Follow Up on Shipment for Order #'.$this->order_number;

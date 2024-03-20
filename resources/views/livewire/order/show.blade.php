@@ -380,17 +380,18 @@
                     @endif
 
 
-                    @if($cancelOrderModal)
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <div class="pre-genkey-div">
-                                <x-forms.input label="From" model="emailFrom" disabled />
-                                <x-forms.input label="To" model="emailTo" />
-                                <x-forms.input label="Email Subject" model="cancelEmailSubject" />
-                                <x-forms.html-editor label="Email Content" model="cancelEmailContent" rows="6" />
+                    @if ($cancelOrderModal)
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="pre-genkey-div">
+                                    <x-forms.input label="From" model="emailFrom" disabled />
+                                    <x-forms.input label="To" model="emailTo" />
+                                    <x-forms.input label="Email Subject" model="cancelEmailSubject" />
+                                    <x-forms.html-editor label="Email Content" model="cancelEmailContent"
+                                        rows="6" />
+                                </div>
                             </div>
                         </div>
-                    </div>
                     @endif
 
                     <x-slot name="footer">
@@ -449,6 +450,16 @@
                     </div>
                 @endif
 
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="form-group">
+                            <x-forms.select wire:key="'template-dropdown-'.now()" label="Template Type"
+                                model="templateId" :options="$templates" :selected="$templateId ?? null" default-selectable
+                                default-option-label="- None -" />
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-body">
                         <h5>
@@ -463,19 +474,20 @@
                             </div>
                         </h5>
 
-                        @if($followUpModal)
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="pre-genkey-div">
-                                    <x-forms.input label="From" model="emailFrom" disabled />
+                        @if ($followUpModal)
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="pre-genkey-div">
+                                        <x-forms.input label="From" model="emailFrom" disabled />
 
-                                    <x-forms.input label="To" model="emailTo" />
+                                        <x-forms.input label="To" model="emailTo" />
 
-                                    <x-forms.input label="Email Subject" model="followUpSubject" />
-                                    <x-forms.html-editor label="Email Content" model="followUpEmailContent" rows="6" />
+                                        <x-forms.input label="Email Subject" model="followUpSubject" />
+                                        <x-forms.html-editor label="Email Content" model="followUpEmailContent"
+                                            rows="6" />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         @endif
 
                     </div>
@@ -536,20 +548,21 @@
                     Emailing the shipping department will update this order to <strong>Shipment Follow Up</strong>
                     status</div>
 
-                @if($shippingModal)
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="pre-genkey-div">
-                            <x-forms.input label="From" model="emailFrom" disabled />
+                @if ($shippingModal)
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="pre-genkey-div">
+                                <x-forms.input label="From" model="emailFrom" disabled />
 
-                            <x-forms.input label="To" model="shippingEmail" />
+                                <x-forms.input label="To" model="shippingEmail" />
 
-                            <x-forms.input label="Email Subject" model="shippingSubject" />
+                                <x-forms.input label="Email Subject" model="shippingSubject" />
 
-                            <x-forms.html-editor label="Email Content" model="shippingEmailContent" rows="6" />
+                                <x-forms.html-editor label="Email Content" model="shippingEmailContent"
+                                    rows="6" />
+                            </div>
                         </div>
                     </div>
-                </div>
                 @endif
 
                 <x-slot name="footer">
@@ -578,20 +591,21 @@
                     Emailing receiving will update this order to <strong>Receiving Follow Up</strong>
                     status</div>
 
-                @if($receivingModal)
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="pre-genkey-div">
-                            <x-forms.input label="From" model="emailFrom" disabled />
+                @if ($receivingModal)
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="pre-genkey-div">
+                                <x-forms.input label="From" model="emailFrom" disabled />
 
-                            <x-forms.input label="To" model="receivingEmail" />
+                                <x-forms.input label="To" model="receivingEmail" />
 
-                            <x-forms.input label="Email Subject" model="receivingSubject" />
+                                <x-forms.input label="Email Subject" model="receivingSubject" />
 
-                            <x-forms.html-editor label="Email Content" model="receivingEmailContent" rows="6" />
+                                <x-forms.html-editor label="Email Content" model="receivingEmailContent"
+                                    rows="6" />
+                            </div>
                         </div>
                     </div>
-                </div>
                 @endif
 
                 <x-slot name="footer">
