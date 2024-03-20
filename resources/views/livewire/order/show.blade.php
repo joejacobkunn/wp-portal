@@ -379,17 +379,19 @@
                         </div>
                     @endif
 
+
+                    @if($cancelOrderModal)
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <div class="pre-genkey-div">
                                 <x-forms.input label="From" model="emailFrom" disabled />
                                 <x-forms.input label="To" model="emailTo" />
                                 <x-forms.input label="Email Subject" model="cancelEmailSubject" />
-
-                                <x-forms.textarea label="Email Content" model="cancelEmailContent" rows="6" />
+                                <x-forms.html-editor label="Email Content" model="cancelEmailContent" rows="6" />
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <x-slot name="footer">
                         <button wire:click="cancelOrder" wire:loading.attr="disabled" type="button"
@@ -461,6 +463,7 @@
                             </div>
                         </h5>
 
+                        @if($followUpModal)
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="pre-genkey-div">
@@ -469,12 +472,11 @@
                                     <x-forms.input label="To" model="emailTo" />
 
                                     <x-forms.input label="Email Subject" model="followUpSubject" />
-
-                                    <x-forms.textarea label="Email Content" model="followUpEmailContent"
-                                        rows="6" />
+                                    <x-forms.html-editor label="Email Content" model="followUpEmailContent" rows="6" />
                                 </div>
                             </div>
                         </div>
+                        @endif
 
                     </div>
                 </div>
@@ -534,6 +536,7 @@
                     Emailing the shipping department will update this order to <strong>Shipment Follow Up</strong>
                     status</div>
 
+                @if($shippingModal)
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
@@ -543,10 +546,11 @@
 
                             <x-forms.input label="Email Subject" model="shippingSubject" />
 
-                            <x-forms.textarea label="Email Content" model="shippingEmailContent" rows="6" />
+                            <x-forms.html-editor label="Email Content" model="shippingEmailContent" rows="6" />
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <x-slot name="footer">
                     <button wire:click="sendShippingEmail" type="button" class="pre-genkey-div btn btn-success"
@@ -574,6 +578,7 @@
                     Emailing receiving will update this order to <strong>Receiving Follow Up</strong>
                     status</div>
 
+                @if($receivingModal)
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
@@ -583,10 +588,11 @@
 
                             <x-forms.input label="Email Subject" model="receivingSubject" />
 
-                            <x-forms.textarea label="Email Content" model="receivingEmailContent" rows="6" />
+                            <x-forms.html-editor label="Email Content" model="receivingEmailContent" rows="6" />
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <x-slot name="footer">
                     <button wire:click="sendReceivingEmail" type="button" class="pre-genkey-div btn btn-success"
