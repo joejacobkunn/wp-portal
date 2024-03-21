@@ -2,11 +2,12 @@
 
 namespace App\Notifications\Orders;
 
-use App\Enums\Order\OrderStatus;
 use Illuminate\Bus\Queueable;
+use App\Enums\Order\OrderStatus;
+use Illuminate\Support\HtmlString;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
 class OrderFollowUpNotification extends Notification
 {
@@ -52,7 +53,7 @@ class OrderFollowUpNotification extends Notification
                 ->cc('orders@weingartz.com')
                 ->subject($this->mailSubject)
                 ->greeting('Hello '.ucwords(strtolower($this->customerName)))
-                ->line(nl2br($this->mailContent));
+                ->line(new HtmlString($this->mailContent));
 
         if(in_array($this->order->status->value,[OrderStatus::ShipmentFollowUp->value,OrderStatus::ReceivingFollowUp->value]))
         {
