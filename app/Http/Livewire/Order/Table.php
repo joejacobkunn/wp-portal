@@ -8,7 +8,7 @@ use App\Models\Core\Operator;
 use App\Models\Core\User;
 use App\Models\Order\DnrBackorder;
 use App\Models\Order\Order;
-use App\Models\Product\Warehouse;
+use App\Models\Core\Warehouse;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;

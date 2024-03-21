@@ -13,6 +13,7 @@ use App\Events\Orders\OrderCancelled;
 use App\Events\Orders\OrderFollowUp;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Comment;
+use App\Models\Core\Warehouse;
 use App\Models\Order\NotificationTemplate;
 use App\Models\Order\Order;
 use App\Models\SX\Operator;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Laravel\Telescope\Storage\EntryModel;
 use Laravel\Telescope\Telescope;
+use Illuminate\Support\Str;
 
 class Show extends Component
 {
@@ -36,14 +38,8 @@ class Show extends Component
     public $followUpModal = false;
     public $shippingModal = false;
     public $receivingModal = false;
-    public $cancelEmailSubject;
-    public $cancelEmailContent;
-    public $followUpSubject;
-    public $followUpEmailContent;
-    public $shippingSubject;
-    public $shippingEmailContent;
-    public $receivingSubject;
-    public $receivingEmailContent;
+    public $emailSubject;
+    public $emailContent;
     public $order_number;
     public $order_suffix;
     public $errorMessage = '';
@@ -61,6 +57,9 @@ class Show extends Component
     public $smsMessage;
     public $templates = [];
     public $templateId;
+
+    public $smsEnabled = true;
+    public $emailEnabled = true;
     
     public $breadcrumbs = [
         [
@@ -76,7 +75,8 @@ class Show extends Component
     protected $listeners = [
         'newCommentCreated',
         'clipboardCopied',
-        'closeModal'
+        'closeModal',
+        'templateChanged'
     ];
 
     public $required_line_item_columns = [
@@ -99,6 +99,8 @@ class Show extends Component
         'oeel.user8',
         'oeel.vendno',
         'oeel.whse',
+        'oeel.stkqtyord',
+        'oeel.stkqtyship',
         'oeel.returnfl',
         'icsp.descrip',
         'icsl.user3',
@@ -116,13 +118,9 @@ class Show extends Component
     {
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
+        $this->templates = NotificationTemplate::active()->get();
         $this->authorize('view', $this->order);
     }
-
-    // public function updatedTemplateId()
-    // {
-
-    // }
 
     /**
      * Properties
@@ -169,23 +167,6 @@ class Show extends Component
                 $this->cancelOrderModal = true;
                 $this->order_is_cancelled_manually_via_sx = $this->order->stagecd == 9 ? 1 : 0;
                 $this->emailTo = $this->customer->email;
-                $this->templates = NotificationTemplate::active()->where('type','Cancelled')->pluck('name', 'id')->toArray();
-
-                
-                if (! $this->cancelEmailSubject) {
-                    $this->cancelEmailSubject = 'Order #'.$this->order_number.'-'.$this->order_suffix.' Cancelled';
-                }
-
-                if (! $this->cancelEmailContent) {
-                    $this->cancelEmailContent = 'We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(', ',Arr::pluck($this->dnr_line_items,'full_name')).' is no longer available without any replacement. I have cancelled the order and refunded your credit authorization, but your financial institution may hold the authorization for a short time. We apologize for any inconvenience this may cause. If you have any questions, please feel free to reply to this email.';
-                }
-
-                $this->currentSession = $this->getCurrentSession();
-
-                if(!empty($this->currentSession)){
-                    $this->operator = $this->getOperatorInfo($this->currentSession);
-                }
-
 
                 break;
 
@@ -193,45 +174,20 @@ class Show extends Component
                     $this->followUpModal = true;
                     $this->emailTo = $this->customer->email;
                     $this->smsPhone = $this->customer->phoneno;
-                    $this->smsMessage = 'SMS message goes there';
-                    $this->templates = NotificationTemplate::active()->where('type','Customer Follow Up')->pluck('name', 'id')->toArray();
                     
-                    if (! $this->followUpSubject) {
-                        $this->followUpSubject = 'Follow Up on Order #'.$this->order_number;
-                    }
-    
-                    if (! $this->followUpEmailContent) {
-                        $this->followUpEmailContent = 'Hello , We regret to inform you that the manufacture has let us know that Part Number(s) : '.implode(", ",Arr::pluck($this->dnr_line_items,'full_name')).'  is no longer available without any replacement. I apologize for this inconvenience, Would you like to go ahead with your remaining parts : '.implode(", ",Arr::pluck($this->non_dnr_line_items,'full_name')).' ?';
-                    }
     
                     break;
 
             case OrderStatus::ShipmentFollowUp->value:
                     $this->shippingModal = true;
                     $this->templates = NotificationTemplate::active()->where('type','Shipment Follow Up')->pluck('name', 'id')->toArray();
-                    
-                    if (! $this->shippingSubject) {
-                        $this->shippingSubject = 'Follow Up on Shipment for Order #'.$this->order_number;
-                    }
-    
-                    if (! $this->shippingEmailContent) {
-                        $this->shippingEmailContent = 'All items are in stock for Order #'.$this->order_number.'. Please ship today if possible.';
-                    }
-    
+                        
                     break;
 
             case OrderStatus::ReceivingFollowUp->value:
                     $this->receivingModal = true;
                     $this->receivingEmail = $this->order->getWarehouseEmail();
                     
-                    if (! $this->receivingSubject) {
-                        $this->receivingSubject = 'Follow Up on Receiving for Order #'.$this->order_number;
-                    }
-    
-                    if (! $this->receivingEmailContent) {
-                        $this->receivingEmailContent = 'All items are in stock for Order #'.$this->order_number.'. Please ship today if possible.';
-                    }
-    
                     break;
     
         }
@@ -246,7 +202,7 @@ class Show extends Component
         $this->order->save();
         $this->reset('cancelOrderModal');
 
-        event(new OrderCancelled($this->order, $this->cancelEmailSubject, $this->cancelEmailContent, $this->emailTo));
+        event(new OrderCancelled($this->order, $this->emailSubject, $this->emailContent, $this->emailTo));
 
     }
 
@@ -257,7 +213,7 @@ class Show extends Component
             $this->order->last_updated_by = auth()->user()->id;
             $this->order->save();
             $this->reset('followUpModal');
-            event(new OrderFollowUp($this->order, $this->followUpSubject, $this->followUpEmailContent, $this->emailTo));
+            event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->emailTo));
     }
 
     public function sendShippingEmail()
@@ -267,7 +223,7 @@ class Show extends Component
         $this->order->last_updated_by = auth()->user()->id;
         $this->order->save();
         $this->reset('shippingModal');
-        event(new OrderFollowUp($this->order, $this->shippingSubject, $this->shippingEmailContent, $this->shippingEmail));
+        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->shippingEmail));
 
     }
 
@@ -278,7 +234,7 @@ class Show extends Component
         $this->order->last_updated_by = auth()->user()->id;
         $this->order->save();
         $this->reset('receivingModal');
-        event(new OrderFollowUp($this->order, $this->receivingSubject, $this->receivingEmailContent, $this->receivingEmail));
+        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->receivingEmail));
     }
 
     public function getCustomerProperty()
@@ -340,7 +296,7 @@ class Show extends Component
 
         return $dnrs;
     }
-
+    
     public function getNonDnrLineItemsProperty()
     {
         $non_dnrs = [];
@@ -354,6 +310,26 @@ class Show extends Component
         }
 
         return $non_dnrs;
+    }
+
+
+    public function getBackorderLineItemsProperty()
+    {
+        $backorders = [];
+
+        foreach($this->sx_order_line_items as $item){
+
+            $backorder_count = intval($item->stkqtyord) - intval($item->stkqtyship);
+
+            if($backorder_count > 0)
+            $backorders[] = [
+                'shipprod' => $item->shipprod,
+                'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription())
+            ];
+
+        }
+
+        return $backorders;
     }
 
 
@@ -426,6 +402,59 @@ class Show extends Component
         $this->reset('followUpModal');
         $this->reset('receivingModal');
     }
+
+    private function fillTemplateVariables($template)
+    {
+        $processed_template = $template;
+        if(Str::contains($template,'[CustomerName]')) $processed_template = Str::replace('[CustomerName]', $this->customer->name, $template);
+        if(Str::contains($template,'[CustomerEmail]')) $processed_template = Str::replace('[CustomerEmail]', $this->customer->email, $template);
+        if(Str::contains($template,'[CustomerPhone]')) $processed_template = Str::replace('[CustomerPhone]', $this->customer->phone, $template);
+        if(Str::contains($template,'[OrderNumber]')) $processed_template = Str::replace('[OrderNumber]', $this->order->order_number, $template);
+        if(Str::contains($template,'[LineItems]')) $processed_template = Str::replace('[LineItems]', $this->formatLineItems($this->sx_order_line_items), $template);
+        if(Str::contains($template,'[BackorderLineItems]')) $processed_template = Str::replace('[BackorderLineItems]', $this->formatOtherLineItems($this->backorder_line_items), $template);
+        if(Str::contains($template,'[DNRItems]')) $processed_template = Str::replace('[DNRItems]', $this->formatOtherLineItems($this->dnr_line_items), $template);
+        if(Str::contains($template,'[NonDNRItems]')) $processed_template = Str::replace('[NonDNRItems]', $this->formatOtherLineItems($this->non_dnr_line_items), $template);
+        if(Str::contains($template,'[WarehousePhone]')) $processed_template = Str::replace('[WarehousePhone]', Warehouse::where('short', strtolower($this->order->whse))->first()->phone, $template);
+        return $processed_template;
+    }
+
+    private function formatLineItems($line_items)
+    {
+        $html = '<ul>';
+        
+        foreach($line_items as $item)
+        {
+            $html .= '<li>'.$item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).'</li>';
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    private function formatOtherLineItems($line_items)
+    {
+        $html = '<ul>';
+        
+        foreach($line_items as $item)
+        {
+            $html .= '<li>'.$item['full_name'].'</li>';
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    public function templateChanged($name, $value, $recheckValidation = true)
+    {
+        $this->fieldUpdated($name, $value, $recheckValidation);
+        $template = NotificationTemplate::find($this->templateId);
+        $this->emailSubject = $this->fillTemplateVariables($template->email_subject);
+        $this->emailContent = $this->fillTemplateVariables($template->email_content);
+        $this->smsMessage = $this->fillTemplateVariables($template->sms_content);
+    }
+
 
 
 }
