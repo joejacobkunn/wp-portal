@@ -2,15 +2,15 @@
 
     <x-page :breadcrumbs="$breadcrumbs">
 
-        <x-slot:title>Orders Email Templates</x-slot>
+        <x-slot:title>Orders Notification Templates</x-slot>
 
         <x-slot:description>
-            {{ !$addRecord ? 'Manage email templates here' : 'Create a new email template here' }}
+            {{ !$addRecord ? 'Manage notofication templates here' : 'Create a new notofication template here' }}
         </x-slot>
 
         <x-slot:content>
 
-            @if($addRecord)
+            @if ($addRecord)
                 @include('livewire.order.email_template.partials.form', ['button_text' => 'Add Template'])
             @else
                 @include('livewire.order.email_template.partials.listing')

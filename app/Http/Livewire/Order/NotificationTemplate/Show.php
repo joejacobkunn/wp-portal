@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Livewire\Order\EmailTemplate;
+namespace App\Http\Livewire\Order\NotificationTemplate;
 
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Order\EmailTemplate\Traits\FormRequest;
-use App\Models\Order\EmailTemplate;
+use App\Http\Livewire\Order\NotificationTemplate\Traits\FormRequest;
+use App\Models\Order\NotificationTemplate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
@@ -12,7 +12,7 @@ class Show extends Component
     use AuthorizesRequests, FormRequest;
 
     //Attributes
-    public EmailTemplate $template;
+    public NotificationTemplate $template;
 
     public $breadcrumbs = [
         [
@@ -48,9 +48,8 @@ class Show extends Component
 
     public $editRecord = false;
 
-    public function mount($id)
+    public function mount()
     {
-        $this->template = EmailTemplate::where('account_id', account()->id)->findOrFail($id);
         $this->formInit();
 
         array_push($this->breadcrumbs, ['title' => $this->template->name]);

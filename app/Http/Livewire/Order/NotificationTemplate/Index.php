@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Livewire\Order\EmailTemplate;
+namespace App\Http\Livewire\Order\NotificationTemplate;
 
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Order\EmailTemplate\Traits\FormRequest;
-use App\Models\Order\EmailTemplate;
+use App\Http\Livewire\Order\NotificationTemplate\Traits\FormRequest;
+use App\Models\Order\NotificationTemplate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
 {
     use AuthorizesRequests, FormRequest;
 
-    public EmailTemplate $template;
+    public NotificationTemplate $template;
 
     public $addRecord = false;
 
@@ -21,14 +21,14 @@ class Index extends Component
             'route_name' => 'order.index',
         ],
         [
-            'title' => 'Email Templates',
+            'title' => 'Notification Templates',
             'route_name' => 'order.email-template.index',
         ],
     ];
 
     public function mount()
     {
-        //$this->authorize('viewAny', EmailTemplate::class);
+        //$this->authorize('viewAny', NotificationTemplate::class);
 
         $this->formInit();
     }
@@ -40,7 +40,7 @@ class Index extends Component
 
     public function create()
     {
-        //$this->authorize('store', EmailTemplate::class);
+        //$this->authorize('store', NotificationTemplate::class);
 
         $this->addRecord = true;
     }

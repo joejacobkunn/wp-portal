@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Livewire\Order\EmailTemplate;
+namespace App\Http\Livewire\Order\NotificationTemplate;
 
 use App\Http\Livewire\Component\DataTableComponent;
-use App\Models\Order\EmailTemplate;
+use App\Models\Order\NotificationTemplate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Rappasoft\LaravelLivewireTables\Views\Column;
@@ -26,7 +26,7 @@ class Table extends DataTableComponent
 
     public function boot(): void
     {
-        //$this->authorize('viewAny', EmailTemplate::class);
+        //$this->authorize('viewAny', NotificationTemplate::class);
     }
 
     public function columns(): array
@@ -48,12 +48,19 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
+                Column::make('Type', 'type')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row) {
+                    return $value;
+                })
+                ->html(),
+
             BooleanColumn::make('Active', 'is_active')->sortable(),
         ];
     }
 
     public function builder(): Builder
     {
-        return EmailTemplate::where('account_id', account()->id);
+        return NotificationTemplate::where('account_id', account()->id);
     }
 }
