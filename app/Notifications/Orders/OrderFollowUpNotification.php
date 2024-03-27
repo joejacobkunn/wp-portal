@@ -52,7 +52,6 @@ class OrderFollowUpNotification extends Notification
                 ->from('orders@weingartz.com', 'Weingartz Orders')
                 ->cc('orders@weingartz.com')
                 ->subject($this->mailSubject)
-                ->greeting('Hello '.ucwords(strtolower($this->customerName)))
                 ->line(new HtmlString($this->mailContent));
 
         if(in_array($this->order->status->value,[OrderStatus::ShipmentFollowUp->value,OrderStatus::ReceivingFollowUp->value]))
@@ -60,7 +59,7 @@ class OrderFollowUpNotification extends Notification
             $mail->action('View Order', route('order.show', $this->order->id));
         }
 
-        $mail->salutation("\r\n Regards,  \r\n Weingartz Support.");
+        $mail->salutation("\r\n\r\n Regards,  \r\n Weingartz Support.");
 
         return $mail;
     }

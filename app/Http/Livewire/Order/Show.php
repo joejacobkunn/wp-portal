@@ -17,6 +17,7 @@ use App\Models\Core\Warehouse;
 use App\Models\Order\NotificationTemplate;
 use App\Models\Order\Order;
 use App\Models\SX\Operator;
+use App\Models\SX\Shipping;
 use App\Models\SX\WarehouseProduct;
 use App\Services\Kinect;
 use Illuminate\Database\Query\JoinClause;
@@ -38,6 +39,7 @@ class Show extends Component
     public $followUpModal = false;
     public $shippingModal = false;
     public $receivingModal = false;
+    public $notificationModal = false;
     public $emailSubject;
     public $emailContent;
     public $order_number;
@@ -48,6 +50,7 @@ class Show extends Component
     public $operator;
     public $order_is_cancelled_manually_via_sx = false;
     public $order_data_sync_timestamp;
+    public $manualPlaceholders = [];
 
     public $emailFrom = 'orders@weingartz.com';
     public $shippingEmail = 'shipping@weingartz.com';
@@ -108,6 +111,15 @@ class Show extends Component
         'icsl.prodline',
     ];
 
+    public function rules()
+    {
+        return [
+            'emailTo' => 'required|email',
+            'emailSubject' => 'required',
+            'emailContent' => 'required'
+        ];
+    }
+
 
     public function render()
     {
@@ -118,7 +130,6 @@ class Show extends Component
     {
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
-        $this->templates = NotificationTemplate::active()->get();
         $this->authorize('view', $this->order);
     }
 
@@ -140,6 +151,12 @@ class Show extends Component
         return 'This Order is currently in <strong>'. $this->order->status->label().'</strong> status';
     }
 
+    public function getShippingProperty()
+    {
+        if(in_array($this->order->stage_code, [3,4,5])) return Shipping::select(['trackerno', 'freightamt', 'shipviaty', 'actweight', 'operinit'])->where('cono', auth()->user()->account->sx_company_number)->where('orderno',$this->order->order_number)->where('ordersuf',$this->order->order_number_suffix)->first();
+        return null;
+    }
+
     public function getCommentAlertProperty()
     {
         if($this->order->status->value == OrderStatus::PendingReview->value)
@@ -152,10 +169,17 @@ class Show extends Component
     public function closePopup($attr)
     {
         $this->{$attr} = false;
+        $this->notificationModal = false;
     }
 
     public function toggleOrderStatus($status)
     {
+        $this->emailContent = '';
+        $this->emailSubject = '';
+        $this->templateId = '';
+        $this->emailTo = '';
+
+
         switch ($status) {
             case OrderStatus::PendingReview->value:
             case OrderStatus::Ignore->value:
@@ -164,43 +188,47 @@ class Show extends Component
                 $this->order->save();
                 break;
             case OrderStatus::Cancelled->value:
+                $this->templates = NotificationTemplate::active()->where('type','Cancelled')->get();
                 $this->cancelOrderModal = true;
                 $this->order_is_cancelled_manually_via_sx = $this->order->stagecd == 9 ? 1 : 0;
                 $this->emailTo = $this->customer->email;
-
+                $this->notificationModal = true;
                 break;
 
             case OrderStatus::FollowUp->value:
-                    $this->followUpModal = true;
+                    $this->templates = NotificationTemplate::active()->where('type','Customer Follow Up')->get();
                     $this->emailTo = $this->customer->email;
                     $this->smsPhone = $this->customer->phoneno;
-                    
-    
+                    $this->followUpModal = true;   
+                    $this->notificationModal = true;
                     break;
 
             case OrderStatus::ShipmentFollowUp->value:
                     $this->shippingModal = true;
-                    $this->templates = NotificationTemplate::active()->where('type','Shipment Follow Up')->pluck('name', 'id')->toArray();
-                        
+                    $this->templates = NotificationTemplate::active()->where('type','Shipment Follow Up')->get();
+                    $this->notificationModal = true;
                     break;
 
             case OrderStatus::ReceivingFollowUp->value:
                     $this->receivingModal = true;
-                    $this->receivingEmail = $this->order->getWarehouseEmail();
-                    
+                    $this->emailTo = $this->order->getWarehouseEmail();
+                    $this->templates = NotificationTemplate::active()->where('type','Receiving Follow Up')->get();
+                    $this->notificationModal = true;                    
                     break;
     
         }
+
     }
 
     public function cancelOrder()
     {
+        $this->validate();
         $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::Cancelled->value;
         $this->order->stage_code = 9;
         $this->order->last_updated_by = auth()->user()->id;
         $this->order->save();
-        $this->reset('cancelOrderModal');
+        $this->closePopup('cancelOrderModal');
 
         event(new OrderCancelled($this->order, $this->emailSubject, $this->emailContent, $this->emailTo));
 
@@ -211,8 +239,9 @@ class Show extends Component
         $this->authorize('manage', $this->order);
             $this->order->status = OrderStatus::FollowUp->value;
             $this->order->last_updated_by = auth()->user()->id;
+            $this->order->last_followed_up_at = now();
             $this->order->save();
-            $this->reset('followUpModal');
+            $this->closePopup('followUpModal');
             event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->emailTo));
     }
 
@@ -221,8 +250,9 @@ class Show extends Component
         $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::ShipmentFollowUp->value;
         $this->order->last_updated_by = auth()->user()->id;
+        $this->order->last_followed_up_at = now();
         $this->order->save();
-        $this->reset('shippingModal');
+        $this->closePopup('shippingModal');
         event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->shippingEmail));
 
     }
@@ -232,8 +262,9 @@ class Show extends Component
         $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::ReceivingFollowUp->value;
         $this->order->last_updated_by = auth()->user()->id;
+        $this->order->last_followed_up_at = now();
         $this->order->save();
-        $this->reset('receivingModal');
+        $this->closePopup('receivingModal');
         event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->receivingEmail));
     }
 
@@ -340,12 +371,15 @@ class Show extends Component
         {
             $this->order->status = OrderStatus::FollowUp->value;
             $this->order->last_updated_by = auth()->user()->id;
+            $this->order->last_followed_up_at = now();
             $this->order->save();
         }
 
-        $sx_client = new SX();
-
-        $sx_response = $sx_client->create_order_note($comment['comment'], $this->order->order_number);
+        if(!App::environment('local'))
+        {
+            $sx_client = new SX();
+            $sx_response = $sx_client->create_order_note($comment['comment'], $this->order->order_number);
+        }
 
 
     }
@@ -401,7 +435,9 @@ class Show extends Component
         $this->reset('cancelOrderModal');
         $this->reset('followUpModal');
         $this->reset('receivingModal');
+        $this->reset('notificationModal');
     }
+
 
     private function fillTemplateVariables($template)
     {
@@ -415,6 +451,8 @@ class Show extends Component
         if(Str::contains($template,'[DNRItems]')) $processed_template = Str::replace('[DNRItems]', $this->formatOtherLineItems($this->dnr_line_items), $template);
         if(Str::contains($template,'[NonDNRItems]')) $processed_template = Str::replace('[NonDNRItems]', $this->formatOtherLineItems($this->non_dnr_line_items), $template);
         if(Str::contains($template,'[WarehousePhone]')) $processed_template = Str::replace('[WarehousePhone]', Warehouse::where('short', strtolower($this->order->whse))->first()->phone, $template);
+        if(Str::contains($template,'[ShipVia]')) $processed_template = Str::replace('[ShipVia]', $this->shipping?->getCarrier() , $template);
+        if(Str::contains($template,'[ShippingTrackingNumber]')) $processed_template = Str::replace('[ShippingTrackingNumber]', $this->shipping?->trackerno , $template);
         return $processed_template;
     }
 
@@ -446,15 +484,26 @@ class Show extends Component
         return $html;
     }
 
-    public function templateChanged($name, $value, $recheckValidation = true)
+    public function templateChanged($name, $value, $recheckValidation = false)
     {
         $this->fieldUpdated($name, $value, $recheckValidation);
         $template = NotificationTemplate::find($this->templateId);
         $this->emailSubject = $this->fillTemplateVariables($template->email_subject);
         $this->emailContent = $this->fillTemplateVariables($template->email_content);
         $this->smsMessage = $this->fillTemplateVariables($template->sms_content);
+        //$this->manualPlaceholders = $this->getManualPlaceholders($this->emailContent);
     }
 
+    public function getManualPlaceholders()
+    {
+        $pattern = '/\{([^}]*)\}/';
+
+        if(preg_match_all($pattern, $this->emailContent, $matches)) {
+         return $matches[0];
+        }
+
+        return [];
+    }
 
 
 }

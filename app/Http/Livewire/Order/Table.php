@@ -42,10 +42,11 @@ class Table extends DataTableComponent
         $this->setLoadingPlaceholderEnabled();
         $this->setEmptyMessage('No orders found. Use global search to search on all columns and make sure no filters are applied.');
         //$this->setFilterLayout('slide-down');
-        
         $this->setConfigurableAreas([
             'toolbar-right-start' => 'livewire.order.partials.settings-table-btn',
-          ]);
+            ]);
+    
+
 
     }
 
@@ -118,7 +119,7 @@ class Table extends DataTableComponent
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return $value;
+                    return strtoupper($value);
                 })
                 ->html(),
 
@@ -149,6 +150,7 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect(),
 
             Column::make('Ship Via', 'ship_via')
+                ->secondaryHeader($this->getFilterByKey('ship_via'))
                 ->format(function ($value, $row) {
                     return $value;
                 })
@@ -206,11 +208,24 @@ class Table extends DataTableComponent
                     '' => 'All',
                     0 => 'Show only orders with any Follow Ups',
                     1 => 'Show only orders with Customer Follow Ups',
-                    2 => 'Show only orders with Shipment Follow Ups'
+                    2 => 'Show only orders with Shipment Follow Ups',
+                    3 => 'Show only orders with Receiving Follow Ups'
                 ])->filter(function (Builder $builder, string $value) {
-                    if($value == 0) $builder->whereIn('status', ['Follow Up', 'Shipment Follow Up']);
+                    if($value == 0) $builder->whereIn('status', ['Follow Up', 'Shipment Follow Up', 'Receiving Follow Up']);
                     if($value == 1) $builder->where('status', 'Follow Up');
-                    if($value == 2) $builder->where('status', 'Shipment Follow Up');
+                    if($value == 3) $builder->where('status', 'Receiving Follow Up');
+                }),
+
+                SelectFilter::make('Ship Via', 'ship_via')
+                ->hiddenFromMenus()
+                ->options([
+                    '' => 'All',
+                    'pkup' => 'PKUP',
+                    'u11' => 'U11',
+                    'sro' => 'SRO',
+                    'will' => 'WILL'
+                ])->filter(function (Builder $builder, string $value) {
+                    $builder->where(DB::raw('lower(ship_via)'), strtolower($value));
                 }),
 
                 SelectFilter::make('Order Standing', 'order_standing')
@@ -218,11 +233,13 @@ class Table extends DataTableComponent
                     '' => 'All',
                     'backorder' => 'Show orders with Backorders',
                     'completed' => 'Show orders that are Completed',
-                    'sro' => 'Show orders that are SRO'
+                    'sro' => 'Show orders that are SRO',
+                    'backorder-sro' => 'Show SRO Backorders'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
                     if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
                     if($value == 'sro') $builder->where('is_sro','=',1);
+                    if($value == 'backorder-sro') $builder->where('is_sro','=',1)->whereColumn('qty_ord','>','qty_ship');
                 }),
 
             SelectFilter::make('Warehouse', 'whse')

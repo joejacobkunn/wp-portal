@@ -34,12 +34,14 @@ class Order extends Model
         'is_sro',
         'ship_via',
         'qty_ship',
-        'qty_ord'
+        'qty_ord',
+        'last_followed_up_at'
     ];
 
     protected $casts = [
         'order_date' => 'date',
         'promise_date' => 'date',
+        'last_followed_up_at' => 'datetime',
         'status' => OrderStatus::class,
         'dnr_items' => 'array'
     ];
@@ -78,10 +80,9 @@ class Order extends Model
     private $warehouse_emails = [
         'utic' => 'uticareceiving@weingartz.com',
         'ann' => 'annarborreceiving@weingartz.com',
-        'ceda' => 'cedareceing@weingartz.com',
-        'farm' => 'farmreceing@weingartz.com',
+        'ceda' => 'cedarreceiving@weingartz.com',
+        'farm' => 'farmingtonreceiving@weingartz.com',
         'livo' => 'livoniareceiving@weingartz.com',
-        'wate' => 'watereceiving@weingartz.com'
     ];
 
 

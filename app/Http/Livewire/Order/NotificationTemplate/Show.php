@@ -82,4 +82,17 @@ class Show extends Component
         $this->resetValidation();
         $this->reset(['editRecord']);
     }
+
+    public function activate()
+    {
+        $this->template->is_active = 1;
+        $this->template->save();
+    }
+
+    public function deactivate()
+    {
+        $this->template->is_active = 0;
+        $this->template->save();
+    }
+
 }

@@ -49,9 +49,14 @@ class OrderCancelledListener
 
         //add note to sx order notes if cancelled
 
-        $sx_client = new SX();
-        $operator = User::find($event->order->last_updated_by);
-        $sx_response = $sx_client->create_order_note('Order cancelled by '.$operator->name.'('.$operator->sx_operator_id.') via Portal due to no longer available parts',$event->order->order_number);
+        if(!App::environment('local'))
+        {
+            $sx_client = new SX();
+            $operator = User::find($event->order->last_updated_by);
+            $sx_response = $sx_client->create_order_note('Order cancelled by '.$operator->name.'('.$operator->sx_operator_id.') via Portal due to no longer available parts',$event->order->order_number);
+    
+        }
+
 
     
     }

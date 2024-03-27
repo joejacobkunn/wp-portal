@@ -10,12 +10,14 @@
             @if ($template->is_active)
                 <div class="alert alert-light-success color-success" role="alert">
                     <i class="far fa-check-circle"></i> This template is active
-                    <button class="btn btn-sm btn-outline-danger float-end mt-n1">Deactivate</button>
+                    <button wire:click='deactivate'
+                        class="btn btn-sm btn-outline-danger float-end mt-n1">Deactivate</button>
                 </div>
             @else
                 <div class="alert alert-light-danger color-danger" role="alert">
                     <i class="far fa-times-circle"></i> This template is deactivated
-                    <button class="btn btn-sm btn-outline-success float-end mt-n1">Activate</button>
+                    <button wire:click='activate'
+                        class="btn btn-sm btn-outline-success float-end mt-n1">Activate</button>
                 </div>
             @endif
 

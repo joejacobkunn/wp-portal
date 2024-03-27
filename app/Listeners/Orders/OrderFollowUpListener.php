@@ -39,13 +39,15 @@ class OrderFollowUpListener
             ->causedBy(User::find($event->order->last_updated_by))
             ->performedOn($event->order)
             ->event('custom')
-            ->log('Sent Follow Up Email "'.$event->mailSubject);
+            ->log('Sent '.$event->order->status->value.' Email "'.$event->mailSubject);
     
             //add note to sx order notes if there was a follow up
-    
-            $sx_client = new SX();
-            $operator = User::find($event->order->last_updated_by);
-            $sx_response = $sx_client->create_order_note('Order Followed Up by '.$operator->name.'('.$operator->sx_operator_id.') via Portal : '.$event->mailSubject,$event->order->order_number);
+            if(!App::environment('local'))
+            {
+                $sx_client = new SX();
+                $operator = User::find($event->order->last_updated_by);
+                $sx_response = $sx_client->create_order_note($event->order->status->value.' Followed Up by '.$operator->name.'('.$operator->sx_operator_id.') via Portal : '.$event->mailSubject,$event->order->order_number);
+            }
     
     }
 }

@@ -98,6 +98,59 @@
                         </div>
                     </div>
 
+
+                    @if (!empty($this->shipping))
+                        <div class="card border-light shadow-sm mb-4">
+                            <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                                <h3 class="h5 mb-0">Shipping Information</h3>
+                            </div>
+
+                            <div class="card-body">
+
+                                @unless (config('sx.mock'))
+                                    <ul class="list-group list-group-flush">
+
+
+                                        <li
+                                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                            <div>
+                                                <h3 class="h6 mb-1">Tracking Number</h3>
+                                                <p class="small pe-4">{{ $this->shipping->trackerno }}</p>
+                                            </div>
+                                            <div>
+                                        </li>
+
+                                        <li
+                                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                            <div>
+                                                <h3 class="h6 mb-1">Carrier</h3>
+                                                <p class="small pe-4">{{ $this->shipping?->getCarrier() }}</p>
+                                            </div>
+                                            <div>
+                                        </li>
+
+
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <div>
+                                                <h3 class="h6 mb-1">Freight Amount</h3>
+                                                <p class="small pe-4">${{ $this->shipping->freightamt }}</p>
+                                            </div>
+                                        </li>
+
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <div>
+                                                <h3 class="h6 mb-1">Freight Weight</h3>
+                                                <p class="small pe-4">
+                                                    {{ $this->shipping->actweight }} lbs
+                                                </p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                @endunless
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="card border-light shadow-sm mb-4">
                         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
                             <h3 class="h5 mb-0">Customer Overview</h3>

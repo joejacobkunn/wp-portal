@@ -28,7 +28,8 @@
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.html-editor label="Email Content" :value="$emailContent" model="emailContent" />
+                        <x-forms.html-editor label="Email Content" :value="$emailContent" model="emailContent"
+                            :key="'email-content'" />
                     </div>
                 </div>
 
@@ -45,13 +46,22 @@
                             <span class="list-group-item"><mark>[CustomerEmail]</mark> => Customer Email of Order</span>
                             <span class="list-group-item"><mark>[CustomerPhone]</mark> => Customer Phone of Order</span>
                             <span class="list-group-item"><mark>[OrderNumber]</mark> => Order Number</span>
-                            <span class="list-group-item"><mark>[LineItems]</mark> => All Line Items in Order</span>
-                            <span class="list-group-item"><mark>[BackorderLineItems]</mark> => Backorder Line Items in
-                                Order</span>
-                            <span class="list-group-item"><mark>[DNRItems]</mark> => DNR Items in Order</span>
-                            <span class="list-group-item"><mark>[NonDNRItems]</mark> => Non DNR Itemss in Order</span>
+                            <span class="list-group-item"><mark>[ShipVia]</mark> => Ship Via</span>
+                            <span class="list-group-item"><mark>[ShippingTrackingNumber]</mark> => Shipping Tracking
+                                Number</span>
                             <span class="list-group-item"><mark>[WarehousePhone]</mark> => Warehouse Phone Number of
                                 Order</span>
+
+                            <span class="list-group-item"><mark>[LineItems]</mark> => All Line Items in Order (Bulleted
+                                List)</span>
+                            <span class="list-group-item"><mark>[BackorderLineItems]</mark> => Backorder Line Items in
+                                Order(Bulleted List)</span>
+                            <span class="list-group-item"><mark>[DNRItems]</mark> => DNR Items in Order (Bulleted
+                                List)</span>
+                            <span class="list-group-item"><mark>[NonDNRItems]</mark> => Non DNR Items in Order
+                                (Bulleted List)</span>
+                            <span class="list-group-item text-primary"><strong>For manual placeholders, use {}
+                                    tag</strong></span>
                         </div>
                     </div>
                 </div>
@@ -62,12 +72,6 @@
                     </div>
                 </div>
 
-
-                <div class="row">
-                    <div class="col-md-12 mb-1">
-                        <x-forms.checkbox label="Is Active" model="is_active" :checked="$is_active" />
-                    </div>
-                </div>
 
                 <hr>
 

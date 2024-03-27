@@ -16,7 +16,8 @@ trait FormRequest
     public $templateTypes = [
         'Follow Up' => 'Customer Follow Up',
         'Shipment Follow Up' => 'Shipment Follow Up',
-        'Cancelled' => 'Cancelled'
+        'Cancelled' => 'Cancelled',
+        'Receiving Follow Up' => 'Receiving Follow Up'
 
     ];
 
@@ -33,7 +34,7 @@ trait FormRequest
             'name' => 'required|min:3',
             'emailSubject' => 'required',
             'emailContent' => 'required',
-            'smsContent' => 'required|max:160',
+            'smsContent' => 'nullable',
             'templateType' => 'required',
             'is_active' => 'nullable',
         ];

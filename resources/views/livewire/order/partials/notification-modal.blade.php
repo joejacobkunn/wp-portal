@@ -1,4 +1,4 @@
-<x-modal :toggle="$cancelOrderModal" size="xl">
+<x-modal :toggle="$notificationModal" size="xl">
     <x-slot name="title">
         @if ($cancelOrderModal)
             Cancel Order
@@ -67,13 +67,20 @@
             </div>
         </div>
 
+
         <div class="row">
             <div class="col-md-12 mb-3">
                 <div class="pre-genkey-div">
                     <x-forms.input label="From" model="emailFrom" disabled />
                     <x-forms.input label="To" model="emailTo" />
                     <x-forms.input label="Email Subject" model="emailSubject" />
-                    <x-forms.html-editor label="Email Content" model="emailContent" rows="6" />
+                    <x-forms.html-editor :key="$templateId" :value="$emailContent" label="Email Content" model="emailContent"
+                        rows="6" />
+                    @if (!empty($this->getManualPlaceholders()))
+                        <div class="p-2 mb-2 bg-warning text-dark">Please populate
+                            {{ implode(',', $this->getManualPlaceholders()) }} above</div>
+                    @endif
+
                 </div>
             </div>
         </div>
