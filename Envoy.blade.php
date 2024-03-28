@@ -56,10 +56,10 @@
     cd {{ $app_dir }}
     php artisan down
 
-    php artisan cache:clear
+    php artisan optimize:clear
     php artisan route:cache
-    php artisan view:cache
     php artisan config:cache
+    php artisan view:cache
 
     php artisan migrate --force
 
