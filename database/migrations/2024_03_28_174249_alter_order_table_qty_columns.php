@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('qty_ship')->change();
-            $table->string('qty_ord')->change();
+            $table->string('qty_ship')->nullable()->change();
+            $table->string('qty_ord')->nullable()->change();
         });
     }
 
