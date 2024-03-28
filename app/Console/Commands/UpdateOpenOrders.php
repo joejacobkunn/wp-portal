@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Order\Order;
 use App\Models\SX\Order as SXOrder;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 
@@ -51,7 +52,7 @@ class UpdateOpenOrders extends Command
                 'ship_via' => $sx_order['shipviaty'],
                 'qty_ship' => $sx_order['totqtyshp'],
                 'qty_ord' => $sx_order['totqtyord'],
-                'promise_date' => $sx_order['promisedt'],
+                'promise_date' => Carbon::parse($sx_order['promisedt'])->format('Y-m-d'),
             ]);
 
         }
