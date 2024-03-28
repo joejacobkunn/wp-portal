@@ -2,150 +2,401 @@
 
 namespace App\Http\Livewire\Order;
 
+use App\Enums\Order\OrderStatus;
 use App\Http\Livewire\Component\DataTableComponent;
-use App\Models\Core\Account;
-use App\Models\Core\Location;
-use App\Models\SX\Order;
-use App\Models\Vehicle\Vehicle;
+use App\Models\Core\Operator;
+use App\Models\Core\User;
+use App\Models\Order\DnrBackorder;
+use App\Models\Order\Order;
+use App\Models\Core\Warehouse;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\DB;
 use Rappasoft\LaravelLivewireTables\Views\Column;
+use Rappasoft\LaravelLivewireTables\Views\Columns\BooleanColumn;
+use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectDropdownFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
 
 class Table extends DataTableComponent
 {
     use AuthorizesRequests;
 
-    public Account $account;
+    public $pending_review_count = 0;
+
+    public $follow_up_count = 0;
+
+    public $ignored_count = 0;
 
     public function configure(): void
     {
-        $this->setPrimaryKey('orderno');
-        // $this->setDefaultSort('invoicedt', 'desc');
-
-        //$this->setPerPageAccepted([25, 50, 100]);
+        $this->setPrimaryKey('id');
+        $this->setDefaultSort('id', 'desc');
+        $this->setPerPageAccepted([50, 75 ,100]);
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
+        $this->setSearchDebounce(500);
+        $this->setLoadingPlaceholderEnabled();
+        $this->setEmptyMessage('No orders found. Use global search to search on all columns and make sure no filters are applied.');
+        //$this->setFilterLayout('slide-down');
+        $this->setConfigurableAreas([
+            'toolbar-right-start' => 'livewire.order.partials.settings-table-btn',
+            ]);
+    
+
+
+    }
+
+    /**
+     * Dynamic listener definitions
+     */
+    public function getListeners()
+    {
+        $listeners = $this->listeners;
+
+        $listeners = array_merge($listeners, [
+            'order-table:filter' => 'setFilterValue',
+        ]);
+
+        return $listeners;
     }
 
     public function boot(): void
     {
-        //$this->authorize('viewAny', Location::class);
+        $this->authorize('viewAny', Order::class);
+    }
+
+    public function configuring()
+    {
+
     }
 
     public function columns(): array
     {
         return [
-
-            Column::make('Order Number', 'orderno')
-
+            Column::make('Order Number', 'order_number')
+                ->searchable()->excludeFromColumnSelect()
+                ->secondaryHeader($this->getFilterByKey('order_number'))
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('vehicle.show', $row->orderno).'" class="text-primary text-decoration-underline">'.$value.'</a>';
+                    $link = '<a href="'.route('order.show', $row->id).'" class="text-decoration-underline">'.$value.'-'.$row->order_number_suffix.'</a>';
+                    if($row->is_dnr) $link = $link.'<span class="badge bg-light-danger float-end">DNR</span>';
+                    if($row->qty_ord > $row->qty_ship) $link = $link.'<span class="badge bg-light-warning float-end">BACKORDER</span>';
+                    if($row->is_sro) $link = $link.'<span class="badge bg-light-info float-end">SRO</span>';
+                    return $link;
                 })
                 ->html(),
 
-            // Column::make("Name", "name")
-            //     ->sortable()
-            //     ->searchable()
-            //     ->format(function ($value, $row) {
-            //         return '<a href="'.route('vehicle.show', ['vehicle' => $row->id,$row]).'" class="text-primary text-decoration-underline">' . $value . '</a>';
-            //     })
-            //     ->excludeFromColumnSelect()
-            //     ->html(),
+            Column::make('Id', 'id')
+                ->hideIf(1)
+                ->html(),
 
-            // Column::make('Year')
-            //     ->sortable()
-            //     ->searchable()
-            //     ->format(function ($value, $row) {
-            //         return $value;
-            //     })
-            //     ->hideIf(1)
-            //     ->excludeFromColumnSelect(),
 
-            // Column::make('Make')
-            //     ->sortable()
-            //     ->searchable()
-            //     ->format(function ($value, $row) {
-            //         return $value;
-            //     })
-            //     ->hideIf(1)
-            //     ->excludeFromColumnSelect(),
+            Column::make('Is DNR', 'is_dnr')
+                ->hideIf(1)
+                ->html(),
 
-            // Column::make('Model')
-            //     ->sortable()
-            //     ->searchable()
-            //     ->format(function ($value, $row) {
-            //         return $this->fetchIcon($row->type). $row->year.' '.$row->make.' '.$row->model;
-            //     })
-            //     ->html()
-            //     ->excludeFromColumnSelect(),
+            Column::make('Is SRO', 'is_sro')
+                ->hideIf(1)
+                ->html(),
 
-            // Column::make("VIN#", "vin")
-            //     ->sortable()
-            //     ->searchable()
-            //     ->excludeFromColumnSelect()
-            //     ->html(),
+            Column::make('Quantity Ordered', 'qty_ord')
+                ->hideIf(1)
+                ->html(),
 
-            // Column::make("Type", "type")
-            //     ->sortable()
-            //     ->searchable()
-            //     ->excludeFromColumnSelect()
-            //     ->hideIf(1)
-            //     ->format(function ($value, $row) {
-            //         return '<i class="fas fa-truck-pickup"></i> '.ucfirst(strtolower($value));
-            //     })
-            //     ->html(),
+            Column::make('Quantity Shipped', 'qty_ship')
+                ->hideIf(1)
+                ->html(),
 
-            // Column::make("License Plate", "license_plate_number")
-            //     ->sortable()
-            //     ->searchable()
-            //     ->excludeFromColumnSelect()
-            //     ->format(function ($value, $row) {
-            //         return $value;
-            //     })
-            //     ->html(),
+            Column::make('Order Number Suffix', 'order_number_suffix')
+                ->hideIf(1)
+                ->html(),
 
-            // Column::make('Created At', "created_at")
-            //     ->sortable()->searchable()->deselected()
-            //     ->format(function ($value) {
-            //             if ($value)
-            //                 return  $value->format(config('app.default_datetime_format')) ;
-            //         }),
+            Column::make('Warehouse', 'whse')
+                ->secondaryHeader($this->getFilterByKey('whse'))
+                ->searchable()
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row) {
+                    return strtoupper($value);
+                })
+                ->html(),
 
-            // Column::make("Active", "retired_at")
-            //         ->excludeFromColumnSelect()
-            //         ->format(function ($value, $row) {
-            //             return !$value ? '<span style="color:green"><i class="far fa-check-circle"></i></span>' : '<span style="color:red"><i class="far fa-times-circle"></i></span>';
-            //         })
-            //         ->html(),
+            Column::make('Order Date', 'order_date')
+                ->secondaryHeader($this->getFilterByKey('order_date'))
+                ->format(function ($value, $row) {
+                    return $value?->toFormattedDateString().'<span class="badge bg-light-secondary float-end"><i class="fas fa-history"></i> '.$value->diffForHumans().'</span>';
+                })
+                ->html()
+                ->sortable()
+                ->excludeFromColumnSelect(),
 
+            Column::make('Promise Date', 'promise_date')
+                ->secondaryHeader($this->getFilterByKey('promise_date'))
+                ->format(function ($value, $row) {
+                    return $value?->toFormattedDateString();
+                })
+                ->html()
+                ->sortable()
+                ->excludeFromColumnSelect(),
+
+            Column::make('Last Followed Up', 'last_followed_up_at')
+                ->secondaryHeader($this->getFilterByKey('last_followed_up_at'))
+                ->format(function ($value, $row) {
+                    return $value?->toFormattedDateString();
+                })
+                ->html()
+                ->sortable(),
+
+
+            Column::make('Taken By', 'taken_by')
+                ->secondaryHeader($this->getFilterByKey('operator'))
+                ->format(function ($value, $row) {
+                    return $this->getTakenByName($value);
+                })
+                ->excludeFromColumnSelect(),
+
+            Column::make('Ship Via', 'ship_via')
+                ->secondaryHeader($this->getFilterByKey('ship_via'))
+                ->format(function ($value, $row) {
+                    return $value;
+                })
+                ->html(),
+
+
+
+            Column::make('SX Stage Code', 'stage_code')
+                ->format(function ($value, $row) {
+                    return '<span class="text-'.$this->getStageCodeClass($value).' fw-bold">'.$this->getStageCode($value).'</span>';
+                })
+                ->secondaryHeader($this->getFilterByKey('stage_codes'))
+                ->html()
+                ->excludeFromColumnSelect(),
+
+
+            Column::make('Portal Status', 'status')
+                ->format(function ($value, $row) {
+                    return '<span class="badge bg-light-'. $value->class() .'">'. $value->label() .'</span>';
+                })
+                ->secondaryHeader($this->getFilterByKey('status'))
+                ->html()
+                ->excludeFromColumnSelect(),
         ];
+
     }
 
     public function filters(): array
     {
         return [
+            TextFilter::make('Order Number', 'order_number')
+            ->hiddenFromMenus()
+                ->config([
+                    'placeholder' => 'Search Order',
+                    'maxlength' => '11',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('order_number', 'like', '%'.$value.'%');
+                }),
+
+            SelectFilter::make('DNR Visibility', 'is_dnr')
+                ->options([
+                    '' => 'All',
+                    1 => 'Show only orders with DNR',
+                    0 => 'Show only orders with non-DNR',
+                    2 => 'Show DNR orders that are Pending Review'
+                ])->filter(function (Builder $builder, string $value) {
+                    if($value == 2) $builder->where('is_dnr', 1)->where('status', 'Pending Review');
+                    else
+                    $builder->where('is_dnr', $value);
+                }),
+
+                SelectFilter::make('Follow Up Visibility', 'is_follow_up')
+                ->options([
+                    '' => 'All',
+                    0 => 'Show only orders with any Follow Ups',
+                    1 => 'Show only orders with Customer Follow Ups',
+                    2 => 'Show only orders with Shipment Follow Ups',
+                    3 => 'Show only orders with Receiving Follow Ups'
+                ])->filter(function (Builder $builder, string $value) {
+                    if($value == 0) $builder->whereIn('status', ['Follow Up', 'Shipment Follow Up', 'Receiving Follow Up']);
+                    if($value == 1) $builder->where('status', 'Follow Up');
+                    if($value == 3) $builder->where('status', 'Receiving Follow Up');
+                }),
+
+                SelectFilter::make('Ship Via', 'ship_via')
+                ->hiddenFromMenus()
+                ->options([
+                    '' => 'All',
+                    'pkup' => 'PKUP',
+                    'u11' => 'U11',
+                    'sro' => 'SRO',
+                    'will' => 'WILL'
+                ])->filter(function (Builder $builder, string $value) {
+                    $builder->where(DB::raw('lower(ship_via)'), strtolower($value));
+                }),
+
+                SelectFilter::make('Order Standing', 'order_standing')
+                ->options([
+                    '' => 'All',
+                    'backorder' => 'Show orders with Backorders',
+                    'completed' => 'Show orders that are Completed',
+                    'sro' => 'Show orders that are SRO',
+                    'backorder-sro' => 'Show SRO Backorders'
+                ])->filter(function (Builder $builder, string $value) {
+                    if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
+                    if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
+                    if($value == 'sro') $builder->where('is_sro','=',1);
+                    if($value == 'backorder-sro') $builder->where('is_sro','=',1)->whereColumn('qty_ord','>','qty_ship');
+                }),
+
+            SelectFilter::make('Warehouse', 'whse')
+            ->hiddenFromMenus()
+                ->options(['' => 'All Warehouses'] + Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray())->filter(function (Builder $builder, string $value) {
+                    $builder->where(DB::raw('lower(whse)'), strtolower($value));
+            }),
+            
+            DateRangeFilter::make('Order Date', 'order_date')
+            ->hiddenFromMenus()
+                ->config(['placeholder' => 'Enter Date Range'])
+                ->filter(function (Builder $builder, array $dateRange) { // Expects an array.
+                    $builder
+                        ->whereDate('order_date', '>=', $dateRange['minDate']) // minDate is the start date selected
+                        ->whereDate('order_date', '<=', $dateRange['maxDate']); // maxDate is the end date selected
+                }),
+
+            DateRangeFilter::make('Promise Date', 'promise_date')
+            ->hiddenFromMenus()
+                ->config(['placeholder' => 'Enter Date Range'])
+                ->filter(function (Builder $builder, array $dateRange) { // Expects an array.
+                    $builder
+                        ->whereDate('promise_date', '>=', $dateRange['minDate']) // minDate is the start date selected
+                        ->whereDate('promise_date', '<=', $dateRange['maxDate']); // maxDate is the end date selected
+                }),
+    
+
+            SelectFilter::make('Operators', 'operator')
+            ->hiddenFromMenus()
+                ->options(['' => 'All'] + Operator::where('cono', auth()->user()->account->sx_company_number)->orderBy('name')->get()->pluck('full_name', 'operator')->toArray())
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where(DB::raw('lower(taken_by)'), strtolower($value));
+            }),
+
+            SelectFilter::make('Stage Codes', 'stage_codes')
+            ->hiddenFromMenus()
+                ->options(['' => 'All'] + [
+                    0 => 'Quoted',
+                    1 => 'Ordered',
+                    2 => 'Picked',
+                    3 => 'Shipped',
+                    4 => 'Invoiced',
+                    5 => 'Paid',
+                    9 => 'Cancelled',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('stage_code', $value);
+            }),
+
+            SelectFilter::make('Last Follow Up', 'last_followed_up_at')
+            ->hiddenFromMenus()
+                ->options(['' => 'All'] + [
+                    'today' => 'Today',
+                    'yesterday' => 'Yesterday',
+                    'this_week' => 'This Week',
+                    'older_two_weeks' => 'Older than Two Weeks',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    if($value == 'today')
+                    {
+                        $builder->whereDate('last_followed_up_at', Carbon::today());
+                    }
+                    if($value == 'yesterday')
+                    {
+                        $builder->whereDate('last_followed_up_at', Carbon::yesterday());
+                    }
+                    if($value == 'this_week')
+                    {
+                        $builder->whereBetween('last_followed_up_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                    }
+                    if($value == 'older_two_weeks')
+                    {
+                        $builder->where('last_followed_up_at', '<', Carbon::now()->subWeek(2));
+                    }
+            }),
+
+            SelectFilter::make('Status', 'status')
+            ->hiddenFromMenus()
+                ->options(['' => 'All'] + [
+                    'Pending Review' => 'Pending Review',
+                    'Ignored' => 'Ignored',
+                    'Cancelled' => 'Cancelled',
+                    'Follow Up' => 'Follow Up',
+                    'Shipment Follow Up' => 'Shipment Follow Up',
+                    'Receiving Follow Up' => 'Receiving Follow Up',
+                    'Closed' => 'Closed',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('status', $value);
+            })
+
         ];
     }
 
     public function builder(): Builder
     {
-        return Order::where('cono', 10)
-            ->where('orderno', 10835727);
+        $query = Order::where('cono', auth()->user()->account->sx_company_number);
+
+        return $query;
     }
 
-    public function fetchIcon($type)
+    public function setFilterValue($filter, $value)
     {
-        if ($type == 'TRAILER') {
-            return '<i class="fas fa-trailer"></i> ';
-        }
-        if ($type == 'TRUCK') {
-            return '<i class="fas fa-truck-pickup"></i> ';
-        }
-        if ($type == 'INCOMPLETE VEHICLE') {
-            return '<i class="fas fa-truck"></i> ';
-        }
-
-        return '<i class="fas fa-truck"></i>';
+        $this->setFilterDefaults();
+        $this->setFilter($filter, $value);
     }
+
+    private function getStageCode($code)
+    {
+        $stage_codes = [
+            0 => 'Quoted',
+            1 => 'Ordered',
+            2 => 'Picked',
+            3 => 'Shipped',
+            4 => 'Invoiced',
+            5 => 'Paid',
+            9 => 'Cancelled',
+        ];
+
+        return $stage_codes[$code];
+    }
+
+    private function getTakenByName($value)
+    {
+        if(empty($value)) return 'n/a';
+
+        if(strtolower($value) == 'web') return 'WEB';
+
+        $operator = Operator::where('operator', $value)->first()?->name;
+
+        return $operator ? $operator.' ('.$value.')' : $value;
+    }
+
+    private function getStageCodeClass($code)
+    {
+        $stage_codes = [
+            0 => 'warning',
+            1 => 'primary',
+            2 => 'dark',
+            3 => 'secondary',
+            4 => 'primary',
+            5 => 'success',
+            9 => 'danger',
+        ];
+
+        return $stage_codes[$code];
+    }
+
+
+
 }

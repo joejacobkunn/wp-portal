@@ -13,6 +13,12 @@
         'wire:model.' . (!empty($lazy) ? 'lazy': 'debounce.500ms') => $model ?? '',
         ]) !!}
 
+    @if(!empty($hint))
+    <div>
+        <small class="form-text text-muted">{{ $hint }}</small>
+    </div>
+    @endif
+
     @if(isset($model))
         @error($model) <span class="text-danger">{{ $message }}</span> @enderror
     @endif

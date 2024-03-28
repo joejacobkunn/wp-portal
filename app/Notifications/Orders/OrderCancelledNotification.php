@@ -3,9 +3,10 @@
 namespace App\Notifications\Orders;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\HtmlString;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
 class OrderCancelledNotification extends Notification
 {
@@ -49,9 +50,7 @@ class OrderCancelledNotification extends Notification
                 ->from('orders@weingartz.com', 'Weingartz Orders')
                 ->cc('orders@weingartz.com')
                 ->subject($this->mailSubject)
-                ->greeting('Hello '.ucwords(strtolower($this->customerName)))
-                ->line(nl2br($this->mailContent))
-                ->salutation("\r\n Regards,  \r\n Weingartz Support.");
+                ->line(new HtmlString($this->mailContent));
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace App\Listeners\Orders;
 
 use App\Classes\SX;
-use App\Enums\Order\BackOrderStatus;
+use App\Enums\Order\OrderStatus;
 use App\Events\Orders\OrderCancelled;
 use App\Models\Core\User;
 use App\Notifications\Orders\OrderCancelledNotification;
@@ -45,16 +45,18 @@ class OrderCancelledListener
             ->causedBy(User::find($event->order->last_updated_by))
             ->performedOn($event->order)
             ->event('custom')
-            ->log('Sent Email "'.$event->mailSubject.'" to customer');
+            ->log('Sent Cancellation Email "'.$event->mailSubject.'" to customer');
 
         //add note to sx order notes if cancelled
 
-        if($event->order->status == BackOrderStatus::Cancelled->value)
+        if(!App::environment('local'))
         {
             $sx_client = new SX();
             $operator = User::find($event->order->last_updated_by);
-            $sx_response = $sx_client->create_order_note('Order cancelled by '.$operator->name.'('.$operator->sx_operator_id.') due to no longer available parts',$event->order->order_number);
+            $sx_response = $sx_client->create_order_note('Order cancelled by '.$operator->name.'('.$operator->sx_operator_id.') via Portal due to no longer available parts',$event->order->order_number);
+    
         }
+
 
     
     }

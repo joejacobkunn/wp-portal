@@ -3,12 +3,12 @@
 namespace App\Http\Livewire\Order;
 
 use App\Http\Livewire\Component\Component;
-use App\Models\Order\DnrBackorder;
+use App\Models\Order\Order;
 use App\Models\SX\Company;
-use App\Models\SX\Order;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 
 class Index extends Component
 {
@@ -22,46 +22,31 @@ class Index extends Component
 
     public $pendingReviewCount = 0;
 
+    public $dnr_count = 0;
+
+    public $pending_review_count = 0;
+
+    public $follow_up_count = 0;
+
+    public $ignored_count = 0;
+
+    public $order_data_sync_timestamp;
+
+    public $metricFilter = [];
+
     public $breadcrumbs = [
         [
             'title' => 'Orders',
         ],
     ];
 
-    public $orderTab = 'back_orders';
-
-    public $tabs = [
-        'back-order-tabs' => [
-            'active' => 'PendingReview',
-            'links' => [
-                'PendingReview' => 'Pending Review',
-                'ignored' => 'Ignored',
-                'follow_up' => 'Follow Up',
-                'cancelled' => 'Cancelled',
-                'Closed' => 'Closed',
-            ],
-        ]
-    ];
-
-    protected $queryString = [
-        'orderTab' => ['except' => '', 'as' => 'tab'],
-    ];
-
-    protected $listeners = ['refresh' => '$refresh'];
-
     public function mount()
     {
-        $this->authorize('viewAny', DnrBackorder::class);
+        $this->authorize('viewAny', Order::class);
+
+        $this->order_data_sync_timestamp = Cache::get('order_data_sync_timestamp', '');
 
         $this->account = account();
-
-        $this->statusCount = [
-            'pendingReviewCount' => DnrBackorder::where('status', 'Pending Review')->count(),
-            'ignoredCount' => DnrBackorder::where('status', 'Ignored')->count(),
-            'followUpCount' => DnrBackorder::where('status', 'Follow Up')->count(),
-            'cancelledCount' => DnrBackorder::where('status', 'Cancelled')->count(),
-            'errorsCount' => DnrBackorder::where('status', 'Error')->count()
-        ];
 
     }
 
@@ -70,23 +55,26 @@ class Index extends Component
         return $this->renderView('livewire.order.index');
     }
 
-    public function updateExistingOrders()
+    public function setFilter($filter, $value)
     {
-        $pending_orders = DnrBackorder::where('status', 'Pending Review')->get();
+        $this->metricFilter = [
+            'filter' => $filter,
+            'value' => $value
+        ];
+    }
 
-        foreach($pending_orders as $pending_order)
-        {
-            $stage_code = Order::select('stagecd')->where('cono', auth()->user()->account->sx_company_number)->where('orderno', $pending_order->order_number)->where('ordersuf', $pending_order->order_number_suffix)->first()->stagecd;
-            
-            if($stage_code > 2)
-            {
-                if(in_array($stage_code, [3,4,5])) $status = 'Closed';
-                if(in_array($stage_code, [9])) $status = 'Cancelled';
-                $pending_order->update(['status' => $status, 'stage_code' => $stage_code]);
-            }
+    public function getStatusCounts()
+    {
+        $this->dnr_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('is_dnr', 1)->where('status', 'Pending Review')->count();
+        $this->pending_review_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('status', 'Pending Review')->count();;
+        $this->follow_up_count = Order::where('cono', auth()->user()->account->sx_company_number)->whereIn('status', ['Follow Up','Shipment Follow Up'])->count();
+        $this->ignored_count = Order::where('cono', auth()->user()->account->sx_company_number)->where('status', 'Ignored')->count();
+    }
 
-            $this->dispatch('refresh');
-
-        }
+    public function updateOpenOrders()
+    {
+        Artisan::call('sx:update-open-orders');
+        $this->order_data_sync_timestamp = Cache::get('order_data_sync_timestamp');
+        $this->dispatch('refreshDatatable');
     }
 }

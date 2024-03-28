@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Order\DnrBackorder;
+use App\Models\Order\Order as PortalOrder;
 use App\Models\SX\Order;
 use App\Models\SX\OrderLineItem;
 use App\Models\SX\Warehouse;
@@ -10,27 +11,29 @@ use App\Models\SX\WarehouseProduct;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class FetchDnrBackorders extends Command
+class UpdateDnrBackorders extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sx:fetch-dnr-backorders';
+    protected $signature = 'sx:update-dnr-backorders';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Fetch DNR Backorders from SX to local mysql database';
+    protected $description = 'Update DNR Backorders in local mysql database';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $dnr_count = 0;
+
         //Get all weingartz warehouses
         $warehouses = Warehouse::select('whse')->where('cono', 10)->where('salesfl',1)->where('custno',0)->get();
 
@@ -50,26 +53,27 @@ class FetchDnrBackorders extends Command
                 //loop thru each line items
                 foreach($line_items as $line_item){
 
-                    $dnr_warehouse_product = WarehouseProduct::where('cono',10)->where('whse', $warehouse->whse)->where('prod', $line_item->shipprod)->where('statustype',"X")->get();
+                    $dnr_warehouse_product = WarehouseProduct::select('cono')->where('cono',10)->where('whse', $warehouse->whse)->where('prod', $line_item->shipprod)->where('statustype',"X")->get();
                     
                     if($dnr_warehouse_product->isNotEmpty()) {
                         $dnr_items [] = $line_item->shipprod;
                     }
                 }
 
-                //if atleast one dnr item, add to table
+                //if atleast one dnr item, flag as dnr
 
                 if(!empty($dnr_items))
                 {
-                    DnrBackorder::firstOrCreate(
-                        ['cono' => 10, 'order_number' => $order->orderno, 'order_number_suffix' => $order->ordersuf],
-                        ['cono' => 10, 'order_number' => $order->orderno, 'order_number_suffix' => $order->ordersuf, 'whse' => $warehouse->whse, 'order_date' => $order->enterdt, 'stage_code' => $order->stagecd, 'sx_customer_number' => $order->custno,'dnr_items' =>  $dnr_items ,'status' => 'Pending Review']
-                    );
-    
+                    $dnr_count++;
+                    
+                    PortalOrder::where('order_number',$order->orderno)->where('order_number_suffix',$order->ordersuf)->update(['is_dnr' => 1,'dnr_items' =>  $dnr_items ,'status' => 'Pending Review']);
+                    
                 }
 
             }
         }
+
+        echo "Flagged ".$dnr_count." orders as DNR";
 
     }
 }

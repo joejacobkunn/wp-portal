@@ -1,7 +1,27 @@
 @aware(['component', 'tableName'])
 @props(['filterGenericData'])
 
+@php
+    $tableId = str_replace('.', '-', $component->getName());
+@endphp
+
 <div x-cloak x-show="!currentlyReorderingStatus" 
+    x-data="{
+        filterComponents: @entangle('filterComponents'),
+        sendEvent(filterComponents) {
+            window.dispatchEvent(new CustomEvent('{{ $tableId }}:table-filter:emit', {
+                detail: {
+                    value: Alpine.raw(filterComponents)
+                }
+            }))
+        }
+    }"
+    x-init="() => {
+        sendEvent(filterComponents);
+    },
+    $watch('filterComponents', (data) => {
+        sendEvent(filterComponents);
+    })"
                 @class([
                     'ml-0 ml-md-2 mb-3 mb-md-0' => $component->isBootstrap4(),
                     'ms-0 ms-md-2 mb-3 mb-md-0' => $component->isBootstrap5() && $component->searchIsEnabled(),
@@ -60,4 +80,76 @@
         @endif
 
     </div>
+
+
+    @script
+    <script>
+        (function () {
+            let inProcessFlag = 0;
+            let firstLoad = true
+
+            if (typeof SlimSelect != 'function') {
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initSelect);
+            }
+
+            function initSelect(attrValues) {
+                if (inProcessFlag) return
+
+                if (! document.querySelector('#datatable-{{ $component->getId() }} select:not([data-ssid],#table-perPage')) return
+
+                inProcessFlag = 1
+                document.querySelectorAll('#datatable-{{ $component->getId() }} select:not([data-ssid],#table-perPage').forEach((el) => {
+                    el.classList.remove('form-select')
+                    if (typeof SlimSelect == 'function') {
+
+
+                        let id = '#' + el.getAttribute('id')
+                        let select = new SlimSelect({ 
+                            select: id,
+                            allowDeselect: true,
+                            onChange: (info) => {
+                                
+                                if (firstLoad) {
+                                    firstLoad = false 
+                                    return
+                                };
+
+                                let val = info.value
+                                if (el.hasAttribute('multiple')) {
+                                    val = info.map((v) => v.value)
+                                }
+                                
+                                $wire.set(el.getAttribute('field-key'), val).then(() => {
+                                    initSelect()
+                                })
+
+                            },
+                        })
+                        
+                        if (firstLoad && el.getAttribute('field-key')) {
+                            let values = $wire.get(el.getAttribute('field-key'))
+                            select.set(values)
+                        }
+
+                        if ( attrValues 
+                            && attrValues.hasOwnProperty(el.getAttribute('field-index'))
+                            && select.selected() != attrValues[el.getAttribute('field-index')]
+                            ) {
+                            select.set(attrValues[el.getAttribute('field-index')])
+                        }
+
+                    }
+                })
+
+                inProcessFlag = 0
+            }
+
+            window.addEventListener('{{ $tableId }}:table-filter:emit', (e) => {
+                if (! document.querySelector('{{ $tableId }} .table-filter-col .ss-main')) {
+                    initSelect(e.detail.value);
+                }
+            })
+        })()
+    </script>
+    @endscript
 </div>

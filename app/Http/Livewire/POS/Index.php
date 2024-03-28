@@ -8,7 +8,7 @@ use App\Helpers\StringHelper;
 use App\Models\Core\Customer;
 use App\Http\Livewire\Component\Component;
 use App\Models\Product\Product;
-use App\Models\Product\Warehouse;
+use App\Models\Core\Warehouse;
 use Illuminate\Support\Facades\Cache;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 

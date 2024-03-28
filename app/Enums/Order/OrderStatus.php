@@ -2,12 +2,14 @@
 
 namespace App\Enums\Order;
 
-enum BackOrderStatus:string
+enum OrderStatus:string
 {
     case PendingReview = 'Pending Review';
     case Ignore = 'Ignored';
     case Cancelled = 'Cancelled';
     case FollowUp = 'Follow Up';
+    case ShipmentFollowUp = 'Shipment Follow Up';
+    case ReceivingFollowUp = 'Receiving Follow Up';
     case Closed = 'Closed';
 
     public function label(): string
@@ -32,6 +34,8 @@ enum BackOrderStatus:string
             self::Ignore => 'Ignored',
             self::Cancelled => 'Cancelled',
             self::FollowUp => 'Follow Up',
+            self::ShipmentFollowUp => 'Shipment Follow Up',
+            self::ReceivingFollowUp => 'Receiving Follow Up',
             self::Closed => 'Closed',
             default => '-'
         };
@@ -41,9 +45,11 @@ enum BackOrderStatus:string
     {
         return match ($value) {
             self::PendingReview => 'primary',
-            self::Ignore => 'warning',
+            self::Ignore => 'secondary',
             self::Cancelled => 'danger',
             self::FollowUp => 'info',
+            self::ShipmentFollowUp => 'info',
+            self::ReceivingFollowUp => 'info',
             self::Closed => 'success',
             default => 'info'
         };
