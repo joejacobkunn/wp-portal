@@ -9,6 +9,7 @@ use App\Models\Core\User;
 use App\Models\Order\DnrBackorder;
 use App\Models\Order\Order;
 use App\Models\Core\Warehouse;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
@@ -126,7 +127,7 @@ class Table extends DataTableComponent
             Column::make('Order Date', 'order_date')
                 ->secondaryHeader($this->getFilterByKey('order_date'))
                 ->format(function ($value, $row) {
-                    return $value->toFormattedDateString().'<span class="badge bg-light-secondary float-end"><i class="fas fa-history"></i> '.$value->diffForHumans().'</span>';
+                    return $value?->toFormattedDateString().'<span class="badge bg-light-secondary float-end"><i class="fas fa-history"></i> '.$value->diffForHumans().'</span>';
                 })
                 ->html()
                 ->sortable()
@@ -135,11 +136,19 @@ class Table extends DataTableComponent
             Column::make('Promise Date', 'promise_date')
                 ->secondaryHeader($this->getFilterByKey('promise_date'))
                 ->format(function ($value, $row) {
-                    return $value->toFormattedDateString();
+                    return $value?->toFormattedDateString();
                 })
                 ->html()
                 ->sortable()
                 ->excludeFromColumnSelect(),
+
+            Column::make('Last Followed Up', 'last_followed_up_at')
+                ->secondaryHeader($this->getFilterByKey('last_followed_up_at'))
+                ->format(function ($value, $row) {
+                    return $value?->toFormattedDateString();
+                })
+                ->html()
+                ->sortable(),
 
 
             Column::make('Taken By', 'taken_by')
@@ -287,6 +296,33 @@ class Table extends DataTableComponent
                 ])
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('stage_code', $value);
+            }),
+
+            SelectFilter::make('Last Follow Up', 'last_followed_up_at')
+            ->hiddenFromMenus()
+                ->options(['' => 'All'] + [
+                    'today' => 'Today',
+                    'yesterday' => 'Yesterday',
+                    'this_week' => 'This Week',
+                    'older_two_weeks' => 'Older than Two Weeks',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    if($value == 'today')
+                    {
+                        $builder->whereDate('last_followed_up_at', Carbon::today());
+                    }
+                    if($value == 'yesterday')
+                    {
+                        $builder->whereDate('last_followed_up_at', Carbon::yesterday());
+                    }
+                    if($value == 'this_week')
+                    {
+                        $builder->whereBetween('last_followed_up_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                    }
+                    if($value == 'older_two_weeks')
+                    {
+                        $builder->where('last_followed_up_at', '<', Carbon::now()->subWeek(2));
+                    }
             }),
 
             SelectFilter::make('Status', 'status')

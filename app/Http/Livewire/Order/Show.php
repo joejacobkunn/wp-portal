@@ -366,21 +366,16 @@ class Show extends Component
 
     public function newCommentCreated($comment)
     {
-
-        if($this->order->status->value == OrderStatus::PendingReview->value)
-        {
-            $this->order->status = OrderStatus::FollowUp->value;
-            $this->order->last_updated_by = auth()->user()->id;
-            $this->order->last_followed_up_at = now();
-            $this->order->save();
-        }
+        $this->order->status = $this->order->status->value == OrderStatus::PendingReview->value ? OrderStatus::FollowUp->value : $this->order->status->value;
+        $this->order->last_updated_by = auth()->user()->id;
+        $this->order->last_followed_up_at = now();
+        $this->order->save();
 
         if(!App::environment('local'))
         {
             $sx_client = new SX();
             $sx_response = $sx_client->create_order_note($comment['comment'], $this->order->order_number);
         }
-
 
     }
 
