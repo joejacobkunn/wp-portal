@@ -49,7 +49,7 @@ class HeroHub
                                     h.custpo AS hero_hub_orderno
                                 FROM
                                     PUB.oeel l
-                                    LEFT JOIN PUB.oeehp p ON p.orderno = l.orderno AND p.ordersuf = l.ordersuf AND p.orderty = "O" AND p.cono = '.$cono.'
+                                    LEFT JOIN PUB.oeehp p ON p.orderno = l.orderno AND p.ordersuf = l.ordersuf AND p.cono = '.$cono.'
                                     LEFT JOIN PUB.oeeh h ON h.orderno = l.orderno AND h.ordersuf = l.ordersuf AND h.cono = '.$cono.'
                                 WHERE
                                     l.cono = '.$cono.'

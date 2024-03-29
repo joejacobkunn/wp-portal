@@ -48,6 +48,12 @@ class ModuleSeeder extends Seeder
                 'slug' => 'products',
                 'description' => 'Displays and search for products',
             ],
+            [
+                'name' => 'Equipment',
+                'slug' => 'equipment',
+                'description' => 'View and manage equipment',
+            ],
+
 
         ];
 
