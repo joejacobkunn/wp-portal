@@ -26,23 +26,23 @@ class OrderPolicy
     public function viewAny(User $user)
     {
         return $user->can('order.view')
-                ? Response::allow()
-                : Response::deny('You do not have permission to view orders. Ask your administrator to grant permission and try again.');
+                ? true
+                : false;
     }
 
     public function view(User $user, Order $order)
     {
         return $user->can('order.view')
-            ? Response::allow()
-            : Response::deny('You do not have permission to view orders. Ask your administrator to grant permission and try again.');
+            ? true
+            : false;
 
     }
 
     public function manage(User $user, Order $order): bool
     {
         return $user->can('order.manage')
-            ? Response::allow()
-            : Response::deny('You do not have permission to manage orders. Ask your administrator to grant permission and try again.');
+            ? true
+            : false;
 
     }
 

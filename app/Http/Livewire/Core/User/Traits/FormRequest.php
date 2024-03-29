@@ -125,7 +125,7 @@ trait FormRequest
 
 
         if(auth()->user()->can('manageRole', auth()->user()) && isset($this->selectedRole)) {
-            $this->user->assignRole($this->selectedRole);
+            $this->user->syncRoles([$this->selectedRole]);
 
             $this->user->invited_by = auth()->user()->id;
 
@@ -161,7 +161,7 @@ trait FormRequest
         if(auth()->user()->can('manageRole', auth()->user())) {
             if ($this->user->roles->first()?->name != $this->selectedRole) {
                 $this->user->roles()->detach();
-                $this->user->assignRole($this->selectedRole);
+                $this->user->syncRoles([$this->selectedRole]);
             }
         }
 
