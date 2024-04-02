@@ -41,13 +41,6 @@
     @if ($followUpModal)
         <div class="alert alert-light-warning color-warning">
             Notifying the customer will update this backorder to <strong>Follow Up</strong> status</div>
-
-        @if (empty($non_dnr_line_items))
-            <div class="alert alert-light-danger color-danger">
-                All line items in this order are DNR
-            </div>
-        @endif
-
     @endif
 
     @if ($shippingModal)

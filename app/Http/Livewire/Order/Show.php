@@ -436,19 +436,18 @@ class Show extends Component
 
     private function fillTemplateVariables($template)
     {
-        $processed_template = $template;
-        if(Str::contains($template,'[CustomerName]')) $processed_template = Str::replace('[CustomerName]', $this->customer->name, $template);
-        if(Str::contains($template,'[CustomerEmail]')) $processed_template = Str::replace('[CustomerEmail]', $this->customer->email, $template);
-        if(Str::contains($template,'[CustomerPhone]')) $processed_template = Str::replace('[CustomerPhone]', $this->customer->phone, $template);
-        if(Str::contains($template,'[OrderNumber]')) $processed_template = Str::replace('[OrderNumber]', $this->order->order_number, $template);
-        if(Str::contains($template,'[LineItems]')) $processed_template = Str::replace('[LineItems]', $this->formatLineItems($this->sx_order_line_items), $template);
-        if(Str::contains($template,'[BackorderLineItems]')) $processed_template = Str::replace('[BackorderLineItems]', $this->formatOtherLineItems($this->backorder_line_items), $template);
-        if(Str::contains($template,'[DNRItems]')) $processed_template = Str::replace('[DNRItems]', $this->formatOtherLineItems($this->dnr_line_items), $template);
-        if(Str::contains($template,'[NonDNRItems]')) $processed_template = Str::replace('[NonDNRItems]', $this->formatOtherLineItems($this->non_dnr_line_items), $template);
-        if(Str::contains($template,'[WarehousePhone]')) $processed_template = Str::replace('[WarehousePhone]', Warehouse::where('short', strtolower($this->order->whse))->first()->phone, $template);
-        if(Str::contains($template,'[ShipVia]')) $processed_template = Str::replace('[ShipVia]', $this->shipping?->getCarrier() , $template);
-        if(Str::contains($template,'[ShippingTrackingNumber]')) $processed_template = Str::replace('[ShippingTrackingNumber]', $this->shipping?->trackerno , $template);
-        return $processed_template;
+        if(Str::contains($template,'[CustomerName]')) $template = Str::replace('[CustomerName]', $this->customer->name, $template);
+        if(Str::contains($template,'[CustomerEmail]')) $template = Str::replace('[CustomerEmail]', $this->customer->email, $template);
+        if(Str::contains($template,'[CustomerPhone]')) $template = Str::replace('[CustomerPhone]', $this->customer->phone, $template);
+        if(Str::contains($template,'[OrderNumber]')) $template = Str::replace('[OrderNumber]', $this->order->order_number, $template);
+        if(Str::contains($template,'[LineItems]')) $template = Str::replace('[LineItems]', $this->formatLineItems($this->sx_order_line_items), $template);
+        if(Str::contains($template,'[BackorderLineItems]')) $template = Str::replace('[BackorderLineItems]', $this->formatOtherLineItems($this->backorder_line_items), $template);
+        if(Str::contains($template,'[DNRItems]')) $template = Str::replace('[DNRItems]', $this->formatOtherLineItems($this->dnr_line_items), $template);
+        if(Str::contains($template,'[NonDNRItems]')) $template = Str::replace('[NonDNRItems]', $this->formatOtherLineItems($this->non_dnr_line_items), $template);
+        if(Str::contains($template,'[WarehousePhone]')) $template = Str::replace('[WarehousePhone]', Warehouse::where('short', strtolower($this->order->whse))->first()->phone, $template);
+        if(Str::contains($template,'[ShipVia]')) $template = Str::replace('[ShipVia]', $this->shipping?->getCarrier() , $template);
+        if(Str::contains($template,'[ShippingTrackingNumber]')) $template = Str::replace('[ShippingTrackingNumber]', $this->shipping?->trackerno , $template);
+        return $template;
     }
 
     private function formatLineItems($line_items)
