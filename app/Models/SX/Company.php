@@ -18,9 +18,9 @@ class Company extends Model
 
     public $timestamps = false;
 
-    // protected static function booted(): void
-    // {
-    //     parent::boot();
-    //     static::addGlobalScope(new WithnolockScope());
-    // }
+    protected static function booted(): void
+    {
+        parent::boot();
+        static::addGlobalScope(new WithnolockScope());
+    }
 }
