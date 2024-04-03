@@ -9,12 +9,6 @@
 {{-- Greeting --}}
 @if (! empty($greeting))
 # {{ $greeting }}
-@else
-@if ($level === 'error')
-# @lang('Whoops!')
-@else
-# @lang('Hello!')
-@endif
 @endif
 
 {{-- Intro Lines --}}

@@ -66,7 +66,7 @@ class UpdateDnrBackorders extends Command
                 {
                     $dnr_count++;
                     
-                    PortalOrder::where('order_number',$order->orderno)->where('order_number_suffix',$order->ordersuf)->update(['is_dnr' => 1,'dnr_items' =>  $dnr_items ,'status' => 'Pending Review']);
+                    PortalOrder::where('order_number',$order->orderno)->where('order_number_suffix',$order->ordersuf)->update(['is_dnr' => 1,'dnr_items' =>  $dnr_items]);
                     
                 }
 
