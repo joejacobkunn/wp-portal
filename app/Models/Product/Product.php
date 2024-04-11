@@ -13,6 +13,8 @@ class Product extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = ['unit_sell' => 'array'];
+
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
