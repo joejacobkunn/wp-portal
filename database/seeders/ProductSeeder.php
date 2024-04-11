@@ -59,10 +59,10 @@ class ProductSeeder extends Seeder
 
 
                 Product::updateOrCreate(
-                    ['prod' => $product->Prod],
+                    ['prod' => trim($product->Prod)],
                     [
                         'account_id' => $account->id,
-                        'prod' => $product->Prod ?? '',
+                        'prod' => trim($product->Prod ?? ''),
                         'description' => $product->Description ?? '',
                         'look_up_name' => $product->LookupNm ?? '',
                         'brand_id' => $brand->id ?? '',
@@ -74,7 +74,8 @@ class ProductSeeder extends Seeder
                         'list_price' => $product->ListPrice ?? '',
                         'usage' => $product->Usage ?? '',
                         'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
-                        'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : ''
+                        'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
+                        'unit_sell' => $this->getUnitsForProduct($product->Prod, $product->UnitSell),
                     ]
                 );
     
@@ -88,7 +89,7 @@ class ProductSeeder extends Seeder
     private function fetchProductQuery($limit,$offset)
     {
         return "SELECT
-                upper(w.prod) 'Prod' ,
+                upper(p.prod) 'Prod' ,
                 upper(p.descrip[1] + ' ' + p.descrip[2]) 'Description' ,
                 upper(p.lookupnm) 'LookupNm',
                 upper(l.user3) 'Brand',
@@ -101,13 +102,13 @@ class ProductSeeder extends Seeder
                 w.listprice 'ListPrice',
                 u.normusage[18] AS 'Usage',
                 w.enterdt 'EnterDt',
-                w.lastinvdt 'LastSold'
+                w.lastinvdt 'LastSold',
+                p.unitsell 'UnitSell'
             FROM
                 pub.icsp p
             LEFT JOIN pub.icsw W 
             ON
                 w.cono = p.cono
-                AND w.whse = 'utic'
                 AND w.prod = p.prod
             LEFT JOIN pub.icsl L 
             ON
@@ -126,6 +127,7 @@ class ProductSeeder extends Seeder
                 AND u.whse = w.whse
             WHERE
                 p.cono = 10
+                order by w.enterdt desc
                 OFFSET ".$offset." ROWS 
                 FETCH NEXT ".$limit." ROWS ONLY
         WITH(nolock)";
@@ -157,6 +159,27 @@ class ProductSeeder extends Seeder
         ];
 
         return $sx_status_values[$char];
+    }
+
+    private function getUnitsForProduct($prod, $default_unit)
+    {
+        $data = [$default_unit];
+        $units = DB::connection('sx')->select("select units 
+                    FROM pub.icseu u
+                    where u.cono = 10
+                    AND UPPER(u.prod) = '".strtoupper($prod)."'
+                    with(nolock)");
+
+        if(empty($default_unit) && empty($units)) return ['EA'];
+
+
+
+        foreach($units as $unit)
+        {
+            $data[] = $unit->units;
+        }
+
+        return array_unique($data);
     }
 
 }
