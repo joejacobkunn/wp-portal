@@ -30,8 +30,13 @@
                                             <div class="col-sm-7">
                                                 <label>Add Product</label>
                                                 <div class="input-group mb-3">
-                                                    <input type="text" class="form-control" wire:model="productQuery"
-                                                        placeholder="Enter Product Code">
+                                                    <input
+                                                        type="text"
+                                                        class="form-control"
+                                                        wire:model="productQuery"
+                                                        placeholder="Enter Product Code"
+                                                        wire:keydown.enter="searchProduct"
+                                                    >
                                                     <div class="input-group-append">
                                                         <button class="btn btn-primary px-4" wire:click="searchProduct"
                                                             type="button">
@@ -402,7 +407,12 @@
         </div>
 
         <x-slot name="footer">
-            <button wire:click="confirmOverridePrice()" type="button" class="btn btn-success">Update</button>
+            <button wire:click="confirmOverridePrice()" type="button" class="btn btn-success">
+                <span wire:loading wire:target="confirmOverridePrice"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"></span> Update
+            </button>
         </x-slot>
 
     </x-modal>
