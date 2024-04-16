@@ -10,7 +10,7 @@
                 :label="$item['label']"
                 :name="$name"
                 :value="$item['value']"
-                :model="$model"
+                :model="$model ?? ''"
             />
         </div>
         @endforeach

@@ -247,7 +247,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <div class="form-group">
-                                <label>Preferred Contact Method</label>
+                                <h6>Preferred Contact Method</h6>
                                 <div class="input-group mb-3">
                                     <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">SMS</button>
                                     <ul class="dropdown-menu" style="">
@@ -259,6 +259,15 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <x-forms.radio-group
+                            label="Delivery Method"
+                            name="lender_required"
+                            :items="[ 'Customer Taking With', 'Customer Pick Up Later', 'Shipping']"
+                            model="asd"
+                        />
                     </div>
                 </div>
             </div>
@@ -342,6 +351,12 @@
                                     </div>
                                 </div>
                             @endif
+
+                            <div class="mt-3">
+                                <x-forms.textarea label="Notes"
+                                    model=""
+                                />
+                            </div>
 
                         </div>
                     </div>
