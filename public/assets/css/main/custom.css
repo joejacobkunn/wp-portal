@@ -385,6 +385,10 @@
     width: 250px;
     line-height: 30px;
 }
+.checkout-outer-div .price-update-span {
+    border-bottom: 1px dashed #333;
+    cursor: pointer;
+}
 
 .w-10 {
     width: 10%;

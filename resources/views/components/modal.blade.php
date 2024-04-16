@@ -4,7 +4,7 @@
     'modal_body_class' => false,
     'modal_close_class' => false,
     'width' => null,
-    'listener' => 'closeModal',
+    'closeEvent' => 'closeModal',
     'toggle' => false,
     'size' => '',
 ])
@@ -24,7 +24,7 @@
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">{{ $title ?? '' }}</h5>
-                <button type="button" wire:click="$dispatch('{{ $listener }}')" class="btn-close {{$modal_close_class ?? ''}}" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" wire:click="$dispatch('{{ $closeEvent }}')" class="btn-close {{$modal_close_class ?? ''}}" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body {{$modal_body_class ?? ''}}">
                 {{ $slot }}

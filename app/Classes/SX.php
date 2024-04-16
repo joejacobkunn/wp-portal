@@ -406,12 +406,19 @@ class SX
 
         $line_items = [];
         foreach($request['cart'] as $item) {
-            $line_items[] = [
+            $itemData = [
                 "itemnumber" => $item['product_code'],
                 "orderqty" => $item['quantity'],
-                "unitofmeasure" => $request['unit_of_measure'] ?? 'EA',
+                "unitofmeasure" => $item['unit_of_measure'] ?? 'EA',
                 "warehouseid" => $request['warehouse'] ?? 'utic',
             ];
+
+            if (!empty($item['price_overridden'])) {
+                $itemData['actualsellprice'] = $item['total_price'];
+                $itemData['nonstockflag'] = 'y';
+            }
+
+            $line_items[] = $itemData;
         }
 
         $invoice_request = [

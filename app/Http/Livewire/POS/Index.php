@@ -46,20 +46,28 @@ class Index extends Component
     public $orderStatus;
     public $orderData = [];
 
-    public $unitOfMeasure = 'EA';
     public $webTransactionType = 'tsf';
     public $productQuery;
+    public $priceUpdateModal = false;
+    public $priceUpdateData = [
+        'index' => null,
+        'value' => null,
+        'current_price' => null,
+        'product_code' => null,
+    ];
 
     protected $listeners = [
         'closeProductSearch',
         'closeCustomerSearch',
         'closeNewCustomer',
         'closeBreakdownModal',
+        'closePriceUpdateModal',
         'customer:created' => 'newCustomerCreated',
         'customer:form:cancel' => 'closeNewCustomer',
         'product:cart:selected' => 'ackAddToCart', //ack prod selection from table
         'pos:processAddToCart' => 'addToCart', //process prod selection adn add to cart
-        'pos:addedToCart' => '$refresh'
+        'pos:addedToCart' => '$refresh',
+        'unit_of_measure:updated' => 'updatedUnitOfMeasure',
     ];
 
     public function mount()
@@ -101,7 +109,7 @@ class Index extends Component
         $this->productSearchModal = true;    
     }
 
-    public function getproductData($productCode)
+    public function getproductData($productCode, $unitOfMeasure = null)
     {
         $pricingRequest = [
             'request' => [
@@ -111,7 +119,7 @@ class Index extends Component
                 "productCode" => $productCode,
                 "customerNumber" => $this->customerSelected['sx_customer_number'] ?? 1,
                 "shipTo" => "",
-                "unitOfMeasure" => $this->unitOfMeasure,
+                "unitOfMeasure" => !empty($unitOfMeasure) ? $unitOfMeasure : 'EA',
                 "includeSellingPrice" => true,
                 "warehouse" => $this->selectedWareHouse ?? 'utic',
                 "quantityOrdered" =>  0,
@@ -203,15 +211,17 @@ class Index extends Component
      */
     public function addToCart($prodId)
     {
-        $product = Product::select('id', 'prod')->find($prodId);
+        $product = Product::select('id', 'prod', 'unit_sell')->find($prodId);
         $productCode = $product->prod;
-        $searchResponse = $this->getproductData($productCode);
+        $searchResponse = $this->getproductData($productCode, $product->default_unit_sell);
 
         $this->cart[$productCode] = [
             'product_code' => $productCode,
             'product_name' => $searchResponse['product_name'],
             'look_up_name' => $searchResponse['look_up_name'],
             'category' => $searchResponse['category'],
+            'unit_sell' => $product->unit_sell,
+            'unit_of_measure' => $product->default_unit_sell,
             'price' => $searchResponse['price'],
             'stock' => $searchResponse['stock'],
             'bin_location' => $searchResponse['bin_location'],
@@ -414,8 +424,11 @@ class Index extends Component
         
         foreach ($this->cart as $index => $item) {
 
-            if (! isset($this->priceModel[$item['product_code']][$customerId])) {
-                $priceData = $this->getproductData($item['product_code']);
+            //check if price is overridden
+            if (isset($this->priceModel[$item['product_code']]['new_set_price'])) {
+                $price = $this->priceModel[$item['product_code']]['new_set_price'];
+            } elseif (! isset($this->priceModel[$item['product_code']][$customerId])) {
+                $priceData = $this->getproductData($item['product_code'], $item['unit_of_measure']);
                 $price = $priceData['price'];
             } else {
                 $price = $this->priceModel[$item['product_code']][$customerId];
@@ -563,7 +576,10 @@ class Index extends Component
             return $this->addError('productQuery', 'Enter Product Code.' );
         }
 
-        $searchResponse = $this->getproductData($this->productQuery);
+        $product = Product::select('id', 'prod', 'unit_sell')
+            ->where('prod', $this->productQuery)
+            ->first();
+        $searchResponse = $this->getproductData($this->productQuery, $product?->default_unit_sell);
         if (empty($searchResponse['status']) || $searchResponse['status'] == 'error') {
             return $this->addError('productQuery', 'Invalid Product Code.' );
         }
@@ -578,6 +594,8 @@ class Index extends Component
             'product_name' => $searchResponse['product_name'],
             'look_up_name' => $searchResponse['look_up_name'],
             'category' => $searchResponse['category'],
+            'unit_sell' => $product->unit_sell,
+            'unit_of_measure' => $product->default_unit_sell,
             'price' => $searchResponse['price'],
             'stock' => $searchResponse['stock'],
             'bin_location' => $searchResponse['bin_location'],
@@ -589,5 +607,48 @@ class Index extends Component
         $this->productQuery = '';
         $this->alert('success', 'Added to cart');
         $this->productSearchModal = false;
+    }
+
+    public function updatedUnitOfMeasure($cartIndex, $value, $recheckValidation = true)
+    {
+        $name = 'cart.'. $cartIndex . '.unit_of_measure';
+        $this->fieldUpdated($name, $value, $recheckValidation);
+
+        $prodId = $this->cart[$cartIndex]['product_code'];
+        if (empty($this->cart[$cartIndex]['price_overridden'])) {
+            $this->priceModel[$prodId] = [];
+        }
+        $this->preparePriceData();
+    }
+
+    public function showOverridePriceModal($cartIndex)
+    {
+        $this->priceUpdateModal = true;
+        $this->priceUpdateData['index'] = $cartIndex;
+        $this->priceUpdateData['value'] = null;
+
+
+        $product = $this->cart[$cartIndex];
+        $this->priceUpdateData['product_code'] = $cartIndex;
+        $this->priceUpdateData['current_price'] = $product['price'];
+    }
+
+    public function confirmOverridePrice()
+    {
+        $productCode = $this->priceUpdateData['index'];
+        $this->priceModel[$productCode]['new_set_price'] = $this->priceUpdateData['value'];
+        $this->cart[$productCode]['price_overridden'] = true;
+        $this->preparePriceData();
+        $this->closePriceUpdateModal();
+    }
+
+
+    public function closePriceUpdateModal()
+    {
+        $this->priceUpdateModal = false;
+        $this->priceUpdateData['index'] = null;
+        $this->priceUpdateData['value'] = null;
+        $this->priceUpdateData['product_code'] = null;
+        $this->priceUpdateData['current_price'] = null;
     }
 }

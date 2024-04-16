@@ -104,11 +104,12 @@
                                 <th>Product Line</th>
                                 <th>Bin Loc 1</th>
                                 <th>Net Avail</th>
+                                <th width="10%">Unit Of Measure</th>
                                 <th>Price</th>
                                 <th class="w-10">Qty.</th>
                             </thead>
                             <tbody>
-                                @foreach ($cart as $item)
+                                @foreach ($cart as $cartIndex => $item)
                                     <tr>
                                         <td><a href="https://weingartz.com//searchPage.action?keyWord={{ $item['product_code'] }}"
                                                 target="_blank">{{ $item['product_name'] }}</a>
@@ -122,7 +123,18 @@
                                                 <span class="text-danger">{{ $item['stock'] }}</span>
                                             @endif
                                         </td>
-                                        <td>${{ number_format($item['price'], 2) }}</td>
+                                        <td>
+                                            @if(!empty($item['unit_sell']) && is_array($item['unit_sell']))
+                                                <x-forms.select
+                                                    :model="$cartIndex"
+                                                    :options="$item['unit_sell']"
+                                                    :selected="$item['unit_of_measure'] ?? null"
+                                                    default-option="false"
+                                                    listener="unit_of_measure:updated"
+                                                />
+                                            @endif
+                                        </td>
+                                        <td><span class="price-update-span" wire:click="showOverridePriceModal('{{ $cartIndex }}')">${{ number_format($item['price'], 2) }}</span></td>
                                         <td>
                                             <div class="quantity-div">
                                                 <div class="input-group w-75">
@@ -331,4 +343,34 @@
             </div>
         </div>
     </div>
+
+    <x-modal :toggle="$priceUpdateModal" closeEvent="closePriceUpdateModal">
+        <x-slot name="title">
+            <div class="">Update Product Price</div>
+        </x-slot>
+        
+        <div>
+            <div>
+                <h3 class="h6 mb-1">Product Code</h3>
+                <p class="small pe-4">{{ $priceUpdateData['product_code'] }}</p>
+
+                <h3 class="h6 mb-1">Current Price</h3>
+                <p class="small pe-4">${{ number_format($priceUpdateData['current_price'], 2) }}</p>
+            </div>
+
+            <hr/>
+
+            <x-forms.input
+                label="New Price"
+                model="priceUpdateData.value"
+                prependText="$"
+            />
+        </div>
+
+        <x-slot name="footer">
+            <button wire:click="confirmOverridePrice()" type="button" class="btn btn-success">Update</button>
+        </x-slot>
+
+    </x-modal>
+
 </div>

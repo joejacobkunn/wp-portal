@@ -94,7 +94,7 @@ class Table extends DataTableComponent
             
                 Column::make('List Price', 'list_price')
                 ->format(function ($value, $row) {
-                    return number_format($value,2);
+                    return is_numeric($value) ? number_format($value,2) : $value;
                 })
                 ->html(),
 
