@@ -13,6 +13,15 @@ class Product extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = ['unit_sell' => 'array'];
+
+    public function getDefaultUnitSellAttribute()
+    {
+        if (is_array($this->unit_sell) && !empty ($this->unit_sell)) {
+            return current($this->unit_sell);
+        }
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
@@ -32,5 +41,4 @@ class Product extends Model
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
     }
-
 }

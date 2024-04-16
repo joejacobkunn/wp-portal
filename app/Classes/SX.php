@@ -288,6 +288,7 @@ class SX
             $response_body = json_decode($response->body());
 
             $return_data = $response_body->response;
+
             $error_message = $return_data->cErrorMessage;
 
             if(!empty($error_message)){
@@ -307,6 +308,7 @@ class SX
             $prodline = $return_data->tSrprodwhsedata->$key_var[0]->prodline;
             $bin_location = $return_data->tSrprodwhsedata->$key_var[0]->binloc1;
             $product_code = $return_data->tSrprodwhsedata->$key_var[0]->prod;
+            $unit_of_measure = strtoupper($return_data->tSrprodwhsedata->$key_var[0]->unitstock);
 
             return [
                 'status' => 'success',
@@ -317,7 +319,8 @@ class SX
                 'stock' => $stock,
                 'prodline' => $prodline,
                 'bin_location' => $bin_location,
-                'product_code' => $product_code
+                'product_code' => $product_code,
+                'unit_of_measure' => $unit_of_measure
             ];
 
         }
@@ -403,12 +406,19 @@ class SX
 
         $line_items = [];
         foreach($request['cart'] as $item) {
-            $line_items[] = [
+            $itemData = [
                 "itemnumber" => $item['product_code'],
                 "orderqty" => $item['quantity'],
-                "unitofmeasure" => $request['unit_of_measure'] ?? 'EA',
+                "unitofmeasure" => $item['unit_of_measure'] ?? 'EA',
                 "warehouseid" => $request['warehouse'] ?? 'utic',
             ];
+
+            if (!empty($item['price_overridden'])) {
+                $itemData['actualsellprice'] = $item['total_price'];
+                $itemData['nonstockflag'] = 'y';
+            }
+
+            $line_items[] = $itemData;
         }
 
         $invoice_request = [
@@ -456,6 +466,43 @@ class SX
         }
     }
 
+    public function get_available_units($product_code, $cono)
+    {
+        if(config('sx.mock')) return $this->mock(__FUNCTION__, []);
+
+        $request = [
+            'request' => [
+                "companyNumber" => $cono,
+                'productCode' => $product_code,
+                "operatorInit" => "wpa",
+                "operatorPassword" => ""
+            ]
+        ];
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->withBody(json_encode($request), 'application/json')
+            ->post($this->endpoint.'/sxapiicgetproductunitofmeasurelist');
+
+            if ($response->ok()) {
+                $data = [];
+                $response_body = json_decode($response->body());
+    
+                $return_data = $response_body->response;
+                $key_var = 't-prod-uom';
+                foreach($return_data->tProdUom->$key_var as $unit)
+                {
+                    $data[] = ['label' => $unit->descrip, 'value' => $unit->units, 'whole_value' => $unit->wholevalueunits];
+                }
+
+                return [
+                    'status' => 'success',
+                    'data' => $data,
+                ];
+    
+            }
+    }
+
 
 
     public function mock($function, $request)
@@ -476,7 +523,8 @@ class SX
                 'stock' => $faker->randomDigit(),
                 'prodline' => $faker->word(),
                 'bin_location' => $faker->word(),
-                'product_code' => $faker->word()
+                'product_code' => $faker->word(),
+                'unit_of_measure' => 'EA'
             ];
         }
 
@@ -506,6 +554,19 @@ class SX
             ];
 
         }
+
+        if($function == 'get_available_units')
+        {
+            return [
+                'status' => 'success',
+                'data' => [
+                    ["label" => "BOTTLE","value" => "BTL","whole_value" => 1.0],
+                    ["label" => "CASE OF 12","value" => "CASE","whole_value" => 12.0] 
+                ]
+            ];
+
+        }
+
 
     }
 }
