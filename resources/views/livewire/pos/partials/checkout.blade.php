@@ -241,6 +241,25 @@
                             </div>
                         @endif
                     @endif
+
+                    <hr/>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label>Preferred Contact Method</label>
+                                <div class="input-group mb-3">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">SMS</button>
+                                    <ul class="dropdown-menu" style="">
+                                        <li><a class="dropdown-item" href="#">SMS</a></li>
+                                        <li><a class="dropdown-item" href="#">Call</a></li>
+                                        <li><a class="dropdown-item" href="#">Email</a></li>
+                                    </ul>
+                                    <input type="text" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
