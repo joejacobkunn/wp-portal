@@ -14,6 +14,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
+
 class ProductSeeder extends Seeder
 {
     /**
@@ -24,19 +25,21 @@ class ProductSeeder extends Seeder
         $account = Account::where('subdomain', 'weingartz')->first();
 
         //seed brands first
-        echo "Seeding Brands";
-        $this->seedBrands();
-        //seed category 
-        echo "Seeding Category";
-        $this->seedCategory();
-        //seed vendors
-        echo "Seeding Vendors";
-        $this->seedVendors();
+        // echo "Seeding Brands";
+        // $this->seedBrands();
+        // //seed category 
+        // echo "Seeding Category";
+        // $this->seedCategory();
+        // //seed vendors
+        // echo "Seeding Vendors";
+        // $this->seedVendors();
+
+        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
 
         echo "Starting Products...";
         $recordsRemaining = true;
         $lookupsCompleted = 0;
-        $chunkSize = 5000;
+        $chunkSize = 500;
 
     while($recordsRemaining){
         $products = DB::connection('sx')->select($this->fetchProductQuery($chunkSize,$chunkSize*$lookupsCompleted));
@@ -46,6 +49,7 @@ class ProductSeeder extends Seeder
         if(count($products) < $chunkSize){
             $recordsRemaining = false;
         }
+        
         foreach($products as $product){
             if(!empty($product->Prod)){
 
@@ -94,7 +98,7 @@ class ProductSeeder extends Seeder
                     'usage' => $product->Usage ?? '',
                     'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
                     'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
-                    'unit_sell' => $this->getUnitsForProduct($product->Prod, $product->UnitSell),
+                    'unit_sell' => json_encode(['EA']),
                 ];
 
     
@@ -102,11 +106,12 @@ class ProductSeeder extends Seeder
         }
 
         Product::upsert($batch_products, ['prod', 'account_id'], ['last_sold_date', 'active', 'status']);
-        dd($batch_products);
+        
 
 
         $lookupsCompleted++;
         }
+        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
     }
 
     private function fetchProductQuery($limit,$offset)
