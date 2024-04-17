@@ -67,7 +67,7 @@ class Show extends Component
     public $breadcrumbs = [
         [
             'title' => 'Orders',
-            'route_name' => 'order.index',
+            'href' => 'javascript:window.history.back()',
         ],
         [
             'title' => 'Order Details',

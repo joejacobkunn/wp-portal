@@ -50,6 +50,9 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
+            Column::make('Account', 'account.name')
+                ->excludeFromColumnSelect(),
+
             Column::make('Email', 'email')
                 ->sortable()
                 ->searchable()
