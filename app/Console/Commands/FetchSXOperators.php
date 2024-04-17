@@ -27,12 +27,12 @@ class FetchSXOperators extends Command
      */
     public function handle()
     {
-        $sx_operators = Operator::all();
+        $sx_operators = Operator::whereIn('cono', [10,40])->get();
 
         foreach($sx_operators as $sx_operator)
         {
             CoreOperator::updateOrCreate(
-                ['cono' => $sx_operator->cono, 'operator' => $sx_operator->operinit],
+                ['cono' => $sx_operator->cono, 'operator' => $sx_operator->slsrep],
                 ['name' => $sx_operator->name, 'email' => $sx_operator->email]
             );
         }

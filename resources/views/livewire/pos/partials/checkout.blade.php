@@ -30,8 +30,13 @@
                                             <div class="col-sm-7">
                                                 <label>Add Product</label>
                                                 <div class="input-group mb-3">
-                                                    <input type="text" class="form-control" wire:model="productQuery"
-                                                        placeholder="Enter Product Code">
+                                                    <input
+                                                        type="text"
+                                                        class="form-control"
+                                                        wire:model="productQuery"
+                                                        placeholder="Enter Product Code"
+                                                        wire:keydown.enter="searchProduct"
+                                                    >
                                                     <div class="input-group-append">
                                                         <button class="btn btn-primary px-4" wire:click="searchProduct"
                                                             type="button">
@@ -241,6 +246,34 @@
                             </div>
                         @endif
                     @endif
+
+                    <hr/>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <h6>Preferred Contact Method</h6>
+                                <div class="input-group mb-3">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">SMS</button>
+                                    <ul class="dropdown-menu" style="">
+                                        <li><a class="dropdown-item" href="#">SMS</a></li>
+                                        <li><a class="dropdown-item" href="#">Call</a></li>
+                                        <li><a class="dropdown-item" href="#">Email</a></li>
+                                    </ul>
+                                    <input type="text" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <x-forms.radio-group
+                            label="Delivery Method"
+                            name="lender_required"
+                            :items="[ 'Customer Taking With', 'Customer Pick Up Later', 'Shipping']"
+                            model="asd"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -324,6 +357,12 @@
                                 </div>
                             @endif
 
+                            <div class="mt-3">
+                                <x-forms.textarea label="Notes"
+                                    model=""
+                                />
+                            </div>
+
                         </div>
                     </div>
                     <div class="row">
@@ -368,7 +407,12 @@
         </div>
 
         <x-slot name="footer">
-            <button wire:click="confirmOverridePrice()" type="button" class="btn btn-success">Update</button>
+            <button wire:click="confirmOverridePrice()" type="button" class="btn btn-success">
+                <span wire:loading wire:target="confirmOverridePrice"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"></span> Update
+            </button>
         </x-slot>
 
     </x-modal>
