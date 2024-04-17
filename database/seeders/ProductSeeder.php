@@ -22,12 +22,26 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $account = Account::where('subdomain', 'weingartz')->first();
+
+        //seed brands first
+        echo "Seeding Brands";
+        $this->seedBrands();
+        //seed category 
+        echo "Seeding Category";
+        $this->seedCategory();
+        //seed vendors
+        echo "Seeding Vendors";
+        $this->seedVendors();
+
+        echo "Starting Products...";
         $recordsRemaining = true;
         $lookupsCompleted = 0;
-        $chunkSize = 1000;
+        $chunkSize = 5000;
 
     while($recordsRemaining){
         $products = DB::connection('sx')->select($this->fetchProductQuery($chunkSize,$chunkSize*$lookupsCompleted));
+
+        $batch_products = [];
 
         if(count($products) < $chunkSize){
             $recordsRemaining = false;
@@ -35,15 +49,7 @@ class ProductSeeder extends Seeder
         foreach($products as $product){
             if(!empty($product->Prod)){
 
-                //fetch or create category
-                $category = Category::firstOrCreate([
-                    'name' => $product->ProdCat ?? 'Unknown'
-                ]);
-
-                //fetch or create brand
-                $brand = Brand::firstOrCreate([
-                    'name' => $product->Brand ?? 'Unknown'
-                ]);
+                $brand = Brand::where('name', $product->Brand ?: 'Unknown')->first();
 
                 //fetch or create line
                 $line = Line::firstOrCreate([
@@ -51,36 +57,53 @@ class ProductSeeder extends Seeder
                     'brand_id' => $brand->id
                 ]);
 
-                //fetch or create vendor
-                $vendor = Vendor::firstOrCreate([
-                    'name' => $product->Vendor ?? 'Unknown',
-                    'vendor_number' => $product->VendNo ?? 'Unknown'
-                ]);
 
+                // Product::updateOrCreate(
+                //     ['prod' => trim($product->Prod)],
+                //     [
+                //         'account_id' => $account->id,
+                //         'prod' => trim($product->Prod),
+                //         'description' => $product->Description ?? '',
+                //         'look_up_name' => $product->LookupNm ?? '',
+                //         'brand_id' => $brand->id ?? '',
+                //         'vendor_id' => Vendor::where('vendor_number',$product->VendNo ?: 0)->first()->id ?? '',
+                //         'category_id' => Category::where('name',$product->ProdCat ?: 'Unknown')->first()->id ?? '',
+                //         'product_line_id' => $line->id ?? '',
+                //         'active' => $this->translateActive($product->Active),
+                //         'status' => $this->translateStatus($product->Status),
+                //         'list_price' => $product->ListPrice ?? '',
+                //         'usage' => $product->Usage ?? '',
+                //         'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
+                //         'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
+                //         'unit_sell' => $this->getUnitsForProduct($product->Prod, $product->UnitSell),
+                //     ]
+                // );
 
-                Product::updateOrCreate(
-                    ['prod' => trim($product->Prod)],
-                    [
-                        'account_id' => $account->id,
-                        'prod' => trim($product->Prod ?? ''),
-                        'description' => $product->Description ?? '',
-                        'look_up_name' => $product->LookupNm ?? '',
-                        'brand_id' => $brand->id ?? '',
-                        'vendor_id' => $vendor->id ?? '',
-                        'category_id' => $category->id,
-                        'product_line_id' => $line->id ?? '',
-                        'active' => $this->translateActive($product->Active),
-                        'status' => $this->translateStatus($product->Status),
-                        'list_price' => $product->ListPrice ?? '',
-                        'usage' => $product->Usage ?? '',
-                        'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
-                        'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
-                        'unit_sell' => $this->getUnitsForProduct($product->Prod, $product->UnitSell),
-                    ]
-                );
+                $batch_products[] = [
+                    'account_id' => $account->id,
+                    'prod' => trim($product->Prod),
+                    'description' => $product->Description ?? '',
+                    'look_up_name' => $product->LookupNm ?? '',
+                    'brand_id' => $brand->id ?? '',
+                    'vendor_id' => Vendor::where('vendor_number',$product->VendNo ?: 0)->first()->id ?? '',
+                    'category_id' => Category::where('name',$product->ProdCat ?: 'Unknown')->first()->id ?? '',
+                    'product_line_id' => $line->id ?? '',
+                    'active' => $this->translateActive($product->Active),
+                    'status' => $this->translateStatus($product->Status),
+                    'list_price' => $product->ListPrice ?? '',
+                    'usage' => $product->Usage ?? '',
+                    'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
+                    'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
+                    'unit_sell' => $this->getUnitsForProduct($product->Prod, $product->UnitSell),
+                ];
+
     
             }
         }
+
+        Product::upsert($batch_products, ['prod', 'account_id'], ['last_sold_date', 'active', 'status']);
+        dd($batch_products);
+
 
         $lookupsCompleted++;
         }
@@ -127,7 +150,6 @@ class ProductSeeder extends Seeder
                 AND u.whse = w.whse
             WHERE
                 p.cono = 10
-                order by w.enterdt desc
                 OFFSET ".$offset." ROWS 
                 FETCH NEXT ".$limit." ROWS ONLY
         WITH(nolock)";
@@ -181,5 +203,43 @@ class ProductSeeder extends Seeder
 
         return array_unique($data);
     }
+
+    private function seedBrands()
+    {
+        $brands = DB::connection('sx')->select("SELECT DISTINCT user3 AS brand FROM pub.icsl with(nolock)");
+
+        foreach($brands as $brand)
+        {
+            Brand::firstOrCreate([
+                'name' => $brand->BRAND ?: 'Unknown'
+            ]);
+        }
+    }
+
+    private function seedCategory()
+    {
+        $categories = DB::connection('sx')->select("SELECT DISTINCT prodcat AS ProdCat FROM pub.icsp with(nolock)");
+
+        foreach($categories as $category)
+        {
+            Category::firstOrCreate([
+                'name' => $category->PRODCAT ?? 'Unknown'
+            ]);
+        }
+    }
+
+    private function seedVendors()
+    {
+        $vendors = DB::connection('sx')->select("SELECT name,vendno FROM pub.apsv WITH(nolock)");
+
+        foreach($vendors as $vendor)
+        {
+            Vendor::firstOrCreate([
+                'name' => $vendor->name ?: 'Unknown',  'vendor_number' => $vendor->vendno ?: 0
+            ]);
+        }
+    }
+
+
 
 }
