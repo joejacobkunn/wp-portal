@@ -24,22 +24,12 @@ class ProductSeeder extends Seeder
     {
         $account = Account::where('subdomain', 'weingartz')->first();
 
-        //seed brands first
-        // echo "Seeding Brands";
-        // $this->seedBrands();
-        // //seed category 
-        // echo "Seeding Category";
-        // $this->seedCategory();
-        // //seed vendors
-        // echo "Seeding Vendors";
-        // $this->seedVendors();
-
         DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
 
-        echo "Starting Products...";
+        echo "Starting Products...\n";
         $recordsRemaining = true;
         $lookupsCompleted = 0;
-        $chunkSize = 500;
+        $chunkSize = 1000;
 
     while($recordsRemaining){
         $products = DB::connection('sx')->select($this->fetchProductQuery($chunkSize,$chunkSize*$lookupsCompleted));
@@ -53,7 +43,7 @@ class ProductSeeder extends Seeder
         foreach($products as $product){
             if(!empty($product->Prod)){
 
-                $brand = Brand::where('name', $product->Brand ?: 'Unknown')->first();
+                $brand = Brand::without(['products' ])->where('name', $product->Brand ?: 'Unknown')->first();
 
                 //fetch or create line
                 $line = Line::firstOrCreate([
@@ -62,35 +52,14 @@ class ProductSeeder extends Seeder
                 ]);
 
 
-                // Product::updateOrCreate(
-                //     ['prod' => trim($product->Prod)],
-                //     [
-                //         'account_id' => $account->id,
-                //         'prod' => trim($product->Prod),
-                //         'description' => $product->Description ?? '',
-                //         'look_up_name' => $product->LookupNm ?? '',
-                //         'brand_id' => $brand->id ?? '',
-                //         'vendor_id' => Vendor::where('vendor_number',$product->VendNo ?: 0)->first()->id ?? '',
-                //         'category_id' => Category::where('name',$product->ProdCat ?: 'Unknown')->first()->id ?? '',
-                //         'product_line_id' => $line->id ?? '',
-                //         'active' => $this->translateActive($product->Active),
-                //         'status' => $this->translateStatus($product->Status),
-                //         'list_price' => $product->ListPrice ?? '',
-                //         'usage' => $product->Usage ?? '',
-                //         'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
-                //         'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
-                //         'unit_sell' => $this->getUnitsForProduct($product->Prod, $product->UnitSell),
-                //     ]
-                // );
-
                 $batch_products[] = [
                     'account_id' => $account->id,
                     'prod' => trim($product->Prod),
                     'description' => $product->Description ?? '',
                     'look_up_name' => $product->LookupNm ?? '',
                     'brand_id' => $brand->id ?? '',
-                    'vendor_id' => Vendor::where('vendor_number',$product->VendNo ?: 0)->first()->id ?? '',
-                    'category_id' => Category::where('name',$product->ProdCat ?: 'Unknown')->first()->id ?? '',
+                    'vendor_id' => Vendor::without(['products' ])->where('vendor_number',$product->VendNo ?: 0)->first()->id ?? '',
+                    'category_id' => Category::without(['products' ])->where('name',$product->ProdCat ?: 'Unknown')->first()->id ?? '',
                     'product_line_id' => $line->id ?? '',
                     'active' => $this->translateActive($product->Active),
                     'status' => $this->translateStatus($product->Status),
@@ -98,14 +67,13 @@ class ProductSeeder extends Seeder
                     'usage' => $product->Usage ?? '',
                     'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
                     'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
-                    'unit_sell' => json_encode(['EA']),
+                    'unit_sell' => json_encode([$product->UnitSell ?: 'EA']),
                 ];
-
     
             }
         }
 
-        Product::upsert($batch_products, ['prod', 'account_id'], ['last_sold_date', 'active', 'status']);
+        Product::upsert($batch_products, ['prod'], ['last_sold_date', 'active', 'status']);
         
 
 
@@ -117,46 +85,47 @@ class ProductSeeder extends Seeder
     private function fetchProductQuery($limit,$offset)
     {
         return "SELECT
-                upper(p.prod) 'Prod' ,
-                upper(p.descrip[1] + ' ' + p.descrip[2]) 'Description' ,
-                upper(p.lookupnm) 'LookupNm',
-                upper(l.user3) 'Brand',
-                w.arpvendno 'VendNo',
-                upper(v.name) 'Vendor',
-                upper(p.prodcat) 'ProdCat',
-                upper(w.prodline) 'ProdLine' ,
-                upper(p.statustype) 'Active',
-                upper(w.statustype) 'Status',
-                w.listprice 'ListPrice',
-                u.normusage[18] AS 'Usage',
-                w.enterdt 'EnterDt',
-                w.lastinvdt 'LastSold',
-                p.unitsell 'UnitSell'
-            FROM
-                pub.icsp p
-            LEFT JOIN pub.icsw W 
-            ON
-                w.cono = p.cono
-                AND w.prod = p.prod
-            LEFT JOIN pub.icsl L 
-            ON
-                l.cono = w.cono
-                AND l.whse = w.whse
-                AND l.vendno = w.arpvendno
-                AND l.prodline = w.prodline
-            LEFT JOIN pub.apsv V 
-            ON
-                v.cono = w.cono
-                AND v.vendno = w.arpvendno
-            LEFT JOIN pub.icswu u 
-            ON
-                u.cono = w.cono
-                AND u.prod = w.prod
-                AND u.whse = w.whse
-            WHERE
-                p.cono = 10
-                OFFSET ".$offset." ROWS 
-                FETCH NEXT ".$limit." ROWS ONLY
+        upper(w.prod) 'Prod' ,
+        upper(p.descrip[1] + ' ' + p.descrip[2]) 'Description' ,
+        upper(p.lookupnm) 'LookupNm',
+        upper(l.user3) 'Brand',
+        w.arpvendno 'VendNo',
+        upper(v.name) 'Vendor',
+        upper(p.prodcat) 'ProdCat',
+        upper(w.prodline) 'ProdLine' ,
+        upper(p.statustype) 'Active',
+        upper(w.statustype) 'Status',
+        w.listprice 'ListPrice',
+        u.normusage[18] AS 'Usage',
+        w.enterdt 'EnterDt',
+        w.lastinvdt 'LastSold',
+        p.unitsell 'UnitSell'
+    FROM
+        pub.icsp p
+    LEFT JOIN pub.icsw W 
+    ON
+        w.cono = p.cono
+        AND w.whse = 'utic'
+        AND w.prod = p.prod
+    LEFT JOIN pub.icsl L 
+    ON
+        l.cono = w.cono
+        AND l.whse = w.whse
+        AND l.vendno = w.arpvendno
+        AND l.prodline = w.prodline
+    LEFT JOIN pub.apsv V 
+    ON
+        v.cono = w.cono
+        AND v.vendno = w.arpvendno
+    LEFT JOIN pub.icswu u 
+    ON
+        u.cono = w.cono
+        AND u.prod = w.prod
+        AND u.whse = w.whse
+    WHERE
+        p.cono = 10
+        OFFSET ".$offset." ROWS 
+        FETCH NEXT ".$limit." ROWS ONLY
         WITH(nolock)";
     }
 
@@ -209,41 +178,6 @@ class ProductSeeder extends Seeder
         return array_unique($data);
     }
 
-    private function seedBrands()
-    {
-        $brands = DB::connection('sx')->select("SELECT DISTINCT user3 AS brand FROM pub.icsl with(nolock)");
-
-        foreach($brands as $brand)
-        {
-            Brand::firstOrCreate([
-                'name' => $brand->BRAND ?: 'Unknown'
-            ]);
-        }
-    }
-
-    private function seedCategory()
-    {
-        $categories = DB::connection('sx')->select("SELECT DISTINCT prodcat AS ProdCat FROM pub.icsp with(nolock)");
-
-        foreach($categories as $category)
-        {
-            Category::firstOrCreate([
-                'name' => $category->PRODCAT ?? 'Unknown'
-            ]);
-        }
-    }
-
-    private function seedVendors()
-    {
-        $vendors = DB::connection('sx')->select("SELECT name,vendno FROM pub.apsv WITH(nolock)");
-
-        foreach($vendors as $vendor)
-        {
-            Vendor::firstOrCreate([
-                'name' => $vendor->name ?: 'Unknown',  'vendor_number' => $vendor->vendno ?: 0
-            ]);
-        }
-    }
 
 
 
