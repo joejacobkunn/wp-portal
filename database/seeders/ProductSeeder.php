@@ -14,6 +14,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
+
 class ProductSeeder extends Seeder
 {
     /**
@@ -22,6 +23,10 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $account = Account::where('subdomain', 'weingartz')->first();
+
+        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+
+        echo "Starting Products...\n";
         $recordsRemaining = true;
         $lookupsCompleted = 0;
         $chunkSize = 1000;
@@ -29,21 +34,16 @@ class ProductSeeder extends Seeder
     while($recordsRemaining){
         $products = DB::connection('sx')->select($this->fetchProductQuery($chunkSize,$chunkSize*$lookupsCompleted));
 
+        $batch_products = [];
+
         if(count($products) < $chunkSize){
             $recordsRemaining = false;
         }
+        
         foreach($products as $product){
             if(!empty($product->Prod)){
 
-                //fetch or create category
-                $category = Category::firstOrCreate([
-                    'name' => $product->ProdCat ?? 'Unknown'
-                ]);
-
-                //fetch or create brand
-                $brand = Brand::firstOrCreate([
-                    'name' => $product->Brand ?? 'Unknown'
-                ]);
+                $brand = Brand::without(['products' ])->where('name', $product->Brand ?: 'Unknown')->first();
 
                 //fetch or create line
                 $line = Line::firstOrCreate([
@@ -51,85 +51,81 @@ class ProductSeeder extends Seeder
                     'brand_id' => $brand->id
                 ]);
 
-                //fetch or create vendor
-                $vendor = Vendor::firstOrCreate([
-                    'name' => $product->Vendor ?? 'Unknown',
-                    'vendor_number' => $product->VendNo ?? 'Unknown'
-                ]);
 
-
-                Product::updateOrCreate(
-                    ['prod' => trim($product->Prod)],
-                    [
-                        'account_id' => $account->id,
-                        'prod' => trim($product->Prod ?? ''),
-                        'description' => $product->Description ?? '',
-                        'look_up_name' => $product->LookupNm ?? '',
-                        'brand_id' => $brand->id ?? '',
-                        'vendor_id' => $vendor->id ?? '',
-                        'category_id' => $category->id,
-                        'product_line_id' => $line->id ?? '',
-                        'active' => $this->translateActive($product->Active),
-                        'status' => $this->translateStatus($product->Status),
-                        'list_price' => $product->ListPrice ?? '',
-                        'usage' => $product->Usage ?? '',
-                        'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
-                        'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
-                        'unit_sell' => $this->getUnitsForProduct($product->Prod, $product->UnitSell),
-                    ]
-                );
+                $batch_products[] = [
+                    'account_id' => $account->id,
+                    'prod' => trim($product->Prod),
+                    'description' => $product->Description ?? '',
+                    'look_up_name' => $product->LookupNm ?? '',
+                    'brand_id' => $brand->id ?? '',
+                    'vendor_id' => Vendor::without(['products' ])->where('vendor_number',$product->VendNo ?: 0)->first()->id ?? '',
+                    'category_id' => Category::without(['products' ])->where('name',$product->ProdCat ?: 'Unknown')->first()->id ?? '',
+                    'product_line_id' => $line->id ?? '',
+                    'active' => $this->translateActive($product->Active),
+                    'status' => $this->translateStatus($product->Status),
+                    'list_price' => $product->ListPrice ?? '',
+                    'usage' => $product->Usage ?? '',
+                    'entered_date' => $product->EnterDt ? Carbon::parse($product->EnterDt)->format('Y-m-d') : '',
+                    'last_sold_date' => $product->LastSold ? Carbon::parse($product->LastSold)->format('Y-m-d') : '',
+                    'unit_sell' => json_encode([$product->UnitSell ?: 'EA']),
+                ];
     
             }
         }
 
+        Product::upsert($batch_products, ['prod'], ['last_sold_date', 'active', 'status']);
+        
+
+
         $lookupsCompleted++;
         }
+        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
     }
 
     private function fetchProductQuery($limit,$offset)
     {
         return "SELECT
-                upper(p.prod) 'Prod' ,
-                upper(p.descrip[1] + ' ' + p.descrip[2]) 'Description' ,
-                upper(p.lookupnm) 'LookupNm',
-                upper(l.user3) 'Brand',
-                w.arpvendno 'VendNo',
-                upper(v.name) 'Vendor',
-                upper(p.prodcat) 'ProdCat',
-                upper(w.prodline) 'ProdLine' ,
-                upper(p.statustype) 'Active',
-                upper(w.statustype) 'Status',
-                w.listprice 'ListPrice',
-                u.normusage[18] AS 'Usage',
-                w.enterdt 'EnterDt',
-                w.lastinvdt 'LastSold',
-                p.unitsell 'UnitSell'
-            FROM
-                pub.icsp p
-            LEFT JOIN pub.icsw W 
-            ON
-                w.cono = p.cono
-                AND w.prod = p.prod
-            LEFT JOIN pub.icsl L 
-            ON
-                l.cono = w.cono
-                AND l.whse = w.whse
-                AND l.vendno = w.arpvendno
-                AND l.prodline = w.prodline
-            LEFT JOIN pub.apsv V 
-            ON
-                v.cono = w.cono
-                AND v.vendno = w.arpvendno
-            LEFT JOIN pub.icswu u 
-            ON
-                u.cono = w.cono
-                AND u.prod = w.prod
-                AND u.whse = w.whse
-            WHERE
-                p.cono = 10
-                order by w.enterdt desc
-                OFFSET ".$offset." ROWS 
-                FETCH NEXT ".$limit." ROWS ONLY
+        upper(w.prod) 'Prod' ,
+        upper(p.descrip[1] + ' ' + p.descrip[2]) 'Description' ,
+        upper(p.lookupnm) 'LookupNm',
+        upper(l.user3) 'Brand',
+        w.arpvendno 'VendNo',
+        upper(v.name) 'Vendor',
+        upper(p.prodcat) 'ProdCat',
+        upper(w.prodline) 'ProdLine' ,
+        upper(p.statustype) 'Active',
+        upper(w.statustype) 'Status',
+        w.listprice 'ListPrice',
+        u.normusage[18] AS 'Usage',
+        w.enterdt 'EnterDt',
+        w.lastinvdt 'LastSold',
+        p.unitsell 'UnitSell'
+    FROM
+        pub.icsp p
+    LEFT JOIN pub.icsw W 
+    ON
+        w.cono = p.cono
+        AND w.whse = 'utic'
+        AND w.prod = p.prod
+    LEFT JOIN pub.icsl L 
+    ON
+        l.cono = w.cono
+        AND l.whse = w.whse
+        AND l.vendno = w.arpvendno
+        AND l.prodline = w.prodline
+    LEFT JOIN pub.apsv V 
+    ON
+        v.cono = w.cono
+        AND v.vendno = w.arpvendno
+    LEFT JOIN pub.icswu u 
+    ON
+        u.cono = w.cono
+        AND u.prod = w.prod
+        AND u.whse = w.whse
+    WHERE
+        p.cono = 10
+        OFFSET ".$offset." ROWS 
+        FETCH NEXT ".$limit." ROWS ONLY
         WITH(nolock)";
     }
 
@@ -181,5 +177,8 @@ class ProductSeeder extends Seeder
 
         return array_unique($data);
     }
+
+
+
 
 }

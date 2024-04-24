@@ -13,6 +13,7 @@
         "calebporzio/sushi": "^2.4",
         "dbt/odbc-driver": "^2.1",
         "firebase/php-jwt": "^6.4",
+        "genealabs/laravel-model-caching": "^11.0",
         "greenlion/php-sql-parser": "^4.6",
         "guzzlehttp/guzzle": "^7.2",
         "jamesmills/laravel-timezone": "^1.13",

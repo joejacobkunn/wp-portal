@@ -7,7 +7,9 @@ use App\Models\Core\Customer;
 use App\Models\Order\Order as PortalOrder;
 use App\Models\SX\Customer as SXCustomer;
 use App\Models\SX\Order;
+use App\Models\SX\OrderLineItem;
 use Carbon\Carbon;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\Log;
 
 class SXSync
@@ -92,7 +94,6 @@ class SXSync
 
             ]);
 
-            Log::channel('webhook')->info('customer.create : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') created');
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 201);
     }
@@ -133,7 +134,7 @@ class SXSync
             ]
         );
 
-        Log::channel('webhook')->info('customer.update : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') updated');
+        //Log::channel('webhook')->info('customer.update : SX #'.$sx_customer->custno.' ('.trim($sx_customer->name).') updated');
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
 
@@ -183,7 +184,7 @@ class SXSync
             );
         }
 
-        Log::channel('webhook')->info('customer.sx_number_changed : SX #'.$data['old_sx_customer_number'].' has been assigned a new SX#'.$data['new_sx_customer_number']);
+        //Log::channel('webhook')->info('customer.sx_number_changed : SX #'.$data['old_sx_customer_number'].' has been assigned a new SX#'.$data['new_sx_customer_number']);
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id], 200);
     }
@@ -209,7 +210,7 @@ class SXSync
 
         $customer->update(['open_order_count' => $no_open_orders]);
 
-        Log::channel('webhook')->info('customer.order_status_changed : SX #'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
+        //Log::channel('webhook')->info('customer.order_status_changed : SX #'.$data['sx_customer_number'].' has open order count updated to '.$no_open_orders.' from '.$customer->open_order_count);
 
         return response()->json(['status' => 'success', 'customer_id' => $customer->id, 'open_order_count' => $no_open_orders], 200);
     }
@@ -221,7 +222,7 @@ class SXSync
         //if herohub notification if configured
         if ($account->herohubConfig()->exists()) {
 
-            Log::channel('webhook')->info('order.shipped => Sending herohub notification for '.$data['order_no'].'-'.$data['order_suffix']);
+            //Log::channel('webhook')->info('order.shipped => Sending herohub notification for '.$data['order_no'].'-'.$data['order_suffix']);
 
             $herohub = new HeroHub($account);
 
@@ -233,6 +234,7 @@ class SXSync
     private function orderCreated($data)
     {
         $sx_order = Order::where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
+        $line_items = $this->getSxOrderLineItemsProperty($data['order_no'],$data['order_suffix']);
         
         $portal_order = PortalOrder::updateOrCreate(
             [
@@ -251,6 +253,8 @@ class SXSync
                 'qty_ship' => $sx_order['qtyship'],
                 'qty_ord' => $sx_order['qty_ord'],
                 'promise_date' => $sx_order['promisedt'],
+                'line_items' => ['line_items' => $line_items ?: []],
+                'is_sales_order' => $this->isSales($line_items),
                 'status' => 'Pending Review'
             ]
         );
@@ -264,4 +268,66 @@ class SXSync
     {
         return explode(';', $address);
     }
+
+    private function getSxOrderLineItemsProperty($order_number, $order_suffix, $cono = 10)
+    {
+        $required_line_item_columns = [
+            'oeel.orderno',
+            'oeel.ordersuf',
+            'oeel.shipto',
+            'oeel.lineno',
+            'oeel.qtyord',
+            'oeel.proddesc',
+            'oeel.price',
+            'oeel.shipprod',
+            'oeel.statustype',
+            'oeel.prodcat',
+            'oeel.prodline',
+            'oeel.specnstype',
+            'oeel.qtyship',
+            'oeel.ordertype',
+            'oeel.netamt',
+            'oeel.orderaltno',
+            'oeel.user8',
+            'oeel.vendno',
+            'oeel.whse',
+            'oeel.stkqtyord',
+            'oeel.stkqtyship',
+            'oeel.returnfl',
+            'icsp.descrip',
+            'icsl.user3',
+            'icsl.whse',
+            'icsl.prodline',
+        ];
+    
+        return OrderLineItem::select($required_line_item_columns)
+        ->leftJoin('icsp', function (JoinClause $join) {
+            $join->on('oeel.cono','=','icsp.cono')
+            ->on('oeel.shipprod', '=', 'icsp.prod');
+                //->where('icsp.cono', $this->customer->account->sx_company_number);
+        })
+        ->leftJoin('icsl', function (JoinClause $join) {
+            $join->on('oeel.cono','=','icsl.cono')
+                ->on('oeel.whse', '=', 'icsl.whse')
+                ->on('oeel.vendno', '=', 'icsl.vendno')
+                ->on('oeel.prodline', '=', 'icsl.prodline');
+        })
+        ->where('oeel.orderno', $order_number)->where('oeel.ordersuf', $order_suffix)
+        ->where('oeel.cono', $cono)
+        ->orderBy('oeel.lineno', 'asc')
+        ->get()->toArray();
+    }
+
+    private function isSales($line_items)
+    {
+        foreach($line_items as $line_item)
+        {
+            if(str_contains($line_item['prodline'], '-E')) return true;
+        }
+
+        return false;
+    }
+
+
+
 }
