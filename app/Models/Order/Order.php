@@ -35,7 +35,9 @@ class Order extends Model
         'ship_via',
         'qty_ship',
         'qty_ord',
-        'last_followed_up_at'
+        'last_followed_up_at',
+        'line_items',
+        'is_sales_order'
     ];
 
     protected $casts = [
@@ -43,7 +45,8 @@ class Order extends Model
         'promise_date' => 'date',
         'last_followed_up_at' => 'datetime',
         'status' => OrderStatus::class,
-        'dnr_items' => 'array'
+        'dnr_items' => 'array',
+        'line_items' => 'array'
     ];
 
     const LOG_FIELD_MAPS = [

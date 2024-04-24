@@ -70,9 +70,9 @@ class Table extends DataTableComponent
         $this->authorize('viewAny', Order::class);
     }
 
-    public function configuring()
+    public function mount()
     {
-
+        $this->setFilter('stage_codes', 'open');
     }
 
     public function columns(): array
@@ -251,6 +251,22 @@ class Table extends DataTableComponent
                     if($value == 'backorder-sro') $builder->where('is_sro','=',1)->whereColumn('qty_ord','>','qty_ship');
                 }),
 
+                
+                SelectFilter::make('Order Type', 'order_type')
+                ->options([
+                    '' => 'All',
+                    'sro' => 'Show orders that are SRO',
+                    'web' => 'Show orders that are WEB',
+                    'sales' => 'Show orders that are Sales',
+                    'in-store' => 'Show orders that were In-Store'
+                ])->filter(function (Builder $builder, string $value) {
+                    if($value == 'web') $builder->where('taken_by','web');
+                    if($value == 'sro') $builder->where('is_sro','=',1);
+                    if($value == 'sales') $builder->where('is_sales_order',1);
+                    if($value == 'in-store') $builder->where('is_sales_order',0)->where('is_sro', 0)->where('taken_by', '<>', 'web');
+                }),
+
+
             SelectFilter::make('Warehouse', 'whse')
             ->hiddenFromMenus()
                 ->options(['' => 'All Warehouses'] + Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray())->filter(function (Builder $builder, string $value) {
@@ -266,14 +282,19 @@ class Table extends DataTableComponent
                         ->whereDate('order_date', '<=', $dateRange['maxDate']); // maxDate is the end date selected
                 }),
 
-            DateRangeFilter::make('Promise Date', 'promise_date')
-            ->hiddenFromMenus()
-                ->config(['placeholder' => 'Enter Date Range'])
-                ->filter(function (Builder $builder, array $dateRange) { // Expects an array.
-                    $builder
-                        ->whereDate('promise_date', '>=', $dateRange['minDate']) // minDate is the start date selected
-                        ->whereDate('promise_date', '<=', $dateRange['maxDate']); // maxDate is the end date selected
+                SelectFilter::make('Promise Date', 'promise_date')
+                ->hiddenFromMenus()
+                    ->options(['' => 'All'] + [
+                        'past_due' => 'Past Due',
+                        'unknown' => 'Unknown',
+                        'two_weeks_plus' => '2+ Weeks',
+                    ])
+                    ->filter(function (Builder $builder, string $value) {
+                        if($value == 'past_due') $builder->where('promise_date', '<',Carbon::today());
+                        if($value == 'unknown') $builder->where('promise_date', '2049-01-01');
+                        if($value == 'two_weeks_plus') $builder->where('promise_date', '>', Carbon::now()->addWeek(2))->where('promise_date', '<>', '2049-01-01');
                 }),
+    
     
 
             SelectFilter::make('Operators', 'operator')
@@ -283,19 +304,19 @@ class Table extends DataTableComponent
                     $builder->where(DB::raw('lower(taken_by)'), strtolower($value));
             }),
 
-            SelectFilter::make('Stage Codes', 'stage_codes')
+            SelectFilter::make('Stage Code', 'stage_codes')
             ->hiddenFromMenus()
-                ->options(['' => 'All'] + [
-                    0 => 'Quoted',
-                    1 => 'Ordered',
-                    2 => 'Picked',
-                    3 => 'Shipped',
-                    4 => 'Invoiced',
-                    5 => 'Paid',
-                    9 => 'Cancelled',
+                ->options([
+                    'open' => 'Open',
+                    'closed' => 'Closed',
+                    'cancelled' => 'Cancelled',
+                    'quotes' => 'Quotes',
                 ])
                 ->filter(function (Builder $builder, string $value) {
-                    $builder->where('stage_code', $value);
+                    if($value == 'open') $builder->whereIn('stage_code', [1,2]);
+                    if($value == 'closed') $builder->whereIn('stage_code', [3,4,5]);
+                    if($value == 'cancelled') $builder->where('stage_code', 9);
+                    if($value == 'quotes') $builder->where('stage_code', 0);
             }),
 
             SelectFilter::make('Last Follow Up', 'last_followed_up_at')
