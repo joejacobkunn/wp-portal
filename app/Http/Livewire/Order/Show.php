@@ -205,6 +205,7 @@ class Show extends Component
 
             case OrderStatus::ShipmentFollowUp->value:
                     $this->shippingModal = true;
+                    $this->emailTo = $this->order->getWarehouseEmail();
                     $this->templates = NotificationTemplate::active()->where('type','Shipment Follow Up')->get();
                     $this->notificationModal = true;
                     break;
