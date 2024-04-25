@@ -41,7 +41,7 @@ class UpdateOpenOrders extends Command
         foreach($open_orders as $open_order)
         {
             //fetch sx order
-            $sx_order = SXOrder::select('user1','stagecd','shipviaty','totqtyshp','totqtyord','promisedt')->where('cono',$open_order->cono)->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
+            $sx_order = SXOrder::select('user1','stagecd','shipviaty','totqtyshp','totqtyord','promisedt','whse')->where('cono',$open_order->cono)->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
             $status = $open_order->status;
             $line_items = $this->getSxOrderLineItemsProperty($open_order->order_number,$open_order->order_number_suffix);
 

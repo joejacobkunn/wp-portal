@@ -32,7 +32,7 @@ class SxOrderSync extends Command
     {
         $startDate = date('Y-m-d', strtotime('-'.$this->option('months').' months'));
         $endDate = date('Y-m-d');
-        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord'])->where('cono', 10)->whereBetween('enterdt', [$startDate, $endDate])->get();
+        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse'])->where('cono', 10)->whereBetween('enterdt', [$startDate, $endDate])->get();
         foreach($sx_orders as $sx_order)
         {
             $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);

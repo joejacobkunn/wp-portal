@@ -233,7 +233,7 @@ class SXSync
 
     private function orderCreated($data)
     {
-        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
+        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
         $line_items = $this->getSxOrderLineItemsProperty($data['order_no'],$data['order_suffix']);
         
         $portal_order = PortalOrder::updateOrCreate(
