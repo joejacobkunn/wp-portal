@@ -243,17 +243,19 @@ class Table extends DataTableComponent
                     $builder->where(DB::raw('lower(ship_via)'), strtolower($value));
                 }),
 
-                SelectFilter::make('Order Standing', 'order_standing')
+                SelectFilter::make('Order Status', 'order_standing')
                 ->options([
                     '' => 'All',
                     'backorder' => 'Show orders with Backorders',
                     'completed' => 'Show orders that are Completed',
+                    'wt' => 'Show orders that are eligible for Warehouse Transfers',
                     'sro' => 'Show orders that are SRO',
                     'backorder-sro' => 'Show SRO Backorders'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
                     if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
                     if($value == 'sro') $builder->where('is_sro','=',1);
+                    if($value == 'wt') $builder->where('warehouse_transfer_available','=',1);
                     if($value == 'backorder-sro') $builder->where('is_sro','=',1)->whereColumn('qty_ord','>','qty_ship');
                 }),
 
