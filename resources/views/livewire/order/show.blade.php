@@ -294,7 +294,7 @@
                                             @forelse ($this->sx_order_line_items as $item)
                                                 @php
                                                     $backorder_count =
-                                                        intval($order->stkqtyord) - intval($order->stkqtyship);
+                                                        intval($item->stkqtyord) - intval($item->stkqtyship);
                                                 @endphp
 
                                                 <a href="https://weingartz.com//searchPage.action?keyWord={{ $item->shipprod }}"

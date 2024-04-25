@@ -233,7 +233,7 @@ class SXSync
 
     private function orderCreated($data)
     {
-        $sx_order = Order::where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
+        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
         $line_items = $this->getSxOrderLineItemsProperty($data['order_no'],$data['order_suffix']);
         
         $portal_order = PortalOrder::updateOrCreate(
@@ -250,14 +250,17 @@ class SXSync
                 'sx_customer_number' => $sx_order['custno'],
                 'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
                 'ship_via' => strtolower($sx_order['shipviaty']),
-                'qty_ship' => $sx_order['qtyship'],
-                'qty_ord' => $sx_order['qty_ord'],
+                'qty_ship' => $sx_order['totqtyshp'],
+                'qty_ord' => $sx_order['totqtyord'],
                 'promise_date' => $sx_order['promisedt'],
-                'line_items' => ['line_items' => $line_items ?: []],
-                'is_sales_order' => $this->isSales($line_items),
+                'line_items' => ['line_items' => $line_items->toArray() ?: []],
+                'is_sales_order' => $this->isSales($line_items->toArray()),
+                'warehouse_transfer_available' => $this->checkForWarehouseTransfer($sx_order,$line_items),
                 'status' => 'Pending Review'
             ]
         );
+
+        
 
         return response()->json(['status' => 'success', 'portal_order_id' => $portal_order->id], 201);
 
@@ -298,6 +301,7 @@ class SXSync
             'icsl.user3',
             'icsl.whse',
             'icsl.prodline',
+            'oeel.cono',
         ];
     
         return OrderLineItem::select($required_line_item_columns)
@@ -315,7 +319,7 @@ class SXSync
         ->where('oeel.orderno', $order_number)->where('oeel.ordersuf', $order_suffix)
         ->where('oeel.cono', $cono)
         ->orderBy('oeel.lineno', 'asc')
-        ->get()->toArray();
+        ->get();
     }
 
     private function isSales($line_items)
@@ -326,6 +330,32 @@ class SXSync
         }
 
         return false;
+    }
+
+    private function checkForWarehouseTransfer($sx_order, $line_items)
+    {
+        if($sx_order->isBackOrder())
+        {
+            foreach($line_items as $line_item)
+            {
+                $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
+
+                if($backorder_count > 0)
+                {
+                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs'], [strtolower($line_item->whse)]));
+
+                    foreach($inventory_levels as $inventory_level)
+                    {
+                        $available_stock = $inventory_level->qtyonhand - ($inventory_level->qtycommit + $inventory_level->qtyreservd);
+
+                        if($available_stock >= $backorder_count) return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+
     }
 
 
