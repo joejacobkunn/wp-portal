@@ -37,7 +37,8 @@ class Order extends Model
         'qty_ord',
         'last_followed_up_at',
         'line_items',
-        'is_sales_order'
+        'is_sales_order',
+        'warehouse_transfer_available'
     ];
 
     protected $casts = [

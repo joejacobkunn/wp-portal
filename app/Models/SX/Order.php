@@ -78,4 +78,9 @@ class Order extends Model
 
         return $this->shipping_stages[$stage_code];
     }
+
+    public function isBackOrder()
+    {
+        return ($this->totqtyord > $this->totqtyshp) ? true : false;
+    }
 }
