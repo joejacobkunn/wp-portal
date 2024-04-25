@@ -146,5 +146,16 @@ class UpdateOpenOrders extends Command
         ->get();
     }
 
+    private function isSales($line_items)
+    {
+        foreach($line_items as $line_item)
+        {
+            if(str_contains($line_item['prodline'], '-E')) return true;
+        }
+
+        return false;
+    }
+
+
 
 }
