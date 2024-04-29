@@ -38,7 +38,8 @@ class Order extends Model
         'last_followed_up_at',
         'line_items',
         'is_sales_order',
-        'warehouse_transfer_available'
+        'warehouse_transfer_available',
+        'is_web_order'
     ];
 
     protected $casts = [

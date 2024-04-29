@@ -32,7 +32,8 @@ class SxOrderSync extends Command
     {
         $startDate = date('Y-m-d', strtotime('-'.$this->option('months').' months'));
         $endDate = date('Y-m-d');
-        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse'])->where('cono', 10)->whereBetween('enterdt', [$startDate, $endDate])->get();
+        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])->where('cono', 10)->whereBetween('enterdt', [$startDate, $endDate])->get();
+
         foreach($sx_orders as $sx_order)
         {
             $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
@@ -57,6 +58,7 @@ class SxOrderSync extends Command
                     'line_items' => ['line_items' => $line_items->toArray() ?: []],
                     'is_sales_order' => $this->isSales($line_items->toArray()),
                     'warehouse_transfer_available' => $this->checkForWarehouseTransfer($sx_order,$line_items),
+                    'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
                     'status' => $this->status($sx_order['stagecd'])
                 ]
             );

@@ -233,7 +233,7 @@ class SXSync
 
     private function orderCreated($data)
     {
-        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
+        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
         $line_items = $this->getSxOrderLineItemsProperty($data['order_no'],$data['order_suffix']);
         
         $portal_order = PortalOrder::updateOrCreate(
@@ -255,6 +255,7 @@ class SXSync
                 'promise_date' => $sx_order['promisedt'],
                 'line_items' => ['line_items' => $line_items->toArray() ?: []],
                 'is_sales_order' => $this->isSales($line_items->toArray()),
+                'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
                 'warehouse_transfer_available' => $this->checkForWarehouseTransfer($sx_order,$line_items),
                 'status' => 'Pending Review'
             ]
@@ -342,7 +343,7 @@ class SXSync
 
                 if($backorder_count > 0)
                 {
-                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs'], [strtolower($line_item->whse)]));
+                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
 
                     foreach($inventory_levels as $inventory_level)
                     {
