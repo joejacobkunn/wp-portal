@@ -268,7 +268,7 @@ class Table extends DataTableComponent
                     'sales' => 'Show orders that are Sales',
                     'in-store' => 'Show orders that were In-Store'
                 ])->filter(function (Builder $builder, string $value) {
-                    if($value == 'web') $builder->where('taken_by','web');
+                    if($value == 'web') $builder->where('is_web_order',1);
                     if($value == 'sro') $builder->where('is_sro','=',1);
                     if($value == 'sales') $builder->where('is_sales_order',1);
                     if($value == 'in-store') $builder->where('is_sales_order',0)->where('is_sro', 0)->where('taken_by', '<>', 'web');
