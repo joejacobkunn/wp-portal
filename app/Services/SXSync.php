@@ -235,6 +235,7 @@ class SXSync
     {
         $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
         $line_items = $this->getSxOrderLineItemsProperty($data['order_no'],$data['order_suffix']);
+        $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
         
         $portal_order = PortalOrder::updateOrCreate(
             [
@@ -256,7 +257,8 @@ class SXSync
                 'line_items' => ['line_items' => $line_items->toArray() ?: []],
                 'is_sales_order' => $this->isSales($line_items->toArray()),
                 'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
-                'warehouse_transfer_available' => $this->checkForWarehouseTransfer($sx_order,$line_items),
+                'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
+                'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'status' => 'Pending Review'
             ]
         );
@@ -335,6 +337,8 @@ class SXSync
 
     private function checkForWarehouseTransfer($sx_order, $line_items)
     {
+        $line_item_level_statuses = [];
+
         if($sx_order->isBackOrder())
         {
             foreach($line_items as $line_item)
@@ -349,13 +353,18 @@ class SXSync
                     {
                         $available_stock = $inventory_level->qtyonhand - ($inventory_level->qtycommit + $inventory_level->qtyreservd);
 
-                        if($available_stock >= $backorder_count) return true;
+                        if($available_stock >= $backorder_count) $line_item_level_statuses[] = 'wt'; //full wt available
+                        if(!($available_stock >= $backorder_count) && $available_stock > 0) $line_item_level_statuses[] = 'p-wt'; //partial wt transfer
+
                     }
                 }
             }
         }
 
-        return false;
+        if(in_array('wt',$line_item_level_statuses)) return 'wt';
+        if(in_array('p-wt',$line_item_level_statuses)) return 'p-wt';
+
+        return 'n/a';
 
     }
 

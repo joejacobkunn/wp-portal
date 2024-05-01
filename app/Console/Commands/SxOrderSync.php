@@ -37,6 +37,7 @@ class SxOrderSync extends Command
         foreach($sx_orders as $sx_order)
         {
             $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
+            $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
 
             Order::updateOrCreate(            
                 [
@@ -57,7 +58,8 @@ class SxOrderSync extends Command
                     'promise_date' => $sx_order['promisedt'],
                     'line_items' => ['line_items' => $line_items->toArray() ?: []],
                     'is_sales_order' => $this->isSales($line_items->toArray()),
-                    'warehouse_transfer_available' => $this->checkForWarehouseTransfer($sx_order,$line_items),
+                    'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
+                    'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                     'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
                     'status' => $this->status($sx_order['stagecd'])
                 ]
@@ -145,19 +147,20 @@ class SxOrderSync extends Command
 
                 if($backorder_count > 0)
                 {
-                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs'], [strtolower($line_item->whse)]));
+                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
 
                     foreach($inventory_levels as $inventory_level)
                     {
                         $available_stock = $inventory_level->qtyonhand - ($inventory_level->qtycommit + $inventory_level->qtyreservd);
 
-                        if($available_stock >= $backorder_count) return true;
+                        if($available_stock >= $backorder_count) return 'wt'; //full wt available
+                        if($available_stock > 0) return 'p-wt'; //partial wt transfer
                     }
                 }
             }
         }
 
-        return false;
+        return 'n/a';
 
     }
 

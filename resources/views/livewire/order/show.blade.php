@@ -89,9 +89,33 @@
                                         </div>
                                     </li>
 
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Ship Instruction</h3>
+                                            <p class="small pe-4">{{ strtoupper($this->sx_order->shipinstr) }}</p>
+                                        </div>
+                                    </li>
 
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Reference</h3>
+                                            <p class="small pe-4">{{ strtoupper($this->sx_order->refer) }}</p>
+                                        </div>
+                                    </li>
 
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Delivery Date</h3>
+                                            <p class="small pe-4">{{ strtoupper($this->sx_order->user8) }}</p>
+                                        </div>
+                                    </li>
 
+                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                        <div>
+                                            <h3 class="h6 mb-1">Status Comm</h3>
+                                            <p class="small pe-4">{{ strtoupper($this->sx_order->user4) }}</p>
+                                        </div>
+                                    </li>
 
                                 </ul>
                             @endunless
@@ -297,9 +321,7 @@
                                                         intval($item->stkqtyord) - intval($item->stkqtyship);
                                                 @endphp
 
-                                                <a href="https://weingartz.com//searchPage.action?keyWord={{ $item->shipprod }}"
-                                                    target="_blank"
-                                                    class="list-group-item list-group-item-action @if (in_array($item->shipprod, Illuminate\Support\Arr::pluck($this->dnr_line_items, 'shipprod'))) list-group-item-danger @elseif (in_array($item->shipprod, $order->dnr_items ?? [])) border border-warning border-4 @endif"
+                                                <a class="list-group-item list-group-item-action @if (in_array($item->shipprod, Illuminate\Support\Arr::pluck($this->dnr_line_items, 'shipprod'))) list-group-item-danger @elseif (in_array($item->shipprod, $order->dnr_items ?? [])) border border-warning border-4 @endif"
                                                     aria-current="true">
                                                     <div class="d-flex w-100 justify-content-between">
                                                         <h6 class="mb-1">#{{ $item->lineno }} :
@@ -309,6 +331,16 @@
                                                                 <span class="bg-danger text-white">
                                                                     <strong>{{ $backorder_count }}</strong> item(s)
                                                                     backordered</span>
+                                                                <span wire:click='showWTModal({{ $item }})'
+                                                                    class="bg-success text-white">
+                                                                    Click for
+                                                                    WT
+                                                                    <div wire:loading
+                                                                        wire:target='showWTModal({{ $item }})'>
+                                                                        <span class="spinner-border spinner-border-sm"
+                                                                            role="status" aria-hidden="true"></span>
+                                                                    </div>
+                                                                </span>
                                                             @endif
                                                         </h6>
                                                         <small><span class="badge bg-light-success">Category
@@ -392,6 +424,7 @@
             </div>
 
             @include('livewire.order.partials.notification-modal')
+            @include('livewire.order.partials.wt-modal')
 
         </x-slot>
 
