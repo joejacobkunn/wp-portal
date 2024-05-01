@@ -39,7 +39,8 @@ class Order extends Model
         'line_items',
         'is_sales_order',
         'warehouse_transfer_available',
-        'is_web_order'
+        'is_web_order',
+        'partial_warehouse_transfer_available'
     ];
 
     protected $casts = [

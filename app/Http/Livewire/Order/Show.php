@@ -63,6 +63,10 @@ class Show extends Component
 
     public $smsEnabled = true;
     public $emailEnabled = true;
+    public $wtModal = false;
+
+    public $line_item_inventory = [];
+    public $backorder_line_info = [];
     
     public $breadcrumbs = [
         [
@@ -421,6 +425,14 @@ class Show extends Component
         return ($stage_code == 9 || App::environment('local')) ? $this->order_is_cancelled_manually_via_sx = true : $this->order_is_cancelled_manually_via_sx = false;
     }
 
+    public function showWTModal($line_item)
+    {
+        $this->wtModal = true;
+        $sx_line_item = OrderLineItem::where('cono', 10)->where('orderno', $line_item['orderno'])->where('ordersuf',$line_item['ordersuf'])->where('shipprod',$line_item['shipprod'])->first();
+        $this->backorder_line_info = ['prod' => $line_item['shipprod'],'whse' =>  $line_item['whse'],'backorder_count' => intval($line_item['stkqtyord']) - intval($line_item['stkqtyship'])];
+        $this->line_item_inventory = $sx_line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item['whse'])]));
+    }
+
     public function clipboardCopied()
     {
         $this->alert('success','Copied to clipboard');
@@ -432,6 +444,7 @@ class Show extends Component
         $this->reset('followUpModal');
         $this->reset('receivingModal');
         $this->reset('notificationModal');
+        $this->reset('wtModal');
     }
 
 

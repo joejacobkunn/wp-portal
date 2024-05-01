@@ -248,15 +248,13 @@ class Table extends DataTableComponent
                     '' => 'All',
                     'backorder' => 'Show orders with Backorders',
                     'completed' => 'Show orders that are Completed',
-                    'wt' => 'Show orders that are eligible for Warehouse Transfers',
-                    'sro' => 'Show orders that are SRO',
-                    'backorder-sro' => 'Show SRO Backorders'
+                    'wt' => 'Show orders that are WT',
+                    'p-wt' => 'Show orders that are Partial WT',
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
                     if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
-                    if($value == 'sro') $builder->where('is_sro','=',1);
                     if($value == 'wt') $builder->where('warehouse_transfer_available','=',1);
-                    if($value == 'backorder-sro') $builder->where('is_sro','=',1)->whereColumn('qty_ord','>','qty_ship');
+                    if($value == 'p-wt') $builder->where('partial_warehouse_transfer_available','=',1);
                 }),
 
                 
