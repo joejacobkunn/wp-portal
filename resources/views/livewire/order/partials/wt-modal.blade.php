@@ -25,8 +25,9 @@
                                     <div class="card-body">
                                         <p>This will transfer
                                             <strong>{{ $backorder_line_info['backorder_count'] }}</strong> of
-                                            {{ $backorder_line_info['prod'] ?? '' }} to
-                                            <strong>{{ $wt_whse }}</strong>.
+                                            {{ strtoupper($backorder_line_info['prod']) ?? '' }} from
+                                            <strong>{{ $wt_whse }}</strong> to
+                                            <strong>{{ $backorder_line_info['whse'] }}</strong>.
                                             Fill out the
                                             fields below to
                                             initaite transfer.
@@ -60,7 +61,7 @@
                                                 <button
                                                     wire:click="transferToWarehouse('{{ $wt_whse }}', '{{ $backorder_line_info['prod'] }}', '{{ $backorder_line_info['backorder_count'] }}')"
                                                     class="btn btn-primary"><i class="fas fa-exchange-alt"></i>
-                                                    Transfer to
+                                                    Transfer from
                                                     {{ $wt_whse }}
                                                     <div wire:loading
                                                         wire:target="transferToWarehouse('{{ $wt_whse }}', '{{ $backorder_line_info['prod'] }}', '{{ $backorder_line_info['backorder_count'] }}')">
