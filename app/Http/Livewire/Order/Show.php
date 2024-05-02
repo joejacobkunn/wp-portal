@@ -523,7 +523,7 @@ class Show extends Component
             ->causedBy(User::find($this->order->last_updated_by))
             ->performedOn($this->order)
             ->event('custom')
-            ->log('Warehouse Transfer (#'.$this->wt_transfer_number.') => Transferred '.$qty.' qty of '.$prod.' to '.$whse);
+            ->log('Warehouse Transfer (#'.$this->wt_transfer_number.') => Transferred '.$qty.' qty of '.$prod.' from '.$whse);
         }
 
  
