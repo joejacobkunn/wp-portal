@@ -6,6 +6,8 @@ return [
 
     'key' => env('KENECT_KEY'),
 
-    'endpoint' => 'https://api.kenect.com'
+    'endpoint' => 'https://api.kenect.com',
+
+    'location' => env('KENECT_LOCATION')
 
 ];

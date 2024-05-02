@@ -60,7 +60,7 @@
             </div>
         </div>
 
-
+        <h5 class="card-title mb-3">Email</h5>
         <div class="row">
             <div class="col-md-12 mb-3">
                 <div class="pre-genkey-div">
@@ -79,6 +79,22 @@
         </div>
 
         @if ($cancelOrderModal)
+            <h5 class="card-title mb-3">SMS</h5>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <x-forms.checkbox label="Send SMS" :value="1" :model="'smsEnabled'" />
+                </div>
+            </div>
+
+            @if ($smsEnabled)
+                <x-forms.input label="Phone Number" model="smsPhone" />
+                <div class="row">
+                    <div class="col-md-12 mb-3 mt-3">
+                        <x-forms.textarea label="Text Message" model="smsMessage" lazy />
+                    </div>
+                </div>
+            @endif
             <x-slot name="footer">
                 <button wire:click="cancelOrder" wire:loading.attr="disabled" type="button"
                     class="pre-genkey-div btn btn-danger">
@@ -99,6 +115,23 @@
         @endif
 
         @if ($followUpModal)
+            <h5 class="card-title mb-3">SMS</h5>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <x-forms.checkbox label="Send SMS" :value="1" :model="'smsEnabled'" />
+                </div>
+            </div>
+
+            @if ($smsEnabled)
+                <x-forms.input label="Phone Number" model="smsPhone" />
+                <div class="row">
+                    <div class="col-md-12 mb-3 mt-3">
+                        <x-forms.textarea label="Text Message" model="smsMessage" lazy />
+                    </div>
+                </div>
+            @endif
+
             <x-slot name="footer">
                 <button wire:click="sendEmail" type="button" class="pre-genkey-div btn btn-success"
                     wire:loading.attr="disabled">

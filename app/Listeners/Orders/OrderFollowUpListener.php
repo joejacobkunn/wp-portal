@@ -6,6 +6,7 @@ use App\Classes\SX;
 use App\Events\Orders\OrderFollowUp;
 use App\Models\Core\User;
 use App\Notifications\Orders\OrderFollowUpNotification;
+use App\Services\Kenect;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Notification;
@@ -40,6 +41,16 @@ class OrderFollowUpListener
             ->performedOn($event->order)
             ->event('custom')
             ->log('Sent '.$event->order->status->value.' Email "'.$event->mailSubject);
+
+
+                     //sent sms
+         
+         if($event->sms_enabled)
+         {
+            $kenect = new Kenect();
+            $kenect->send($event->sms_phone, $event->sms_message);
+         }
+
     
             //add note to sx order notes if there was a follow up
             if(!App::environment('local'))
