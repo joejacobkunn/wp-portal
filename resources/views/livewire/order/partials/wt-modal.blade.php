@@ -92,11 +92,15 @@
                                 @foreach ($line_item_inventory as $inventory)
                                     @php $inventory_level = $inventory->qtyonhand - ($inventory->qtycommit + $inventory->qtyreservd) @endphp
                                     <tr @if ($inventory_level >= $backorder_line_info['backorder_count']) class="table-success" @endif>
-                                        <td>{{ $inventory->whse }}</td>
+                                        <td>{{ strtoupper($inventory->whse) }}</td>
                                         <td>{{ $inventory->qtyonhand }}</td>
-                                        <td>{{ $inventory->qtycommit }}</td>
-                                        <td>{{ $inventory->qtyreservd }}</td>
-                                        <td>{{ $inventory_level }} @if ($inventory_level >= $backorder_line_info['backorder_count'])
+                                        <td @if ($inventory->qtycommit > 0) class="text-danger" @endif>
+                                            {{ $inventory->qtycommit }}</td>
+                                        <td @if ($inventory->qtyreservd > 0) class="text-danger" @endif>
+                                            {{ $inventory->qtyreservd }}</td>
+                                        <td @if ($inventory_level > 0) class="text-success" @endif>
+                                            <strong>{{ $inventory_level }}</strong>
+                                            @if ($inventory_level >= $backorder_line_info['backorder_count'])
                                                 <button wire:click="setWarehouseTransfer('{{ $inventory->whse }}')"
                                                     class="btn btn-sm btn-outline-success float-end"><i
                                                         class="fas fa-plus"></i> WT

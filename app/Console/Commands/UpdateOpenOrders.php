@@ -44,6 +44,7 @@ class UpdateOpenOrders extends Command
             $sx_order = SXOrder::select('user1','stagecd','shipviaty','totqtyshp','totqtyord','promisedt','whse')->where('cono',$open_order->cono)->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
             $status = $open_order->status;
             $line_items = $this->getSxOrderLineItemsProperty($open_order->order_number,$open_order->order_number_suffix);
+            $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
 
             $updated_count++;
             if(in_array($sx_order->stagecd, [3,4,5])) $status = 'Closed';
@@ -58,7 +59,8 @@ class UpdateOpenOrders extends Command
                 'qty_ord' => $sx_order['totqtyord'],
                 'line_items' => ['line_items' => $line_items->toArray() ?: []],
                 'is_sales_order' => $this->isSales($line_items->toArray()),
-                'warehouse_transfer_available' => $this->checkForWarehouseTransfer($sx_order,$line_items),
+                'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
+                'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'promise_date' => Carbon::parse($sx_order['promisedt'])->format('Y-m-d'),
             ]);
 
@@ -72,29 +74,37 @@ class UpdateOpenOrders extends Command
 
     private function checkForWarehouseTransfer($sx_order, $line_items)
     {
+        $line_item_level_statuses = [];
+
         if($sx_order->isBackOrder())
         {
             foreach($line_items as $line_item)
             {
                 $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
 
-                if($backorder_count > 0)
+                if($backorder_count > 0 && strtolower($line_item->ordertype) != 't')
                 {
-                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs'], [strtolower($line_item->whse)]));
+                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
 
                     foreach($inventory_levels as $inventory_level)
                     {
                         $available_stock = $inventory_level->qtyonhand - ($inventory_level->qtycommit + $inventory_level->qtyreservd);
 
-                        if($available_stock >= $backorder_count) return true;
+                        if($available_stock >= $backorder_count) $line_item_level_statuses[] = 'wt'; //full wt available
+                        if(!($available_stock >= $backorder_count) && $available_stock > 0) $line_item_level_statuses[] = 'p-wt'; //partial wt transfer
+
                     }
                 }
             }
         }
 
-        return false;
+        if(in_array('wt',$line_item_level_statuses)) return 'wt';
+        if(in_array('p-wt',$line_item_level_statuses)) return 'p-wt';
+
+        return 'n/a';
 
     }
+
 
     private function getSxOrderLineItemsProperty($order_number, $order_suffix, $cono = 10)
     {
