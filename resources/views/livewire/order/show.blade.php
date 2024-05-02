@@ -89,33 +89,41 @@
                                         </div>
                                     </li>
 
-                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                        <div>
-                                            <h3 class="h6 mb-1">Ship Instruction</h3>
-                                            <p class="small pe-4">{{ strtoupper($this->sx_order->shipinstr) }}</p>
-                                        </div>
-                                    </li>
+                                    @if (!empty($this->sx_order->shipinstr))
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <div>
+                                                <h3 class="h6 mb-1">Ship Instruction</h3>
+                                                <p class="small pe-4">{{ strtoupper($this->sx_order->shipinstr) }}</p>
+                                            </div>
+                                        </li>
+                                    @endif
 
-                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                        <div>
-                                            <h3 class="h6 mb-1">Reference</h3>
-                                            <p class="small pe-4">{{ strtoupper($this->sx_order->refer) }}</p>
-                                        </div>
-                                    </li>
+                                    @if (!empty($this->sx_order->refer))
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <div>
+                                                <h3 class="h6 mb-1">Reference</h3>
+                                                <p class="small pe-4">{{ strtoupper($this->sx_order->refer) }}</p>
+                                            </div>
+                                        </li>
+                                    @endif
 
-                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                        <div>
-                                            <h3 class="h6 mb-1">Delivery Date</h3>
-                                            <p class="small pe-4">{{ strtoupper($this->sx_order->user8) }}</p>
-                                        </div>
-                                    </li>
+                                    @if (!empty($this->sx_order->user8))
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <div>
+                                                <h3 class="h6 mb-1">Delivery Date</h3>
+                                                <p class="small pe-4">{{ strtoupper($this->sx_order->user8) }}</p>
+                                            </div>
+                                        </li>
+                                    @endif
 
-                                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
-                                        <div>
-                                            <h3 class="h6 mb-1">Status Comm</h3>
-                                            <p class="small pe-4">{{ strtoupper($this->sx_order->user4) }}</p>
-                                        </div>
-                                    </li>
+                                    @if (!empty($this->sx_order->user4))
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <div>
+                                                <h3 class="h6 mb-1">Status Comm</h3>
+                                                <p class="small pe-4">{{ strtoupper($this->sx_order->user4) }}</p>
+                                            </div>
+                                        </li>
+                                    @endif
 
                                 </ul>
                             @endunless
@@ -334,7 +342,7 @@
 
                                                                 @if (str_contains(json_encode($order->wt_transfers), $item->shipprod))
                                                                     <span class="px-1 bg-primary text-white">
-                                                                        WT In-Process
+                                                                        WT In-Process {{ $item->ordertype }}
                                                                     </span>
                                                                 @else
                                                                     <span wire:click='showWTModal({{ $item }})'

@@ -7,6 +7,7 @@ use App\Enums\Order\OrderStatus;
 use App\Events\Orders\OrderCancelled;
 use App\Models\Core\User;
 use App\Notifications\Orders\OrderCancelledNotification;
+use App\Services\Kenect;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -46,6 +47,15 @@ class OrderCancelledListener
             ->performedOn($event->order)
             ->event('custom')
             ->log('Sent Cancellation Email "'.$event->mailSubject.'" to customer');
+
+
+         //sent sms
+         
+         if($event->sms_enabled)
+         {
+            $kenect = new Kenect();
+            $kenect->send($event->sms_phone, $event->sms_message);
+         }
 
         //add note to sx order notes if cancelled
 

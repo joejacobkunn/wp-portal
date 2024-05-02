@@ -20,6 +20,7 @@ use App\Models\Order\Order;
 use App\Models\SX\Operator;
 use App\Models\SX\Shipping;
 use App\Models\SX\WarehouseProduct;
+use App\Services\Kenect;
 use App\Services\Kinect;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
@@ -30,6 +31,7 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Laravel\Telescope\Storage\EntryModel;
 use Laravel\Telescope\Telescope;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class Show extends Component
 {
@@ -127,7 +129,9 @@ class Show extends Component
         return [
             'emailTo' => 'required|email',
             'emailSubject' => 'required',
-            'emailContent' => 'required'
+            'emailContent' => 'required',
+            'smsPhone' => [Rule::requiredIf($this->smsEnabled), 'digits:10'],
+            'smsMessage' => [Rule::requiredIf($this->smsEnabled), 'min:10', 'max:160']
         ];
     }
 
@@ -139,6 +143,7 @@ class Show extends Component
 
     public function mount() 
     {
+        $kenect = new Kenect();
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
         $this->authorize('view', $this->order);
@@ -189,6 +194,8 @@ class Show extends Component
         $this->emailSubject = '';
         $this->templateId = '';
         $this->emailTo = '';
+        $this->smsMessage = '';
+        $this->smsPhone = '';
 
 
         switch ($status) {
@@ -203,6 +210,7 @@ class Show extends Component
                 $this->cancelOrderModal = true;
                 $this->order_is_cancelled_manually_via_sx = $this->order->stagecd == 9 ? 1 : 0;
                 $this->emailTo = $this->customer->email;
+                $this->smsPhone = $this->customer->phoneno;
                 $this->notificationModal = true;
                 break;
 
@@ -242,7 +250,7 @@ class Show extends Component
         $this->order->save();
         $this->closePopup('cancelOrderModal');
 
-        event(new OrderCancelled($this->order, $this->emailSubject, $this->emailContent, $this->emailTo));
+        event(new OrderCancelled($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
 
     }
 
@@ -254,7 +262,7 @@ class Show extends Component
             $this->order->last_followed_up_at = now();
             $this->order->save();
             $this->closePopup('followUpModal');
-            event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->emailTo));
+            event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
     }
 
     public function sendShippingEmail()
@@ -434,8 +442,8 @@ class Show extends Component
 
     public function showWTModal($line_item)
     {
-        $this->wt_due_date = '';
-        $this->wt_req_ship_date = '';
+        $this->wt_due_date = $this->getWTDate();
+        $this->wt_req_ship_date = $this->getWTDate();
         $this->wt_whse = '';
         $this->wt_transfer_number = '';
         $this->wtModal = true;
@@ -474,8 +482,8 @@ class Show extends Component
                         "transdt" => now()->format('Y-m-d'), 
                         "reqshipdt" => $this->wt_req_ship_date, 
                         "shipinstr" => "PORTAL", 
-                        "whse" => strtoupper($this->order->whse), 
-                        "towhse" => strtoupper($whse) 
+                        "whse" => strtoupper($whse), 
+                        "towhse" => strtoupper($this->order->whse)
                     ] 
                     ] 
                 ], 
@@ -600,6 +608,14 @@ class Show extends Component
         }
 
         return [];
+    }
+
+    private function getWTDate()
+    {
+        $date = now()->addDays(2);
+        if($date->isSaturday()) $date->addDays(2);
+        if($date->isSunday()) $date->addDays(1);
+        return $date->format('Y-m-d');
     }
 
 

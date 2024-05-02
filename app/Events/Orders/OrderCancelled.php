@@ -25,15 +25,24 @@ class OrderCancelled
 
     public $customer_name;
 
+    public $sms_phone;
+
+    public $sms_message;
+
+    public $sms_enabled;
+
     /**
      * Create a new event instance.
      */
-    public function __construct($order, $mailSubject, $mailContent, $email)
+    public function __construct($order, $mailSubject, $mailContent, $email, $smsPhone, $smsMessage, $smsEnabled)
     {
         $this->order = $order;
         $this->mailSubject = $mailSubject;
         $this->mailContent = $mailContent;
         $this->email = $email;
+        $this->sms_phone = $smsPhone;
+        $this->sms_message = $smsMessage;
+        $this->sms_enabled = $smsEnabled;
         $this->customer_name = Customer::where('sx_customer_number', $order->sx_customer_number)->first()?->name;
     }
 
