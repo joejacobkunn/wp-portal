@@ -333,8 +333,8 @@
                                                                     backordered</span>
 
                                                                 @if (str_contains(json_encode($order->wt_transfers), $item->shipprod))
-                                                                    <span class="px-1 bg-success text-white">
-                                                                        WT Complete
+                                                                    <span class="px-1 bg-primary text-white">
+                                                                        WT In-Process
                                                                     </span>
                                                                 @else
                                                                     <span wire:click='showWTModal({{ $item }})'

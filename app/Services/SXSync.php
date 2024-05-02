@@ -345,7 +345,7 @@ class SXSync
             {
                 $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
 
-                if($backorder_count > 0)
+                if($backorder_count > 0 && strtolower($line_item->ordertype) != 't')
                 {
                     $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
 
