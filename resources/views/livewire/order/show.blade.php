@@ -328,19 +328,26 @@
                                                             {{ $item->user3 }} {{ $item->shipprod }}
                                                             {{ $item->cleanDescription() }}
                                                             @if ($backorder_count > 0)
-                                                                <span class="bg-danger text-white">
+                                                                <span class="px-1 bg-danger text-white">
                                                                     <strong>{{ $backorder_count }}</strong> item(s)
                                                                     backordered</span>
-                                                                <span wire:click='showWTModal({{ $item }})'
-                                                                    class="bg-success text-white">
-                                                                    Click for
-                                                                    WT
-                                                                    <div wire:loading
-                                                                        wire:target='showWTModal({{ $item }})'>
-                                                                        <span class="spinner-border spinner-border-sm"
-                                                                            role="status" aria-hidden="true"></span>
-                                                                    </div>
-                                                                </span>
+
+                                                                @if (str_contains(json_encode($order->wt_transfers), $item->shipprod))
+                                                                    <span class="px-1 bg-success text-white">
+                                                                        WT Complete
+                                                                    </span>
+                                                                @else
+                                                                    <span wire:click='showWTModal({{ $item }})'
+                                                                        class="px-1 bg-secondary text-white">
+                                                                        Click for
+                                                                        WT
+                                                                        <div wire:loading
+                                                                            wire:target='showWTModal({{ $item }})'>
+                                                                            <span class="spinner-border spinner-border-sm"
+                                                                                role="status" aria-hidden="true"></span>
+                                                                        </div>
+                                                                    </span>
+                                                                @endif
                                                             @endif
                                                         </h6>
                                                         <small><span class="badge bg-light-success">Category

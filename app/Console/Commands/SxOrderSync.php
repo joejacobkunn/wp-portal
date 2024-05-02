@@ -139,6 +139,8 @@ class SxOrderSync extends Command
 
     private function checkForWarehouseTransfer($sx_order, $line_items)
     {
+        $line_item_level_statuses = [];
+
         if($sx_order->isBackOrder())
         {
             foreach($line_items as $line_item)
@@ -153,15 +155,20 @@ class SxOrderSync extends Command
                     {
                         $available_stock = $inventory_level->qtyonhand - ($inventory_level->qtycommit + $inventory_level->qtyreservd);
 
-                        if($available_stock >= $backorder_count) return 'wt'; //full wt available
-                        if($available_stock > 0) return 'p-wt'; //partial wt transfer
+                        if($available_stock >= $backorder_count) $line_item_level_statuses[] = 'wt'; //full wt available
+                        if(!($available_stock >= $backorder_count) && $available_stock > 0) $line_item_level_statuses[] = 'p-wt'; //partial wt transfer
+
                     }
                 }
             }
         }
 
+        if(in_array('wt',$line_item_level_statuses)) return 'wt';
+        if(in_array('p-wt',$line_item_level_statuses)) return 'p-wt';
+
         return 'n/a';
 
     }
+
 
 }

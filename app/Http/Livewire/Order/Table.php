@@ -87,6 +87,7 @@ class Table extends DataTableComponent
                     if($row->qty_ord > $row->qty_ship) $link = $link.'<span class="badge bg-light-warning float-end">BACKORDER</span>';
                     if($row->is_sro) $link = $link.'<span class="badge bg-light-info float-end">SRO</span>';
                     if($row->warehouse_transfer_available) $link = $link.'<span class="badge bg-light-primary float-end">WT</span>';
+                    if($row->partial_warehouse_transfer_available) $link = $link.'<span class="badge bg-light-primary float-end">P-WT</span>';
                     return $link;
                 })
                 ->html(),
@@ -98,6 +99,11 @@ class Table extends DataTableComponent
             Column::make('Warehouse Transfer', 'warehouse_transfer_available')
                 ->hideIf(1)
                 ->html(),
+
+                Column::make('Partial Warehouse Transfer', 'partial_warehouse_transfer_available')
+                ->hideIf(1)
+                ->html(),
+
 
 
 

@@ -40,7 +40,8 @@ class Order extends Model
         'is_sales_order',
         'warehouse_transfer_available',
         'is_web_order',
-        'partial_warehouse_transfer_available'
+        'partial_warehouse_transfer_available',
+        'wt_transfers'
     ];
 
     protected $casts = [
@@ -49,7 +50,8 @@ class Order extends Model
         'last_followed_up_at' => 'datetime',
         'status' => OrderStatus::class,
         'dnr_items' => 'array',
-        'line_items' => 'array'
+        'line_items' => 'array',
+        'wt_transfers' => 'array'
     ];
 
     const LOG_FIELD_MAPS = [
