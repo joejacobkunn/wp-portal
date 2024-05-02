@@ -503,6 +503,29 @@ class SX
             }
     }
 
+    public function warehouse_transfer($request)
+    {
+        $response = Http::withToken($this->token())
+        ->acceptJson()
+        ->withBody(json_encode($request), 'application/json')
+        ->post($this->endpoint.'/sxapiwttransferordermnt');
+
+        if ($response->ok()) {
+            $data = [];
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response;
+            
+            return [
+                'status' => 'success',
+                'wt_number' => $response_body->response->createdWarehouseTransferNumber,
+            ];
+
+        }
+
+    }
+
+
 
 
     public function mock($function, $request)

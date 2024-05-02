@@ -13,6 +13,7 @@ use App\Events\Orders\OrderCancelled;
 use App\Events\Orders\OrderFollowUp;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Comment;
+use App\Models\Core\User;
 use App\Models\Core\Warehouse;
 use App\Models\Order\NotificationTemplate;
 use App\Models\Order\Order;
@@ -67,6 +68,12 @@ class Show extends Component
 
     public $line_item_inventory = [];
     public $backorder_line_info = [];
+
+    public $wt_due_date;
+    public $wt_req_ship_date;
+    public $wt_whse;
+    public $wt_transfer_number;
+
     
     public $breadcrumbs = [
         [
@@ -427,10 +434,92 @@ class Show extends Component
 
     public function showWTModal($line_item)
     {
+        $this->wt_due_date = '';
+        $this->wt_req_ship_date = '';
+        $this->wt_whse = '';
+        $this->wt_transfer_number = '';
         $this->wtModal = true;
         $sx_line_item = OrderLineItem::where('cono', 10)->where('orderno', $line_item['orderno'])->where('ordersuf',$line_item['ordersuf'])->where('shipprod',$line_item['shipprod'])->first();
         $this->backorder_line_info = ['prod' => $line_item['shipprod'],'whse' =>  $line_item['whse'],'backorder_count' => intval($line_item['stkqtyord']) - intval($line_item['stkqtyship'])];
         $this->line_item_inventory = $sx_line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item['whse'])]));
+    }
+
+    public function setWarehouseTransfer($whse)
+    {
+        $this->wt_whse = $whse;
+    }
+
+    public function transferToWarehouse($whse,$prod,$qty)
+    {
+        $this->validate([
+            'wt_req_ship_date' => 'required|date|after:yesterday',
+            'wt_due_date' => 'required|date|after:yesterday'
+        ]);
+
+
+        $wt_request = [
+        "request" => [
+                "companyNumber" => 10, 
+                "operatorInit" => "WEB", 
+                "operatorPassword" => "", 
+                "retrieveChangeWarehouseTransferNumber" => 0, 
+                "retrieveChangeWarehouseTransferSuffix" => 0, 
+                "tWtmntheader" => [
+                    "t-inwtmntheader" => [
+                    [
+                        "duedt" => $this->wt_due_date, 
+                        "enterdt" => now()->format('Y-m-d'), 
+                        "orderdt" => now()->format('Y-m-d'), 
+                        "refer" => "PORTAL", 
+                        "transdt" => now()->format('Y-m-d'), 
+                        "reqshipdt" => $this->wt_req_ship_date, 
+                        "shipinstr" => "PORTAL", 
+                        "whse" => strtoupper($this->order->whse), 
+                        "towhse" => strtoupper($whse) 
+                    ] 
+                    ] 
+                ], 
+                "tWtmntline" => [
+                            "t-inwtmntline" => [
+                                [
+                                "lineno" => 1, 
+                                "newrecordfl" => true, 
+                                "deleterecordfl" => false, 
+                                "changerecordfl" => false, 
+                                "duedt" => $this->wt_due_date, 
+                                "enterdt" => now()->format('Y-m-d'), 
+                                "qtyord" => $qty, 
+                                "approvedt" => now()->format('Y-m-d'), 
+                                "shipprod" => $prod 
+                                ] 
+                            ] 
+                        ] 
+            ] 
+        ]; 
+
+        $sx_client = new SX();
+
+        $sx_response = $sx_client->warehouse_transfer($wt_request);
+
+        if($sx_response['status'] == 'success')
+        {
+            $this->wt_transfer_number = $sx_response['wt_number'];
+            $wt_transfers = !empty($this->order->wt_transfers) ? $this->order->wt_transfers : [];
+            array_push($wt_transfers,['prod' => $prod, 'wt_transfer' => $this->wt_transfer_number]);
+            $this->order->update([
+                'last_updated_by' => auth()->user()->id,
+                'wt_transfers' => $wt_transfers
+            ]);
+
+            activity()
+            ->causedBy(User::find($this->order->last_updated_by))
+            ->performedOn($this->order)
+            ->event('custom')
+            ->log('Warehouse Transfer (#'.$this->wt_transfer_number.') => Transferred '.$qty.' qty of '.$prod.' to '.$whse);
+        }
+
+ 
+ 
     }
 
     public function clipboardCopied()
