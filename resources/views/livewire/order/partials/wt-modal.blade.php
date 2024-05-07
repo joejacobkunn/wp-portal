@@ -15,7 +15,8 @@
 
                         <div class="alert alert-light-warning color-warning">
                             Backordered at
-                            <strong>{{ $backorder_line_info['whse'] }} by {{ $backorder_line_info['backorder_count'] }}
+                            <strong>{{ strtoupper($backorder_line_info['whse']) }} by
+                                {{ $backorder_line_info['backorder_count'] }}
                                 qty(s)</strong>
                         </div>
 
@@ -26,8 +27,8 @@
                                         <p>This will transfer
                                             <strong>{{ $backorder_line_info['backorder_count'] }}</strong> of
                                             {{ strtoupper($backorder_line_info['prod']) ?? '' }} from
-                                            <strong>{{ $wt_whse }}</strong> to
-                                            <strong>{{ $backorder_line_info['whse'] }}</strong>.
+                                            <strong>{{ strtoupper($wt_whse) }}</strong> to
+                                            <strong>{{ strtoupper($backorder_line_info['whse']) }}</strong>.
                                             Fill out the
                                             fields below to
                                             initaite transfer.
