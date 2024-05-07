@@ -54,6 +54,24 @@ class Index extends Component
         'value' => null,
         'current_price' => null,
         'product_code' => null,
+        'reason' => null,
+    ];
+
+    public $measureUpdateModal = false;
+    public $measureUpdateData = [
+        'index' => null,
+        'value' => null,
+        'current_measure' => null,
+        'product_code' => null,
+        'options' => [],
+    ];
+    public $deliveryMethod = null;
+    public $shippingOptionSelected = null;
+    public $shippingOptions = [
+        'U11' => 'U11 - UPS Ground',
+        'U02' => 'U02 - UPS AirSaver',
+        'U01' => 'U01 - UPS Next Day',
+        'FEDX' => 'FEDX - FedEx Ground',
     ];
 
     protected $listeners = [
@@ -62,6 +80,7 @@ class Index extends Component
         'closeNewCustomer',
         'closeBreakdownModal',
         'closePriceUpdateModal',
+        'closeMeasureUpdateModal',
         'customer:created' => 'newCustomerCreated',
         'customer:form:cancel' => 'closeNewCustomer',
         'product:cart:selected' => 'ackAddToCart', //ack prod selection from table
@@ -327,7 +346,6 @@ class Index extends Component
     public function proceedToPayment()
     {
         $this->customerSelected = $this->customerResultSelected;
-        $this->activeTab = 3;
         $this->preparePriceData();
         $this->customerSearchModal = false;
     }
@@ -337,14 +355,7 @@ class Index extends Component
         $this->resetValidation();
         $this->resetErrorBag();
         $this->resetCustomerSelection();
-
-        if (empty($this->waiveCustomerInfo)) {
-            $this->customerSelected = [];
-            $this->activeTab = 2;
-        } else {
-            $this->customerSelected = [];
-            $this->activeTab = 3;
-        }
+        $this->customerSelected = [];
 
         $this->preparePriceData();
     }
@@ -584,10 +595,6 @@ class Index extends Component
             return $this->addError('productQuery', 'Invalid Product Code.' );
         }
 
-        if ($searchResponse['stock'] < 1) {
-            return $this->addError('productQuery', 'Out of stock.' );
-        }
-
         $productCode = $this->productQuery;
         $this->cart[$productCode] = [
             'product_code' => $productCode,
@@ -609,23 +616,12 @@ class Index extends Component
         $this->productSearchModal = false;
     }
 
-    public function updatedUnitOfMeasure($cartIndex, $value, $recheckValidation = true)
-    {
-        $name = 'cart.'. $cartIndex . '.unit_of_measure';
-        $this->fieldUpdated($name, $value, $recheckValidation);
-
-        $prodId = $this->cart[$cartIndex]['product_code'];
-        if (empty($this->cart[$cartIndex]['price_overridden'])) {
-            $this->priceModel[$prodId] = [];
-        }
-        $this->preparePriceData();
-    }
-
     public function showOverridePriceModal($cartIndex)
     {
         $this->priceUpdateModal = true;
         $this->priceUpdateData['index'] = $cartIndex;
         $this->priceUpdateData['value'] = null;
+        $this->priceUpdateData['reason'] = null;
 
 
         $product = $this->cart[$cartIndex];
@@ -635,9 +631,23 @@ class Index extends Component
 
     public function confirmOverridePrice()
     {
+        $this->resetValidation();
+        
+        if (!$this->priceUpdateData['value'] || !$this->priceUpdateData['reason']) {
+            if (trim($this->priceUpdateData['value']) == '') {
+                $this->addError('priceUpdateData.value', 'Price field is required.' );
+            }
+            if (trim($this->priceUpdateData['reason']) == '') {
+                $this->addError('priceUpdateData.reason', 'Reason field is required.' );
+            }
+
+            return;
+        }
+
         $productCode = $this->priceUpdateData['index'];
         $this->priceModel[$productCode]['new_set_price'] = $this->priceUpdateData['value'];
         $this->cart[$productCode]['price_overridden'] = true;
+        $this->cart[$productCode]['price_overridde_reason'] = $this->priceUpdateData['reason'];
         $this->preparePriceData();
         $this->closePriceUpdateModal();
     }
@@ -650,5 +660,54 @@ class Index extends Component
         $this->priceUpdateData['value'] = null;
         $this->priceUpdateData['product_code'] = null;
         $this->priceUpdateData['current_price'] = null;
+    }
+
+    public function showChangeUnitOfMeasure($cartIndex)
+    {
+        $product = $this->cart[$cartIndex];
+
+        if (empty($product['unit_sell']) || !is_array($product['unit_sell']) || count($product['unit_sell']) < 2) {
+            return;
+        }
+
+        $this->measureUpdateModal = true;
+        $this->measureUpdateData['index'] = $cartIndex;
+        $this->measureUpdateData['value'] = $product['unit_of_measure'];
+
+        $this->measureUpdateData['product_code'] = $cartIndex;
+        $this->measureUpdateData['options'] = $product['unit_sell'];
+        $this->measureUpdateData['current_measure'] = $product['unit_of_measure'];
+
+        $this->measureUpdateModal = true;
+    }
+
+    public function updatedUnitOfMeasure($cartIndex, $value, $recheckValidation = true)
+    {
+        $this->measureUpdateData['index'] = $cartIndex;
+        $this->measureUpdateData['value'] = $value;
+    }
+
+    public function confirmMeasureUpdate()
+    {
+        $cartIndex = $this->measureUpdateData['index'];
+        $name = 'cart.'. $cartIndex . '.unit_of_measure';
+        $this->fieldUpdated($name, $this->measureUpdateData['value'], true);
+
+        $prodId = $this->cart[$cartIndex]['product_code'];
+        if (empty($this->cart[$cartIndex]['price_overridden'])) {
+            $this->priceModel[$prodId] = [];
+        }
+        $this->preparePriceData();
+        $this->closeMeasureUpdateModal();
+    }
+
+    public function closeMeasureUpdateModal()
+    {
+        $this->measureUpdateModal = false;
+        $this->measureUpdateData['index'] = null;
+        $this->measureUpdateData['value'] = null;
+        $this->measureUpdateData['options'] = [];
+        $this->measureUpdateData['product_code'] = null;
+        $this->measureUpdateData['current_price'] = null;
     }
 }
