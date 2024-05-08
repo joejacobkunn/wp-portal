@@ -97,6 +97,11 @@ class Table extends DataTableComponent
                 ->hideIf(1)
                 ->html(),
 
+                Column::make('Golf Parts', 'golf_parts')
+                ->hideIf(1)
+                ->html(),
+
+
             Column::make('Warehouse Transfer', 'warehouse_transfer_available')
                 ->hideIf(1)
                 ->html(),
