@@ -58,6 +58,8 @@
                                 Order(Bulleted List)</span>
                             <span class="list-group-item"><mark>[DNRItems]</mark> => DNR Items in Order (Bulleted
                                 List)</span>
+                            <span class="list-group-item"><mark>[GolfItems]</mark> => Golf Items in Web Order (Bulleted
+                                List)</span>
                             <span class="list-group-item"><mark>[NonDNRItems]</mark> => Non DNR Items in Order
                                 (Bulleted List)</span>
                             <span class="list-group-item text-primary"><strong>For manual placeholders, use {}

@@ -111,10 +111,6 @@ class ActivityLog extends Component
                     $formattedLog['title'] = $causersList[$log->causer_id] ?? "" . " Created the ". $this->recordType;
                     $formattedLog['icon'] = 'fas fa-plus-circle';
                 } elseif ($log->event == 'updated') {
-                    if($this->showOnlyUserActivity && !empty($causersList[$log->causer_id]))
-                    {
-                        
-                    }
                     $formattedLog['title'] = $causersList[$log->causer_id] ?? "" . " Updated the ". $this->recordType;
                     $formattedLog['icon'] = 'fas fa-user-edit';
                     $updatedFields = $log->changes();

@@ -142,8 +142,6 @@ class Order extends Model
 
         foreach($line_items as $line_item)
         {
-            if($line_item->isBackOrder())
-            {
                 $wprod = DB::connection('sx')->select("SELECT top 1 arpvendno FROM pub.icsw 
                                             WHERE cono = ? AND whse = ? AND prod = ? with(nolock) ", [$line_item->cono,$line_item->whse, $line_item->shipprod]);
 
@@ -151,7 +149,6 @@ class Order extends Model
                 {
                     if($wprod[0]->arpvendno == '68878') $golf_parts[] = $line_item->prod;
                 }
-            }
         }
 
         return (!empty($golf_parts)) ? $golf_parts : null;
