@@ -130,8 +130,8 @@ class Show extends Component
             'emailTo' => 'required|email',
             'emailSubject' => 'required',
             'emailContent' => 'required',
-            'smsPhone' => [Rule::requiredIf($this->smsEnabled), 'digits:10'],
-            'smsMessage' => [Rule::requiredIf($this->smsEnabled), 'min:10', 'max:160']
+            'smsPhone' => [Rule::requiredIf($this->smsEnabled)],
+            'smsMessage' => [Rule::requiredIf($this->smsEnabled)]
         ];
     }
 
