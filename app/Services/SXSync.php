@@ -259,6 +259,7 @@ class SXSync
                 'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
                 'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
+                'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
                 'status' => 'Pending Review'
             ]
         );
