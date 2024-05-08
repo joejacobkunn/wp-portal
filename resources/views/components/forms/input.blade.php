@@ -35,9 +35,11 @@
             placeholder="{{ $placeholder ?? '' }}"
             value="{{ $value ?? '' }}"
             {{  $isDisabled ? "disabled" : "" }}
-            wire:model.{{ (!empty($defer) ? 'defer' : (!empty($lazy) ? 'lazy': 'debounce.500ms')) }}="{{ $model ?? '' }}"
+            wire:model.{{ (!empty($defer) ? 'defer' : (!empty($live) ? 'live.debounce.150ms': 'lazy')) }}="{{ $model ?? '' }}"
             wire:keyup="{{ $keyup ?? '' }}"
             maxlength="{{ isset($maxLength) ?  $maxLength : -1 }}"
+            {!!  !empty($enterAction) ? 'wire:keydown.enter="'. $enterAction .'"' : '' !!}
+            autocomplete="{{ !empty($autocompleteOff) ? 'off' : 'on' }}"
             >
 
         @if(!empty($appendIcon) || !empty($appendText))
