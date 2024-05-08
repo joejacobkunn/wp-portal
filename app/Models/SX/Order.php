@@ -147,7 +147,7 @@ class Order extends Model
 
                 if(!empty($wprod))
                 {
-                    if($wprod[0]->arpvendno == '68878') $golf_parts[] = $line_item->prod;
+                    if($wprod[0]->arpvendno == '68878') $golf_parts[] = $line_item->shipprod;
                 }
         }
 
