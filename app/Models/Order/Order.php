@@ -41,7 +41,8 @@ class Order extends Model
         'warehouse_transfer_available',
         'is_web_order',
         'partial_warehouse_transfer_available',
-        'wt_transfers'
+        'wt_transfers',
+        'golf_parts'
     ];
 
     protected $casts = [
@@ -51,7 +52,8 @@ class Order extends Model
         'status' => OrderStatus::class,
         'dnr_items' => 'array',
         'line_items' => 'array',
-        'wt_transfers' => 'array'
+        'wt_transfers' => 'array',
+        'golf_parts' => 'array'
     ];
 
     const LOG_FIELD_MAPS = [
@@ -68,6 +70,8 @@ class Order extends Model
             'field_label' => 'Status',
         ],
     ];
+
+    public bool $logOnlyDirty = true;
 
     private $stage_codes = [
         0 => 'Quoted',
