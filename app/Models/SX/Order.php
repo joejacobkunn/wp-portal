@@ -6,6 +6,8 @@ use App\Models\Scopes\WithnolockScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -49,6 +51,56 @@ class Order extends Model
         return $this->belongsTo(Customer::class, 'customer_id');
     }
 
+    public function getLineItems()
+    {
+        $required_line_item_columns = [
+            'oeel.orderno',
+            'oeel.ordersuf',
+            'oeel.shipto',
+            'oeel.lineno',
+            'oeel.qtyord',
+            'oeel.proddesc',
+            'oeel.price',
+            'oeel.shipprod',
+            'oeel.statustype',
+            'oeel.prodcat',
+            'oeel.prodline',
+            'oeel.specnstype',
+            'oeel.qtyship',
+            'oeel.ordertype',
+            'oeel.netamt',
+            'oeel.orderaltno',
+            'oeel.user8',
+            'oeel.vendno',
+            'oeel.whse',
+            'oeel.stkqtyord',
+            'oeel.stkqtyship',
+            'oeel.returnfl',
+            'icsp.descrip',
+            'icsl.user3',
+            'icsl.whse',
+            'icsl.prodline',
+            'oeel.cono',
+        ];
+    
+        return OrderLineItem::select($required_line_item_columns)
+        ->leftJoin('icsp', function (JoinClause $join) {
+            $join->on('oeel.cono','=','icsp.cono')
+            ->on('oeel.shipprod', '=', 'icsp.prod');
+                //->where('icsp.cono', $this->customer->account->sx_company_number);
+        })
+        ->leftJoin('icsl', function (JoinClause $join) {
+            $join->on('oeel.cono','=','icsl.cono')
+                ->on('oeel.whse', '=', 'icsl.whse')
+                ->on('oeel.vendno', '=', 'icsl.vendno')
+                ->on('oeel.prodline', '=', 'icsl.prodline');
+        })
+        ->where('oeel.orderno', $this->orderno)->where('oeel.ordersuf', $this->ordersuf)
+        ->where('oeel.cono', $this->cono)
+        ->orderBy('oeel.lineno', 'asc')
+        ->get();
+    }
+
     public function shipping()
     {
 
@@ -82,5 +134,26 @@ class Order extends Model
     public function isBackOrder()
     {
         return ($this->totqtyord > $this->totqtyshp) ? true : false;
+    }
+
+    public function hasGolfParts($line_items)
+    {
+        $golf_parts = [];
+
+        foreach($line_items as $line_item)
+        {
+            if($line_item->isBackOrder())
+            {
+                $wprod = DB::connection('sx')->select("SELECT top 1 arpvendno FROM pub.icsw 
+                                            WHERE cono = ? AND whse = ? AND prod = ? with(nolock) ", [$line_item->cono,$line_item->whse, $line_item->shipprod]);
+
+                if(!empty($wprod))
+                {
+                    if($wprod[0]->arpvendno == '68878') $golf_parts[] = $line_item->prod;
+                }
+            }
+        }
+
+        return (!empty($golf_parts)) ? $golf_parts : null;
     }
 }
