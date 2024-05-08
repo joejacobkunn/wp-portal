@@ -125,21 +125,13 @@
                                             @if ($item['stock'] > 0)
                                                 {{ $item['stock'] }}
                                             @else
-                                                <span class="text-danger">{{ $item['stock'] }}</span>
+                                                <span class="alert-danger px-2">Backorder</span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if(!empty($item['unit_sell']) && is_array($item['unit_sell']))
-                                                <x-forms.select
-                                                    :model="$cartIndex"
-                                                    :options="$item['unit_sell']"
-                                                    :selected="$item['unit_of_measure'] ?? null"
-                                                    default-option="false"
-                                                    listener="unit_of_measure:updated"
-                                                />
-                                            @endif
+                                            <span class="{{ !empty($item['unit_sell']) && is_array($item['unit_sell']) && count($item['unit_sell']) > 1 ? 'multi-units ' : '' }}" wire:click="showChangeUnitOfMeasure('{{ $cartIndex }}')">{{ $item['unit_of_measure'] }}</span>
                                         </td>
-                                        <td><span class="price-update-span" wire:click="showOverridePriceModal('{{ $cartIndex }}')">${{ number_format($item['price'], 2) }}</span></td>
+                                        <td><span class="price-update-span {{ !empty($item['price_overridden']) ? 'alert-warning px-2' : '' }}" wire:click="showOverridePriceModal('{{ $cartIndex }}')">${{ number_format($item['price'], 2) }}</span></td>
                                         <td>
                                             <div class="quantity-div">
                                                 <div class="input-group w-75">
@@ -197,8 +189,13 @@
                         @if (empty($customerSelected))
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <x-forms.input label="Search Customer" model="customerQuery"
-                                        placeholder="Search By Name / SX # / Address / Phone # / Email" defer />
+                                    <x-forms.input
+                                        label="Search Customer"
+                                        model="customerQuery"
+                                        placeholder="Search By Name / SX # / Address / Phone # / Email"
+                                        defer 
+                                        enterAction="searchCustomer"
+                                        />
                                 </div>
                                 <div class="col-sm-8">
                                     <button class="btn btn-primary mt-4 search-btn" type="button"
@@ -254,13 +251,13 @@
                             <div class="form-group">
                                 <h6>Preferred Contact Method</h6>
                                 <div class="input-group mb-3">
-                                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">SMS</button>
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ $selectedContactMethod }}</button>
                                     <ul class="dropdown-menu" style="">
-                                        <li><a class="dropdown-item" href="#">SMS</a></li>
-                                        <li><a class="dropdown-item" href="#">Call</a></li>
-                                        <li><a class="dropdown-item" href="#">Email</a></li>
+                                        <li><a class="dropdown-item" href="#" wire:click="updateContactMethod('SMS')">SMS</a></li>
+                                        <li><a class="dropdown-item" href="#" wire:click="updateContactMethod('Call')">Call</a></li>
+                                        <li><a class="dropdown-item" href="#" wire:click="updateContactMethod('Email')">Email</a></li>
                                     </ul>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" wire:model="contactMethodValue">
                                 </div>
                             </div>
                         </div>
@@ -271,9 +268,23 @@
                             label="Delivery Method"
                             name="lender_required"
                             :items="[ 'Customer Taking With', 'Customer Pick Up Later', 'Shipping']"
-                            model="asd"
+                            model="deliveryMethod"
                         />
                     </div>
+
+                    @if($deliveryMethod == 'Shipping')
+                    <div class="row">
+                        <div class="col-sm-3 offset-sm-6">
+                            <x-forms.select
+                                :model="$shippingOptionSelected"
+                                :options="$shippingOptions"
+                                :selected="$shippingOptionSelected ?? null"
+                                default-option="false"
+                            />    
+                        </div>
+                    </div>
+                    @endif
+
                 </div>
             </div>
         </div>
@@ -355,6 +366,31 @@
                                         @endforelse
                                     </div>
                                 </div>
+                            @elseif ($paymentMethod == 'cash')
+                            <hr/>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group mt-2">
+                                        <label><i class="fas fa-calculator"></i> Change Helper</label>
+                                        <div class="ms-3 mt-2">
+                                            <span>Collected Amount</span>
+                                            <x-forms.input
+                                                no-label
+                                                type="number"
+                                                model="collectedAmount"
+                                                prependText="$"
+                                                live
+                                                autocomplete-off
+                                            />
+
+                                            @if($collectedAmount)
+                                            <label>{!! ($returnAmount > 0 ? 'Return Amount <span class="alert-success px-2">' . format_money(abs($returnAmount)) . '</span>'  : 'Additional Amount Required <span class="alert-danger px-2">'. format_money(abs($returnAmount)) . '</span>')  !!}</label>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr/>
                             @endif
 
                             <div class="mt-3">
@@ -404,11 +440,51 @@
                 model="priceUpdateData.value"
                 prependText="$"
             />
+
+            <x-forms.textarea
+                label="Reason for price update"
+                model="priceUpdateData.reason"
+                prependText="$"
+            />
         </div>
 
         <x-slot name="footer">
             <button wire:click="confirmOverridePrice()" type="button" class="btn btn-success">
                 <span wire:loading wire:target="confirmOverridePrice"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"></span> Update
+            </button>
+        </x-slot>
+
+    </x-modal>
+
+    <x-modal :toggle="$measureUpdateModal" closeEvent="closeMeasureUpdateModal">
+        <x-slot name="title">
+            <div class="">Update Unit Of Measure</div>
+        </x-slot>
+        
+        <div>
+            <div>
+                <h3 class="h6 mb-1">Product Code</h3>
+                <p class="small pe-4">{{ $measureUpdateData['product_code'] }}</p>
+
+            </div>
+
+            <x-forms.select
+                label="Select Measure"
+                :model="$measureUpdateData['index']"
+                :options="$measureUpdateData['options']"
+                :selected="$measureUpdateData['value'] ?? null"
+                default-option="false"
+                listener="unit_of_measure:updated"
+                key="select-{{ $measureUpdateData['index'] . $measureUpdateData['value'] }}"
+            />
+        </div>
+
+        <x-slot name="footer">
+            <button wire:click="confirmMeasureUpdate()" type="button" class="btn btn-success">
+                <span wire:loading wire:target="confirmMeasureUpdate"
                     class="spinner-border spinner-border-sm"
                     role="status"
                     aria-hidden="true"></span> Update

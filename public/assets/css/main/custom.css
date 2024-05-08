@@ -569,3 +569,7 @@
 .text-link {
     cursor: pointer;
 }
+.checkout-outer-div .multi-units {
+    border-bottom: 1px dashed #333;
+    cursor: pointer;
+}
