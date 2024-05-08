@@ -2,13 +2,14 @@
 
 namespace App\Models\Product;
 
+use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Vendor extends Model
 {
-    use HasFactory;
+    use HasFactory,Cachable;
 
     protected $table = 'product_vendors';
 
