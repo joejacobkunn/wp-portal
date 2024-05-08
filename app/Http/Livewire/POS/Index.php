@@ -73,6 +73,10 @@ class Index extends Component
         'U01' => 'U01 - UPS Next Day',
         'FEDX' => 'FEDX - FedEx Ground',
     ];
+    public $selectedContactMethod = 'SMS';
+    public $contactMethodValue = '';
+    public $collectedAmount;
+    public $returnAmount;
 
     protected $listeners = [
         'closeProductSearch',
@@ -326,7 +330,7 @@ class Index extends Component
             return $this->addError('customerQuery', 'Customer not found' );
         }
 
-        $this->customerResultSelected = current($this->customerResult);
+        $this->selectCustomer(current($this->customerResult)['id']);
         $this->lastCustomerQuery = $this->customerQuery;
         $this->reset('customerQuery', 'customerSelected');
 
@@ -341,11 +345,19 @@ class Index extends Component
     public function selectCustomer($id)
     {
         $this->customerResultSelected = $this->customerResult[$id];
+        $this->contactMethodValue = '';
     }
 
     public function proceedToPayment()
     {
         $this->customerSelected = $this->customerResultSelected;
+
+        if ($this->selectedContactMethod == 'Email') {
+            $this->contactMethodValue = empty($this->contactMethodValue) && !empty($this->customerSelected['email']) ? $this->customerSelected['email'] : $this->contactMethodValue;
+        } else {
+            $this->contactMethodValue = empty($this->contactMethodValue) && !empty($this->customerSelected['phone']) ? $this->customerSelected['phone'] : $this->contactMethodValue;
+        }
+
         $this->preparePriceData();
         $this->customerSearchModal = false;
     }
@@ -709,5 +721,25 @@ class Index extends Component
         $this->measureUpdateData['options'] = [];
         $this->measureUpdateData['product_code'] = null;
         $this->measureUpdateData['current_price'] = null;
+    }
+
+    public function updateContactMethod($contactMethod)
+    {
+        $this->selectedContactMethod = $contactMethod;
+
+        if ($contactMethod == 'Email') {
+            $this->contactMethodValue =  is_numeric($this->contactMethodValue) || empty($this->contactMethodValue) && !empty($this->customerSelected['email']) ? $this->customerSelected['email'] : $this->contactMethodValue;
+        } else {
+            $this->contactMethodValue =  strpos($this->contactMethodValue, '@') !== false || empty($this->contactMethodValue) && !empty($this->customerSelected['phone']) ? $this->customerSelected['phone'] : $this->contactMethodValue;
+        }
+    }
+
+    public function updatedCollectedAmount()
+    {
+        if ($this->collectedAmount) {
+            $this->returnAmount = $this->collectedAmount - $this->netPrice;
+        } else {
+            $this->returnAmount = null;
+        }
     }
 }

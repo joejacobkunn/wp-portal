@@ -189,8 +189,13 @@
                         @if (empty($customerSelected))
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <x-forms.input label="Search Customer" model="customerQuery"
-                                        placeholder="Search By Name / SX # / Address / Phone # / Email" defer />
+                                    <x-forms.input
+                                        label="Search Customer"
+                                        model="customerQuery"
+                                        placeholder="Search By Name / SX # / Address / Phone # / Email"
+                                        defer 
+                                        enterAction="searchCustomer"
+                                        />
                                 </div>
                                 <div class="col-sm-8">
                                     <button class="btn btn-primary mt-4 search-btn" type="button"
@@ -246,13 +251,13 @@
                             <div class="form-group">
                                 <h6>Preferred Contact Method</h6>
                                 <div class="input-group mb-3">
-                                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">SMS</button>
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ $selectedContactMethod }}</button>
                                     <ul class="dropdown-menu" style="">
-                                        <li><a class="dropdown-item" href="#">SMS</a></li>
-                                        <li><a class="dropdown-item" href="#">Call</a></li>
-                                        <li><a class="dropdown-item" href="#">Email</a></li>
+                                        <li><a class="dropdown-item" href="#" wire:click="updateContactMethod('SMS')">SMS</a></li>
+                                        <li><a class="dropdown-item" href="#" wire:click="updateContactMethod('Call')">Call</a></li>
+                                        <li><a class="dropdown-item" href="#" wire:click="updateContactMethod('Email')">Email</a></li>
                                     </ul>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" wire:model="contactMethodValue">
                                 </div>
                             </div>
                         </div>
@@ -361,6 +366,31 @@
                                         @endforelse
                                     </div>
                                 </div>
+                            @elseif ($paymentMethod == 'cash')
+                            <hr/>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group mt-2">
+                                        <label><i class="fas fa-calculator"></i> Change Helper</label>
+                                        <div class="ms-3 mt-2">
+                                            <span>Collected Amount</span>
+                                            <x-forms.input
+                                                no-label
+                                                type="number"
+                                                model="collectedAmount"
+                                                prependText="$"
+                                                live
+                                                autocomplete-off
+                                            />
+
+                                            @if($collectedAmount)
+                                            <label>{!! ($returnAmount > 0 ? 'Return Amount <span class="alert-success px-2">' . format_money(abs($returnAmount)) . '</span>'  : 'Additional Amount Required <span class="alert-danger px-2">'. format_money(abs($returnAmount)) . '</span>')  !!}</label>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr/>
                             @endif
 
                             <div class="mt-3">
@@ -412,7 +442,7 @@
             />
 
             <x-forms.textarea
-                label="Reason"
+                label="Reason for price update"
                 model="priceUpdateData.reason"
                 prependText="$"
             />
