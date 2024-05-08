@@ -2,12 +2,13 @@
 
 namespace App\Models\Product;
 
+use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Line extends Model
 {
-    use HasFactory;
+    use HasFactory,Cachable;
 
     protected $table = 'product_lines';
 
