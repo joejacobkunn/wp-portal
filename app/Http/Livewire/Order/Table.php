@@ -88,6 +88,7 @@ class Table extends DataTableComponent
                     if($row->is_sro) $link = $link.'<span class="badge bg-light-info float-end">SRO</span>';
                     if($row->warehouse_transfer_available) $link = $link.'<span class="badge bg-light-primary float-end">WT</span>';
                     if($row->partial_warehouse_transfer_available) $link = $link.'<span class="badge bg-light-primary float-end">P-WT</span>';
+                    if(!empty($row->golf_parts)) $link = $link.'<span class="badge bg-light-primary float-end">GOLF</span>';
                     return $link;
                 })
                 ->html(),
@@ -270,12 +271,14 @@ class Table extends DataTableComponent
                     'sro' => 'Show orders that are SRO',
                     'web' => 'Show orders that are WEB',
                     'sales' => 'Show orders that are Sales',
-                    'in-store' => 'Show orders that were In-Store'
+                    'in-store' => 'Show orders that were In-Store',
+                    'golf' => 'Show orders that have Golf Parts (WEB)'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'web') $builder->where('is_web_order',1);
                     if($value == 'sro') $builder->where('is_sro','=',1);
                     if($value == 'sales') $builder->where('is_sales_order',1);
                     if($value == 'in-store') $builder->where('is_sales_order',0)->where('is_sro', 0)->where('taken_by', '<>', 'web');
+                    if($value == 'golf') $builder->where('golf_parts', '<>', null);
                 }),
 
 

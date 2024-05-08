@@ -558,6 +558,7 @@ class Show extends Component
         if(Str::contains($template,'[WarehousePhone]')) $template = Str::replace('[WarehousePhone]', Warehouse::where('short', strtolower($this->order->whse))->first()->phone, $template);
         if(Str::contains($template,'[ShipVia]')) $template = Str::replace('[ShipVia]', $this->shipping?->getCarrier() , $template);
         if(Str::contains($template,'[ShippingTrackingNumber]')) $template = Str::replace('[ShippingTrackingNumber]', $this->shipping?->trackerno , $template);
+        if(Str::contains($template,'[GolfItems]')) $template = Str::replace('[GolfItems]', $this->formatGolfLineItems($this->backorder_line_items), $template);
         return $template;
     }
 
@@ -574,6 +575,24 @@ class Show extends Component
 
         return $html;
     }
+
+    private function formatGolfLineItems($line_items)
+    {
+        $html = '<ul>';
+        
+        foreach($line_items as $item)
+        {
+            if(in_array($item->prod, $this->order->golf_parts ?? []))
+            {
+                $html .= '<li>'.$item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).'</li>';
+            }
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
 
     private function formatOtherLineItems($line_items)
     {
