@@ -1,0 +1,34 @@
+[
+    {
+        "group": "Equipment",
+        "user_groups": [
+            "super-admin",
+            "master-admin"
+        ],
+        "items": [
+            {
+                "name": "equipment.unavailable.view",
+                "label": "View Demo/Unavailable Equipments in possession"
+            },
+            {
+                "name": "equipment.unavailable.viewall",
+                "label": "View all users Demo/Unavailable Equipments"
+            },
+            {
+                "name": "equipment.unavailable.manage",
+                "label": "Manage Demo/Unavailable Equipments",
+                "description": "Permission to update location of the unavailable equipment"
+            },
+            {
+                "name": "equipment.unavailable.reports.view",
+                "label": "View Unavailable Reports",
+                "description": "Permission to view own reports"
+            },
+            {
+                "name": "equipment.unavailable.reports.viewall",
+                "label": "View All Unavailable Reports",
+                "description": "Permission to see all users reports"
+            },
+        ]
+    }
+]

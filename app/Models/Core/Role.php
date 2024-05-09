@@ -37,7 +37,7 @@ class Role extends BaseRole
     public function scopeWithRoleType($query, $user)
     {
         return $query->when($user->isMasterAdmin(), function ($query) {
-            $query->where('master_type', true);
+            $query->where('master_type', true)->orWhere('account_type', true);
         })->when(!$user->isMasterAdmin(), function ($query) {
             $query->where('account_type', true);
         });

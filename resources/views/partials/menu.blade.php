@@ -72,6 +72,26 @@
 
     @endif
 
+    @if (auth()->user()->account->hasModule('equipment'))
+        <li class="menu-item {{ request()->is('equipment*') ? 'active' : '' }}  has-sub">
+            <a href="#" class="menu-link">
+                <span><i class="far fa-list-alt"></i> Equipment</span>
+            </a>
+            <div class="submenu ">
+                <div class="submenu-group-wrapper">
+                    <ul class="submenu-group">
+                        @canany(['equipment.unavailable.view'])
+                            <li class="submenu-item  ">
+                                <a href="{{ route('equipment.unavailable.index') }}" wire:navigate class="submenu-link">Demo Units</a>
+                            </li>
+                        @endcan
+                    </ul>
+                </div>
+            </div>
+        </li>
+    @endif
+
+
     @if (auth()->user()->account->hasModule('orders'))
 
         @canany(['order.view'])

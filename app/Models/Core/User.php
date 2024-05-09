@@ -36,6 +36,7 @@ class User extends Authenticatable
         'email',
         'abbreviation',
         'sx_operator_id',
+        'unavailable_equipments_id',
         'title',
         'office_location',
         'is_active'
