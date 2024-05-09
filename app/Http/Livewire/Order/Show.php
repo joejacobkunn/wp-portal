@@ -143,7 +143,6 @@ class Show extends Component
 
     public function mount() 
     {
-        $kenect = new Kenect();
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
         $this->authorize('view', $this->order);
@@ -223,6 +222,7 @@ class Show extends Component
                     break;
 
             case OrderStatus::ShipmentFollowUp->value:
+                    $this->smsEnabled = false;
                     $this->shippingModal = true;
                     $this->emailTo = $this->order->getWarehouseEmail();
                     $this->templates = NotificationTemplate::active()->where('type','Shipment Follow Up')->get();
@@ -230,6 +230,7 @@ class Show extends Component
                     break;
 
             case OrderStatus::ReceivingFollowUp->value:
+                    $this->smsEnabled = false;
                     $this->receivingModal = true;
                     $this->emailTo = $this->order->getWarehouseEmail();
                     $this->templates = NotificationTemplate::active()->where('type','Receiving Follow Up')->get();
@@ -273,7 +274,7 @@ class Show extends Component
         $this->order->last_followed_up_at = now();
         $this->order->save();
         $this->closePopup('shippingModal');
-        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->shippingEmail));
+        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->shippingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
 
     }
 
@@ -285,7 +286,7 @@ class Show extends Component
         $this->order->last_followed_up_at = now();
         $this->order->save();
         $this->closePopup('receivingModal');
-        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->receivingEmail));
+        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->receivingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
     }
 
     public function getCustomerProperty()
@@ -478,7 +479,7 @@ class Show extends Component
                         "duedt" => $this->wt_due_date, 
                         "enterdt" => now()->format('Y-m-d'), 
                         "orderdt" => now()->format('Y-m-d'), 
-                        "refer" => "PORTAL", 
+                        "refer" => $this->order->order_number.'-'.$this->order->order_number_suffix, 
                         "transdt" => now()->format('Y-m-d'), 
                         "reqshipdt" => $this->wt_req_ship_date, 
                         "shipinstr" => "PORTAL", 
