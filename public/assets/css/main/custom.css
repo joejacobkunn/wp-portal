@@ -459,12 +459,9 @@
     text-decoration: underline;
 }
 
-.payment-outer-div .method-selection {
-    width: 510px;
-}
 
 .payment-outer-div .method-selection div {
-    width: 40%;
+    width: 24%;
 }
 
 .item-selection-div div {

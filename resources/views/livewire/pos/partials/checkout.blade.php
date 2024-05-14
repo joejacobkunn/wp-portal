@@ -122,10 +122,14 @@
                                         <td>{{ $item['prodline'] }}</td>
                                         <td>{{ $item['bin_location'] }}</td>
                                         <td>
-                                            @if ($item['stock'] > 0)
-                                                {{ $item['stock'] }}
+                                            @if(!in_array($item['brand_name'], $nonQtyProductBrands))
+                                                @if ($item['stock'] > 0)
+                                                    {{ $item['stock'] }}
+                                                @else
+                                                    <span class="alert-danger px-2">Backorder</span>
+                                                @endif
                                             @else
-                                                <span class="alert-danger px-2">Backorder</span>
+                                                <span>-</span>
                                             @endif
                                         </td>
                                         <td>
@@ -133,6 +137,7 @@
                                         </td>
                                         <td><span class="price-update-span {{ !empty($item['price_overridden']) ? 'alert-warning px-2' : '' }}" wire:click="showOverridePriceModal('{{ $cartIndex }}')">${{ number_format($item['price'], 2) }}</span></td>
                                         <td>
+                                            @if(!in_array($item['brand_name'], $nonQtyProductBrands))
                                             <div class="quantity-div">
                                                 <div class="input-group w-75">
                                                     <div class="input-group-prepend">
@@ -151,6 +156,9 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            @else
+                                                <span>-</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
@@ -328,11 +336,24 @@
                         <div class="col-sm-8">
                             <div class="method-selection item-selection-div">
                                 <div wire:click="setPaymentMethod('cash')"
-                                    class="{{ $paymentMethod == 'cash' ? 'active' : '' }}"><i
-                                        class="far fa-money-bill-alt me-1"></i> By Cash {!! $paymentMethod == 'cash' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}</div>
-                                <div wire:click="setPaymentMethod('card')"
-                                    class="{{ $paymentMethod == 'card' ? 'active' : '' }}"><i
-                                        class="far fa-credit-card me-1"></i> By Card {!! $paymentMethod == 'card' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}</div>
+                                    class="{{ $paymentMethod == 'cash' ? 'active' : '' }}">
+                                    <i class="far fa-money-bill-alt me-1"></i> Cash {!! $paymentMethod == 'cash' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}
+                                </div>
+                                <div 
+                                    wire:click="setPaymentMethod('card')"
+                                    class="{{ $paymentMethod == 'card' ? 'active' : '' }}">
+                                    <i class="far fa-credit-card me-1"></i> Card {!! $paymentMethod == 'card' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}
+                                </div>
+                                <div 
+                                    wire:click="setPaymentMethod('house_account')"
+                                    class="{{ $paymentMethod == 'house_account' ? 'active' : '' }}">
+                                    <i class="fas fa-house-user me-1"></i> House Account {!! $paymentMethod == 'house_account' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}
+                                </div>
+                                <div 
+                                    wire:click="setPaymentMethod('check')"
+                                    class="{{ $paymentMethod == 'check' ? 'active' : '' }}">
+                                    <i class="fas fa-money-check-alt me-1"></i> Check {!! $paymentMethod == 'check' ? '<i class="fas fa-check-circle text-success ms-2"></i>' : '' !!}
+                                </div>
                             </div>
 
                             <small class="mt-4" wire:loading wire:target="setPaymentMethod('card')">
@@ -391,6 +412,15 @@
                                 </div>
                             </div>
                             <hr/>
+                            @elseif ($paymentMethod == 'check')
+                            <div class="row mt-3">
+                                <div class="col-sm-4">
+                                    <x-forms.input
+                                        label="Check Number"
+                                        model="checkNumber"
+                                    />
+                                </div>
+                            </div>
                             @endif
 
                             <div class="mt-3">
