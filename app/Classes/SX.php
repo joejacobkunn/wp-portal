@@ -525,6 +525,27 @@ class SX
 
     }
 
+    public function tie_warehouse_transfer($request)
+    {
+        $response = Http::withToken($this->token())
+        ->acceptJson()
+        ->withBody(json_encode($request), 'application/json')
+        ->post($this->endpoint.'/sxapiSASubmitReportV2');
+
+        if ($response->ok()) {
+            $data = [];
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response;
+            
+            return [
+                'status' => 'success',
+            ];
+
+        }
+
+    }
+
 
 
 

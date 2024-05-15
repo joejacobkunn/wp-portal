@@ -28,7 +28,8 @@
                                             <strong>{{ $backorder_line_info['backorder_count'] }}</strong> of
                                             {{ strtoupper($backorder_line_info['prod']) ?? '' }} from
                                             <strong>{{ strtoupper($wt_whse) }}</strong> to
-                                            <strong>{{ strtoupper($backorder_line_info['whse']) }}</strong>.
+                                            <strong>{{ strtoupper($backorder_line_info['whse']) }}</strong>. System will
+                                            attempt to tie the transfer as well.
                                             Fill out the
                                             fields below to
                                             initaite transfer.
