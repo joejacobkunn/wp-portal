@@ -5,8 +5,7 @@
 
     @if ($wt_transfer_number)
         <div class="alert alert-light-success color-success"><i class="bi bi-check-circle"></i> Warehouse Transfer was
-            successful, your WT number is <strong>{{ $wt_transfer_number }}</strong>. There is no tie currently to this
-            transfer yet.</div>
+            successful, your WT number is <strong>{{ $wt_transfer_number }}</strong></div>
     @else
         <div class="row">
             <div class="card">
@@ -28,7 +27,8 @@
                                             <strong>{{ $backorder_line_info['backorder_count'] }}</strong> of
                                             {{ strtoupper($backorder_line_info['prod']) ?? '' }} from
                                             <strong>{{ strtoupper($wt_whse) }}</strong> to
-                                            <strong>{{ strtoupper($backorder_line_info['whse']) }}</strong>.
+                                            <strong>{{ strtoupper($backorder_line_info['whse']) }}</strong>. System will
+                                            attempt to tie the transfer along with the transfer.
                                             Fill out the
                                             fields below to
                                             initaite transfer.

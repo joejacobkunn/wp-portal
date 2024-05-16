@@ -32,6 +32,8 @@ class Table extends DataTableComponent
     public $vendors = [];
     public $productLines = [];
     public $cartInProgress = false;
+    public $exceptLines = [];
+    public $exceptLineids; //to keep in component level
 
     protected $listeners = [
         'product:table:addToCart' => 'addToCart',
@@ -246,6 +248,15 @@ class Table extends DataTableComponent
             ->with('line:name')
             ->without('account')
             ->orderBy('last_sold_date', 'DESC');
+
+        if (!empty($this->exceptLines)) {
+
+            if ($this->exceptLineids === null ) {
+                $this->exceptLineids = Line::select('id')->whereIn('name', $this->exceptLines)->pluck('id')->toArray();
+            }
+            
+            $productQuery->whereNotIn('product_line_id', $this->exceptLineids);
+        }
 
         return $productQuery;
     }

@@ -13,6 +13,7 @@
             <livewire:product.table
                 :account="$account"
                 from-checkout
+                :except-lines="$excemptedProductLines"
                 :key="'product'"
             />
         </div>

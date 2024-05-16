@@ -32,6 +32,10 @@ class Kernel extends ConsoleKernel
         //task to refresh open order data
         $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->dailyAt('03:15');
 
+        //task to sync unavailable/demo units
+        $schedule->command('sx:sync-unavailable-units')->timezone('America/New_York')->dailyAt('04:15');
+        $schedule->command('app:create-unavailable-equipment-report')->timezone('America/New_York')->twiceMonthly(1, 15, '07:00');
+
         //purge old auth logs that are more than a year old
         $schedule->command('authentication-log:purge')->monthly();
         

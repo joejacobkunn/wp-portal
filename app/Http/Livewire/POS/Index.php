@@ -2,14 +2,15 @@
 
 namespace App\Http\Livewire\POS;
 
-use App\Classes\Fortis;
 use App\Classes\SX;
+use App\Classes\Fortis;
+use App\Models\Product\Line;
 use App\Helpers\StringHelper;
 use App\Models\Core\Customer;
-use App\Http\Livewire\Component\Component;
-use App\Models\Product\Product;
 use App\Models\Core\Warehouse;
+use App\Models\Product\Product;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Livewire\Component\Component;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
@@ -56,6 +57,14 @@ class Index extends Component
         'product_code' => null,
         'reason' => null,
     ];
+    public $nonQtyProductBrands = [
+        'labor',
+    ];
+    public $excemptedProductLines = [
+        'CP-P',
+        'CP-E',
+    ];
+    public $excemptedProductLineIds;
 
     public $measureUpdateModal = false;
     public $measureUpdateData = [
@@ -72,11 +81,14 @@ class Index extends Component
         'U02' => 'U02 - UPS AirSaver',
         'U01' => 'U01 - UPS Next Day',
         'FEDX' => 'FEDX - FedEx Ground',
+        'SUBR' => 'Suburban',
+        'WEIN' => 'Weingartz',
     ];
     public $selectedContactMethod = 'SMS';
     public $contactMethodValue = '';
     public $collectedAmount;
     public $returnAmount;
+    public $checkNumber;
 
     protected $listeners = [
         'closeProductSearch',
@@ -120,7 +132,7 @@ class Index extends Component
 
     public function getIsOrderReadyProperty()
     {
-        if ($this->paymentMethod == 'cash') {
+        if (in_array($this->paymentMethod, ['cash', 'house_account', 'check'])) {
             return true;
         }
 
@@ -234,7 +246,7 @@ class Index extends Component
      */
     public function addToCart($prodId)
     {
-        $product = Product::select('id', 'prod', 'unit_sell')->find($prodId);
+        $product = Product::select('id', 'prod', 'unit_sell', 'brand_id')->with('brand:id,name')->find($prodId);
         $productCode = $product->prod;
         $searchResponse = $this->getproductData($productCode, $product->default_unit_sell);
 
@@ -243,6 +255,7 @@ class Index extends Component
             'product_name' => $searchResponse['product_name'],
             'look_up_name' => $searchResponse['look_up_name'],
             'category' => $searchResponse['category'],
+            'brand_name' => strtolower((string) $product->brand?->name),
             'unit_sell' => $product->unit_sell,
             'unit_of_measure' => $product->default_unit_sell,
             'price' => $searchResponse['price'],
@@ -453,6 +466,7 @@ class Index extends Component
             } elseif (! isset($this->priceModel[$item['product_code']][$customerId])) {
                 $priceData = $this->getproductData($item['product_code'], $item['unit_of_measure']);
                 $price = $priceData['price'];
+                $this->cart[$index]['stock'] = $priceData['stock'];
             } else {
                 $price = $this->priceModel[$item['product_code']][$customerId];
             }
@@ -535,6 +549,12 @@ class Index extends Component
     {
         if ($this->paymentMethod == 'card') {
             $this->placeCardOrder();
+        } elseif ($this->paymentMethod == 'check') {
+            $this->resetValidation();
+            if (!$this->checkNumber) {
+                return $this->addError('checkNumber', 'Check Number Field is required.' );
+            }
+
         } else {
             $this->placeCashOrder();
         }
@@ -599,9 +619,19 @@ class Index extends Component
             return $this->addError('productQuery', 'Enter Product Code.' );
         }
 
-        $product = Product::select('id', 'prod', 'unit_sell')
+        //if excempted product lines not fetched
+        if ($this->excemptedProductLineIds === null) {
+            $this->excemptedProductLineIds = Line::select('id')->whereIn('name', $this->excemptedProductLines)->pluck('id')->toArray();
+        }
+
+        $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id')
             ->where('prod', $this->productQuery)
             ->first();
+
+        if (is_array($this->excemptedProductLineIds) && in_array($product->product_line_id, $this->excemptedProductLineIds)) {
+            return $this->addError('productQuery', 'Invalid Product Line.' );
+        }
+
         $searchResponse = $this->getproductData($this->productQuery, $product?->default_unit_sell);
         if (empty($searchResponse['status']) || $searchResponse['status'] == 'error') {
             return $this->addError('productQuery', 'Invalid Product Code.' );

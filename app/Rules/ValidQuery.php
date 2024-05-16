@@ -18,7 +18,7 @@ class ValidQuery implements ValidationRule
     {
         try
         {
-            DB::connection('sx')->select($value);
+            DB::connection('zxt')->select($value);
         }
         catch(Exception $e)
         {

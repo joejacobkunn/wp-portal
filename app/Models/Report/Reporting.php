@@ -15,7 +15,7 @@ class Reporting extends Model
     public function getRows()
     {
         $rows = [];
-        $data = DB::connection('sx')->select(self::$query);
+        $data = DB::connection('zxt')->select(self::$query);
 
         foreach($data as $row){
             $rows[] = (array)$row;
