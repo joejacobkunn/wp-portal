@@ -552,8 +552,10 @@ class Show extends Component
                     ] 
                 ]; 
 
-                $sx_client->tie_warehouse_transfer($tie_request);
- 
+                if(App::environment('staging'))
+                {
+                    $sx_client->tie_warehouse_transfer($tie_request);
+                }
  
             }
 
