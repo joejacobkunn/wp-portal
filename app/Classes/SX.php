@@ -172,7 +172,7 @@ class SX
                         "primarykey" => $order_number,
                         "secondarykey" => "",
                         "newrecordfl" => true,
-                        "newrecordglobalfl" => false,
+                        "newrecordglobalfl" => true,
                         "deleterecordfl" => false,
                         "changerecordfl" => false,
                         "forcerefreshallpagesfl" => false,
