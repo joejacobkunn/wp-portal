@@ -8,6 +8,8 @@ class SX
 {
     private $endpoint;
 
+    private $web_endpoint;
+
     private $auth_endpoint;
 
     private $client_id;
@@ -23,6 +25,8 @@ class SX
     public function __construct()
     {
         $this->endpoint = config('sx.endpoint');
+
+        $this->web_endpoint = config('sx.web_endpoint');
 
         $this->auth_endpoint = config('sx.auth_endpoint');
 
@@ -530,7 +534,7 @@ class SX
         $response = Http::withToken($this->token())
         ->acceptJson()
         ->withBody(json_encode($request), 'application/json')
-        ->post($this->endpoint.'/sxapiSASubmitReportV2');
+        ->post($this->web_endpoint.'/sxapiSASubmitReportV2');
 
         if ($response->ok()) {
             $data = [];
