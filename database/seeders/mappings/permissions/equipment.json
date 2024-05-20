@@ -28,7 +28,7 @@
                 "name": "equipment.unavailable.reports.viewall",
                 "label": "View All Unavailable Reports",
                 "description": "Permission to see all users reports"
-            },
+            }
         ]
     }
 ]

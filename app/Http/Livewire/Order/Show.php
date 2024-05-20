@@ -513,6 +513,52 @@ class Show extends Component
         if($sx_response['status'] == 'success')
         {
             $this->wt_transfer_number = $sx_response['wt_number'];
+
+            if(!empty($this->wt_transfer_number))
+            {
+
+                $tie_request = [
+                "request" => [
+                        "companyNumber" => 10, 
+                        "operatorInit" => "wpa", 
+                        "operatorPassword" => "", 
+                        "reportName" => "zzPOWTLineTie", 
+                        "outputType" => "file", 
+                        "outputName" => "zzWtOeTie", 
+                        "printRangesAndOptions" => true, 
+                        "demandFlag" => true, 
+                        "tRptoptionsV2" => [
+                            "t-rptoptionsV2" => [
+                            [
+                                "optionsSeq" => 1, 
+                                "optionNm" => "Ordertype", 
+                                "optDef" => "t" 
+                            ], 
+                            [
+                                    "optionsSeq" => 2, 
+                                    "optionNm" => "PO# or WT#", 
+                                    "optDef" => $this->wt_transfer_number 
+                                ] 
+                            ] 
+                        ], 
+                        "tSapblist" => [
+                                        "t-sapblist" => [
+                                        ] 
+                                    ], 
+                        "tInfieldvalue" => [
+                                            "t-infieldvalue" => [
+                                            ] 
+                                        ] 
+                    ] 
+                ]; 
+
+                if(App::environment(['staging', 'local']))
+                {
+                    $sx_client->tie_warehouse_transfer($tie_request);
+                }
+ 
+            }
+
             $wt_transfers = !empty($this->order->wt_transfers) ? $this->order->wt_transfers : [];
             array_push($wt_transfers,['prod' => $prod, 'wt_transfer' => $this->wt_transfer_number]);
             $this->order->update([

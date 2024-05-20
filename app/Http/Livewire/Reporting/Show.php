@@ -45,7 +45,7 @@ class Show extends Component
         //$this->authorize('view', $report);
         $this->formInit();
         $this->breadcrumbs = $this->breadcrumbs();
-        $this->report_data = DB::connection('sx')->select($this->report->query);
+        $this->report_data = DB::connection('zxt')->select($this->report->query);
 
 
         $this->actionButtons = [
