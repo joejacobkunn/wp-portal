@@ -60,7 +60,8 @@ class Index extends Component
     public $nonQtyProductBrands = [
         'labor',
     ];
-    public $excemptedProductLines = [
+    public $excemptedProductLines = [];
+    public $couponProductLines = [
         'CP-P',
         'CP-E',
     ];
@@ -89,6 +90,9 @@ class Index extends Component
     public $collectedAmount;
     public $returnAmount;
     public $checkNumber;
+    public $couponCode;
+    public $couponProduct;
+    public $couponDiscount;
 
     protected $listeners = [
         'closeProductSearch',
@@ -109,6 +113,7 @@ class Index extends Component
     {
         $this->account = account();
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->pluck('title', 'short')->toArray();
+        $this->excemptedProductLines = array_merge($this->excemptedProductLines, $this->couponProductLines);
     }
 
     public function render()
@@ -476,11 +481,37 @@ class Index extends Component
 
         }
 
+        $apiCart = $this->cart;
+
+        $this->couponDiscount = null;
+        if (!empty($this->couponProduct)) {
+            $couponSearchResponse = $this->getproductData($this->couponProduct->prod);
+
+            if (!empty($searchResponse['status']) && $searchResponse['status'] != 'error') {
+                $apiCart[$this->couponProduct->prod] =  [
+                    'product_code' => $this->couponProduct->prod,
+                    'product_name' => $couponSearchResponse['product_name'],
+                    'look_up_name' => $couponSearchResponse['look_up_name'],
+                    'category' => $couponSearchResponse['category'],
+                    'brand_name' => '',
+                    'unit_sell' => '',
+                    'unit_of_measure' => '',
+                    'price' => $couponSearchResponse['price'],
+                    'stock' => $couponSearchResponse['stock'],
+                    'bin_location' => $couponSearchResponse['bin_location'],
+                    'prodline' => $couponSearchResponse['prodline'],
+                    'quantity' => 1,
+                ];
+                $this->couponDiscount = $couponSearchResponse['price'];
+            }
+        }
+
+
         $invoice_request = [
             'sx_operator_id' => auth()->user()->sx_operator_id,
             'sx_customer_number' => $this->customerSelected['sx_customer_number'] ?? 1,
             'warehouse' => $this->selectedWareHouse,
-            'cart' => $this->cart,
+            'cart' => $apiCart,
         ];
         
         $sx = new SX();
@@ -771,5 +802,32 @@ class Index extends Component
         } else {
             $this->returnAmount = null;
         }
+    }
+
+    public function applyCoupon()
+    {
+        $this->resetValidation('couponCode');
+        $this->resetErrorBag('couponCode');
+
+        $this->couponProduct = Product::join('product_lines', 'product_lines.id', '=', 'products.product_line_id')
+            ->select('products.*')
+            ->where('prod', $this->couponCode)
+            ->first();
+        
+        if (!$this->couponProduct) {    
+            return $this->addError('couponCode', 'Invalid coupon code.' );
+        }
+
+        $this->reset('couponCode');
+
+        $this->alert('info', 'Coupon applied successfully!');
+        $this->preparePriceData();
+    }
+
+    public function clearCoupon()
+    {
+        $this->reset('couponProduct', 'couponCode', 'couponDiscount');
+        $this->resetErrorBag('couponCode');
+        $this->preparePriceData();
     }
 }
