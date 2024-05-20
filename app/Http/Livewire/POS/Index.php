@@ -313,7 +313,8 @@ class Index extends Component
                 'state',
                 'zip',
                 'is_active',
-                'updated_at'
+                'updated_at',
+                'preferred_contact_data'
             );
 
             if (preg_match('/^\d{10}$/', $searchTerm) || preg_match('/^\(\d{3}\) \d{3}-\d{4}$/', $searchTerm)) {
@@ -340,6 +341,9 @@ class Index extends Component
             ->keyBy('id')
             ->map(function ($item) {
                 $item->full_address = $item->getFullAddress();
+                $preferredContactDetails = explode("---", $item->preferred_contact_data);
+                $item->preferred_contact_type = !empty($preferredContactDetails[0]) ? $preferredContactDetails[0] : 'SMS';
+                $item->preferred_contact_details = $preferredContactDetails[1] ?? '';
                 return $item;
             })
             ->toArray();
@@ -370,10 +374,15 @@ class Index extends Component
     {
         $this->customerSelected = $this->customerResultSelected;
 
-        if ($this->selectedContactMethod == 'Email') {
-            $this->contactMethodValue = empty($this->contactMethodValue) && !empty($this->customerSelected['email']) ? $this->customerSelected['email'] : $this->contactMethodValue;
-        } else {
-            $this->contactMethodValue = empty($this->contactMethodValue) && !empty($this->customerSelected['phone']) ? $this->customerSelected['phone'] : $this->contactMethodValue;
+        $this->selectedContactMethod = $this->customerSelected['preferred_contact_type'];
+        $this->contactMethodValue = $this->customerSelected['preferred_contact_details'];
+
+        if (empty($this->contactMethodValue)) {
+            if ($this->selectedContactMethod == 'Email') {
+                $this->contactMethodValue = empty($this->contactMethodValue) && !empty($this->customerSelected['email']) ? $this->customerSelected['email'] : $this->contactMethodValue;
+            } else {
+                $this->contactMethodValue = empty($this->contactMethodValue) && !empty($this->customerSelected['phone']) ? $this->customerSelected['phone'] : $this->contactMethodValue;
+            }
         }
 
         $this->preparePriceData();
@@ -619,6 +628,7 @@ class Index extends Component
         $transaction = $fortis->cashSale($orderData);
         
         if (isset($transaction['data']['id'])) {
+            $this->saveCustomerContactPreference();
             $this->orderStatus = 'completed';
             $this->orderData = $transaction['data'];
             $this->alert('success', 'Order successfully placed!');
@@ -829,5 +839,15 @@ class Index extends Component
         $this->reset('couponProduct', 'couponCode', 'couponDiscount');
         $this->resetErrorBag('couponCode');
         $this->preparePriceData();
+    }
+
+    private function saveCustomerContactPreference()
+    {
+        Customer::where('account_id', account()->id)
+            ->where('sx_customer_number', '!=', 1)
+            ->where('id', $this->customerSelected['id'])
+            ->update([
+                'preferred_contact_data' => $this->selectedContactMethod .'---'. $this->contactMethodValue
+            ]);
     }
 }
