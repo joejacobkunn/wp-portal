@@ -6,6 +6,8 @@ return [
 
     'endpoint' => env('SX_ENDPOINT'),
 
+    'web_endpoint' => env('SX_WEB_ENDPOINT'),
+
     'client_id' => env('SX_CLIENT_ID'),
 
     'client_secret' => env('SX_CLIENT_SECRET'),

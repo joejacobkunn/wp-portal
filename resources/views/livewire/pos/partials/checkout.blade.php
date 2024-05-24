@@ -360,6 +360,40 @@
                                 <span class="spinner-border spinner-border-sm" role="status"
                                     aria-hidden="true"></span> Fetching Terminals
                             </small>
+                            
+                            <hr/>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group mt-2">
+                                        <label><i class="fas fa-ticket"></i> Have Coupon Code?</label>
+                                        <div class="mt-2">
+                                            @if(!empty($couponProduct))
+                                                <p class="mt-4">Applied Coupon {{ $couponProduct->prod }} <i class="fa fa-times text-danger ms-2 text-link" title="Remove Coupon" wire:click="clearCoupon"></i></p>
+                                            @else
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <x-forms.input
+                                                            no-label
+                                                            model="couponCode"
+                                                            autocomplete-off
+                                                        />
+                                                    </div>
+                                                    <div class="col-sm-3 ps-0">
+                                                        <button class="btn btn-outline-secondary" wire:click="applyCoupon">
+                                                            <span wire:loading wire:target="applyCoupon"
+                                                                class="spinner-border spinner-border-sm"
+                                                                role="status"
+                                                                aria-hidden="true"></span> Apply
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             @if ($paymentMethod == 'card')
                                 <div class="payment-process-div mt-5">
@@ -393,8 +427,7 @@
                                 <div class="col-sm-4">
                                     <div class="form-group mt-2">
                                         <label><i class="fas fa-calculator"></i> Change Helper</label>
-                                        <div class="ms-3 mt-2">
-                                            <span>Collected Amount</span>
+                                        <div class="mt-2">
                                             <x-forms.input
                                                 no-label
                                                 type="number"
@@ -411,8 +444,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <hr/>
                             @elseif ($paymentMethod == 'check')
+                            <hr/>
                             <div class="row mt-3">
                                 <div class="col-sm-4">
                                     <x-forms.input
@@ -422,6 +455,8 @@
                                 </div>
                             </div>
                             @endif
+
+                            <hr/>
 
                             <div class="mt-3">
                                 <x-forms.textarea label="Notes"

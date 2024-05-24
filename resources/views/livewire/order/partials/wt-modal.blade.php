@@ -28,10 +28,10 @@
                                             {{ strtoupper($backorder_line_info['prod']) ?? '' }} from
                                             <strong>{{ strtoupper($wt_whse) }}</strong> to
                                             <strong>{{ strtoupper($backorder_line_info['whse']) }}</strong>. System will
-                                            attempt to tie the transfer along with the transfer.
+                                            attempt to tie the transfer if possible.
                                             Fill out the
                                             fields below to
-                                            initaite transfer.
+                                            initiate the warehouse transfer.
                                         </p>
                                         <div class="row">
                                             <div class="col-lg-4 mb-1">
