@@ -34,6 +34,9 @@ class Table extends DataTableComponent
     public $cartInProgress = false;
     public $exceptLines = [];
     public $exceptLineids; //to keep in component level
+    public $onlyLines = [];
+    public $onlyLineids; //to keep in component level
+    public $tableType;
 
     protected $listeners = [
         'product:table:addToCart' => 'addToCart',
@@ -167,7 +170,11 @@ class Table extends DataTableComponent
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return '<button class="btn btn-primary btn-sm text-nowrap" type="button" ' . ($this->cartInProgress ? 'disabled' : '') . ' wire:click="addToCart('. $value .')">Add To Cart</button>';
+                    if ($this->tableType == 'coupon') {
+                        return '<button class="btn btn-primary btn-sm text-nowrap" type="button" ' . ($this->cartInProgress ? 'disabled' : '') . ' wire:click="couponSelected('. $value .')">Select</button>';
+                    } else {
+                        return '<button class="btn btn-primary btn-sm text-nowrap" type="button" ' . ($this->cartInProgress ? 'disabled' : '') . ' wire:click="addToCart('. $value .')">Add To Cart</button>';
+                    }
                 })
                 ->excludeFromColumnSelect()
                 ->html());
@@ -258,6 +265,16 @@ class Table extends DataTableComponent
             $productQuery->whereNotIn('product_line_id', $this->exceptLineids);
         }
 
+        if (!empty($this->onlyLines)) {
+
+            if ($this->onlyLineids === null ) {
+                $this->onlyLineids = Line::select('id')->whereIn('name', $this->onlyLines)->pluck('id')->toArray();
+            }
+            
+            $productQuery->whereIn('product_line_id', $this->onlyLineids);
+        }
+
+        
         return $productQuery;
     }
 
@@ -275,5 +292,11 @@ class Table extends DataTableComponent
     public function placeholder()
     {
         return view('components.skelton', ['type' => 'table']);
+    }
+
+    public function couponSelected($prodId)
+    {
+        $this->cartInProgress = true;
+        $this->dispatch('product:coupon:selected', $prodId);
     }
 }

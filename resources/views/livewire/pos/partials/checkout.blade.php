@@ -157,7 +157,12 @@
                                                 </div>
                                             </div>
                                             @else
-                                                <span>-</span>
+                                                <div class="quantity-div">
+                                                    <button
+                                                        class="btn btn-{{ $item['quantity'] < 2 ? 'danger' : 'secondary' }}"
+                                                        type="button"
+                                                        wire:click="updateQuantity(-1, '{{ $item['product_code'] }}')">{!! $item['quantity'] == 1 ? '<i class="fa fa-trash"></i>' : '<i class="fa fa-minus"></i>' !!}</button>
+                                                </div>
                                             @endif
                                         </td>
                                     </tr>
@@ -284,10 +289,9 @@
                     <div class="row">
                         <div class="col-sm-3 offset-sm-6">
                             <x-forms.select
-                                :model="$shippingOptionSelected"
+                                model="shippingOptionSelected"
                                 :options="$shippingOptions"
                                 :selected="$shippingOptionSelected ?? null"
-                                default-option="false"
                             />    
                         </div>
                     </div>
@@ -300,7 +304,7 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="flush-headingThree">
             <button class="accordion-button {{ $activeTab == 3 ? '' : 'collapsed' }}" type="button"
-                {{ !empty($customerSelected) || !empty($waiveCustomerInfo) ? '' : 'disabled' }}
+                {{ ! $this->paymentTabActivated ? 'disabled' : '' }}
                 wire:click="selectTab(3)">
                 3. <span class="title-span"><i class="far fa-credit-card"></i>
                     Payment
@@ -327,6 +331,54 @@
                             </div>
                             <a href="javascript:;" wire:click="showPriceBreakdown" class="view-breakup"><small>View
                                     Breakdown</small></a>
+
+                            <div class="row mt-3">
+                                <div class="col-sm-6">
+                                    <div class="form-group mt-2">
+                                        <label><i class="fas fa-ticket"></i> Have Coupon Code?</label>
+                                        <div class="mt-2">
+                                            @if(!empty($couponProduct))
+                                                <p class="mt-4">Applied Coupon <span class="bg-primary text-white px-3 ms-2">{{ $couponProduct->prod }}</span> <i class="fa fa-times text-danger ms-2 text-link" title="Remove Coupon" wire:click="clearCoupon"></i></p>
+                                            @else
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <x-forms.input
+                                                            no-label
+                                                            model="couponCode"
+                                                            autocomplete-off
+                                                        />
+                                                    </div>
+                                                    <div class="col-sm-6 ps-0">
+                                                        <button class="btn btn-secondary" wire:click="applyCoupon">
+                                                            <span wire:loading wire:target="applyCoupon"
+                                                                class="spinner-border spinner-border-sm"
+                                                                role="status"
+                                                                aria-hidden="true"></span> Apply
+                                                        </button>
+
+                                                        <button class="btn btn-outline-primary search-btn ms-2" type="button"
+                                                            wire:click="showCouponSearchModal">
+                                                            <div wire:loading wire:target="showCouponSearchModal">
+                                                                <span class="spinner-border spinner-border-sm" role="status"
+                                                                    aria-hidden="true"></span>
+                                                            </div>
+
+                                                            <div wire:loading.class="d-none"
+                                                                wire:target="showCouponSearchModal">
+                                                                <i class="fas fa-search"></i> Search for Coupons
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr/>
+
                         </div>
                     </div>
                     <div class="row">
@@ -360,40 +412,6 @@
                                 <span class="spinner-border spinner-border-sm" role="status"
                                     aria-hidden="true"></span> Fetching Terminals
                             </small>
-                            
-                            <hr/>
-
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group mt-2">
-                                        <label><i class="fas fa-ticket"></i> Have Coupon Code?</label>
-                                        <div class="mt-2">
-                                            @if(!empty($couponProduct))
-                                                <p class="mt-4">Applied Coupon {{ $couponProduct->prod }} <i class="fa fa-times text-danger ms-2 text-link" title="Remove Coupon" wire:click="clearCoupon"></i></p>
-                                            @else
-                                                <div class="row">
-                                                    <div class="col-sm-6">
-                                                        <x-forms.input
-                                                            no-label
-                                                            model="couponCode"
-                                                            autocomplete-off
-                                                        />
-                                                    </div>
-                                                    <div class="col-sm-3 ps-0">
-                                                        <button class="btn btn-outline-secondary" wire:click="applyCoupon">
-                                                            <span wire:loading wire:target="applyCoupon"
-                                                                class="spinner-border spinner-border-sm"
-                                                                role="status"
-                                                                aria-hidden="true"></span> Apply
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            @endif
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
                             @if ($paymentMethod == 'card')
                                 <div class="payment-process-div mt-5">
@@ -445,7 +463,6 @@
                                 </div>
                             </div>
                             @elseif ($paymentMethod == 'check')
-                            <hr/>
                             <div class="row mt-3">
                                 <div class="col-sm-4">
                                     <x-forms.input

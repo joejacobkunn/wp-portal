@@ -26,6 +26,10 @@
                         @include('livewire.pos.partials.customer_modal')
                     @endif
 
+                    @if ($couponSearchModal)
+                        @include('livewire.pos.partials.coupon_modal')
+                    @endif
+
                     @if ($newCustomerModal)
                         <x-modal :toggle="$newCustomerModal" :size="'xl'" :closeEvent="'closeNewCustomer'">
                             <x-slot name="title">
