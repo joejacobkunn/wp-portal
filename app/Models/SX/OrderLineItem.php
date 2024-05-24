@@ -67,7 +67,7 @@ class OrderLineItem extends Model
 
     public function checkInventoryLevelsInWarehouses($warehouses)
     {
-        return DB::connection('sx')->select("SELECT prod,whse,qtyonhand, qtycommit, qtyreservd FROM pub.icsw 
+        return DB::connection('sx')->select("SELECT prod,whse,qtyonhand, qtycommit, qtyreservd, companyrank FROM pub.icsw 
                                             WHERE cono = ? AND whse IN ('".implode("','",$warehouses)."') AND prod = ? with(nolock) ", [$this->cono, $this->shipprod]);
     }
 }
