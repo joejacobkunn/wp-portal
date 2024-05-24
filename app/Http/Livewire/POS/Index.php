@@ -82,8 +82,8 @@ class Index extends Component
         'U02' => 'U02 - UPS AirSaver',
         'U01' => 'U01 - UPS Next Day',
         'FEDX' => 'FEDX - FedEx Ground',
-        'SUBR' => 'Suburban',
-        'WEIN' => 'Weingartz',
+        'SUBR' => 'Suburban Truck',
+        'WEIN' => 'Weingartz Truck',
     ];
     public $selectedContactMethod = 'SMS';
     public $contactMethodValue = '';
@@ -93,6 +93,8 @@ class Index extends Component
     public $couponCode;
     public $couponProduct;
     public $couponDiscount;
+
+    public $couponSearchModal = false;
 
     protected $listeners = [
         'closeProductSearch',
@@ -107,6 +109,7 @@ class Index extends Component
         'pos:processAddToCart' => 'addToCart', //process prod selection adn add to cart
         'pos:addedToCart' => '$refresh',
         'unit_of_measure:updated' => 'updatedUnitOfMeasure',
+        'product:coupon:selected' => 'ackCouponSelected', //ack prod selection from table
     ];
 
     public function mount()
@@ -849,5 +852,31 @@ class Index extends Component
             ->update([
                 'preferred_contact_data' => $this->selectedContactMethod .'---'. $this->contactMethodValue
             ]);
+    }
+
+    public function getPaymentTabActivatedProperty()
+    {
+        return (!empty($this->customerSelected) || !empty($this->waiveCustomerInfo)) && $this->deliveryMethod && ($this->deliveryMethod != 'Shipping' || $this->shippingOptionSelected);
+    }
+
+    public function showCouponSearchModal()
+    {
+        $this->couponSearchModal = true;    
+    }
+
+    public function closeCouponSearch()
+    {
+        $this->couponSearchModal = false;    
+    }
+    
+    /**
+     * Invoke event to disaply loader in frontend
+     */
+    public function ackCouponSelected($prodId)
+    {
+        $product = Product::find($prodId);
+        $this->couponCode = $product->prod;
+        $this->applyCoupon();
+        $this->closeCouponSearch();
     }
 }
