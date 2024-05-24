@@ -338,17 +338,25 @@
                                         <label><i class="fas fa-ticket"></i> Have Coupon Code?</label>
                                         <div class="mt-2">
                                             @if(!empty($couponProduct))
-                                                <p class="mt-4">Applied Coupon <span class="bg-primary text-white px-3 ms-2">{{ $couponProduct->prod }}</span> <i class="fa fa-times text-danger ms-2 text-link" title="Remove Coupon" wire:click="clearCoupon"></i></p>
+                                                <div class="row mt-4">
+                                                    <div class="col-sm-3 pe-0">
+                                                        <p>Applied Coupon</p>
+                                                    </div>
+                                                    <div class="col-sm-8">
+                                                        <span class="bg-primary text-white px-3 ms-2"><i class="fas fa-tag me-1"></i> {{ $couponProduct->prod }}</span> <i class="fa fa-times text-danger ms-2 text-link" title="Remove Coupon" wire:click="clearCoupon"></i>
+                                                        <div><small class="ms-2">{{ $couponProduct->description }}</small></div>
+                                                    </div>
+                                                </div>
                                             @else
                                                 <div class="row">
-                                                    <div class="col-sm-6">
+                                                    <div class="col-sm-4">
                                                         <x-forms.input
                                                             no-label
                                                             model="couponCode"
                                                             autocomplete-off
                                                         />
                                                     </div>
-                                                    <div class="col-sm-6 ps-0">
+                                                    <div class="col-sm-8 ps-0">
                                                         <button class="btn btn-secondary" wire:click="applyCoupon">
                                                             <span wire:loading wire:target="applyCoupon"
                                                                 class="spinner-border spinner-border-sm"
