@@ -94,7 +94,11 @@
                                 @foreach ($line_item_inventory as $inventory)
                                     @php $inventory_level = $inventory->qtyonhand - ($inventory->qtycommit + $inventory->qtyreservd) @endphp
                                     <tr @if ($inventory_level >= $backorder_line_info['backorder_count']) class="table-success" @endif>
-                                        <td>{{ strtoupper($inventory->whse) }}</td>
+                                        <td>{{ strtoupper($inventory->whse) }} @if (!empty($inventory->companyrank))
+                                                <span class="badge bg-light-warning">COMP :
+                                                    {{ $inventory->companyrank }}</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $inventory->qtyonhand }}</td>
                                         <td @if ($inventory->qtycommit > 0) class="text-danger" @endif>
                                             {{ $inventory->qtycommit }}</td>
