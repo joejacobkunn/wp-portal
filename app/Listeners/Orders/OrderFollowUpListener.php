@@ -57,7 +57,7 @@ class OrderFollowUpListener
             {
                 $sx_client = new SX();
                 $operator = User::find($event->order->last_updated_by);
-                $sx_response = $sx_client->create_order_note($event->order->status->value.' Followed Up by '.$operator->name.'('.$operator->sx_operator_id.') via Portal : '.$event->mailSubject,$event->order->order_number);
+                $sx_response = $sx_client->create_order_note('Followed Up by '.$operator->name.'('.$operator->sx_operator_id.') via Portal on '.now()->toDayDateTimeString(),$event->order->order_number);
             }
     
     }

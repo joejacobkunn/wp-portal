@@ -443,8 +443,8 @@ class Show extends Component
 
     public function showWTModal($line_item)
     {
-        $this->wt_due_date = now()->format('Y-m-d');
-        $this->wt_req_ship_date = $this->getWTDate();
+        $this->wt_due_date = $this->getWTDate();
+        $this->wt_req_ship_date = now()->format('Y-m-d');
         $this->wt_whse = '';
         $this->wt_transfer_number = '';
         $this->wtModal = true;

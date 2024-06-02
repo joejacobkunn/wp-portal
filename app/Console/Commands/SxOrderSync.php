@@ -145,20 +145,24 @@ class SxOrderSync extends Command
         {
             foreach($line_items as $line_item)
             {
-                $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
-
-                if($backorder_count > 0 && strtolower($line_item->ordertype) != 't')
+                if(strtolower($line_item->specnstype) != 'l')
                 {
-                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
+                    $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
 
-                    foreach($inventory_levels as $inventory_level)
+                    if($backorder_count > 0 && strtolower($line_item->ordertype) != 't')
                     {
-                        $available_stock = $inventory_level->qtyonhand - ($inventory_level->qtycommit + $inventory_level->qtyreservd);
-
-                        if($available_stock >= $backorder_count) $line_item_level_statuses[] = 'wt'; //full wt available
-                        if(!($available_stock >= $backorder_count) && $available_stock > 0) $line_item_level_statuses[] = 'p-wt'; //partial wt transfer
-
+                        $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
+    
+                        foreach($inventory_levels as $inventory_level)
+                        {
+                            $available_stock = $inventory_level->qtyonhand - ($inventory_level->qtycommit + $inventory_level->qtyreservd);
+    
+                            if($available_stock >= $backorder_count) $line_item_level_statuses[] = 'wt'; //full wt available
+                            if(!($available_stock >= $backorder_count) && $available_stock > 0) $line_item_level_statuses[] = 'p-wt'; //partial wt transfer
+    
+                        }
                     }
+    
                 }
             }
         }

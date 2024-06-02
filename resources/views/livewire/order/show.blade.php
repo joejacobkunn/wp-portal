@@ -329,91 +329,97 @@
                                                         intval($item->stkqtyord) - intval($item->stkqtyship);
                                                 @endphp
 
-                                                <a class="list-group-item list-group-item-action @if (in_array($item->shipprod, Illuminate\Support\Arr::pluck($this->dnr_line_items, 'shipprod'))) list-group-item-danger @elseif (in_array($item->shipprod, $order->dnr_items ?? [])) border border-warning border-4 @endif"
-                                                    aria-current="true">
-                                                    <div class="d-flex w-100 justify-content-between">
-                                                        <h6 class="mb-1">#{{ $item->lineno }} :
-                                                            {{ $item->user3 }} {{ $item->shipprod }}
-                                                            {{ $item->cleanDescription() }}
-                                                            @if ($backorder_count > 0)
-                                                                <span class="px-1 bg-danger text-white">
-                                                                    <strong>{{ $backorder_count }}</strong> item(s)
-                                                                    backordered</span>
+                                                @if (strtolower($item->specnstype) != 'l')
+                                                    <a class="list-group-item list-group-item-action @if (in_array($item->shipprod, Illuminate\Support\Arr::pluck($this->dnr_line_items, 'shipprod'))) list-group-item-danger @elseif (in_array($item->shipprod, $order->dnr_items ?? [])) border border-warning border-4 @endif"
+                                                        aria-current="true">
+                                                        <div class="d-flex w-100 justify-content-between">
+                                                            <h6 class="mb-1">#{{ $item->lineno }} :
+                                                                {{ $item->user3 }} {{ $item->shipprod }}
+                                                                {{ $item->cleanDescription() }}
+                                                                @if ($backorder_count > 0)
+                                                                    <span class="px-1 bg-danger text-white">
+                                                                        <strong>{{ $backorder_count }}</strong> item(s)
+                                                                        backordered</span>
 
-                                                                @if (str_contains(json_encode($order->wt_transfers), $item->shipprod))
-                                                                    <span class="px-1 bg-primary text-white">
-                                                                        WT In-Process {{ $item->ordertype }}
-                                                                    </span>
-                                                                @else
-                                                                    <span wire:click='showWTModal({{ $item }})'
-                                                                        class="px-1 bg-secondary text-white">
-                                                                        Click for
-                                                                        WT
-                                                                        <div wire:loading
-                                                                            wire:target='showWTModal({{ $item }})'>
-                                                                            <span class="spinner-border spinner-border-sm"
-                                                                                role="status" aria-hidden="true"></span>
-                                                                        </div>
-                                                                    </span>
+                                                                    @if (str_contains(json_encode($order->wt_transfers), $item->shipprod))
+                                                                        <span class="px-1 bg-primary text-white">
+                                                                            WT In-Process {{ $item->ordertype }}
+                                                                        </span>
+                                                                    @else
+                                                                        <span
+                                                                            wire:click='showWTModal({{ $item }})'
+                                                                            class="px-1 bg-secondary text-white">
+                                                                            Click for
+                                                                            WT
+                                                                            <div wire:loading
+                                                                                wire:target='showWTModal({{ $item }})'>
+                                                                                <span
+                                                                                    class="spinner-border spinner-border-sm"
+                                                                                    role="status"
+                                                                                    aria-hidden="true"></span>
+                                                                            </div>
+                                                                        </span>
+                                                                    @endif
                                                                 @endif
-                                                            @endif
-                                                        </h6>
-                                                        <small><span class="badge bg-light-success">Category
-                                                                :
-                                                                {{ strtoupper($item->prodcat) }} / Prod Line
-                                                                :
-                                                                {{ strtoupper($item->prodline) }}</span>
-                                                        </small>
-                                                    </div>
-                                                    <small>
-                                                        <span class="badge bg-light-secondary">Type :
-                                                            {{ $item->getSpecType() }}</span>
-                                                    </small>
-                                                    <small>
-                                                        <span class="badge bg-light-primary">Qty Ordered :
-                                                            @if ($item->returnfl == '1')
-                                                                -
-                                                            @endif
-                                                            {{ intval($item->qtyord) }}
-                                                        </span>
-                                                    </small>
-                                                    <small>
-                                                        <span class="badge bg-light-info">Qty Shipped :
-                                                            @if ($item->returnfl == '1')
-                                                                -
-                                                            @endif
-                                                            {{ intval($item->qtyship) }}
-                                                        </span>
-                                                    </small>
-
-                                                    <small>
-                                                        <span class="badge bg-light-warning">Price :
-                                                            ${{ number_format($item->price, 2) }}</span>
-                                                    </small>
-                                                    <small>
-                                                        <span class="badge bg-light-primary">Net Amt :
-                                                            ${{ number_format($item->netamt, 2) }}</span>
-                                                    </small>
-                                                    <small>
-                                                        <span class="badge bg-light-secondary">Tied :
-                                                            {{ $item->getTied() }}</span>
-                                                    </small>
-                                                    @if ($item->getTied() != 'N/A')
+                                                            </h6>
+                                                            <small><span class="badge bg-light-success">Category
+                                                                    :
+                                                                    {{ strtoupper($item->prodcat) }} / Prod Line
+                                                                    :
+                                                                    {{ strtoupper($item->prodline) }}</span>
+                                                            </small>
+                                                        </div>
                                                         <small>
-                                                            <span class="badge bg-light-warning">Related Order#
-                                                                :
-                                                                {{ strtoupper($item->orderaltno) ?: 'N/A' }}</span>
+                                                            <span class="badge bg-light-secondary">Type :
+                                                                {{ $item->getSpecType() }}</span>
                                                         </small>
-                                                    @endif
-
-                                                    @if (!empty($item->user8))
                                                         <small>
-                                                            <span class="badge bg-light-info">Exp Date :
-                                                                {{ date('M j, Y', strtotime($item->user8)) ?: 'N/A' }}</span>
+                                                            <span class="badge bg-light-primary">Qty Ordered :
+                                                                @if ($item->returnfl == '1')
+                                                                    -
+                                                                @endif
+                                                                {{ intval($item->qtyord) }}
+                                                            </span>
                                                         </small>
-                                                    @endif
+                                                        <small>
+                                                            <span class="badge bg-light-info">Qty Shipped :
+                                                                @if ($item->returnfl == '1')
+                                                                    -
+                                                                @endif
+                                                                {{ intval($item->qtyship) }}
+                                                            </span>
+                                                        </small>
 
-                                                </a>
+                                                        <small>
+                                                            <span class="badge bg-light-warning">Price :
+                                                                ${{ number_format($item->price, 2) }}</span>
+                                                        </small>
+                                                        <small>
+                                                            <span class="badge bg-light-primary">Net Amt :
+                                                                ${{ number_format($item->netamt, 2) }}</span>
+                                                        </small>
+                                                        <small>
+                                                            <span class="badge bg-light-secondary">Tied :
+                                                                {{ $item->getTied() }}</span>
+                                                        </small>
+                                                        @if ($item->getTied() != 'N/A')
+                                                            <small>
+                                                                <span class="badge bg-light-warning">Related Order#
+                                                                    :
+                                                                    {{ strtoupper($item->orderaltno) ?: 'N/A' }}</span>
+                                                            </small>
+                                                        @endif
+
+                                                        @if (!empty($item->user8))
+                                                            <small>
+                                                                <span class="badge bg-light-info">Exp Date :
+                                                                    {{ date('M j, Y', strtotime($item->user8)) ?: 'N/A' }}</span>
+                                                            </small>
+                                                        @endif
+
+                                                    </a>
+                                                @endif
+
                                             @empty
                                                 <div class="alert alert-light-warning color-warning">
                                                     No line items on this order
