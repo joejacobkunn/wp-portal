@@ -24,8 +24,9 @@ class Index extends Component
     public $productSearchModal = false;
     public $loadingCart = false;
     public $cart = [];
+    public $warehouseDropdown = false;
     public $warehouses = [];
-    public $selectedWareHouse;
+    public $selectedWareHouses = [];
 
     public $customerSearchModal = false;
     public $waiveCustomerInfo = 0;
@@ -115,18 +116,16 @@ class Index extends Component
     public function mount()
     {
         $this->account = account();
-        $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->pluck('title', 'short')->toArray();
+        $wareHouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->get();
+        $this->warehouses = $wareHouses->pluck('title', 'short')->toArray();
         $this->excemptedProductLines = array_merge($this->excemptedProductLines, $this->couponProductLines);
+        $this->warehouseDropdown = false;
+        $this->selectedWareHouses = $wareHouses->where('default_selected', 1)->pluck('short')->toArray();
     }
 
     public function render()
     {
         return $this->renderView('livewire.pos.index');
-    }
-
-    public function setWarehouse()
-    {
-        $this->selectWareHouse(Warehouse::where('title', auth()->user()->office_location)->first()->short ?? 'utic');
     }
 
     public function getCustomerPanelHintProperty()
@@ -164,7 +163,7 @@ class Index extends Component
                 "shipTo" => "",
                 "unitOfMeasure" => !empty($unitOfMeasure) ? $unitOfMeasure : 'EA',
                 "includeSellingPrice" => true,
-                "warehouse" => $this->selectedWareHouse ?? 'utic',
+                "warehouse" => $this->selectedWareHouses,
                 "quantityOrdered" =>  0,
                 "tInfieldvalue" => [
                     "t-infieldvalue" => [
@@ -196,7 +195,7 @@ class Index extends Component
         $invoice_request = [
             'sx_operator_id' => auth()->user()->sx_operator_id,
             'sx_customer_number' => $this->customerSelected['sx_customer_number'] ?? 1,
-            'warehouse' => $this->selectedWareHouse,
+            'warehouse' => $this->selectedWareHouses,
             'cart' => $items,
         ];
 
@@ -279,15 +278,9 @@ class Index extends Component
         $this->dispatch('pos:addedToCart');
     }
 
-    public function selectWareHouse($shortName)
+    public function updatedSelectedWareHouses($shortName)
     {
-        if (! isset($this->warehouses[$shortName])) {    
-            return $this->alert('error', 'Failed to select warehouse');
-        }
-
-        $this->selectedWareHouse = $shortName;
-
-        return $this->alert('success', 'Updated warehouse to ' . $this->warehouses[$shortName]);
+        $this->warehouseDropdown = true;
     }
 
     public function searchCustomer()
@@ -522,7 +515,7 @@ class Index extends Component
         $invoice_request = [
             'sx_operator_id' => auth()->user()->sx_operator_id,
             'sx_customer_number' => $this->customerSelected['sx_customer_number'] ?? 1,
-            'warehouse' => $this->selectedWareHouse,
+            'warehouse' => $this->selectedWareHouses,
             'cart' => $apiCart,
         ];
         
