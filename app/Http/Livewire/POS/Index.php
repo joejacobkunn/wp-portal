@@ -148,7 +148,8 @@ class Index extends Component
     
     public function showProductSearchModal()
     {
-        $this->productSearchModal = true;    
+        $this->productSearchModal = true;
+        $this->reset('warehouseDropdown'); 
     }
 
     public function getproductData($productCode, $unitOfMeasure = null)
@@ -651,6 +652,7 @@ class Index extends Component
     {
         $this->resetValidation();
         $this->resetErrorBag();
+        $this->reset('warehouseDropdown');
 
         if (!$this->productQuery) {
             return $this->addError('productQuery', 'Enter Product Code.' );
