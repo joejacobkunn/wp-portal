@@ -281,7 +281,7 @@ class Table extends DataTableComponent
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'web') $builder->where('is_web_order',1);
                     if($value == 'sro') $builder->where('is_sro','=',1);
-                    if($value == 'sales') $builder->where('is_sales_order',1);
+                    if($value == 'sales') $builder->where('is_sales_order',1)->whereNot('is_sro',1);
                     if($value == 'in-store') $builder->where('is_sales_order',0)->where('is_sro', 0)->where('taken_by', '<>', 'web');
                     if($value == 'golf') $builder->where('golf_parts', '<>', null);
                 }),
