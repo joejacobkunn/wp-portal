@@ -81,14 +81,20 @@
                                                     type="button" data-bs-toggle="dropdown" aria-haspopup="true"
                                                     aria-expanded="true">
                                                     <i class="fas fa-warehouse me-2"></i> Warehouse:
-                                                    <strong>{{ $selectedWareHouse ? $warehouses[$selectedWareHouse] : '- Not Selected -' }}</strong>
+
+                                                    <div class="warehouse-selected-list-div">
+                                                    @forelse($selectedWareHouses as $warehouseShort)
+                                                        {{ $warehouses[$warehouseShort] }}<br/>
+                                                    @empty
+                                                        <strong>- Not Selected -</strong>
+                                                    @endforelse
+                                                    </div>
                                                 </button>
-                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                                                <div class="dropdown-menu {{ $warehouseDropdown ? 'show' : '' }}" aria-labelledby="dropdownMenuButton"
                                                     data-popper-placement="bottom-start">
                                                     <h6 class="dropdown-header">Select Warehouse</h6>
                                                     @foreach ($warehouses as $warehouseShort => $warehouseName)
-                                                        <a class="dropdown-item" href="javascript:;"
-                                                            wire:click="selectWareHouse('{{ $warehouseShort }}')">{{ $warehouseName }}</a>
+                                                        <label class="dropdown-item text-link"><input type="checkbox" value="{{ $warehouseShort }}" wire:model.live="selectedWareHouses" /> {{ $warehouseName }}</label>
                                                     @endforeach
                                                 </div>
                                             </div>
