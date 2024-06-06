@@ -31,6 +31,8 @@ class Table extends DataTableComponent
 
     public $ignored_count = 0;
 
+    public $warehouses = [];
+
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -73,6 +75,7 @@ class Table extends DataTableComponent
     public function mount()
     {
         $this->setFilter('stage_codes', 'open');
+        $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
     }
 
     public function columns(): array
@@ -286,12 +289,13 @@ class Table extends DataTableComponent
                     if($value == 'golf') $builder->where('golf_parts', '<>', null);
                 }),
 
-
-            SelectFilter::make('Warehouse', 'whse')
-            ->hiddenFromMenus()
-                ->options(['' => 'All Warehouses'] + Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray())->filter(function (Builder $builder, string $value) {
-                    $builder->where(DB::raw('lower(whse)'), strtolower($value));
-            }),
+            MultiSelectDropdownFilter::make('Warehouse', 'whse')
+                ->hiddenFromMenus()
+                ->options($this->warehouses)
+                ->filter(function (Builder $builder, array $values) {
+                        $builder->whereIn(DB::raw('lower(whse)'), $values);
+                    }
+                ),
             
             DateRangeFilter::make('Order Date', 'order_date')
             ->hiddenFromMenus()
