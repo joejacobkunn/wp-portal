@@ -75,6 +75,7 @@ class Show extends Component
     public $wt_req_ship_date;
     public $wt_whse;
     public $wt_transfer_number;
+    public $order_notes;
 
     
     public $breadcrumbs = [
@@ -145,6 +146,7 @@ class Show extends Component
     {
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
+        $this->order_notes = $this->getOrderNotes();
         $this->authorize('view', $this->order);
     }
 
@@ -679,6 +681,12 @@ class Show extends Component
         if($date->isSaturday()) $date->addDays(2);
         if($date->isSunday()) $date->addDays(1);
         return $date->format('Y-m-d');
+    }
+
+    private function getOrderNotes()
+    {
+        $sx_client = new SX();
+        return $sx_client->get_notes(['request' => ['companyNumber' => 10, 'primaryKey' => $this->order->order_number, 'operatorInit' => 'WEB', 'notesType' => 'o', 'requiredNotesOnlyFlag' => false, 'recordLimit' => 10]]);
     }
 
 

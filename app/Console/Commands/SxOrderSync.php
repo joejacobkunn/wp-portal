@@ -62,6 +62,7 @@ class SxOrderSync extends Command
                     'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                     'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
                     'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
+                    'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
                     'status' => $this->status($sx_order['stagecd'])
                 ]
             );

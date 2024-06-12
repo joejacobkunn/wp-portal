@@ -360,6 +360,18 @@
                                                                             </div>
                                                                         </span>
                                                                     @endif
+
+                                                                    @if (in_array($item->shipprod, $order->non_stock_line_items ?? []))
+                                                                        <span class="px-1 bg-warning text-white">
+                                                                            Non Stock Item
+                                                                        </span>
+                                                                    @endif
+
+                                                                    @if (in_array($item->shipprod, $order->golf_parts ?? []))
+                                                                        <span class="px-1 bg-info text-white">
+                                                                            Golf
+                                                                        </span>
+                                                                    @endif
                                                                 @endif
                                                             </h6>
                                                             <small><span class="badge bg-light-success">Category
@@ -438,6 +450,8 @@
                     </div>
 
                     <livewire:x-activity-log show-only-user-activity :entity="$order" :key="'activity-' . time()" lazy />
+
+                    @include('livewire.order.partials.sx-notes')
 
 
 

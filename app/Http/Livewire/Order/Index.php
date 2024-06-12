@@ -77,4 +77,5 @@ class Index extends Component
         $this->order_data_sync_timestamp = Cache::get('order_data_sync_timestamp');
         $this->dispatch('refreshDatatable');
     }
+
 }

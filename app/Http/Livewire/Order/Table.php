@@ -31,6 +31,10 @@ class Table extends DataTableComponent
 
     public $ignored_count = 0;
 
+    public $enableEcomZwhs = false;
+
+    public $warehouses = [];
+
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -73,6 +77,9 @@ class Table extends DataTableComponent
     public function mount()
     {
         $this->setFilter('stage_codes', 'open');
+        $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
+
+
     }
 
     public function columns(): array
@@ -89,6 +96,7 @@ class Table extends DataTableComponent
                     if($row->warehouse_transfer_available) $link = $link.'<span class="badge bg-light-primary float-end">WT</span>';
                     if($row->partial_warehouse_transfer_available) $link = $link.'<span class="badge bg-light-primary float-end">P-WT</span>';
                     if(!empty($row->golf_parts)) $link = $link.'<span class="badge bg-light-primary float-end">GOLF</span>';
+                    if(!empty($row->non_stock_line_items)) $link = $link.'<span class="badge bg-light-warning float-end">Non Stock</span>';
                     return $link;
                 })
                 ->html(),
@@ -262,11 +270,13 @@ class Table extends DataTableComponent
                     'completed' => 'Show orders that are Completed',
                     'wt' => 'Show orders that are WT',
                     'p-wt' => 'Show orders that are Partial WT',
+                    'non-stock' => 'Show orders that are Non-Stock'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
                     if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
                     if($value == 'wt') $builder->where('warehouse_transfer_available','=',1);
                     if($value == 'p-wt') $builder->where('partial_warehouse_transfer_available','=',1);
+                    if($value == 'non-stock') $builder->where('non_stock_line_items','<>',null);
                 }),
 
                 
@@ -286,12 +296,13 @@ class Table extends DataTableComponent
                     if($value == 'golf') $builder->where('golf_parts', '<>', null);
                 }),
 
-
-            SelectFilter::make('Warehouse', 'whse')
-            ->hiddenFromMenus()
-                ->options(['' => 'All Warehouses'] + Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray())->filter(function (Builder $builder, string $value) {
-                    $builder->where(DB::raw('lower(whse)'), strtolower($value));
-            }),
+            MultiSelectDropdownFilter::make('Warehouse', 'whse')
+                ->hiddenFromMenus()
+                ->options($this->warehouses)
+                ->filter(function (Builder $builder, array $values) {
+                        $builder->whereIn(DB::raw('lower(whse)'), $values);
+                    }
+                ),
             
             DateRangeFilter::make('Order Date', 'order_date')
             ->hiddenFromMenus()
@@ -386,7 +397,16 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $query = Order::where('cono', auth()->user()->account->sx_company_number);
+        //dd($this->enableEcomZwhs);
+        if($this->enableEcomZwhs)
+        {
+            $this->warehouses = $this->warehouses + ['ecom' => 'ECOM','zwhs' => 'ZWHS'];
+        }else{
+            $this->warehouses = array_diff($this->warehouses, ['ecom' => 'ECOM','zwhs' => 'ZWHS']);
+        }
+
+
+        $query = Order::where('cono', auth()->user()->account->sx_company_number)->whereIn('whse', array_keys($this->warehouses));
 
         return $query;
     }
