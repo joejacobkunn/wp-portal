@@ -109,6 +109,10 @@ class Table extends DataTableComponent
                 ->hideIf(1)
                 ->html(),
 
+                Column::make('Non Stock', 'non_stock_line_items')
+                ->hideIf(1)
+                ->html(),
+
 
             Column::make('Warehouse Transfer', 'warehouse_transfer_available')
                 ->hideIf(1)
