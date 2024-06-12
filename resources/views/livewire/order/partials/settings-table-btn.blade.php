@@ -6,6 +6,13 @@
         </button>
         <div class="dropdown-menu">
             <a class="dropdown-item" wire:navigate href="{{ route('order.email-template.index') }}">Templates</a>
+            <a class="dropdown-item" wire:click="$toggle('enableEcomZwhs')">Show ECOM and ZWHS :
+                @if (!$this->enableEcomZwhs)
+                    <span class="badge bg-light-danger">No</span>
+                @else
+                    <span class="badge bg-light-success">Yes</span>
+                @endif
+            </a>
         </div>
     </div>
 </div>

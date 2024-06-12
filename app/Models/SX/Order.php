@@ -153,4 +153,16 @@ class Order extends Model
 
         return (!empty($golf_parts)) ? $golf_parts : null;
     }
+
+    public function hasNonStockItems($line_items)
+    {
+        $non_stock_items = [];
+
+        foreach($line_items as $line_item)
+        {
+            if($line_item->specnstype == 'n') $non_stock_items[] = $line_item->shipprod;
+        }
+
+        return (!empty($non_stock_items)) ? $non_stock_items : null;
+    }
 }

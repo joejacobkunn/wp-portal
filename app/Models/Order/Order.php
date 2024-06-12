@@ -37,6 +37,7 @@ class Order extends Model
         'qty_ord',
         'last_followed_up_at',
         'line_items',
+        'non_stock_line_items',
         'is_sales_order',
         'warehouse_transfer_available',
         'is_web_order',
@@ -53,7 +54,8 @@ class Order extends Model
         'dnr_items' => 'array',
         'line_items' => 'array',
         'wt_transfers' => 'array',
-        'golf_parts' => 'array'
+        'golf_parts' => 'array',
+        'non_stock_line_items' => 'array'
     ];
 
     const LOG_FIELD_MAPS = [

@@ -13,6 +13,7 @@
                 </div>
 
                 <div class="card-body">
+
                     @if ($order_data_sync_timestamp)
                         <div class="alert alert-light-info color-warning">
                             <button type="button" wire:click="updateOpenOrders" wire:loading.attr="disabled"
