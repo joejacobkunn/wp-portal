@@ -362,13 +362,13 @@
                                                                     @endif
 
                                                                     @if (in_array($item->shipprod, $order->non_stock_line_items ?? []))
-                                                                        <span class="px-1 bg-warning text-white">
+                                                                        <span class="px-1 ms-1 bg-warning text-white">
                                                                             Non Stock Item
                                                                         </span>
                                                                     @endif
 
                                                                     @if (in_array($item->shipprod, $order->golf_parts ?? []))
-                                                                        <span class="px-1 bg-info text-white">
+                                                                        <span class="px-1 ms-1 bg-info text-white">
                                                                             Golf
                                                                         </span>
                                                                     @endif
