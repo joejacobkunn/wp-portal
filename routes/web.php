@@ -81,11 +81,9 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('products', \App\Http\Livewire\Product\Index::class)->name('products.index');
 
         Route::get('equipment/unavailable', \App\Http\Livewire\Equipment\Unavailable\Index::class)->name('equipment.unavailable.index');
-        Route::get('equipment/unavailable/reports', \App\Http\Livewire\Equipment\Unavailable\Report\Index::class)->name('equipment.unavailable.report.index');
+        Route::get('equipment/unavailable/report', \App\Http\Livewire\Equipment\Unavailable\Report\Index::class)->name('equipment.unavailable.report.index');
+        Route::get('equipment/unavailable/report/{report}/show', \App\Http\Livewire\Equipment\Unavailable\Report\Show::class)->name('equipment.unavailable.report.show');
         Route::get('equipment/unavailable/{unavailable_unit}/show', \App\Http\Livewire\Equipment\Unavailable\Show::class)->name('equipment.unavailable.show');
-
-
-
 
     });
 });

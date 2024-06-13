@@ -74,6 +74,15 @@ class Table extends DataTableComponent
                 ->hideIf(!auth()->user()->can('equipment.unavailable.viewall'))
                 ->html(),
 
+                Column::make('Current Location', 'current_location')
+                ->excludeFromColumnSelect()
+                ->searchable()
+                ->format(function ($value, $row) {
+                    if(empty($value)) return '<span class="badge bg-light-warning">Not Set</span>';
+                    return $value;
+                })
+                ->html(),
+
 
 
             Column::make('Base Price', 'base_price')
