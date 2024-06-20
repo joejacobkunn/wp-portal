@@ -70,7 +70,12 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $query = UnavailableReport::where('user_id', auth()->user()->id);
+        $query = UnavailableReport::query();
+
+        if(!auth()->user()->can('equipment.unavailable.reports.viewall'))
+        {
+            $query->where('user_id', auth()->user()->id);
+        }
         
         return $query;
     }
