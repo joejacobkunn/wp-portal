@@ -103,6 +103,8 @@ class Show extends Component
 
         $this->report->status = UnavailableReportStatusEnum::Completed->value;
         $this->report->data = json_encode($equipmentData);
+        $this->report->note = $this->notes;
+        $this->report->submitted_at = now()->format('Y-m-d');
         $this->report->save();
         $this->editForm = false;
 

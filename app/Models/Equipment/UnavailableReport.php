@@ -14,5 +14,5 @@ class UnavailableReport extends Model
 
     protected $fillable = ['cono', 'user_id', 'report_date', 'data', 'submitted_at', 'status', 'note'];
 
-    protected $casts = ['report_date' => 'date'];
+    protected $casts = ['report_date' => 'date', 'submitted_at' => 'date'];
 }
