@@ -92,8 +92,8 @@ class Show extends Component
 
     public function submitReport()
     {
-        if (empty($this->selectedEquipments)) {
-            return $this->addError('selectedEquipments', 'Please select atleast one equipment.' );
+        if (count($this->selectedEquipments) != count($this->unavailableEquipments)) {
+            return $this->addError('selectedEquipments', 'Please make sure to complete and check off each equipment.' );
         }
 
         $equipmentData = UnavailableUnit::select('id', 'current_location')
