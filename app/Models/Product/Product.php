@@ -14,7 +14,7 @@ class Product extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = ['unit_sell' => 'array'];
+    protected $casts = ['unit_sell' => 'array', 'aliases' => 'array'];
 
     public function getDefaultUnitSellAttribute()
     {

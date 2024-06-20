@@ -15,4 +15,10 @@ class StringHelper
 
         return $result;
     }
+
+    public static function validJson($jsonString)
+    {
+        json_decode($jsonString);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
 }
