@@ -32,29 +32,34 @@ class SyncUnavailableUnits extends Command
         
         foreach($units as $unit)
         {
-            $icsw = DB::connection('sx')->select("select top 1 * from pub.icsw where cono = ? and whse = ? and prod = ? with (nolock)", [40, $unit->whse, $unit->prod]);
-            $icses = DB::connection('sx')->select("select top 1 * from pub.icses where cono = ? and whse = ? and prod = ? and currstatus = ?  and reasunavty = ? with (nolock)", [40, $unit->whse, $unit->prod, 'U', $unit->reasunavty]);
-            //strtolower($icsw[0]->serlottype) == 's'
-                //$sasta = DB::connection('sx')->select("select top 1 * from pub.sasta where cono = ? and codeiden = ? AND codeval = ? with (nolock)", [40, 'l',$unit->reasunavty]);
-            $icsp = DB::connection('sx')->select("select top 1 * from pub.icsp where cono = ? and prod = ? with (nolock)", [40, $unit->prod]);
+            $icses = DB::connection('sx')->select("select * from pub.icses where cono = ? and whse = ? and prod = ? and currstatus = ?  and reasunavty = ? with (nolock)", [40, $unit->whse, $unit->prod, 'U', $unit->reasunavty]);
 
-            $serial_no = (!empty($icses)) ? trim($icses[0]->serialno) : '';
+            foreach($icses as $icse)
+            {
+                $icsw = DB::connection('sx')->select("select top 1 * from pub.icsw where cono = ? and whse = ? and prod = ? with (nolock)", [40, $unit->whse, $unit->prod]);
+                
+                $icsp = DB::connection('sx')->select("select top 1 * from pub.icsp where cono = ? and prod = ? with (nolock)", [40, $unit->prod]);
+    
+                $serial_no = (!empty($icse)) ? trim($icse->serialno) : '';
+    
+                $unavailable_unit = UnavailableUnit::updateOrCreate(
+                    ['cono' => 40, 'whse' => $unit->whse, 'possessed_by' => strtolower($unit->reasunavty), 'product_code' => $unit->prod, 'serial_number' => $serial_no],
+                    [
+                        'cono' => 40,
+                        'whse' => strtolower($unit->whse),
+                        'possessed_by' => strtolower($unit->reasunavty),
+                        'product_code' => $unit->prod,
+                        'product_name' => explode(";",$icsp[0]->descrip)[0].' '.explode(";",$icsp[0]->descrip)[1],
+                        'serial_number' => $serial_no,
+                        'base_price' => $icsw[0]->baseprice,
+                        'is_unavailable' => 1
+                    ]
+                );
+    
+                $unavailable_ids[] = $unavailable_unit->id; 
+            }
 
-            $unavailable_unit = UnavailableUnit::updateOrCreate(
-                ['cono' => 40, 'whse' => $unit->whse, 'possessed_by' => strtolower($unit->reasunavty), 'product_code' => $unit->prod, 'serial_number' => $serial_no],
-                [
-                    'cono' => 40,
-                    'whse' => strtolower($unit->whse),
-                    'possessed_by' => strtolower($unit->reasunavty),
-                    'product_code' => $unit->prod,
-                    'product_name' => explode(";",$icsp[0]->descrip)[0].' '.explode(";",$icsp[0]->descrip)[1],
-                    'serial_number' => (!empty($icses)) ? trim($icses[0]->serialno) : '',
-                    'base_price' => $icsw[0]->baseprice,
-                    'is_unavailable' => 1
-                ]
-            );
-
-            $unavailable_ids[] = $unavailable_unit->id;    
+          
 
         }
 
