@@ -85,6 +85,11 @@
                                 <a href="{{ route('equipment.unavailable.index') }}" wire:navigate class="submenu-link">Demo Units</a>
                             </li>
                         @endcan
+                        @canany(['equipment.warranty.view','equipment.warranty.manage'])
+                            <li class="submenu-item  ">
+                                <a href="{{ route('equipment.warranty.index') }}" wire:navigate class="submenu-link">Warranty Registration</a>
+                            </li>
+                        @endcan
                     </ul>
                 </div>
             </div>

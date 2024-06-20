@@ -14,4 +14,5 @@ return [
     "asset_version" => env('ASSET_VERSION', uniqid()),
 
     'azure_auth_domain' => env('AZURE_AUTH_DOMAIN', null),
+
 ];
