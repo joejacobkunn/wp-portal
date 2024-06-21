@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Equipment\Warranty;
+namespace App\Models\Equipment\Warranty\BrandConfigurator;
 
 use App\Models\Product\Brand;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

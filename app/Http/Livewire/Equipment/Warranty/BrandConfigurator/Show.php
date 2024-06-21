@@ -2,9 +2,10 @@
 
 namespace App\Http\Livewire\Equipment\Warranty\BrandConfigurator;
 
-use App\Models\Equipment\Warranty\BrandWarranty;
+use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Traits\FormRequest;
+
 use App\Models\Product\Line;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -17,7 +18,7 @@ class Show extends Component
     public $linesDisabled =false;
     public $breadcrumbs = [
         [
-            'title' => 'Warranty Registration',
+            'title' => 'Brand Configurator',
             'route_name' => 'equipment.warranty.index',
         ],
     ];
@@ -47,6 +48,8 @@ class Show extends Component
        return $this->renderView('livewire.equipment.warranty.brand-configurator.show');
     }
     public function mount(){
+
+        array_push($this->breadcrumbs, ['title' => $this->warranty->brand->name]);
         $lines = Line::whereIn('id', $this->warranty->product_lines_id)->get();
         $this->productLines = $lines->pluck('name','id')->toArray();
         $this->formInit();
@@ -59,4 +62,5 @@ class Show extends Component
     public function cancel(){
         $this->editRecord = false;
     }
+
 }

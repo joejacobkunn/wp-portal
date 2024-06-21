@@ -4,7 +4,7 @@ namespace App\Http\Livewire\Equipment\Warranty\BrandConfigurator;
 
 use App\Http\Livewire\Component\DataTableComponent;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Equipment\Warranty\BrandWarranty;
+use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Rappasoft\LaravelLivewireTables\Views\Column;
@@ -34,11 +34,12 @@ class WarrantyTable extends DataTableComponent
                 Column::make('Brand', 'brand.name')
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('equipment.warranty.show', $row->id).'" wire:navigate class="text-primary text-decoration-underline">'.$value.'</a>';
+                    return '<a  href="'.route('equipment.warranty.show', $row->id).'" wire:navigate class="text-primary text-decoration-underline">'.$value.'</a>';
                 })
                 ->html(),
                 Column::make('Registration url', 'registration_url')
                 ->excludeFromColumnSelect()
+                ->searchable()
                 ->format(function ($value, $row) {
                     return strtoupper($value);
                 })

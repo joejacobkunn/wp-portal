@@ -15,16 +15,6 @@
                         <p class="small pe-4">{{ $warranty->brand->name }}</p>
                     </div>
                 </li>
-
-                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                    <div>
-                        <h3 class="h6 mb-1">Registraion URL</h3>
-                        <p class="small pe-4">{{  $warranty->registration_url }}</p>
-                    </div>
-
-
-                </li>
-
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
                         <h3 class="h6 mb-1">Product Lines</h3>
@@ -34,6 +24,16 @@
 
                     </div>
                 </li>
+                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                    <div>
+                        <h3 class="h6 mb-1">Registraion URL</h3>
+                        <p class="small pe-4">{{  $warranty->registration_url }}</p>
+                    </div>
+
+
+                </li>
+
+
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
                         <h3 class="h6 mb-1">Require a proof of registration attachment</h3>

@@ -4,7 +4,7 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 
-use App\Models\Equipment\Warranty\BrandWarranty;
+use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -80,7 +80,7 @@ class AuthServiceProvider extends ServiceProvider
     private function getWarrantyPolicies()
     {
         return [
-            BrandWarranty::class => \App\Policies\Equipment\Warranty\BrandWarrantyPolicy::class
+            BrandWarranty::class => \App\Policies\Equipment\Warranty\BrandConfigurator\BrandWarrantyPolicy::class
         ];
     }
 

@@ -5,7 +5,7 @@ namespace App\Http\Livewire\Equipment\Warranty\BrandConfigurator;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Traits\FormRequest;
 use App\Models\Equipment\UnavailableReport;
-use App\Models\Equipment\Warranty\BrandWarranty;
+use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
@@ -14,12 +14,8 @@ class Index extends Component
     public BrandWarranty $warranty;
     public $addRecord = false;
     public $showBtn = true;
+    public $selectedId;
     public $linesDisabled =true;
-    public $breadcrumbs = [
-        [
-            'title' => 'Warranty Registration',
-        ],
-    ];
 
     public function mount()
     {
@@ -27,12 +23,13 @@ class Index extends Component
     }
     protected $listeners = [
         'brandUpdated' => 'brandUpdated',
+        'pageUpdated' => 'pageUpdated'
     ];
 
     public function render()
     {
         $this->authorize('view', BrandWarranty::class);
-        return $this->renderView('livewire.equipment.warranty.index');
+        return view('livewire.equipment.warranty.brand-configurator.index');
     }
 
     public function getConfiguredProperty()
@@ -49,4 +46,5 @@ class Index extends Component
         $this->addRecord = false;
         $this->showBtn = true;
     }
+
 }

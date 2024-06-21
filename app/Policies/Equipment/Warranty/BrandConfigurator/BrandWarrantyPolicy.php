@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Policies\Equipment\Warranty;
+namespace App\Policies\Equipment\Warranty\BrandConfigurator;
 
 use App\Models\Core\User;
 

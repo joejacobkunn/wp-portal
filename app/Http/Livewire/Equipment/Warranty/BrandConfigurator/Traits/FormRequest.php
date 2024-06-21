@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Traits;
-
-use App\Models\Equipment\Warranty\BrandWarranty;
+use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Models\Product\Brand;
 use App\Models\Product\Line;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -26,7 +25,7 @@ trait FormRequest
     {
         return [
             'warranty.brand_id' => 'required|exists:product_brands,id',
-            'warranty.registration_url' => 'required|min:5',
+            'warranty.registration_url' => 'required|min:3',
             'warranty.product_lines_id' => 'required',
             'warranty.require_proof_of_reg' => 'nullable',
         ];
