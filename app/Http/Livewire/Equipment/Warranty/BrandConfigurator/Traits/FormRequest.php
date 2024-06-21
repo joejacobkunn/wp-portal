@@ -1,6 +1,6 @@
 <?php
-
 namespace App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Traits;
+
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Models\Product\Brand;
 use App\Models\Product\Line;
@@ -24,7 +24,6 @@ trait FormRequest
         'registrationUrl' => 'Registration url',
         'requireProof' => 'Require Proof of Registraion',
     ];
-
     protected $rules = [
         'brandId' => 'required|exists:product_brands,id',
         'lineId' => 'required',
@@ -38,7 +37,7 @@ trait FormRequest
     public function formInit()
     {
         $this->brands = Brand::pluck('name', 'id')->toArray();
-        
+
         if (!empty($this->warranty->id)) {
             $this->brandId = $this->warranty->brand_id;
             $this->lineId = $this->warranty->product_lines_id;
@@ -48,21 +47,18 @@ trait FormRequest
         }
     }
 
-
     /**
      * event handler for brand field update
      */
     public function brandUpdated($name, $value, $recheckValidation = false)
     {
         $this->fieldUpdated($name, $value, $recheckValidation);
-
         $this->lines = Line::where('brand_id',$value)->pluck('name', 'id');
     }
 
     /**
      * Form submission action
      */
-
     public function submit()
     {
         $this->validate();
@@ -88,8 +84,7 @@ trait FormRequest
             'require_proof_of_reg' => $this->requireProof,
         ]);
 
-        session()->flash('success', 'Record created!');
-
+        $this->alert('success', 'Record created!');
         return redirect()->route('equipment.warranty.index');
     }
 
@@ -109,25 +104,21 @@ trait FormRequest
         $this->warranty->save();
 
         $this->editRecord = false;
-        session()->flash('success', 'Record updated!');
-
+        $this->alert('success', 'Record updated!');
         return redirect()->route('equipment.warranty.index');
     }
 
     public function delete()
     {
         $this->authorize('delete', $this->warranty);
-        $record  = BrandWarranty::find($this->warranty->id);
 
-        if($record) {
-            $this->warranty->delete();
-            session()->flash('success', 'Record deleted!');
-
-        } else {
-           // session()->flash('error', 'Record not found!');
-           $this->alert('error','Record not found');
+        if (!$this->warranty->exists) {
+            $this->alert('error','Record not found');
+            return redirect()->route('equipment.warranty.index');
         }
+
+        $this->warranty->delete();
+        $this->alert('success', 'Record deleted!');
         return redirect()->route('equipment.warranty.index');
     }
-
 }

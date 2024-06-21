@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('warranty_brand_configurations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('brand_id')
-          ->constrained('product_brands')
-          ->onDelete('cascade');
+            ->constrained('product_brands')
+            ->onDelete('cascade');
             $table->json('product_lines_id');
             $table->string('registration_url')->nullable();
             $table->boolean('require_proof_of_reg')->default(0);

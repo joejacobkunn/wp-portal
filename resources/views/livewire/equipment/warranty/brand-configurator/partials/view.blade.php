@@ -19,7 +19,7 @@
                     <div>
                         <h3 class="h6 mb-1">Product Lines</h3>
                         @foreach ($this->productLines as $key => $item )
-                        <p class="small pe-4">{{  $item}}</p>
+                        <p class="small pe-4">{{ $item }}</p>
                         @endforeach
 
                     </div>

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Livewire\Equipment\Warranty;
 
 use App\Http\Livewire\Component\Component;
@@ -25,15 +24,9 @@ class Index extends Component
             ],
         ]
     ];
-    public function mount()
-    {
-        //$this->formInit();
-    }
-
     public function render()
     {
         $this->authorize('view', BrandWarranty::class);
         return $this->renderView('livewire.equipment.warranty.index');
     }
-
 }

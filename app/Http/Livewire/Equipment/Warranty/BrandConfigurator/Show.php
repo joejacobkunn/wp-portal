@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Http\Livewire\Equipment\Warranty\BrandConfigurator;
 
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Traits\FormRequest;
-
 use App\Models\Product\Line;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -15,7 +13,6 @@ class Show extends Component
     public BrandWarranty $warranty;
     public $editRecord =false;
     public $productLines;
-    public $linesDisabled =false;
     public $breadcrumbs = [
         [
             'title' => 'Brand Configurator',
@@ -27,7 +24,6 @@ class Show extends Component
         'edit' => 'edit',
         'brandUpdated' => 'brandUpdated',
     ];
-
     public $actionButtons = [
         [
             'icon' => 'fa-edit',
@@ -42,24 +38,26 @@ class Show extends Component
             'listener' => 'deleteRecord',
         ],
     ];
+
     public function render()
     {
-
        return $this->renderView('livewire.equipment.warranty.brand-configurator.show');
     }
-    public function mount(){
 
+    public function mount()
+    {
         array_push($this->breadcrumbs, ['title' => $this->warranty->brand->name]);
-        $lines = Line::whereIn('id', $this->warranty->product_lines_id)->get();
-        $this->productLines = $lines->pluck('name','id')->toArray();
+        $this->productLines = Line::whereIn('id', $this->warranty->product_lines_id)->pluck('name','id')->toArray();
         $this->formInit();
     }
-    public function edit(){
 
+    public function edit()
+    {
         $this->editRecord = true;
     }
 
-    public function cancel(){
+    public function cancel()
+    {
         $this->editRecord = false;
     }
 

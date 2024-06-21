@@ -50,7 +50,11 @@
 
                 <div class="row">
                     <div class="col-md-12 mb-1">
-                        <x-forms.checkbox label="Require a proof of registration attachment" model="requireProof" lazy />
+                        <x-forms.checkbox
+                            label="Require a proof of registration attachment"
+                            :checked="$requireProof"
+                            model="requireProof"
+                            lazy />
                     </div>
                 </div>
 
