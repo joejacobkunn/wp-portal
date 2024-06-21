@@ -82,7 +82,8 @@
                     <ul class="submenu-group">
                         @canany(['equipment.unavailable.view'])
                             <li class="submenu-item  ">
-                                <a href="{{ route('equipment.unavailable.index') }}" wire:navigate class="submenu-link">Demo Units</a>
+                                <a href="{{ route('equipment.unavailable.index') }}" wire:navigate
+                                    class="submenu-link">Unavailable Units</a>
                             </li>
                         @endcan
                         @canany(['equipment.warranty.view','equipment.warranty.manage'])
