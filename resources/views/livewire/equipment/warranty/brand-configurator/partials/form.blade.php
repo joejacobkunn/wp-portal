@@ -8,11 +8,10 @@
                         <div class="form-group">
                             <x-forms.select
                                 label="Brand"
-                                model="warranty.brand_id"
+                                model="brandId"
                                 :options="$brands"
                                 listener="brandUpdated"
-                                :selected="$warranty->brand_id ?? null"
-                                default-selectable
+                                :selected="$brandId"
                                 hasAssociativeIndex
                                 default-option-label="- None -"
                                 label-index="name"
@@ -25,31 +24,33 @@
                         <div class="form-group">
                             <x-forms.select
                                 label="Product Lines"
-                                model="warranty.product_lines_id"
+                                model="lineId"
                                 :options="$lines"
-                                 default-selectable
-                                :selected="$warranty->product_lines_id ?? []"
+                                :selected="$lineId"
                                 hasAssociativeIndex
-                                :disabled="$linesDisabled"
+                                :disabled="!$brandId"
                                 multiple
                                 default-option-label="- None -"
                                 label-index="name"
                                 value-index="id"
-                                :key="'line-' . ($warranty->brand_id ?? '')"/>
+                                :key="'line-' . $brandId"/>
                         </div>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.input label="Registration URL" model="warranty.registration_url" lazy />
+                        <x-forms.input
+                            label="Registration URL"
+                            model="registrationUrl"
+                            lazy />
 
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12 mb-1">
-                        <x-forms.checkbox label="Require a proof of registration attachment" model="warranty.require_proof_of_reg" lazy />
+                        <x-forms.checkbox label="Require a proof of registration attachment" model="requireProof" lazy />
                     </div>
                 </div>
 

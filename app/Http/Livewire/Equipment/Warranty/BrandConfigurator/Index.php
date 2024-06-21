@@ -11,24 +11,25 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Index extends Component
 {
     use AuthorizesRequests, FormRequest;
+
     public BrandWarranty $warranty;
+
     public $addRecord = false;
     public $showBtn = true;
-    public $selectedId;
-    public $linesDisabled =true;
 
-    public function mount()
-    {
-        $this->formInit();
-    }
     protected $listeners = [
         'brandUpdated' => 'brandUpdated',
         'pageUpdated' => 'pageUpdated'
     ];
 
-    public function render()
+    public function mount()
     {
         $this->authorize('view', BrandWarranty::class);
+        $this->formInit();
+    }
+
+    public function render()
+    {
         return view('livewire.equipment.warranty.brand-configurator.index');
     }
 
@@ -38,13 +39,14 @@ class Index extends Component
         return true;
     }
 
-    public function create(){
+    public function create()
+    {
         $this->addRecord =true;
-        $this->showBtn = false;
     }
-    public function cancel(){
+
+    public function cancel()
+    {
         $this->addRecord = false;
-        $this->showBtn = true;
     }
 
 }

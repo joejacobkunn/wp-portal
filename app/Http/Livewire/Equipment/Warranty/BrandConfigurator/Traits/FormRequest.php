@@ -12,42 +12,39 @@ trait FormRequest
     public $brands =[];
     public $lines = [];
 
+    //attributes
+    public $brandId;
+    public $lineId;
+    public $registrationUrl;
+    public $requireProof;
+
     protected $validationAttributes = [
-        'warranty.brand_id' => 'Brand',
-        'warranty.registration_url' => 'Registration url',
-        'warranty.product_lines_id' => 'Product Lines',
-        'warranty.require_proof_of_reg' => 'Require Proof of Registraion',
+        'brandId' => 'Brand',
+        'lineId' => 'Product Lines',
+        'registrationUrl' => 'Registration url',
+        'requireProof' => 'Require Proof of Registraion',
     ];
 
-
-
-    protected function rules()
-    {
-        return [
-            'warranty.brand_id' => 'required|exists:product_brands,id',
-            'warranty.registration_url' => 'required|min:3',
-            'warranty.product_lines_id' => 'required',
-            'warranty.require_proof_of_reg' => 'nullable',
-        ];
-    }
+    protected $rules = [
+        'brandId' => 'required|exists:product_brands,id',
+        'lineId' => 'required',
+        'registrationUrl' => 'required',
+        'requireProof' => 'nullable',
+    ];
 
     /**
      * Initialize form attributes
      */
     public function formInit()
     {
-        $this->brands= Brand::pluck('name', 'id')->toArray();
-        if(!empty($this->warranty->brand_id)){
-            $this->lines = Line::where('brand_id',$this->warranty->brand_id)->pluck('name', 'id');
-        }
-
-        if (empty($this->warranty->id)) {
-            $this->warranty = new BrandWarranty();
-            $this->warranty->brand_id = null;
-            $this->warranty->registration_url = null;
-            $this->warranty->product_lines_id = null;
-            $this->warranty->require_proof_of_reg = null;
-
+        $this->brands = Brand::pluck('name', 'id')->toArray();
+        
+        if (!empty($this->warranty->id)) {
+            $this->brandId = $this->warranty->brand_id;
+            $this->lineId = $this->warranty->product_lines_id;
+            $this->registrationUrl = $this->warranty->registration_url;
+            $this->requireProof = $this->warranty->require_proof_of_reg;
+            $this->lines = Line::where('brand_id',$this->brandId)->pluck('name', 'id');
         }
     }
 
@@ -58,13 +55,10 @@ trait FormRequest
     public function brandUpdated($name, $value, $recheckValidation = false)
     {
         $this->fieldUpdated($name, $value, $recheckValidation);
-        $this->linesDisabled=false;
+
         $this->lines = Line::where('brand_id',$value)->pluck('name', 'id');
     }
-    public function linesUpdated($name, $value, $recheckValidation = false)
-    {
-        $this->fieldUpdated($name, $value, $recheckValidation);
-    }
+
     /**
      * Form submission action
      */
@@ -86,7 +80,13 @@ trait FormRequest
     public function store()
     {
         $this->authorize('store', BrandWarranty::class);
-        $this->warranty->save();
+
+        BrandWarranty::create([
+            'brand_id' => $this->brandId,
+            'product_lines_id' => $this->lineId,
+            'registration_url' => $this->registrationUrl,
+            'require_proof_of_reg' => $this->requireProof,
+        ]);
 
         session()->flash('success', 'Record created!');
 
@@ -100,21 +100,30 @@ trait FormRequest
     {
         $this->authorize('update', $this->warranty);
 
+        $this->warranty->fill([
+            'brand_id' => $this->brandId,
+            'product_lines_id' => $this->lineId,
+            'registration_url' => $this->registrationUrl,
+            'require_proof_of_reg' => $this->requireProof,
+        ]);
         $this->warranty->save();
+
         $this->editRecord = false;
         session()->flash('success', 'Record updated!');
+
         return redirect()->route('equipment.warranty.index');
     }
 
-    public function delete(){
+    public function delete()
+    {
         $this->authorize('delete', $this->warranty);
         $record  = BrandWarranty::find($this->warranty->id);
 
-        if($record){
+        if($record) {
             $this->warranty->delete();
             session()->flash('success', 'Record deleted!');
 
-        }else{
+        } else {
            // session()->flash('error', 'Record not found!');
            $this->alert('error','Record not found');
         }
