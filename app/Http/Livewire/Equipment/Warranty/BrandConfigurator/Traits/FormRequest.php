@@ -71,7 +71,7 @@ trait FormRequest
     }
 
     /**
-     * Create new account
+     * Create new record
      */
     public function store()
     {
@@ -89,7 +89,7 @@ trait FormRequest
     }
 
     /**
-     * Update existing account
+     * Update existing record
      */
     public function update()
     {
@@ -112,13 +112,13 @@ trait FormRequest
     {
         $this->authorize('delete', $this->warranty);
 
-        if (!$this->warranty->exists) {
-            $this->alert('error','Record not found');
+        if ( BrandWarranty::where('id', $this->warranty->id )->delete() )
+        {
+            $this->alert('success', 'Record deleted!');
             return redirect()->route('equipment.warranty.index');
         }
 
-        $this->warranty->delete();
-        $this->alert('success', 'Record deleted!');
+        $this->alert('error','Record not found');
         return redirect()->route('equipment.warranty.index');
     }
 }
