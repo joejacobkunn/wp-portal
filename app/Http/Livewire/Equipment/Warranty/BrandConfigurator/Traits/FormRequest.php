@@ -27,7 +27,7 @@ trait FormRequest
     protected $rules = [
         'brandId' => 'required|exists:product_brands,id',
         'lineId' => 'required',
-        'registrationUrl' => 'required',
+        'registrationUrl' => 'required|url',
         'requireProof' => 'nullable',
     ];
 
@@ -40,7 +40,7 @@ trait FormRequest
 
         if (!empty($this->warranty->id)) {
             $this->brandId = $this->warranty->brand_id;
-            $this->lineId = $this->warranty->product_lines_id;
+            $this->lineId = $this->warranty->productLines->pluck('id','name')->toArray();
             $this->registrationUrl = $this->warranty->registration_url;
             $this->requireProof = $this->warranty->require_proof_of_reg;
             $this->lines = Line::where('brand_id',$this->brandId)->pluck('name', 'id');
@@ -77,13 +77,15 @@ trait FormRequest
     {
         $this->authorize('store', BrandWarranty::class);
 
-        BrandWarranty::create([
+        $warranty = BrandWarranty::create([
             'brand_id' => $this->brandId,
-            'product_lines_id' => $this->lineId,
             'registration_url' => $this->registrationUrl,
             'require_proof_of_reg' => $this->requireProof,
         ]);
 
+        if (is_array($this->lineId)) {
+            $warranty->productLines()->attach($this->lineId);
+        }
         $this->alert('success', 'Record created!');
         return redirect()->route('equipment.warranty.index');
     }
@@ -97,11 +99,11 @@ trait FormRequest
 
         $this->warranty->fill([
             'brand_id' => $this->brandId,
-            'product_lines_id' => $this->lineId,
             'registration_url' => $this->registrationUrl,
             'require_proof_of_reg' => $this->requireProof,
         ]);
         $this->warranty->save();
+        $this->warranty->productLines()->sync($this->lineId);
 
         $this->editRecord = false;
         $this->alert('success', 'Record updated!');
@@ -111,6 +113,8 @@ trait FormRequest
     public function delete()
     {
         $this->authorize('delete', $this->warranty);
+
+        $this->warranty->productLines()->detach();
 
         if ( BrandWarranty::where('id', $this->warranty->id )->delete() )
         {

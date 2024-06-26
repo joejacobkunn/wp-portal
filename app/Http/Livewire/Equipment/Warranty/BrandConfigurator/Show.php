@@ -47,7 +47,7 @@ class Show extends Component
     public function mount()
     {
         array_push($this->breadcrumbs, ['title' => $this->warranty->brand->name]);
-        $this->productLines = Line::whereIn('id', $this->warranty->product_lines_id)->pluck('name','id')->toArray();
+        $this->productLines = $this->warranty->productLines->pluck('name', 'id')->toArray();
         $this->formInit();
     }
 
