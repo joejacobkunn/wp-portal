@@ -1,4 +1,3 @@
-
 <div>
     <x-page :breadcrumbs="$breadcrumbs">
 

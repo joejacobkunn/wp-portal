@@ -15,12 +15,6 @@
                             wire:key="brand_index">
                         </x-slot>
                     @endcan
-                    @can('equipment.warranty.view')
-                        <x-slot:tab_content_demo
-                            component="equipment.warranty.brand-configurator.show"
-                            wire:key="brand_recipe">
-                        </x-slot>
-                    @endcan
                 </x-tabs>
             </div>
         </x-slot>
