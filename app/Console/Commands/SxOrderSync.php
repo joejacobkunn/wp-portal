@@ -182,18 +182,23 @@ class SxOrderSync extends Command
     private function updateCustomerTakenBy($order)
     {
         $customer = Customer::where('sx_customer_number', $order->sx_customer_number)->first();
-        $current_taken_bys = $customer->taken_by;
 
-        if(in_array($order->stage_code, [4,5,9]))
+        if($customer)
         {
-            $taken_bys = array_diff($current_taken_bys,$order->taken_by);
-        }
-        else
-        {
-            $taken_bys = array_push($current_taken_bys,$order->taken_by);
-        }
+            $taken_bys = $customer->taken_by;
 
-        $customer->update(['taken_by' => array_unique($taken_bys)]);
+            if(in_array($order->stage_code, [4,5,9]))
+            {
+                $taken_bys = array_diff($taken_bys,[$order->taken_by]);
+            }
+            else
+            {
+                array_push($taken_bys,$order->taken_by);
+            }
+    
+            $customer->update(['taken_by' => array_unique($taken_bys)]);
+    
+        }
     }
 
 
