@@ -382,7 +382,7 @@ class SXSync
 
             if(in_array($order->stage_code, [4,5,9]))
             {
-                $taken_bys = array_diff($taken_bys,[$order->taken_by]);
+                $taken_bys = array_values(array_diff($taken_bys,[$order->taken_by]));
             }
             else
             {
