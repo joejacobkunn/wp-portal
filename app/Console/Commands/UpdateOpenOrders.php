@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Core\Customer;
 use App\Models\Order\Order;
 use App\Models\SX\Order as SXOrder;
 use Carbon\Carbon;
@@ -63,6 +64,8 @@ class UpdateOpenOrders extends Command
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'promise_date' => Carbon::parse($sx_order['promisedt'])->format('Y-m-d'),
             ]);
+
+            $this->updateCustomerTakenBy($open_order);
 
         }
 
@@ -165,6 +168,24 @@ class UpdateOpenOrders extends Command
 
         return false;
     }
+
+    private function updateCustomerTakenBy($order)
+    {
+        $customer = Customer::where('sx_customer_number', $order->sx_customer_number)->first();
+        $current_taken_bys = $customer->taken_by;
+
+        if(in_array($order->stage_code, [4,5,6]))
+        {
+            $taken_bys = array_diff($current_taken_bys,$order->taken_by);
+        }
+        else
+        {
+            $taken_bys = array_push($current_taken_bys,$order->taken_by);
+        }
+
+        $customer->update(['taken_by' => array_unique($taken_bys)]);
+    }
+
 
 
 

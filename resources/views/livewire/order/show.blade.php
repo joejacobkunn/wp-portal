@@ -346,19 +346,21 @@
                                                                             WT In-Process {{ $item->ordertype }}
                                                                         </span>
                                                                     @else
-                                                                        <span
-                                                                            wire:click='showWTModal({{ $item }})'
-                                                                            class="px-1 bg-secondary text-white">
-                                                                            Click for
-                                                                            WT
-                                                                            <div wire:loading
-                                                                                wire:target='showWTModal({{ $item }})'>
-                                                                                <span
-                                                                                    class="spinner-border spinner-border-sm"
-                                                                                    role="status"
-                                                                                    aria-hidden="true"></span>
-                                                                            </div>
-                                                                        </span>
+                                                                        @if (!in_array($item->ordertype, ['p', 't']))
+                                                                            <span
+                                                                                wire:click='showWTModal({{ $item }})'
+                                                                                class="px-1 bg-secondary text-white">
+                                                                                Click for
+                                                                                WT
+                                                                                <div wire:loading
+                                                                                    wire:target='showWTModal({{ $item }})'>
+                                                                                    <span
+                                                                                        class="spinner-border spinner-border-sm"
+                                                                                        role="status"
+                                                                                        aria-hidden="true"></span>
+                                                                                </div>
+                                                                            </span>
+                                                                        @endif
                                                                     @endif
 
                                                                     @if (in_array($item->shipprod, $order->non_stock_line_items ?? []))

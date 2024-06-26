@@ -33,11 +33,13 @@ class Customer extends Model
         'is_active',
         'open_order_count',
         'preferred_contact_data',
+        'taken_by'
     ];
 
     protected $casts = [
         'customer_since' => 'date',
         'last_sale_date' => 'date',
+        'taken_by' => 'array'
     ];
 
     public function account()
