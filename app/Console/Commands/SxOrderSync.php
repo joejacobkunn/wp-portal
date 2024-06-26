@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Core\Customer;
 use Illuminate\Console\Command;
 use App\Models\Order\Order;
 use App\Models\SX\Order as SXOrder;
@@ -39,7 +40,7 @@ class SxOrderSync extends Command
             $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
             $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
 
-            Order::updateOrCreate(            
+            $order = Order::updateOrCreate(            
                 [
                     'order_number' => $sx_order['orderno'], 
                     'order_number_suffix' => $sx_order['ordersuf'], 
@@ -66,6 +67,8 @@ class SxOrderSync extends Command
                     'status' => $this->status($sx_order['stagecd'])
                 ]
             );
+
+            $this->updateCustomerTakenBy($order);
         }
 
     }
@@ -175,6 +178,24 @@ class SxOrderSync extends Command
         return 'n/a';
 
     }
+
+    private function updateCustomerTakenBy($order)
+    {
+        $customer = Customer::where('sx_customer_number', $order->sx_customer_number)->first();
+        $current_taken_bys = $customer->taken_by;
+
+        if(in_array($order->stage_code, [4,5,9]))
+        {
+            $taken_bys = array_diff($current_taken_bys,$order->taken_by);
+        }
+        else
+        {
+            $taken_bys = array_push($current_taken_bys,$order->taken_by);
+        }
+
+        $customer->update(['taken_by' => array_unique($taken_bys)]);
+    }
+
 
 
 }
