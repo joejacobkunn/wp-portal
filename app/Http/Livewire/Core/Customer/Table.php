@@ -7,6 +7,7 @@ use App\Models\Core\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Models\Order\Order;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
@@ -291,10 +292,9 @@ class Table extends DataTableComponent
         switch ($this->active) {
             case 'my_customers':
 
-                $query->where(function($query) use ($sxOpId) {
-                    $query->where('sales_rep_in', $sxOpId)
-                          ->orWhere('sales_rep_out', $sxOpId);
-                });
+                $customerIds = Order::where('taken_by', $sxOpId)->whereNotIn('stage_code', [4,5,9])->pluck('sx_customer_number')->toArray();
+
+                $query->whereIn('sx_customer_number', $customerIds);
                 break;
             case 'all':
                     // no additional filtering is required

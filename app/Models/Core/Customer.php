@@ -33,18 +33,21 @@ class Customer extends Model
         'is_active',
         'open_order_count',
         'preferred_contact_data',
-        'taken_by'
     ];
 
     protected $casts = [
         'customer_since' => 'date',
         'last_sale_date' => 'date',
-        'taken_by' => 'array'
     ];
 
     public function account()
     {
         return $this->belongsTo(Account::class, 'account_id');
+    }
+
+    public function takenBys()
+    {
+        return $this->belongsToMany(Operator::class, 'customer-taken_by', 'customer_id', 'sx_operator_id');
     }
 
     public function getFullAddress()

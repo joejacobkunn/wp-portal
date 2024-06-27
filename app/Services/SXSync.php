@@ -264,9 +264,6 @@ class SXSync
                 'status' => 'Pending Review'
             ]
         );
-
-        $this->updateCustomerTakenBy($portal_order);
-
         
 
         return response()->json(['status' => 'success', 'portal_order_id' => $portal_order->id], 201);
@@ -371,29 +368,5 @@ class SXSync
         return 'n/a';
 
     }
-
-    private function updateCustomerTakenBy($order)
-    {
-        $customer = Customer::where('sx_customer_number', $order->sx_customer_number)->first();
-
-        if($customer)
-        {
-            $taken_bys = $customer->taken_by;
-
-            if(in_array($order->stage_code, [4,5,9]))
-            {
-                $taken_bys = array_values(array_diff($taken_bys,[$order->taken_by]));
-            }
-            else
-            {
-                array_push($taken_bys,$order->taken_by);
-            }
-    
-            $customer->update(['taken_by' => array_unique($taken_bys)]);
-    
-        }
-    }
-
-
 
 }
