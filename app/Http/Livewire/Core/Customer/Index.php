@@ -4,11 +4,13 @@ namespace App\Http\Livewire\Core\Customer;
 
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Customer;
+use App\Models\Order\Order;
+use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, HasTabs;
 
     public $account;
 
@@ -18,10 +20,22 @@ class Index extends Component
 
     public $open_order_details = [];
 
+    public $takenByMeCount = 0;
+
     public $breadcrumbs = [
         [
             'title' => 'Customers',
         ],
+    ];
+
+    public $tabs = [
+        'customer-tabs' => [
+            'active' => 'all',
+            'links' => [
+                'all' => 'All customers',
+                'my_customers' => 'Taken by Me',
+            ],
+        ]
     ];
 
     protected $listeners = [
@@ -35,11 +49,18 @@ class Index extends Component
         $this->authorize('viewAny', Customer::class);
 
         $this->account = account();
+
+        $this->takenByMeCount = Order::where('taken_by', auth()->user()->sx_operator_id)->whereNotIn('stage_code', [4,5,9])->count();
     }
 
     public function render()
     {
         return $this->renderView('livewire.core.customer.index');
+    }
+
+    public function countTakenBys()
+    {
+        $this->takenByMeCount = Order::where('taken_by', auth()->user()->sx_operator_id)->whereNotIn('stage_code', [4,5,9])->count();
     }
 
     public function create()

@@ -7,7 +7,9 @@ use App\Models\Core\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Models\Order\Order;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectDropdownFilter;
@@ -17,7 +19,7 @@ class Table extends DataTableComponent
     use AuthorizesRequests;
 
     public Account $account;
-
+    public $active;
     public function configure(): void
     {
         $this->setPrimaryKey('id')
@@ -31,7 +33,7 @@ class Table extends DataTableComponent
         $this->setPerPageAccepted([25, 50, 100]);
 
         $this->setPerPage(25);
-        
+
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
@@ -282,12 +284,27 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Customer::where('account_id', $this->account->id)
-            ->where('sx_customer_number', '!=', 1)
-            ->without('account')
-            ->orderBy('open_order_count', 'DESC')
-            ->orderBy('name', 'ASC')
-            ->orderBy('last_sale_date', 'DESC');
+        $sxOpId = Auth::user()->sx_operator_id;
+
+        $query = Customer::where('account_id', $this->account->id)
+            ->where('sx_customer_number', '!=', 1);
+
+        switch ($this->active) {
+            case 'my_customers':
+
+                $customerIds = Order::where('taken_by', $sxOpId)->whereNotIn('stage_code', [4,5,9])->pluck('sx_customer_number')->toArray();
+
+                $query->whereIn('sx_customer_number', $customerIds);
+                break;
+            case 'all':
+                    // no additional filtering is required
+                break;
+        }
+
+        return $query->without('account')
+                ->orderBy('open_order_count', 'DESC')
+                ->orderBy('name', 'ASC')
+                ->orderBy('last_sale_date', 'DESC');
     }
 
     public function placeholder()
