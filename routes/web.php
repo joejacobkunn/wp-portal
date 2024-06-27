@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,7 +19,9 @@ use Illuminate\Support\Facades\Route;
 
 //Route::post('livewire/message/{name}', [\Livewire\Controllers\HttpConnectionHandler::class, '__invoke'])->name('livewire.message')->middleware('subdomain');
 Route::any('livewire/update', [\Livewire\Mechanisms\HandleRequests\HandleRequests::class, 'handleUpdate'])->name('livewire.update')->middleware('subdomain');
-
+// Route::get('sample',function(){
+//    dd(Route::current()->subdomain);
+// });
 /** Global urls ends */
 
 //reporting broadcast url
@@ -84,6 +87,8 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('equipment/unavailable/report', \App\Http\Livewire\Equipment\Unavailable\Report\Index::class)->name('equipment.unavailable.report.index');
         Route::get('equipment/unavailable/report/{report}/show', \App\Http\Livewire\Equipment\Unavailable\Report\Show::class)->name('equipment.unavailable.report.show');
         Route::get('equipment/unavailable/{unavailable_unit}/show', \App\Http\Livewire\Equipment\Unavailable\Show::class)->name('equipment.unavailable.show');
+        Route::get('equipment/warranty', \App\Http\Livewire\Equipment\Warranty\Index::class)->name('equipment.warranty.index');
+        Route::get('equipment/warranty/{warranty}/show', \App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Show::class)->name('equipment.warranty.show');
 
     });
 });
