@@ -1,9 +1,12 @@
 <div>
-
     <x-page :breadcrumbs="$breadcrumbs">
 
         <x-slot:content>
-
+            <x-tabs
+            :tabs="$tabs"
+            tabId="customer-tabs"
+        >
+        </x-tabs>
             <div>
                 @unless ($addRecord)
 
@@ -20,7 +23,7 @@
 
                         <div class="card-body">
 
-                            <livewire:core.customer.table :account="$account" key="{{ now() }}" lazy />
+                            <livewire:core.customer.table :active="$tabs['customer-tabs']['active']" :account="$account" key="{{ now() }}" lazy />
                         </div>
 
                     </div>

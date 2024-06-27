@@ -4,11 +4,12 @@ namespace App\Http\Livewire\Core\Customer;
 
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Customer;
+use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, HasTabs;
 
     public $account;
 
@@ -22,6 +23,16 @@ class Index extends Component
         [
             'title' => 'Customers',
         ],
+    ];
+
+    public $tabs = [
+        'customer-tabs' => [
+            'active' => 'all',
+            'links' => [
+                'all' => 'All customers',
+                'my_customers' => 'Taken by Me',
+            ],
+        ]
     ];
 
     protected $listeners = [
