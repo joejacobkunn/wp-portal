@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+
+use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -33,6 +35,7 @@ class AuthServiceProvider extends ServiceProvider
         $policies += $this->getVehiclePolicies();
         $policies += $this->getReportingPolicies();
         $policies += $this->getOrderPolicies();
+        $policies += $this->getWarrantyPolicies();
         return $policies;
     }
 
@@ -70,6 +73,12 @@ class AuthServiceProvider extends ServiceProvider
     {
         return [
             \App\Models\Order\Order::class => \App\Policies\Order\OrderPolicy::class,
+        ];
+    }
+    private function getWarrantyPolicies()
+    {
+        return [
+            BrandWarranty::class => \App\Policies\Equipment\Warranty\BrandConfigurator\BrandWarrantyPolicy::class
         ];
     }
 

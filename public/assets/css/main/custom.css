@@ -576,7 +576,10 @@
     padding-left: 4px;
     min-width: 120px;
 }
-  
+.layout-horizontal .main-navbar .submenu .submenu-group .submenu-item a{
+    padding: .6rem 1rem .6rem .6rem !important;
+}
+
 /* Custom checkbox  */
 .checkbox-container {
     display: block;
