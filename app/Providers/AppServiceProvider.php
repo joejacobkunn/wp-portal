@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Contracts\SmsInterface;
 use App\Services\Environment\Host;
+use App\Services\KenectSms;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(SmsInterface::class, KenectSms::class);
     }
 
     /**
