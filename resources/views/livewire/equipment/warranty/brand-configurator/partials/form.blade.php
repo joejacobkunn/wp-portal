@@ -10,7 +10,6 @@
                                 label="Brand"
                                 model="brandId"
                                 :options="$brands"
-                                listener="brandUpdated"
                                 :selected="$brandId"
                                 hasAssociativeIndex
                                 default-option-label="- None -"
@@ -21,43 +20,21 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <div class="form-group">
-                            <x-forms.select
-                                label="Product Lines"
-                                model="lineId"
-                                :options="$lines"
-                                :selected="$lineId"
-                                hasAssociativeIndex
-                                :disabled="!$brandId"
-                                multiple
-                                default-option-label="- None -"
-                                label-index="name"
-                                value-index="id"
-                                :key="'line-' . $brandId"/>
-                        </div>
+                        <x-forms.input
+                            label="Brand Prefix"
+                            model="prefix"
+                            lazy />
+
                     </div>
                 </div>
-
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <x-forms.input
-                            label="Registration URL"
-                            model="registrationUrl"
-                            lazy />
-
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12 mb-1">
-                        <x-forms.checkbox
-                            label="Require a proof of registration attachment"
-                            :checked="$requireProof"
-                            model="requireProof"
+                            label="Alt Names"
+                            model="altName"
                             lazy />
                     </div>
                 </div>
-
                 <hr>
 
                 <div class="mt-2 float-start">

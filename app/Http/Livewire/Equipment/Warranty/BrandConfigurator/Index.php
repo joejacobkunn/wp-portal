@@ -11,9 +11,6 @@ class Index extends Component
     use AuthorizesRequests, FormRequest;
     public BrandWarranty $warranty;
     public $addRecord = false;
-    protected $listeners = [
-        'brandUpdated' => 'brandUpdated',
-    ];
 
     public function mount()
     {

@@ -14,14 +14,9 @@ class BrandWarranty extends Model
 
     protected $table = 'warranty_brand_configurations';
 
-    protected $fillable = ['brand_id', 'product_lines_id', 'registration_url','require_proof_of_reg'];
+    protected $fillable = ['brand_id', 'alt_name', 'prefix'];
 
     public function brand(){
         return $this->belongsTo(Brand::class);
-    }
-
-    public function productLines()
-    {
-        return $this->belongsToMany(Line::class, 'brand_warranty_lines', 'brand_warranty_id', 'product_line_id');
     }
 }

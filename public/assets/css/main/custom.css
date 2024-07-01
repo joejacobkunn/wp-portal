@@ -641,3 +641,6 @@
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
 }
+.csv-table-col .csv-table-wrap{
+    max-height: 300px;
+}

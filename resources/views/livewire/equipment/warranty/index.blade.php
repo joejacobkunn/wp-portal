@@ -15,6 +15,10 @@
                             wire:key="brand_index">
                         </x-slot>
                     @endcan
+                    <x-slot:tab_content_warrantyImport
+                        component="equipment.warranty.warranty-import.index"
+                        wire:key="brand_import">
+                    </x-slot>
                 </x-tabs>
             </div>
         </x-slot>

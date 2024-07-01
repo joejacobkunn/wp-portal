@@ -34,7 +34,14 @@ class WarrantyTable extends DataTableComponent
                         $value.'</a>';
                 })
                 ->html(),
-            Column::make('Registration url', 'registration_url')
+            Column::make('Brand Prefix', 'prefix')
+                ->excludeFromColumnSelect()
+                ->searchable()
+                ->format(function ($value, $row) {
+                    return strtoupper($value);
+                })
+                ->html(),
+            Column::make('Alt Names', 'alt_name')
                 ->excludeFromColumnSelect()
                 ->searchable()
                 ->format(function ($value, $row) {

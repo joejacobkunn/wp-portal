@@ -21,12 +21,15 @@ class Index extends Component
             'active' => 'brand',
             'links' => [
                 'brand' => 'Brand Configurator',
+                'warrantyImport' => 'Warranty Import',
             ],
         ]
     ];
+    public function mount(){
+        $this->authorize('view', BrandWarranty::class);
+    }
     public function render()
     {
-        $this->authorize('view', BrandWarranty::class);
         return $this->renderView('livewire.equipment.warranty.index');
     }
 }
