@@ -2,7 +2,7 @@
     <div wire:loading>
         Processing Payment...
     </div>
-        @forelse ($messages as $message)
+        @forelse ($userMessages as $message)
         <div class="card border-0 shadow p-4 mb-4 comment-card">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="font-small">
@@ -16,7 +16,8 @@
             </div>
             <p class="m-0">{{ $message['message'] }}</p>
         </div>
-    @empty
+        @empty
+        <p></p>
     @endforelse
 
     <center>

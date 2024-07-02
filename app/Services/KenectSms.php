@@ -15,7 +15,7 @@ class KenectSms implements SmsInterface {
         $response = Http::acceptJson()
         ->withHeaders($this->headers())
         ->post(config('kenect.endpoint').'/v1/contacts', $body);
-        return $response->body();
+        return json_decode($response->body());
     }
 
     public function getUser($params)
@@ -25,7 +25,7 @@ class KenectSms implements SmsInterface {
         ->get(config('kenect.endpoint').'/v1/contacts',
         $params);
 
-        return $response->body();
+        return json_decode($response->body());
     }
 
     public function getMessages($params)
@@ -35,7 +35,7 @@ class KenectSms implements SmsInterface {
         ->get(config('kenect.endpoint').'/v1/conversations',
         $params);
 
-        return $response->body();
+        return json_decode($response->body());
     }
 
     public function send($body)
@@ -44,6 +44,6 @@ class KenectSms implements SmsInterface {
         ->withHeaders($this->headers())
         ->post(config('kenect.endpoint').'/v3/messages', $body);
 
-        return $response->body();
+        return json_decode($response->body());
     }
 }
