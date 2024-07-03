@@ -644,3 +644,7 @@
 .csv-table-col .csv-table-wrap{
     max-height: 300px;
 }
+.warranty-tab{
+    min-height: 600px;
+    margin-top:23px;
+}

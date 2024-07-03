@@ -1,4 +1,4 @@
-<div class="card border-light shadow-sm mb-4" style="min-height: 600px;margin-top:23px">
+<div class="card border-light shadow-sm mb-4 warranty-tab" >
     <div class="card-body">
             <div class="tab-content mt-4" id="myTabContent">
                 <div class="tab-pane fade show active" id="home" role="tabpanel"

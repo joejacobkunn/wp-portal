@@ -14,7 +14,7 @@ class BrandWarranty extends Model
 
     protected $table = 'warranty_brand_configurations';
 
-    protected $fillable = ['brand_id', 'alt_name', 'prefix'];
+    protected $fillable = ['brand_id','account_id', 'alt_name', 'prefix'];
 
     public function brand(){
         return $this->belongsTo(Brand::class);

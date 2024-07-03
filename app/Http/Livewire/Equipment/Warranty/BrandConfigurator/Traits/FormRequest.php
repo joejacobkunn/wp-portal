@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Traits;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Models\Product\Brand;
 use App\Models\Product\Line;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 trait FormRequest
@@ -66,6 +67,7 @@ trait FormRequest
             'brand_id' => $this->brandId,
             'alt_name' => $this->altName,
             'prefix' => $this->prefix,
+            'account_id' => Auth::user()->account_id
         ]);
         $this->alert('success', 'Record created!');
         return redirect()->route('equipment.warranty.index');

@@ -1,6 +1,5 @@
 <div class="row">
-    <div class="col-12 col-md-12">
-        <div class="card card-body shadow-sm mb-4">
+    <div class="col-12 col-md-12 mt-4">
             <form wire:submit.prevent="">
                 <div class="row">
                     <div class="col-md-12 mb-3"
@@ -9,6 +8,7 @@
                         x-on:livewire-upload-finish="uploading = false"
                         x-on:livewire-upload-cancel="uploading = false"
                         x-on:livewire-upload-error="uploading = false">
+                        <label>Import Warranty</label>
                         <input type="file" id="csv-{{ $importIteration }}" class="form-control" wire:model="csvFile">
                         @error('csvFile') <span class="text-danger">{{ $message }}</span> @enderror
                         <div x-show="uploading" class="mt-2">
@@ -20,10 +20,14 @@
                     </div>
                 </div>
                 @if(!empty($rows))
+                <div class="col-md-12 mb-3">
+                    <hr>
+                </div>
                     @include('livewire.equipment.warranty.warranty-import.partials.csv-preview')
                 @endif
-                <hr>
-
+                <div class="col-md-12 mb-3">
+                    <hr>
+                </div>
                 <div class="mt-2 float-start">
 
                     <button type="submit" class="btn btn-primary">
@@ -36,6 +40,5 @@
                     <button type="button" wire:click="cancel" class="btn btn-light-secondary">Cancel</button>
                 </div>
             </form>
-        </div>
     </div>
 </div>

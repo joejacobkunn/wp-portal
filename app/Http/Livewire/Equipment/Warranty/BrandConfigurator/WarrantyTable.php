@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Equipment\Warranty\BrandConfigurator;
 use App\Http\Livewire\Component\DataTableComponent;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 
@@ -53,7 +54,7 @@ class WarrantyTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        $query = BrandWarranty::with('brand');
+        $query = BrandWarranty::with('brand')->where('account_id', Auth::user()->account_id);
         return $query;
     }
 

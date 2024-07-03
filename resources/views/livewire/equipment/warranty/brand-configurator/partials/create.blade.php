@@ -1,4 +1,4 @@
-<div class="card border-light shadow-sm mb-4" style="min-height: 600px;margin-top:23px">
+<div class="card border-light shadow-sm mb-4 warranty-tab">
     <div class="card-header border-gray-300 mt-4 p-3 mb-4 mb-md-0">
         @if (!$addRecord)
             @can('equipment.warranty.manage')
