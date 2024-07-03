@@ -233,9 +233,9 @@ class Table extends DataTableComponent
             SelectFilter::make('DNR Visibility', 'is_dnr')
                 ->options([
                     '' => 'All',
-                    1 => 'Show only orders with DNR',
-                    0 => 'Show only orders with non-DNR',
-                    2 => 'Show DNR orders that are Pending Review'
+                    1 => 'DNR',
+                    0 => 'Non-DNR',
+                    2 => 'DNR Pending Review'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 2) $builder->where('is_dnr', 1)->where('status', 'Pending Review');
                     else
@@ -245,10 +245,10 @@ class Table extends DataTableComponent
                 SelectFilter::make('Follow Up Visibility', 'is_follow_up')
                 ->options([
                     '' => 'All',
-                    0 => 'Show only orders with any Follow Ups',
-                    1 => 'Show only orders with Customer Follow Ups',
-                    2 => 'Show only orders with Shipment Follow Ups',
-                    3 => 'Show only orders with Receiving Follow Ups'
+                    0 => 'All Follow Ups',
+                    1 => 'Customer',
+                    2 => 'Shipment',
+                    3 => 'Receiving'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 0) $builder->whereIn('status', ['Follow Up', 'Shipment Follow Up', 'Receiving Follow Up']);
                     if($value == 1) $builder->where('status', 'Follow Up');
@@ -270,11 +270,11 @@ class Table extends DataTableComponent
                 SelectFilter::make('Order Status', 'order_standing')
                 ->options([
                     '' => 'All',
-                    'backorder' => 'Show orders with Backorders',
-                    'completed' => 'Show orders that are Completed',
-                    'wt' => 'Show orders that are WT',
-                    'p-wt' => 'Show orders that are Partial WT',
-                    'non-stock' => 'Show orders that are Non-Stock'
+                    'backorder' => 'Backorders',
+                    'completed' => 'Completed',
+                    'wt' => 'WT Availability',
+                    'p-wt' => 'WT Partial',
+                    'non-stock' => 'Non-Stock'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
                     if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
@@ -287,11 +287,11 @@ class Table extends DataTableComponent
                 SelectFilter::make('Order Type', 'order_type')
                 ->options([
                     '' => 'All',
-                    'sro' => 'Show orders that are SRO',
-                    'web' => 'Show orders that are WEB',
-                    'sales' => 'Show orders that are Sales',
-                    'in-store' => 'Show orders that were In-Store',
-                    'golf' => 'Show orders that have Golf Parts (WEB)'
+                    'sro' => 'SRO',
+                    'web' => 'Web',
+                    'sales' => 'Sales',
+                    'in-store' => 'Parts In-Store',
+                    'golf' => 'Golf (WEB)'
                 ])->filter(function (Builder $builder, string $value) {
                     if($value == 'web') $builder->where('is_web_order',1);
                     if($value == 'sro') $builder->where('is_sro','=',1);
@@ -323,11 +323,13 @@ class Table extends DataTableComponent
                         'past_due' => 'Past Due',
                         'unknown' => 'Unknown',
                         'two_weeks_plus' => '2+ Weeks',
+                        'less_than_two_weeks' => '<2 Weeks'
                     ])
                     ->filter(function (Builder $builder, string $value) {
                         if($value == 'past_due') $builder->where('promise_date', '<',Carbon::today());
                         if($value == 'unknown') $builder->where('promise_date', '2049-01-01');
                         if($value == 'two_weeks_plus') $builder->where('promise_date', '>', Carbon::now()->addWeek(2))->where('promise_date', '<>', '2049-01-01');
+                        if($value == 'less_than_two_weeks') $builder->whereBetween('promise_date', [Carbon::yesterday()->format('Y-m-d'),Carbon::now()->addWeek(2)])->where('promise_date', '<>', '2049-01-01');
                 }),
     
     
