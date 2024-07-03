@@ -15,6 +15,7 @@ class Index extends Component
     public $csvErrorCount;
     public $importIteration=0;
     public $rows = [];
+    public $validatedRows = [];
     protected $rules = [
         'csvFile' => 'required|file|mimes:csv'
     ];
@@ -69,5 +70,21 @@ class Index extends Component
         $this->csvFile = null;
         $this->rows = [];
         $this->importIteration++;
+    }
+
+    public function importData()
+    {
+        if(config('sx.mock'))
+        {
+            sleep(5);
+        }
+        else
+        {
+            foreach($this->validatedRows as $row)
+            {
+
+            }
+        }
+        return $this->validatedRows;
     }
 }

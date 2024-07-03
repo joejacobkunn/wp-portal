@@ -20,8 +20,8 @@ class Index extends Component
         'warranty-tabs' => [
             'active' => 'brand',
             'links' => [
-                'brand' => 'Brand Configurator',
                 'warrantyImport' => 'Warranty Import',
+                'brand' => 'Brand Configurator',
             ],
         ]
     ];
