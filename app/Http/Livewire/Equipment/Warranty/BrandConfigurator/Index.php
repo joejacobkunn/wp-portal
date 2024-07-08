@@ -16,6 +16,7 @@ class Index extends Component
     {
         $this->authorize('view', BrandWarranty::class);
         $this->formInit();
+        $this->updateBreadcrumb();
     }
 
     public function render()
@@ -33,4 +34,17 @@ class Index extends Component
         $this->addRecord = false;
     }
 
+    public  function updateBreadcrumb() {
+        $newBreadcrumbs = [
+                [
+                    'title' => 'Warranty Registration',
+                ],
+                [
+                    'title' => 'Brand Configurator',
+                    'route_name' => 'equipment.warranty.index',
+                ]
+
+        ];
+        $this->dispatch('upBreadcrumb', $newBreadcrumbs);
+    }
 }

@@ -1,23 +1,18 @@
 <?php
 namespace App\Http\Livewire\Equipment\Warranty\WarrantyImport;
 
-use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Livewire\Equipment\Warranty\WarrantyImport\Traits\ImportExportRequest;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 class Index extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, LivewireAlert, ImportExportRequest;
 
     public $csvFile;
-    public $brands;
-    public $csvErrorCount;
-    public $importIteration=0;
-    public $rows = [];
-    public $validatedRows = [];
     protected $rules = [
-        'csvFile' => 'required|file|mimes:csv'
+        'csvFile' => 'required|file|mimes:csv,xlsx'
     ];
     protected $validationAttributes = [
         'csvFile' => 'File'
@@ -25,19 +20,8 @@ class Index extends Component
 
     public function mount()
     {
-        $brandWarranties = BrandWarranty::with('brand')
-            ->where('account_id', Auth::user()->account_id)->get();
-
-        $brands = $brandWarranties->pluck('brand.name')->unique()->values()->all();
-
-        $Altnames = $brandWarranties
-            ->flatMap(function ($item) {
-                return explode(',', $item->alt_name);
-            })
-            ->unique()
-            ->values()
-            ->all();
-        $this->brands = array_map('strtolower', array_unique(array_merge($brands, $Altnames)));
+        $this->updateBreadcrumb();
+        $this->init();
     }
 
     public function render()
@@ -48,43 +32,61 @@ class Index extends Component
     public function updatedCsvFile()
     {
         $this->validateOnly('csvFile');
+        $this->dataImport();
 
-        if (($handle = fopen($this->csvFile->getRealPath(), 'r')) !== false) {
-            $this->rows = [];
-            $matchFound =0;
-            while (($data = fgetcsv($handle, 1000, ",")) !== false) {
-                $status =null;
-                if (in_array(strtolower($data[0]), $this->brands)) {
-                    $status=true;
-                    $matchFound++ ;
-                }
-                $this->rows[] = ['data'=>$data,'status'=>$status];
-            }
-            fclose($handle);
-            $this->csvErrorCount = Count($this->rows) - $matchFound -1 ; //-1 is used to remove the header row
+    }
+
+    public function downloadInvalidEntries()
+    {
+        $this->downloadEntires();
+    }
+
+    public function downloadDemo()
+    {
+        $filePath = public_path(config('warranty.demo_file_path'));
+
+        if (!file_exists($filePath)) {
+            $this->alert('error', 'File not found.');
+            return;
         }
+        return response()->download($filePath);
     }
 
     public function cancel()
     {
         $this->csvFile = null;
-        $this->rows = [];
+        $this->validatedRows = [];
+        $this->importErrorRows = [];
         $this->importIteration++;
     }
 
     public function importData()
     {
-        if(config('sx.mock'))
-        {
+        $this->importAction = true;
+        $this->validateOnly('csvFile');
+
+        if (config('sx.mock')) {
             sleep(5);
-        }
-        else
-        {
+        } else {
             foreach($this->validatedRows as $row)
             {
 
             }
         }
+        $this->alert('success','import completed successfully!');
         return $this->validatedRows;
+    }
+
+    public  function updateBreadcrumb() {
+        $newBreadcrumbs = [
+                [
+                    'title' => 'Warranty Registration',
+                ],
+                [
+                    'title' => 'Warranty Import',
+                ]
+
+        ];
+        $this->dispatch('upBreadcrumb', $newBreadcrumbs);
     }
 }

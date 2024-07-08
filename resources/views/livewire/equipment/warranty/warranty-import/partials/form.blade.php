@@ -1,11 +1,14 @@
 <div class="row">
     <div class="col-12 col-md-12">
-        <form wire:submit.prevent="">
+        <form wire:submit.prevent="importData">
             <div class="row">
-                <div class="alert alert-light-info color-info">
-                    <i class="fas fa-info-circle"></i>
-                    Please upload warrant file csv here, you will see a preview of the data in the next step before
-                    import
+                <div class="col-md-12 mb-3 warranty-import">
+                    <div class="alert alert-light-info color-info">
+                        <i class="fas fa-info-circle"></i>
+                        Please upload warrant file csv here, you will see a preview of the data in the next step before
+                        import. <a href="#" wire:click.prevent="downloadDemo">
+                            click here </a>to download csv file template <i class="fas fa-download"></i>
+                    </div>
                 </div>
                 <div class="col-md-12 mt-2" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
                     x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
@@ -23,7 +26,7 @@
                         </div>
                     </div>
                 </div>
-                @if (!empty($rows))
+                @if (!empty($validatedRows) || !empty($importErrorRows))
                     <div class="col-md-12 mb-3">
                         <hr>
                     </div>

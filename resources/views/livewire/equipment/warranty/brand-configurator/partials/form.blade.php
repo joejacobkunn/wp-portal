@@ -5,9 +5,15 @@
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="form-group">
-                            <x-forms.select label="Brand" model="brandId" :options="$brands" :selected="$brandId"
-                                hasAssociativeIndex default-option-label="- None -" label-index="name"
-                                value-index="id" />
+                            <x-forms.select label="Brand"
+                                model="brandId"
+                                :options="$brands"
+                                :selected="$brandId"
+                                hasAssociativeIndex
+                                default-option-label="- None -"
+                                label-index="name"
+                                value-index="id"
+                                :key="'brand-' . now()" />
                         </div>
                     </div>
                 </div>
@@ -34,7 +40,8 @@
                         {{ $button_text }}
                     </button>
 
-                    <button type="button" wire:click="cancel" class="btn btn-light-secondary">Cancel</button>
+                    <button type="button" wire:click="{{ $editRecord ?? false ? 'resetForm' : 'cancel' }}" class="btn btn-light-secondary">
+                        {{ $editRecord ?? false ? 'Reset' : 'Cancel' }}</button>
                 </div>
             </form>
         </div>

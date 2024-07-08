@@ -1,8 +1,5 @@
-<div>
-    <div class="col-md-12 mb-3">
-        <h3>Preview</h3>
-    </div>
-    @if ( count($importErrorRows) > 0 )
+<div class="row">
+    @if(!empty($importErrorRows))
         <div class="col-md-12 mb-3 warranty-import">
             <div class="alert alert-warning" role="alert">
                 <i class="fas fa-exclamation-circle"></i> {{ count($importErrorRows) }} Erros found on the uploaded file,
@@ -11,6 +8,9 @@
             </div>
         </div>
     @endif
+    <div class="col-md-12 mb-3">
+        <h2>Imported Records</h2>
+    </div>
     @include('livewire.equipment.warranty.warranty-import.partials.table', ['records' => $validatedRows])
 </div>
 
