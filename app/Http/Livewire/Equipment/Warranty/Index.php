@@ -13,20 +13,33 @@ class Index extends Component
     use AuthorizesRequests, HasTabs;
     public $breadcrumbs = [
         [
-            'title' => 'Brand Configurator',
+            'title' => 'Warranty Registration',
         ],
     ];
+    protected $listeners = ['upBreadcrumb'=>'upBreadcrumb'];
     public $tabs = [
         'warranty-tabs' => [
             'active' => 'brand',
             'links' => [
+                'warrantyImport' => 'Warranty Import',
                 'brand' => 'Brand Configurator',
-            ],
-        ]
+            ]]];
+
+    protected $queryString = [
+        'tabs.warranty-tabs.active' => ['except' => '', 'as' => 'tab'],
     ];
-    public function render()
+    public function mount()
     {
         $this->authorize('view', BrandWarranty::class);
+    }
+
+    public function upBreadcrumb($breadcrumbs)
+    {
+        $this->breadcrumbs = $breadcrumbs;
+    }
+
+    public function render()
+    {
         return $this->renderView('livewire.equipment.warranty.index');
     }
 }

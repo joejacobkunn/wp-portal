@@ -641,3 +641,18 @@
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
 }
+.csv-table-col .csv-table-wrap{
+    max-height: 300px;
+}
+.warranty-tab{
+    min-height: 600px;
+    margin-top:23px;
+}
+.warranty-import .alert a {
+    color: #435ebe;
+    text-decoration: underline !important;
+}
+.warranty-tab #myTabContent .spinner-grow {
+    width: 1.5rem;
+    height: 1.5rem;
+}
