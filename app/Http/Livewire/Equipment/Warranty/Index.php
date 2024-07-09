@@ -25,6 +25,9 @@ class Index extends Component
                 'brand' => 'Brand Configurator',
             ]]];
 
+    protected $queryString = [
+        'tabs.warranty-tabs.active' => ['except' => '', 'as' => 'tab'],
+    ];
     public function mount()
     {
         $this->authorize('view', BrandWarranty::class);
