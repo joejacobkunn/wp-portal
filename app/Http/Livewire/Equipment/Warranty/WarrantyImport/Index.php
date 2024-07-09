@@ -38,7 +38,7 @@ class Index extends Component
 
     public function downloadInvalidEntries()
     {
-        $this->downloadEntires();
+        return $this->downloadEntires();
     }
 
     public function downloadDemo()
