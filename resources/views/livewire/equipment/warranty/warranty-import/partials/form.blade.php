@@ -10,8 +10,11 @@
                             click here </a>to download csv file template <i class="fas fa-download"></i>
                     </div>
                 </div>
-                <div class="col-md-12 mt-2" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
-                    x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
+                <div class="col-md-12 mt-2"
+                    x-data="{ uploading: false, progress: 0 }"
+                    x-on:livewire-upload-start="uploading = true"
+                    x-on:livewire-upload-finish="uploading = false"
+                    x-on:livewire-upload-cancel="uploading = false"
                     x-on:livewire-upload-error="uploading = false">
                     <label>Import Warranty File</label>
                     <input type="file" id="csv-{{ $importIteration }}" class="form-control" wire:model="csvFile">
@@ -46,6 +49,7 @@
 
                     <button type="button" wire:click="cancel" class="btn btn-light-secondary">Cancel</button>
                 </div>
+            </div>
         </form>
     </div>
 </div>
