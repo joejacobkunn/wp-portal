@@ -19,9 +19,4 @@ class Line extends Model
     {
         return $this->hasMany(Product::class, 'product_line_id');
     }
-
-    public function warranties()
-    {
-        return $this->belongsToMany(BrandWarranty::class, 'brand_warranty_lines');
-    }
 }

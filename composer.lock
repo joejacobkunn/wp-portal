@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed8683ed950fe38047bc72bca6b882f8",
+    "content-hash": "776fa2d93d9844f9b3a3f78039d858e1",
     "packages": [
         {
             "name": "accentinteractive/laravel-logcleaner",
@@ -6282,28 +6282,28 @@
         },
         {
             "name": "spatie/laravel-medialibrary-pro",
-            "version": "3.0.3",
+            "version": "2.7.3",
             "source": {
                 "type": "git",
                 "url": "git@github.com:spatie/laravel-medialibrary-pro.git",
-                "reference": "cf8df117e99ada536876ccf40c1d7d75968f2eaa"
+                "reference": "3fdd81a942e7068446a4bc82ab8d71300ca78081"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.spatie.be/dist/spatie/laravel-medialibrary-pro/spatie-laravel-medialibrary-pro-cf8df117e99ada536876ccf40c1d7d75968f2eaa-zip-595930.zip",
-                "reference": "cf8df117e99ada536876ccf40c1d7d75968f2eaa",
-                "shasum": "eedc5a8b4dcccfc95502aaec1524bbd21f45915d"
+                "url": "https://satis.spatie.be/dist/spatie/laravel-medialibrary-pro/spatie-laravel-medialibrary-pro-3fdd81a942e7068446a4bc82ab8d71300ca78081-zip-7273b3.zip",
+                "reference": "3fdd81a942e7068446a4bc82ab8d71300ca78081",
+                "shasum": "d3955df1e834171fec2ac69cb1e3989a7a147b64"
             },
             "require": {
                 "ext-json": "*",
-                "illuminate/validation": "^10.0",
+                "illuminate/validation": "^9.0|^10.0",
                 "php": "^8.0",
                 "spatie/laravel-medialibrary": "^10.2",
                 "symfony/mime": "^6.0"
             },
             "require-dev": {
-                "illuminate/support": "^10.0",
-                "livewire/livewire": "^3.0",
+                "illuminate/support": "^9.0|^10.0",
+                "livewire/livewire": "^2.10",
                 "mockery/mockery": "^1.4",
                 "orchestra/testbench": "^7.0|^8.0",
                 "pestphp/pest": "^1.20",
@@ -6356,10 +6356,10 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/laravel-medialibrary-pro/tree/3.0.3",
+                "source": "https://github.com/spatie/laravel-medialibrary-pro/tree/2.7.3",
                 "issues": "https://github.com/spatie/laravel-medialibrary-pro/issues"
             },
-            "time": "2023-12-18T13:45:41+00:00"
+            "time": "2023-05-19T10:55:42+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",

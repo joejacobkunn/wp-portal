@@ -17,17 +17,8 @@
                 </li>
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
-                        <h3 class="h6 mb-1">Product Lines</h3>
-                        @foreach ($this->productLines as $key => $item )
-                        <p class="small pe-4">{{ $item }}</p>
-                        @endforeach
-
-                    </div>
-                </li>
-                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                    <div>
-                        <h3 class="h6 mb-1">Registraion URL</h3>
-                        <p class="small pe-4">{{  $warranty->registration_url }}</p>
+                        <h3 class="h6 mb-1">Brand Prefix</h3>
+                        <p class="small pe-4">{{  $prefix }}</p>
                     </div>
 
 
@@ -36,16 +27,15 @@
 
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
-                        <h3 class="h6 mb-1">Require a proof of registration attachment</h3>
-                        <p class="small pe-4">{{ $this->warranty->require_proof_of_reg ? 'Yes' : 'No'}}</p>
+                        <h3 class="h6 mb-1">Alt Name</h3>
+                        <p class="small pe-4">{{ $altName }}</p>
                     </div>
                 </li>
 
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                     <div>
                         <h3 class="h6 mb-1">Created At</h3>
-                        <p class="small pe-4">{{ $this->warranty->created_at?->format(config('app.default_datetime_format')) ;
-                            }}</p>
+                        <p class="small pe-4">{{ $this->warranty->created_at?->format(config('app.default_datetime_format')) }}</p>
                     </div>
                 </li>
             </ul>

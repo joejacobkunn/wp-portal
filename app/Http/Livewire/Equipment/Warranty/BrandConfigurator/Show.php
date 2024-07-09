@@ -15,6 +15,9 @@ class Show extends Component
     public $productLines;
     public $breadcrumbs = [
         [
+            'title' => 'Warranty Registration',
+        ],
+        [
             'title' => 'Brand Configurator',
             'route_name' => 'equipment.warranty.index',
         ],
@@ -47,7 +50,6 @@ class Show extends Component
     public function mount()
     {
         array_push($this->breadcrumbs, ['title' => $this->warranty->brand->name]);
-        $this->productLines = $this->warranty->productLines->pluck('name', 'id')->toArray();
         $this->formInit();
     }
 
@@ -56,9 +58,10 @@ class Show extends Component
         $this->editRecord = true;
     }
 
-    public function cancel()
+    public function resetForm()
     {
-        $this->editRecord = false;
+        $this->resetValidation();
+        $this->reset(['brandId', 'altName', 'prefix']);
+        $this->formInit();
     }
-
 }
