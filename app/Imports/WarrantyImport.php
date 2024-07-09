@@ -20,6 +20,7 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
     protected $data = [];
     protected $brands = [];
     protected $failures = [];
+    public $current_row = [];
     public function headingRow(): int
     {
         return 1; // Assuming headers are in the first row
@@ -31,11 +32,18 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
 
     }
 
+    public function prepareForValidation($data, $index)
+    {
+        $this->current_row = $data;
+        
+        return $data;
+    }
+
     public function rules(): array
     {
         $rules = [
             'brand' =>  ['required', new BrandValidationforWarrantyReg($this->brands)],
-            'model' =>  ['required', new ValidProductForWarrantyRegistration],
+            'model' =>  ['required', new ValidProductForWarrantyRegistration($this->current_row)],
             'serial' => 'required',
             'reg_date' => 'required|date',
         ];

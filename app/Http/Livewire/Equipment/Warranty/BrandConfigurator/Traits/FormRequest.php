@@ -24,7 +24,7 @@ trait FormRequest
     ];
     protected $rules = [
         'brandId' => 'required|exists:product_brands,id',
-        'altName' => 'required',
+        'altName' => 'nullable',
         'prefix' => 'required',
     ];
 
