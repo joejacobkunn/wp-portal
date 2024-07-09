@@ -14,13 +14,12 @@ class Messages extends Component
     public $phone;
     public $email;
     public $userId;
+    public $apiUser;
     public $sms;
     public $userMessages=[];
     public function mount()
     {
-        //$this->sms = app(SmsInterface::class);
         $this->findUser();
-       // $this->loadmessage();
     }
     public function loadmessage()
     {
@@ -45,6 +44,11 @@ class Messages extends Component
     }
     public function findUser()
     {
+        if (!$this->apiUser ) {
+            $this->userId = $this->apiUser->account_id;
+            $this->loadmessage();
+            return;
+        }
 
         if ($this->phone) {
             // $data = $this->sms->getUser([
@@ -55,7 +59,7 @@ class Messages extends Component
             $data=1;
             if (!empty($data)) {
                 //$this->userId = $data[0]['id'];
-                //$this->userId = 1;
+                $this->userId = 1;
             }
         }
 
@@ -93,7 +97,6 @@ class Messages extends Component
         //       ]
         //     ]
         // ]);
-        $data=null;
         if(empty($data)){
             $this->alert('error','failed to create new user!');
             return false;
@@ -106,6 +109,11 @@ class Messages extends Component
             'email'=>$this->email
         ]);
 
+    }
+
+    public function sendMessage()
+    {
+        sleep(5);
     }
 
     public function render()

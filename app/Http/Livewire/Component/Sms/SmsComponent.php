@@ -2,6 +2,8 @@
 
 namespace App\Http\Livewire\Component\Sms;
 
+use App\Models\SMS\KenectCache;
+use App\Services\KenectSms;
 use Livewire\Component;
 
 class SmsComponent extends Component
@@ -9,10 +11,11 @@ class SmsComponent extends Component
     public $phone;
     public $email;
     public $isLoading=true;
+    public $apiUser;
     public $alert=false;
     public function render()
     {
-         return view('livewire.component..sms.sms-component');
+         return view('livewire.component.sms.sms-component');
     }
     public function mount()
     {
@@ -27,5 +30,12 @@ class SmsComponent extends Component
             $this->alert=true;
             $this->isLoading=false;
         }
+        $this->checkUserIncache();
+    }
+
+    public function checkUserIncache()
+    {
+        $this->apiUser = KenectCache::where('phone', $this->phone)
+            ->where('email', $this->email)->first();
     }
 }

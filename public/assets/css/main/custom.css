@@ -576,7 +576,7 @@
     padding-left: 4px;
     min-width: 120px;
 }
-  
+
 /* Custom checkbox  */
 .checkbox-container {
     display: block;
@@ -637,4 +637,8 @@
     -webkit-transform: rotate(45deg);
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
+}
+.spinner-wrap .spinner-grow {
+    width: 1.5rem;
+    height: 1.5rem;
 }
