@@ -2,6 +2,9 @@
 namespace App\Http\Livewire\Equipment\Warranty\WarrantyImport;
 
 use App\Http\Livewire\Equipment\Warranty\WarrantyImport\Traits\ImportExportRequest;
+use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
+use App\Models\Product\Brand;
+use App\Models\SX\SerializedProduct;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -66,17 +69,30 @@ class Index extends Component
     public function importData()
     {
         $this->importAction = true;
-        $this->validateOnly('csvFile');
+        //$this->validateOnly('csvFile');
 
         if (config('sx.mock')) {
-            sleep(5);
+            sleep(2);
+            foreach($this->validatedRows as $row)
+            {
+            }
+
         } else {
             foreach($this->validatedRows as $row)
             {
+                $brand = Brand::whereRaw('LOWER(name) = ?', [strtolower($row['brand'])])->first();
+                
+                $brand_config = BrandWarranty::where('brand_id', $brand->id)->first();
+                
+                SerializedProduct::where('cono', 10)
+                ->where('whseto', '')->where('currstatus', 's')
+                ->whereIn('prod',[$brand_config->prefix.$row['model'],strtolower($brand_config->prefix.$row['model']), strtoupper($brand_config->prefix.$row['model'])])
+                ->whereIn('serialno', [$row['serial'],strtolower($row['serial']), strtoupper($row['serial'])])
+                ->update(['user9' => date("m/d/y", strtotime($row['reg_date'])), 'user4', auth()->user()->sx_operator_id]);
 
             }
         }
-        $this->alert('success','import completed successfully!');
+        $this->alert('success','Import completed successfully!');
         return $this->validatedRows;
     }
 
