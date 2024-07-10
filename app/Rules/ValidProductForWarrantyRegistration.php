@@ -28,9 +28,15 @@ class ValidProductForWarrantyRegistration implements ValidationRule
             if(!$value) $fail('The product/serial could not be found');
         } else{
             $brand = Brand::whereRaw('LOWER(name) = ?', [strtolower($this->data['brand'])])->first();
+            if(is_null($brand)) $fail('The brand could not be found');
             $brand_config = BrandWarranty::where('brand_id', $brand->id)->first();
-            $icses = DB::connection('sx')->select("select serialno from pub.icses where cono = ? and LOWER(prod) = ? and LOWER(serialno) = ? and whseto = ? and currstatus = ? with (nolock)", [10, strtolower($brand_config->prefix.$this->data['model']), strtolower($this->data['serial']), '', 's']);
-            if(count($icses) != 1) $fail('The product/serial could not be found');
+            if(empty($brand_config)) $fail('The brand config could not be found');
+
+            if(!empty($brand_config))
+            {
+                $icses = DB::connection('sx')->select("select serialno from pub.icses where cono = ? and LOWER(prod) = ? and LOWER(serialno) = ? and whseto = ? and currstatus = ? with (nolock)", [10, strtolower($brand_config->prefix.$this->data['model']), strtolower($this->data['serial']), '', 's']);
+                if(count($icses) != 1) $fail('The product/serial could not be found');
+            }
 
         }
     }
