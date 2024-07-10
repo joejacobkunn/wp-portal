@@ -11,19 +11,31 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Validators\Failure;
 
-class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, SkipsOnFailure
+class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, SkipsOnFailure, WithEvents
 {
     use Importable, SkipsFailures;
     protected $data = [];
     protected $brands = [];
     protected $failures = [];
     public $current_row = [];
+
+    public function registerEvents(): array
+    {
+        return [
+            BeforeImport::class => function(BeforeImport $event) {
+                $this->validateHeaders($event);
+            },
+        ];
+    }
+
     public function headingRow(): int
     {
-        return 1; // Assuming headers are in the first row
+        return 1;
     }
 
     public function __construct($data = [])
@@ -35,7 +47,7 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
     public function prepareForValidation($data, $index)
     {
         $this->current_row = $data;
-        
+
         return $data;
     }
 
@@ -74,5 +86,31 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
     public function getData()
     {
         return $this->data;
+    }
+
+    protected function validateHeaders(BeforeImport $event)
+    {
+        $requiredHeaders = ['Brand', 'Model', 'Serial', 'Reg Date'];
+
+        $worksheet = $event->reader->getActiveSheet();
+        $headerRow = $worksheet->getRowIterator()->current();
+        $cellIterator = $headerRow->getCellIterator();
+        $cellIterator->setIterateOnlyExistingCells(false);
+
+        $actualHeaders = [];
+        foreach ($cellIterator as $cell) {
+            $actualHeaders[] = $cell->getValue();
+        }
+
+        $missingHeaders = array_diff($requiredHeaders, $actualHeaders);
+        $extraHeaders = array_diff($actualHeaders, $requiredHeaders);
+
+        if ( ! empty($missingHeaders)) {
+            throw new \Exception('Missing required headers: ' . implode(', ', $missingHeaders) . '. ');
+        }
+
+        if ( ! empty($extraHeaders)) {
+            throw new \Exception('Unexpected headers found: ' . implode(', ', $extraHeaders) . '.');
+        }
     }
 }
