@@ -4,6 +4,7 @@ namespace App\Rules;
 
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Models\Product\Brand;
+use App\Models\SX\SerializedProduct;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,11 @@ class ValidProductForWarrantyRegistration implements ValidationRule
 
             if(!empty($brand_config))
             {
-                $icses = DB::connection('sx')->select("select serialno from pub.icses where cono = ? and LOWER(prod) = ? and LOWER(serialno) = ? and whseto = ? and currstatus = ? with (nolock)", [10, strtolower($brand_config->prefix.$this->data['model']), strtolower($this->data['serial']), '', 's']);
+                //$icses = DB::connection('sx')->select("select serialno from pub.icses where cono = ? and LOWER(prod) = ? and LOWER(serialno) = ? and whseto = ? and currstatus = ? with (nolock)", [10, strtolower($brand_config->prefix.$this->data['model']), strtolower($this->data['serial']), '', 's']);
+                $icses = SerializedProduct::where('cono', 10)
+                    ->where('whseto', '')->where('currstatus', 's')
+                    ->whereIn('prod',[$brand_config->prefix.$this->data['model'],strtolower($brand_config->prefix.$this->data['model']), strtoupper($brand_config->prefix.$this->data['model'])])
+                    ->whereIn('serialno', [$this->data['serial'],strtolower($this->data['serial']), strtoupper($this->data['serial'])])->get();
                 if(count($icses) != 1) $fail('The product/serial could not be found');
             }
 
