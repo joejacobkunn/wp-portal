@@ -36,8 +36,14 @@ trait ImportExportRequest
 
     public function dataImport()
     {
-        $import = new WarrantyImport($this->brands);
-        Excel::import($import, $this->csvFile);
+        try {
+
+            $import = new WarrantyImport($this->brands);
+            Excel::import($import, $this->csvFile);
+        } catch (\Exception $e) {
+            $this->dispatch('cancel');
+            $this->alert('error', $e->getMessage());
+        }
 
         $this->validatedRows = $import->getData();
         $failures = $import->failures();

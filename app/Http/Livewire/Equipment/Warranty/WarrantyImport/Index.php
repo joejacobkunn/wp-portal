@@ -17,6 +17,9 @@ class Index extends Component
     protected $validationAttributes = [
         'csvFile' => 'File'
     ];
+    protected $listeners = [
+        'cancel'=> 'cancel'
+        ];
 
     public function mount()
     {
