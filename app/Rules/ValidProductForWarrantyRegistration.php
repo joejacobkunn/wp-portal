@@ -38,7 +38,7 @@ class ValidProductForWarrantyRegistration implements ValidationRule
                 //$icses = DB::connection('sx')->select("select serialno from pub.icses where cono = ? and LOWER(prod) = ? and LOWER(serialno) = ? and whseto = ? and currstatus = ? with (nolock)", [10, strtolower($brand_config->prefix.$this->data['model']), strtolower($this->data['serial']), '', 's']);
                 $icses = SerializedProduct::where('cono', 10)
                     ->where('whseto', '')->where('currstatus', 's')
-                    ->whereIn('prod',[$brand_config->prefix.$this->data['model'],strtolower($brand_config->prefix.$this->data['model']), strtoupper($brand_config->prefix.$this->data['model'])])
+                    ->where('prod','like',$brand_config->prefix.$this->data['model',strtolower($brand_config->prefix.$this->data['model']), strtoupper($brand_config->prefix.$this->data['model'])])
                     ->whereIn('serialno', [$this->data['serial'],strtolower($this->data['serial']), strtoupper($this->data['serial'])])->get();
                 if(count($icses) != 1) $fail('The product/serial could not be found');
             }

@@ -341,9 +341,9 @@
                                                                         <strong>{{ $backorder_count }}</strong> item(s)
                                                                         backordered</span>
 
-                                                                    @if (str_contains(json_encode($order->wt_transfers), $item->shipprod))
+                                                                    @if (str_contains(json_encode($order->wt_transfers), $item->shipprod) || $item->ordertype == 't')
                                                                         <span class="px-1 bg-primary text-white">
-                                                                            WT In-Process {{ $item->ordertype }}
+                                                                            WT In-Process
                                                                         </span>
                                                                     @else
                                                                         @if (!in_array($item->ordertype, ['p', 't']))
