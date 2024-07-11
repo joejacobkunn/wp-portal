@@ -2,7 +2,9 @@
 namespace App\Http\Livewire\Equipment\Warranty\WarrantyImport;
 
 use App\Http\Livewire\Equipment\Warranty\WarrantyImport\Traits\ImportExportRequest;
+use App\Imports\WarrantyImport;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
+use App\Models\Equipment\Warranty\WarrantyImport\WarrantyImports;
 use App\Models\Product\Brand;
 use App\Models\SX\SerializedProduct;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -13,8 +15,11 @@ class Index extends Component
 {
     use WithFileUploads, LivewireAlert, ImportExportRequest;
 
+    public $name;
     public $csvFile;
+    public $addRecord =false;
     protected $rules = [
+        'name' => 'required',
         'csvFile' => 'required|file|mimes:csv,xlsx'
     ];
     protected $validationAttributes = [
@@ -38,8 +43,8 @@ class Index extends Component
     public function updatedCsvFile()
     {
         $this->validateOnly('csvFile');
+        $this->showalert['status'] = false;
         $this->dataImport();
-
     }
 
     public function downloadInvalidEntries()
@@ -61,38 +66,23 @@ class Index extends Component
     public function cancel()
     {
         $this->csvFile = null;
+        $this->name = '';
         $this->validatedRows = [];
         $this->importErrorRows = [];
+        $this->showalert['status'] = false;
         $this->importIteration++;
     }
 
     public function importData()
     {
-        $this->importAction = true;
-        //$this->validateOnly('csvFile');
-
-        if (config('sx.mock')) {
-            sleep(2);
-            foreach($this->validatedRows as $row)
-            {
-            }
-
-        } else {
-            foreach($this->validatedRows as $row)
-            {
-                $brand = Brand::whereRaw('LOWER(name) = ?', [strtolower($row['brand'])])->first();
-                
-                $brand_config = BrandWarranty::where('brand_id', $brand->id)->first();
-                
-                SerializedProduct::where('cono', 10)
-                ->where('whseto', '')->where('currstatus', 's')
-                ->whereIn('prod',[$brand_config->prefix.$row['model'],strtolower($brand_config->prefix.$row['model']), strtoupper($brand_config->prefix.$row['model'])])
-                ->whereIn('serialno', [$row['serial'],strtolower($row['serial']), strtoupper($row['serial'])])
-                ->update(['user9' => date("m/d/y", strtotime($row['reg_date'])), 'user4', auth()->user()->sx_operator_id]);
-
-            }
+        if (empty($this->validatedRows)) {
+            $this->showalert['status'] = true;
+            $this->showalert['class'] = 'error';
+            $this->showalert['message'] = 'There is no valid data to Import!';
+            return;
         }
-        $this->alert('success','Import completed successfully!');
+        $this->saveData();
+        $this->page = 'success';
         return $this->validatedRows;
     }
 
@@ -107,5 +97,11 @@ class Index extends Component
 
         ];
         $this->dispatch('upBreadcrumb', $newBreadcrumbs);
+    }
+
+    public function create()
+    {
+        $this->addRecord=true;
+        $this->page='form';
     }
 }

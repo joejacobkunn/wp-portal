@@ -19,7 +19,7 @@ class Index extends Component
     protected $listeners = ['upBreadcrumb'=>'upBreadcrumb'];
     public $tabs = [
         'warranty-tabs' => [
-            'active' => 'brand',
+            'active' => 'warrantyImport',
             'links' => [
                 'warrantyImport' => 'Warranty Import',
                 'brand' => 'Brand Configurator',
