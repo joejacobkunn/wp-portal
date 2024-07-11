@@ -16,6 +16,8 @@ class Messages extends Component
     public $userId;
     public $apiUser;
     public $sms;
+    public $newMessage;
+    public $attachment;
     public $userMessages=[];
     public function mount()
     {
@@ -113,7 +115,14 @@ class Messages extends Component
 
     public function sendMessage()
     {
+
         sleep(5);
+        $this->userMessages[] = [
+            'name'=> 'arun',
+            'created_at'=> '34-34-3',
+            'message'=> $this->newMessage,
+        ];
+        $this->reset(['newMessage','attachment']);
     }
 
     public function render()

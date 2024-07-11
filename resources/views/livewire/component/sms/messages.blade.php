@@ -40,12 +40,13 @@
                         wire:model="newMessage"
                         class="form-control"
                         rows="3"
+                        key="text-message"
                         placeholder="Type your message here..."
                     ></textarea>
                 </div>
                 <div class="mb-3">
                     <label for="attachment" class="form-label">Attachment</label>
-                    <input type="file" class="form-control" id="attachment" wire:model="attachment">
+                    <input type="file" class="form-control" key="attachment" wire:model="attachment">
                     @error('attachment') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
