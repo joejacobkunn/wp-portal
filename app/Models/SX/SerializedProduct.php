@@ -14,6 +14,9 @@ class SerializedProduct extends Model
 
     protected $table = 'icses';
 
+    protected $fillable = ['user9', 'user4'];
+
+
     protected static function booted(): void
     {
         parent::boot();

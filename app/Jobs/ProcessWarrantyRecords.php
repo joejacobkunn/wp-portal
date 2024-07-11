@@ -10,6 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+
 
 class ProcessWarrantyRecords implements ShouldQueue
 {
@@ -70,7 +72,9 @@ class ProcessWarrantyRecords implements ShouldQueue
 
                 if($serialized_product)
                 {
-                    $serialized_product->update(['user9' => date("m/d/y", strtotime($row['reg_date'])), 'user4' => auth()->user()->sx_operator_id]);
+                    DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y", strtotime($row['reg_date']))."', user4 = '".$this->warrantyImport->uploader->sx_operator_id."' where cono = 10 AND whse IN('wate','utic','ann','livo','ceda','farm') and serialno = '".$row['serial']."' and prod like '".$brand_config->prefix."%' and whseto = '' and currstatus = 's'");
+
+                    //$serialized_product->update(['user9' => date("m/d/y", strtotime($row['reg_date'])), 'user4' => $this->warrantyImport->uploader->sx_operator_id]);
                     $this->warrantyImport->increment('processed_count');
                 }else{
                     $this->failedRecords[] = $row;
