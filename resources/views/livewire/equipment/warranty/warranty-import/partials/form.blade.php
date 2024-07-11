@@ -10,11 +10,12 @@
                             click here </a>to download csv file template <i class="fas fa-download"></i>
                     </div>
                 </div>
-                <div class="col-md-12 mt-2"
-                    x-data="{ uploading: false, progress: 0 }"
-                    x-on:livewire-upload-start="uploading = true"
-                    x-on:livewire-upload-finish="uploading = false"
-                    x-on:livewire-upload-cancel="uploading = false"
+                <div class="col-md-6 mb-3">
+                    <x-forms.input label="Import Name" model="name" lazy />
+                </div>
+
+                <div class="col-md-12 mt-2" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
+                    x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
                     x-on:livewire-upload-error="uploading = false">
                     <label>Import Warranty File</label>
                     <input type="file" id="csv-{{ $importIteration }}" class="form-control" wire:model="csvFile">

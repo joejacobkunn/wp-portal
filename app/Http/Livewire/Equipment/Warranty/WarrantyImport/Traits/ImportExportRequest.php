@@ -94,13 +94,19 @@ trait ImportExportRequest
         }
 
         $warrantyImport =  WarrantyImports::create([
+            'name' => $this->name,
             'file_path' => $filePath,
             'uploaded_by' => Auth::user()->id,
             'failed_records' =>  $failedPath,
             'valid_records' =>  $validPath,
-            'processed_count' =>  count($this->validatedRows),
+            'processed_count' =>  0,
+            'total_records' => count($this->validatedRows),
             'status'        =>'queued'
         ]);
+
+        //dispatch job to queue
         ProcessWarrantyRecords::dispatch($this->validatedRows, $warrantyImport);
+
+        return redirect()->route('equipment.warranty.index');
     }
 }

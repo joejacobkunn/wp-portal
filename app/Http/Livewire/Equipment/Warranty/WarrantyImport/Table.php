@@ -13,7 +13,7 @@ class Table extends DataTableComponent
         public function configure(): void
         {
             $this->setPrimaryKey('id');
-            $this->setDefaultSort('warranty_imports.created_at');
+            $this->setDefaultSort('warranty_imports.created_at', 'desc');
             $this->setPerPageAccepted([25, 50, 100]);
             $this->setTableAttributes([
                 'class' => 'table table-bordered',
@@ -23,33 +23,46 @@ class Table extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id')
-                ->hideIf(1)
-                ->html(),
-            Column::make('File Name', 'file_path')
-                ->excludeFromColumnSelect()
-                ->searchable()
-                ->format(function ($value, $row) {
+            Column::make('Total Records', 'total_records')
+            ->hideIf(1)
+            ->html(),
 
-                    $fileUrl = Storage::url($value);
+            Column::make('Name', 'name')
+            ->excludeFromColumnSelect()
+            ->html(),
 
-                    return '<a href="'.$fileUrl.'" class="text-primary text-decoration-underline">'.$value.'</a>';
-                })
-                ->html(),
             Column::make('Processed Records', 'processed_count')
-                ->excludeFromColumnSelect()
-                ->html(),
-            Column::make('failed record', 'failed_records')
-                ->excludeFromColumnSelect()
-                ->format(function ($value, $row) {
+            ->excludeFromColumnSelect()
+            ->format(function ($value, $row) {
+                return $value.'/'.$row->total_records;
+            })
+            ->html(),
 
-                    $fileUrl = Storage::url($value);
+            Column::make('Uploaded At', 'created_at')
+            ->excludeFromColumnSelect()
+            ->format(function ($value, $row) {
+                return $value->diffForHumans();
+            })
+            ->html(),
 
-                    return '<a href="'.$fileUrl.'" class="text-primary text-decoration-underline">'.$value.'</a>';
-                })
-                ->html(),
-            Column::make('Created At', 'created_at')
-            ->sortable(),
+            Column::make('Uploaded By', 'uploader.name')
+            ->excludeFromColumnSelect()
+            ->html(),
+
+            Column::make('Status', 'status')
+            ->excludeFromColumnSelect()
+            ->format(function ($value, $row) {
+                $color = ($value == "queued") ? "warning" : "success";
+                return '<span class="badge bg-light-'.$color.'">'.strtoupper($value).'</span>';
+            })
+            ->html(),
+
+            Column::make('', 'id')
+            ->excludeFromColumnSelect()
+            ->format(function ($value, $row) {
+                return '<i class="fas fa-ellipsis-v"></i>';
+            })
+            ->html()
         ];
     }
 

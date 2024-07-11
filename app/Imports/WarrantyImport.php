@@ -55,7 +55,7 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
     {
         $rules = [
             'brand' =>  ['required', new BrandValidationforWarrantyReg($this->brands)],
-            'model' =>  ['required', new ValidProductForWarrantyRegistration($this->current_row)],
+            'model' =>  ['required'],
             'serial' => 'required',
             'reg_date' => 'required|date',
         ];

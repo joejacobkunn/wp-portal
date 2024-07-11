@@ -15,9 +15,11 @@ class Index extends Component
 {
     use WithFileUploads, LivewireAlert, ImportExportRequest;
 
+    public $name;
     public $csvFile;
     public $addRecord =false;
     protected $rules = [
+        'name' => 'required',
         'csvFile' => 'required|file|mimes:csv,xlsx'
     ];
     protected $validationAttributes = [
@@ -64,6 +66,7 @@ class Index extends Component
     public function cancel()
     {
         $this->csvFile = null;
+        $this->name = '';
         $this->validatedRows = [];
         $this->importErrorRows = [];
         $this->showalert['status'] = false;
@@ -78,7 +81,6 @@ class Index extends Component
             $this->showalert['message'] = 'There is no valid data to Import!';
             return;
         }
-        sleep(3);
         $this->saveData();
         $this->page = 'success';
         return $this->validatedRows;

@@ -16,17 +16,18 @@ class ProcessWarrantyRecords implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $records;
-    public $warrantyImports;
+    public $warrantyImport;
+    public $failedRecords = [];
 
     /**
      * Create a new job instance.
      */
 
      //pass warranty import instance in constructor
-    public function __construct($records, $WarrantyImports)
+    public function __construct($records, $WarrantyImport)
     {
         $this->records = $records;
-        $this->warrantyImports = $WarrantyImports;
+        $this->warrantyImport = $WarrantyImport;
     }
 
     /**
@@ -34,28 +35,50 @@ class ProcessWarrantyRecords implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->warrantyImport->update(['status' => 'processing']);
+
         if (config('sx.mock'))
         {
-            sleep(5);
+            
             foreach($this->records as $row)
             {
-
+                $value = mt_rand(0,1);
+                
+                if($value)
+                {
+                    $this->warrantyImport->increment('processed_count');
+                }else{
+                    $this->failedRecords[] = $row;
+                }
             }
         }
         else
         {
             foreach($this->records as $row)
             {
-                $brand = Brand::whereRaw('LOWER(name) = ?', [strtolower($row['brand'])])->first();
+                $brand_config = BrandWarranty::whereHas('brand', function($q) use($row){
+                    $q->where('name', 'like','%'.$row['brand'].'%');
+                 })->first();
 
-                $brand_config = BrandWarranty::where('brand_id', $brand->id)->first();
+                $serialized_product = SerializedProduct::where('cono', 10)
+                    ->whereIn('whse', ['wate','utic','ann','livo','ceda','farm'])
+                    ->where('serialno', $row['serial'])
+                    ->where('prod', 'like', $brand_config->prefix.'%')
+                    ->where('whseto', '')
+                    ->where('currstatus', 's')
+                    ->first();
 
-                SerializedProduct::where('cono', 10)
-                    ->where('whseto', '')->where('currstatus', 's')
-                    ->whereIn('prod',[$brand_config->prefix.$row['model'],strtolower($brand_config->prefix.$row['model']), strtoupper($brand_config->prefix.$row['model'])])
-                    ->whereIn('serialno', [$row['serial'],strtolower($row['serial']), strtoupper($row['serial'])])
-                    ->update(['user9' => date("m/d/y", strtotime($row['reg_date'])), 'user4', auth()->user()->sx_operator_id]);
+                if($serialized_product)
+                {
+                    $serialized_product->update(['user9' => date("m/d/y", strtotime($row['reg_date'])), 'user4' => auth()->user()->sx_operator_id]);
+                    $this->warrantyImport->increment('processed_count');
+                }else{
+                    $this->failedRecords[] = $row;
+                }
+                    
             }
         }
+
+        $this->warrantyImport->update(['status' => 'complete']);
     }
 }
