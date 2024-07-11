@@ -652,6 +652,9 @@
     color: #435ebe;
     text-decoration: underline !important;
 }
+.warranty-import .alert-success {
+    color: #000 !important;
+}
 .warranty-tab #myTabContent .spinner-grow {
     width: 1.5rem;
     height: 1.5rem;

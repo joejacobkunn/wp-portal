@@ -16,15 +16,17 @@ class ProcessWarrantyRecords implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $records;
+    public $warrantyImports;
 
     /**
      * Create a new job instance.
      */
 
      //pass warranty import instance in constructor
-    public function __construct($records)
+    public function __construct($records, $WarrantyImports)
     {
         $this->records = $records;
+        $this->warrantyImports = $WarrantyImports;
     }
 
     /**
@@ -32,12 +34,12 @@ class ProcessWarrantyRecords implements ShouldQueue
      */
     public function handle(): void
     {
-        if (config('sx.mock')) 
+        if (config('sx.mock'))
         {
             sleep(5);
             foreach($this->records as $row)
             {
-                
+
             }
         }
         else
@@ -45,7 +47,7 @@ class ProcessWarrantyRecords implements ShouldQueue
             foreach($this->records as $row)
             {
                 $brand = Brand::whereRaw('LOWER(name) = ?', [strtolower($row['brand'])])->first();
-                
+
                 $brand_config = BrandWarranty::where('brand_id', $brand->id)->first();
 
                 SerializedProduct::where('cono', 10)
