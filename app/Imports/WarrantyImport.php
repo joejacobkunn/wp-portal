@@ -28,7 +28,7 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
     {
         return [
             BeforeImport::class => function(BeforeImport $event) {
-                $this->validateHeaders($event);
+                $this->fileBaseValidation($event);
             },
         ];
     }
@@ -88,7 +88,7 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
         return $this->data;
     }
 
-    protected function validateHeaders(BeforeImport $event)
+    protected function fileBaseValidation(BeforeImport $event)
     {
         $requiredHeaders = ['Brand', 'Model', 'Serial', 'Reg Date'];
 
@@ -96,6 +96,11 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
         $headerRow = $worksheet->getRowIterator()->current();
         $cellIterator = $headerRow->getCellIterator();
         $cellIterator->setIterateOnlyExistingCells(false);
+        $totalRows = $worksheet->getHighestDataRow();
+
+        if ($totalRows-1 > 1000 ) {
+            throw new \Exception('Maximum number of rows allowed is 1000. please adjust the import file.');
+        }
 
         $actualHeaders = [];
         foreach ($cellIterator as $cell) {
@@ -112,5 +117,6 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
         if ( ! empty($extraHeaders)) {
             throw new \Exception('Unexpected headers found: ' . implode(', ', $extraHeaders) . '.');
         }
+
     }
 }

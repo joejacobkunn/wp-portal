@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exports\WarrantyExport;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Models\Product\Brand;
 use App\Models\SX\SerializedProduct;
@@ -10,6 +11,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProcessWarrantyRecords implements ShouldQueue
 {
@@ -24,10 +27,11 @@ class ProcessWarrantyRecords implements ShouldQueue
      */
 
      //pass warranty import instance in constructor
-    public function __construct($records, $WarrantyImport)
+    public function __construct($records, $WarrantyImport, $faild)
     {
         $this->records = $records;
         $this->warrantyImport = $WarrantyImport;
+        $this->failedRecords = $faild;
     }
 
     /**
@@ -39,11 +43,11 @@ class ProcessWarrantyRecords implements ShouldQueue
 
         if (config('sx.mock'))
         {
-            
+
             foreach($this->records as $row)
             {
                 $value = mt_rand(0,1);
-                
+
                 if($value)
                 {
                     $this->warrantyImport->increment('processed_count');
@@ -58,7 +62,8 @@ class ProcessWarrantyRecords implements ShouldQueue
             {
                 $brand_config = BrandWarranty::whereHas('brand', function($q) use($row){
                     $q->where('name', 'like','%'.$row['brand'].'%');
-                 })->first();
+                 })->orWhere('alt_name', 'like', '%{'.$row['brand'].'}%')->first();
+
 
                 $serialized_product = SerializedProduct::where('cono', 10)
                     ->whereIn('whse', ['wate','utic','ann','livo','ceda','farm'])
@@ -70,15 +75,26 @@ class ProcessWarrantyRecords implements ShouldQueue
 
                 if($serialized_product)
                 {
-                    $serialized_product->update(['user9' => date("m/d/y", strtotime($row['reg_date'])), 'user4' => auth()->user()->sx_operator_id]);
+                    DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y", strtotime($row['reg_date']))."', user4 = '".$this->warrantyImport->uploader->sx_operator_id."' where cono = 10 AND whse IN('wate','utic','ann','livo','ceda','farm') and serialno = '".$row['serial']."' and prod like '".$brand_config->prefix."%' and whseto = '' and currstatus = 's'");
+
                     $this->warrantyImport->increment('processed_count');
                 }else{
                     $this->failedRecords[] = $row;
                 }
-                    
+
             }
         }
+        $failedFile = $this->saveFailedRecords();
+        $this->warrantyImport->update(['status' => 'complete','failed_records' =>  $failedFile]);
+    }
+    public function saveFailedRecords()
+    {
+        if (!empty($this->failedRecords)) {
+            $failedPath = config('warranty.failed_file_location') . uniqid() . '.xlsx';
+            $exportFaild = new WarrantyExport($this->failedRecords);
 
-        $this->warrantyImport->update(['status' => 'complete']);
+            Excel::store($exportFaild,  $failedPath, 'public');
+            return $failedPath;
+        }
     }
 }

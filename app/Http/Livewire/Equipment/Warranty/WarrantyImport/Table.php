@@ -34,7 +34,10 @@ class Table extends DataTableComponent
             Column::make('Processed Records', 'processed_count')
             ->excludeFromColumnSelect()
             ->format(function ($value, $row) {
-                return $value.'/'.$row->total_records;
+                $text = $value.'/'.$row->total_records;
+
+                if($value != $row->total_records) return $text.'<span class="badge bg-light-warning float-end"><i class="fas fa-exclamation-triangle"></i></span>';
+                return $text;
             })
             ->html(),
 
@@ -52,7 +55,7 @@ class Table extends DataTableComponent
             Column::make('Status', 'status')
             ->excludeFromColumnSelect()
             ->format(function ($value, $row) {
-                $color = ($value == "queued") ? "warning" : "success";
+                $color = ($value == "queued" || $value == "processing") ? "warning" : "success";
                 return '<span class="badge bg-light-'.$color.'">'.strtoupper($value).'</span>';
             })
             ->html(),
@@ -60,7 +63,15 @@ class Table extends DataTableComponent
             Column::make('', 'id')
             ->excludeFromColumnSelect()
             ->format(function ($value, $row) {
-                return '<i class="fas fa-ellipsis-v"></i>';
+                $fileUrl = Storage::url($row->file_path);
+                $failed = Storage::url($row->failed_records);
+                return view('livewire.equipment.warranty.warranty-import.partials.action-dropdown',
+                 [
+                    'id' => $value,
+                    'orginal'=>$fileUrl,
+                    'failedPath'=>$failed,
+                ])
+                ->render();
             })
             ->html()
         ];
@@ -68,7 +79,16 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $query = WarrantyImports::query();
+        $query = WarrantyImports::query()
+                    ->select([
+                        'warranty_imports.name',
+                        'file_path',
+                        'uploaded_by',
+                        'failed_records',
+                        'processed_count',
+                        'status',
+                        'total_records'
+                    ]);
         return $query;
     }
 }

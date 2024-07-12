@@ -45,12 +45,10 @@ trait ImportExportRequest
     public function dataImport()
     {
         try {
-
             $import = new WarrantyImport($this->brands);
             Excel::import($import, $this->csvFile);
         } catch (\Exception $e) {
-            $this->dispatch('cancel');
-            $this->alert('error', $e->getMessage());
+           $this->addError('csvFile', $e->getMessage());
         }
 
         $this->validatedRows = $import->getData();
@@ -72,20 +70,13 @@ trait ImportExportRequest
     {
         $extension = $this->csvFile->getClientOriginalExtension();
         $uploadedFileName = uniqid() . '.' . $extension;
-        $uploadDirectory = 'public/warranty-imports/uploaded-files';
-        $uploadDirectory = 'warranty-imports/uploaded-files';
-        $validPath = 'warranty-imports/valid-records/' . uniqid() . '.xlsx';
-        $failedPath = !empty($this->importErrorRows) ? 'warranty-imports/failed-records/' . uniqid() . '.xlsx' : null;
+        $uploadDirectory =  config('warranty.upload_location');
+        $validPath = config('warranty.valid_file_location') . uniqid() . '.xlsx';
 
         try {
             $filePath = $this->csvFile->storeAs($uploadDirectory, $uploadedFileName, 'public');
             $export = new WarrantyExport($this->validatedRows);
             Excel::store($export, $validPath, 'public');
-
-            if ($failedPath) {
-                $exportFaild = new WarrantyExport($this->importErrorRows);
-                Excel::store($exportFaild, $failedPath, 'public');
-            }
         } catch (\Exception $e) {
             $this->showalert['staus'] = true;
             $this->showalert['class'] = 'error';
@@ -97,15 +88,15 @@ trait ImportExportRequest
             'name' => $this->name,
             'file_path' => $filePath,
             'uploaded_by' => Auth::user()->id,
-            'failed_records' =>  $failedPath,
+            'failed_records' =>  null,
             'valid_records' =>  $validPath,
             'processed_count' =>  0,
-            'total_records' => count($this->validatedRows),
+            'total_records' => count($this->validatedRows) + count($this->importErrorRows),
             'status'        =>'queued'
         ]);
 
         //dispatch job to queue
-        ProcessWarrantyRecords::dispatch($this->validatedRows, $warrantyImport);
+        ProcessWarrantyRecords::dispatch($this->validatedRows, $warrantyImport, $this->importErrorRows);
 
         return redirect()->route('equipment.warranty.index');
     }

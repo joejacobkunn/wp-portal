@@ -6,7 +6,8 @@
         <div class="col-md-12 mb-3 warranty-import">
             <div class="alert alert-warning" role="alert">
                 <i class="fas fa-exclamation-circle"></i> {{ count($importErrorRows) }} will be skipped for processing
-                due to brands not being configured, either add brands to configurator and try again or proceed with
+                due to brands not being configured, either add brands or check date format to configurator and try again
+                or proceed with
                 import
                 <a href="#" wire:click.prevent="downloadInvalidEntries">
                     click here </a>to download invalid entries <i class="fas fa-download"></i>
