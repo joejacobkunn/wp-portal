@@ -20,7 +20,7 @@ class Index extends Component
     public $addRecord =false;
     protected $rules = [
         'name' => 'required',
-        'csvFile' => 'required|file|mimes:csv,xlsx'
+        'csvFile' => 'required|file|mimes:csv'
     ];
     protected $validationAttributes = [
         'csvFile' => 'File'
@@ -71,10 +71,12 @@ class Index extends Component
         $this->importErrorRows = [];
         $this->showalert['status'] = false;
         $this->importIteration++;
+        $this->resetValidation();
     }
 
     public function importData()
     {
+        $this->validate();
         if (empty($this->validatedRows)) {
             $this->showalert['status'] = true;
             $this->showalert['class'] = 'error';
@@ -83,7 +85,6 @@ class Index extends Component
         }
         $this->saveData();
         $this->page = 'success';
-        return $this->validatedRows;
     }
 
     public  function updateBreadcrumb() {

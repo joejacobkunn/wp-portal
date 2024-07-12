@@ -13,10 +13,10 @@
                     <span class="sr-only">Loading...</span>
                 </div>
                 @if($showalert['status'])
-                @include('partials.alert',[
-                    'class' =>$showalert['class'],
-                    'message' =>$showalert['message'],
-                    ])
+                    @include('partials.alert',[
+                        'class' =>$showalert['class'],
+                        'message' =>$showalert['message'],
+                        ])
                 @endif
                 <div wire:loading.remove>
                     @switch($page)

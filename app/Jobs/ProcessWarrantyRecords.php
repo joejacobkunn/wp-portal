@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exports\WarrantyExport;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Models\Product\Brand;
 use App\Models\SX\SerializedProduct;
@@ -11,7 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProcessWarrantyRecords implements ShouldQueue
 {
@@ -26,10 +27,11 @@ class ProcessWarrantyRecords implements ShouldQueue
      */
 
      //pass warranty import instance in constructor
-    public function __construct($records, $WarrantyImport)
+    public function __construct($records, $WarrantyImport, $faild)
     {
         $this->records = $records;
         $this->warrantyImport = $WarrantyImport;
+        $this->failedRecords = $faild;
     }
 
     /**
@@ -41,11 +43,11 @@ class ProcessWarrantyRecords implements ShouldQueue
 
         if (config('sx.mock'))
         {
-            
+
             foreach($this->records as $row)
             {
                 $value = mt_rand(0,1);
-                
+
                 if($value)
                 {
                     $this->warrantyImport->increment('processed_count');
@@ -79,10 +81,20 @@ class ProcessWarrantyRecords implements ShouldQueue
                 }else{
                     $this->failedRecords[] = $row;
                 }
-                    
+
             }
         }
+        $failedFile = $this->saveFailedRecords();
+        $this->warrantyImport->update(['status' => 'complete','failed_records' =>  $failedFile]);
+    }
+    public function saveFailedRecords()
+    {
+        if (!empty($this->failedRecords)) {
+            $failedPath = config('warranty.failed_file_location') . uniqid() . '.xlsx';
+            $exportFaild = new WarrantyExport($this->failedRecords);
 
-        $this->warrantyImport->update(['status' => 'complete']);
+            Excel::store($exportFaild,  $failedPath, 'public');
+            return $failedPath;
+        }
     }
 }
