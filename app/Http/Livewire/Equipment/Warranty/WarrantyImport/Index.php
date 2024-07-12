@@ -72,6 +72,8 @@ class Index extends Component
         $this->showalert['status'] = false;
         $this->importIteration++;
         $this->resetValidation();
+        $this->addRecord = false;
+        $this->page = 'viewData';
     }
 
     public function importData()

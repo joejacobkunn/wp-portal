@@ -62,7 +62,8 @@ class ProcessWarrantyRecords implements ShouldQueue
             {
                 $brand_config = BrandWarranty::whereHas('brand', function($q) use($row){
                     $q->where('name', 'like','%'.$row['brand'].'%');
-                 })->first();
+                 })->orWhere('alt_name', 'like', '%{'.$row['brand'].'}%')->first();
+
 
                 $serialized_product = SerializedProduct::where('cono', 10)
                     ->whereIn('whse', ['wate','utic','ann','livo','ceda','farm'])
@@ -76,7 +77,6 @@ class ProcessWarrantyRecords implements ShouldQueue
                 {
                     DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y", strtotime($row['reg_date']))."', user4 = '".$this->warrantyImport->uploader->sx_operator_id."' where cono = 10 AND whse IN('wate','utic','ann','livo','ceda','farm') and serialno = '".$row['serial']."' and prod like '".$brand_config->prefix."%' and whseto = '' and currstatus = 's'");
 
-                    //$serialized_product->update(['user9' => date("m/d/y", strtotime($row['reg_date'])), 'user4' => $this->warrantyImport->uploader->sx_operator_id]);
                     $this->warrantyImport->increment('processed_count');
                 }else{
                     $this->failedRecords[] = $row;

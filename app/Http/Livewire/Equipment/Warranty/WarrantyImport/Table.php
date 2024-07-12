@@ -34,7 +34,10 @@ class Table extends DataTableComponent
             Column::make('Processed Records', 'processed_count')
             ->excludeFromColumnSelect()
             ->format(function ($value, $row) {
-                return $value.'/'.$row->total_records;
+                $text = $value.'/'.$row->total_records;
+
+                if($value != $row->total_records) return $text.'<span class="badge bg-light-warning float-end"><i class="fas fa-exclamation-triangle"></i></span>';
+                return $text;
             })
             ->html(),
 
@@ -52,7 +55,7 @@ class Table extends DataTableComponent
             Column::make('Status', 'status')
             ->excludeFromColumnSelect()
             ->format(function ($value, $row) {
-                $color = ($value == "queued") ? "warning" : "success";
+                $color = ($value == "queued" || $value == "processing") ? "warning" : "success";
                 return '<span class="badge bg-light-'.$color.'">'.strtoupper($value).'</span>';
             })
             ->html(),
