@@ -652,7 +652,33 @@
     color: #435ebe;
     text-decoration: underline !important;
 }
-.warranty-tab #myTabContent .spinner-grow {
-    width: 1.5rem;
-    height: 1.5rem;
+.warranty-import .alert-success {
+    color: #000 !important;
+}
+.dropdown-tab .btn-icon {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+}
+
+.dropdown-tab .btn-icon:hover,
+.dropdown-tab .btn-icon:focus {
+    background: none;
+    box-shadow: none;
+}
+
+.dropdown-tab .custom-dropdown {
+    background-color: #f2f7ff; /* Light grey background color */
+    border: 1px solid #ced4da; /* Border color */
+}
+
+.dropdown-tab .custom-dropdown .dropdown-item {
+    color: #212529; /* Text color */
+}
+
+.dropdown-tab .custom-dropdown .dropdown-item:hover,
+.dropdown-tab .custom-dropdown .dropdown-item:focus {
+    background-color: #e9ecef; /* Hover background color */
 }

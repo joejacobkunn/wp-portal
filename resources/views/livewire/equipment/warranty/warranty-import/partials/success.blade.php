@@ -1,9 +1,9 @@
 <div class="row">
     @if (!empty($importErrorRows))
         <div class="col-md-12 mb-3 warranty-import">
-            <div class="alert alert-warning" role="alert">
-                <i class="fas fa-exclamation-circle"></i> {{ count($importErrorRows) }} Errors found on the uploaded
-                file,
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-exclamation-circle"></i>  Successfully imported file,
+
                 <a href="#" wire:click.prevent="downloadInvalidEntries">
                     click here </a>to download invalid entries <i class="fas fa-download"></i>
             </div>
