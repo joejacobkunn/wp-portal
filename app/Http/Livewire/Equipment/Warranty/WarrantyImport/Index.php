@@ -21,7 +21,7 @@ class Index extends Component
     public $addRecord =false;
     protected $rules = [
         'name' => 'required',
-        'csvFile' => 'required|file|mimes:csv'
+        'csvFile' => 'required|file|mimes:csv,txt|ends_with_csv'
     ];
     protected $validationAttributes = [
         'csvFile' => 'File'
