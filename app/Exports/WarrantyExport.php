@@ -22,6 +22,6 @@ class WarrantyExport implements FromArray, WithHeadings
 
     public function headings(): array
     {
-        return array_keys($this->rows[0]);
+        return ['Brand', 'Model', 'Serial', 'Reg Date'];
     }
 }

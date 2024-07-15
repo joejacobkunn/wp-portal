@@ -97,11 +97,6 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
         $cellIterator = $headerRow->getCellIterator();
         $cellIterator->setIterateOnlyExistingCells(false);
         $totalRows = $worksheet->getHighestDataRow();
-
-        if ($totalRows-1 > 1000 ) {
-            throw new \Exception('Maximum number of rows allowed is 1000. please adjust the import file.');
-        }
-
         $actualHeaders = [];
         foreach ($cellIterator as $cell) {
             $actualHeaders[] = $cell->getValue();
@@ -116,6 +111,14 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
 
         if ( ! empty($extraHeaders)) {
             throw new \Exception('Unexpected headers found: ' . implode(', ', $extraHeaders) . '.');
+        }
+
+        if ($totalRows <= 1) {
+            throw new \Exception('Uploaded file is empty, please upload a file with data');
+        }
+
+        if ($totalRows-1 > 1000 ) {
+            throw new \Exception('Maximum number of rows allowed is 1000. please adjust the import file.');
         }
 
     }

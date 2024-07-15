@@ -17,6 +17,7 @@ class Index extends Component
 
     public $name;
     public $csvFile;
+    public $warrantyImportTableId = 'wit-id';
     public $addRecord =false;
     protected $rules = [
         'name' => 'required',
@@ -106,5 +107,14 @@ class Index extends Component
     {
         $this->addRecord=true;
         $this->page='form';
+    }
+
+    public function refreshStatus()
+    {
+        $processingCount = WarrantyImports::where('status', '!=', 'complete')->count();
+
+        if ($processingCount>0 && $this->page == 'viewData') {
+            $this->warrantyImportTableId = uniqid();
+        }
     }
 }
