@@ -64,7 +64,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->format(function ($value, $row) {
                 $fileUrl = Storage::url($row->file_path);
-                $failed = Storage::url($row->failed_records);
+                $failed = $row->failed_records ? Storage::url($row->failed_records): null;
                 return view('livewire.equipment.warranty.warranty-import.partials.action-dropdown',
                  [
                     'id' => $value,
