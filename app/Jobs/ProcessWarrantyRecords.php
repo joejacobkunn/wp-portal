@@ -43,7 +43,6 @@ class ProcessWarrantyRecords implements ShouldQueue
 
         if (config('sx.mock'))
         {
-
             foreach($this->records as $row)
             {
                 $value = mt_rand(0,1);
@@ -90,7 +89,7 @@ class ProcessWarrantyRecords implements ShouldQueue
     public function saveFailedRecords()
     {
         if (!empty($this->failedRecords)) {
-            $failedPath = config('warranty.failed_file_location') . uniqid() . '.xlsx';
+            $failedPath = config('warranty.failed_file_location') . uniqid() . '.csv';
             $exportFaild = new WarrantyExport($this->failedRecords);
 
             Excel::store($exportFaild,  $failedPath, 'public');

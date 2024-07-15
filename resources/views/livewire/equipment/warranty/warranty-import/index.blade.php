@@ -18,10 +18,12 @@
                         'message' =>$showalert['message'],
                         ])
                 @endif
-                <div wire:loading.remove>
+                <div wire:loading.remove wire:target="importData">
                     @switch($page)
                         @case('viewData')
-                            <livewire:equipment.warranty.warranty-import.table lazy>
+                            <div wire:poll.5s="refreshStatus">
+                                <livewire:equipment.warranty.warranty-import.table wire:key="imt-{{ $warrantyImportTableId }}" lazy>
+                            </div>
                             @break
                         @case('form')
                             @include('livewire.equipment.warranty.warranty-import.partials.form', [

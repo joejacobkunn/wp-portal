@@ -4,6 +4,8 @@
         </button>
         <ul class="dropdown-menu custom-dropdown" aria-labelledby="dropdownMenuButton{{ $id }}">
             <li><a class="dropdown-item" href="{{ $orginal }}">Download Uploaded File</a></li>
-            <li><a class="dropdown-item" href="{{ $failedPath }}">Download Failed Records</a></li>
+            @if ($failedPath)
+                <li><a class="dropdown-item" href="{{ $failedPath }}">Download Failed Records</a></li>
+            @endif
         </ul>
-    </div>
+</div>

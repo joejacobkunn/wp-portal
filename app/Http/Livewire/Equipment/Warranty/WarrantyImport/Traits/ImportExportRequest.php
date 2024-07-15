@@ -63,7 +63,7 @@ trait ImportExportRequest
 
     public function downloadEntires()
     {
-        return Excel::download(new WarrantyExport($this->importErrorRows), 'invalid-rows'.now().'.xlsx');
+        return Excel::download(new WarrantyExport($this->importErrorRows), 'invalid-rows'.now().'.csv');
     }
 
     public function saveData()
@@ -71,7 +71,7 @@ trait ImportExportRequest
         $extension = $this->csvFile->getClientOriginalExtension();
         $uploadedFileName = uniqid() . '.' . $extension;
         $uploadDirectory =  config('warranty.upload_location');
-        $validPath = config('warranty.valid_file_location') . uniqid() . '.xlsx';
+        $validPath = config('warranty.valid_file_location') . uniqid() . '.csv';
 
         try {
             $filePath = $this->csvFile->storeAs($uploadDirectory, $uploadedFileName, 'public');
