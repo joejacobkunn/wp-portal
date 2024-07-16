@@ -36,8 +36,8 @@ class Table extends DataTableComponent
             ->format(function ($value, $row) {
                 $text = $value.'/'.$row->total_records;
 
-                if($value != $row->total_records) return $text.'<span class="badge bg-light-warning float-end"><i class="fas fa-exclamation-triangle"></i></span>';
-                return $text;
+                if($value != $row->total_records) return $text.'<span class="badge bg-light-warning float-end"><i class="fas fa-exclamation-triangle"></i> '.($row->total_records - $value).'</span>';
+                return $text.'<span class="badge bg-light-success float-end"><i class="far fa-check-circle"></i></span>';
             })
             ->html(),
 
