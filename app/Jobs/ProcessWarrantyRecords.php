@@ -68,7 +68,7 @@ class ProcessWarrantyRecords implements ShouldQueue
                     ->whereIn('whse', ['wate','utic','ann','livo','ceda','farm'])
                     ->where('serialno', $row['serial'])
                     ->where('prod', 'like', $brand_config->prefix.'%')
-                    ->where('whseto', '')
+                    ->where('custno', '<>','')
                     ->where('currstatus', 's')
                     ->first();
 
