@@ -39,7 +39,7 @@
 
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                     <div>
-                        <h3 class="h6 mb-1">Demo Equipment ID</h3>
+                        <h3 class="h6 mb-1">Unavailable Equipment ID</h3>
                         <p class="small pe-4">{{ $user->unavailable_equipments_id ?? 'n/a' }}</p>
                     </div>
                     <div>

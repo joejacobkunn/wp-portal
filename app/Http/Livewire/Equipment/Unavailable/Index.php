@@ -12,7 +12,7 @@ class Index extends Component
 
     public $breadcrumbs = [
         [
-            'title' => 'Demo Equipments',
+            'title' => 'Unavailable Equipments',
         ],
     ];
 

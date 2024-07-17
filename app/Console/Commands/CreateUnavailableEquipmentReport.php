@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Core\User;
 use App\Models\Equipment\UnavailableReport;
+use App\Notifications\UnavailableEquipment\UnavailableEquipmentReportReminder;
 use Illuminate\Console\Command;
 
 class CreateUnavailableEquipmentReport extends Command
@@ -32,7 +33,7 @@ class CreateUnavailableEquipmentReport extends Command
 
         foreach($users as $user)
         {
-            UnavailableReport::updateOrCreate(
+            $unavailable_report = UnavailableReport::updateOrCreate(
                 [
                     'user_id' => $user->id,
                     'report_date' => now()->format('Y-m-d')
@@ -42,6 +43,8 @@ class CreateUnavailableEquipmentReport extends Command
                     'status' => 'Pending Review'
                 ]
             );
+
+            $user->notify(new UnavailableEquipmentReportReminder($unavailable_report));
         }
 
 
