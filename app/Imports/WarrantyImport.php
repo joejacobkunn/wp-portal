@@ -117,8 +117,8 @@ class WarrantyImport implements ToCollection,WithValidation, WithHeadingRow, Ski
             throw new \Exception('Uploaded file is empty, please upload a file with data');
         }
 
-        if ($totalRows-1 > 1000 ) {
-            throw new \Exception('Maximum number of rows allowed is 1000. please adjust the import file.');
+        if ($totalRows-1 > 10000 ) {
+            throw new \Exception('Maximum number of rows allowed is 10000. please adjust the import file.');
         }
 
     }
