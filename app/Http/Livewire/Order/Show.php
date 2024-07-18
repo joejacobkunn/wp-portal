@@ -376,9 +376,10 @@ class Show extends Component
             $backorder_count = intval($item->stkqtyord) - intval($item->stkqtyship);
 
             if($backorder_count > 0)
+            $estimated_date = (!empty($item->user8)) ? date("F j, Y", strtotime($item->user8)) : '';
             $backorders[] = [
                 'shipprod' => $item->shipprod,
-                'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription())
+                'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).' ('.$estimated_date.')'
             ];
 
         }
@@ -591,52 +592,86 @@ class Show extends Component
     }
 
 
-    private function fillTemplateVariables($template)
+    private function fillTemplateVariables($template, $sms = false)
     {
         if(Str::contains($template,'[CustomerName]')) $template = Str::replace('[CustomerName]', $this->customer->name, $template);
         if(Str::contains($template,'[CustomerEmail]')) $template = Str::replace('[CustomerEmail]', $this->customer->email, $template);
         if(Str::contains($template,'[CustomerPhone]')) $template = Str::replace('[CustomerPhone]', $this->customer->phone, $template);
         if(Str::contains($template,'[OrderNumber]')) $template = Str::replace('[OrderNumber]', $this->order->order_number, $template);
         if(Str::contains($template,'[LineItems]')) $template = Str::replace('[LineItems]', $this->formatLineItems($this->sx_order_line_items), $template);
-        if(Str::contains($template,'[BackorderLineItems]')) $template = Str::replace('[BackorderLineItems]', $this->formatOtherLineItems($this->backorder_line_items), $template);
+        if(Str::contains($template,'[BackorderLineItems]')) $template = Str::replace('[BackorderLineItems]', $this->formatOtherLineItems($this->backorder_line_items,$sms), $template);
         if(Str::contains($template,'[DNRItems]')) $template = Str::replace('[DNRItems]', $this->formatOtherLineItems($this->dnr_line_items), $template);
         if(Str::contains($template,'[NonDNRItems]')) $template = Str::replace('[NonDNRItems]', $this->formatOtherLineItems($this->non_dnr_line_items), $template);
         if(Str::contains($template,'[WarehousePhone]')) $template = Str::replace('[WarehousePhone]', Warehouse::where('short', strtolower($this->order->whse))->first()->phone, $template);
         if(Str::contains($template,'[ShipVia]')) $template = Str::replace('[ShipVia]', $this->shipping?->getCarrier() , $template);
         if(Str::contains($template,'[ShippingTrackingNumber]')) $template = Str::replace('[ShippingTrackingNumber]', $this->shipping?->trackerno , $template);
-        if(Str::contains($template,'[GolfItems]')) $template = Str::replace('[GolfItems]', $this->formatGolfLineItems($this->backorder_line_items), $template);
+        if(Str::contains($template,'[GolfItems]')) $template = Str::replace('[GolfItems]', $this->formatGolfLineItems($this->backorder_line_items, $sms), $template);
         return $template;
     }
 
-    private function formatLineItems($line_items)
+    private function formatLineItems($line_items, $sms = false)
     {
-        $html = '<ul>';
-        
-        foreach($line_items as $item)
+
+        if($sms)
         {
-            $html .= '<li>'.$item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).'</li>';
+            $string = '';
+
+            foreach($line_items as $item)
+            {
+                $string .= $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).', ';
+            }
+
+            return $string;
+
         }
-
-        $html .= '</ul>';
-
-        return $html;
-    }
-
-    private function formatGolfLineItems($line_items)
-    {
-        $html = '<ul>';
-        
-        foreach($line_items as $item)
+        else
         {
-            if(in_array($item->prod, $this->order->golf_parts ?? []))
+            $html = '<ul>';
+        
+            foreach($line_items as $item)
             {
                 $html .= '<li>'.$item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).'</li>';
             }
+    
+            $html .= '</ul>';
+    
+            return $html;
+    
         }
+    }
 
-        $html .= '</ul>';
+    private function formatGolfLineItems($line_items, $sms = false)
+    {
 
-        return $html;
+        if($sms)
+        {
+            $string = '';
+
+            foreach($line_items as $item)
+            {
+                $string .= $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).', ';
+            }
+
+            return $string;
+
+        }
+        else
+        {
+
+            $html = '<ul>';
+            
+            foreach($line_items as $item)
+            {
+                if(in_array($item->prod, $this->order->golf_parts ?? []))
+                {
+                    $html .= '<li>'.$item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).'</li>';
+                }
+            }
+
+            $html .= '</ul>';
+
+            return $html;
+        }
     }
 
 
@@ -660,7 +695,7 @@ class Show extends Component
         $template = NotificationTemplate::find($this->templateId);
         $this->emailSubject = $this->fillTemplateVariables($template->email_subject);
         $this->emailContent = $this->fillTemplateVariables($template->email_content);
-        $this->smsMessage = $this->fillTemplateVariables($template->sms_content);
+        $this->smsMessage = $this->fillTemplateVariables($template->sms_content, $sms = 1);
         //$this->manualPlaceholders = $this->getManualPlaceholders($this->emailContent);
     }
 

@@ -70,7 +70,7 @@
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.textarea label="SMS Content" model="smsContent" hint="Max Length: 160 Chars" />
+                        <x-forms.textarea label="SMS Content" model="smsContent" hint="Max Length: 300 Chars" />
                     </div>
                 </div>
 
