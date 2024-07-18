@@ -24,7 +24,6 @@
                     </div>
                 </div>
             </div>
-            <livewire:component.sms.sms-component :phone="'+13137188690'" :email="'arun@gmail.com'" lazy>
         </x-slot>
 
     </x-page>
