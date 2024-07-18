@@ -6,123 +6,149 @@ use App\Contracts\SmsInterface;
 use App\Models\SMS\KenectCache;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Messages extends Component
 {
-    use LivewireAlert
-    ;
+    use LivewireAlert, WithFileUploads;
+
     public $phone;
     public $email;
-    public $userId;
     public $apiUser;
     public $sms;
     public $newMessage;
-    public $attachment;
+    public $mock;
     public $userMessages=[];
+    public $messageOffset =1;
+    protected  $rules =[
+        'newMessage' => 'required',
+    ];
+
+    public function validationAttributes()
+    {
+        return [
+            'newMessage' => 'Message',
+        ];
+    }
     public function mount()
     {
-        $this->findUser();
+        $this->mock = config('kenect.mock');
+
+        if (!$this->apiUser) {
+            $this->apiUser = $this->findUser() ?? $this->createUser();
+        }
+
+        if (!$this->apiUser) {
+            $this->alert('error','Unable to find or create user');
+            return;
+        }
+
+        $this->loadmessage();
     }
-    public function loadmessage()
+
+    public function loadmessage($offset=null, $limit=2)
     {
-            // $data = $this->sms->getMessages([
-            //     'userIds' =>$this->userId,
-            //     'limit'=> 10,
-            //     'locationIds' =>config('kenect.KENECT_LOCATION')
-            // ]);
-        $this->userMessages=[
-            0=>[
-                'name'=> 'arun',
-                'created_at'=> '34-34-3',
-                'message'=> 'lorrem ipsum msg dont try too hard',
-            ],
-            1=>[
-                'name'=> 'arun',
-                'created_at'=> '34-34-3',
-                'message'=> 'lorrem ipsum msg dont try too hard',
-            ]
+        if (isset($this->apiUser['newUser'])) {
+            return;
+        }
+        if ($this->mock) {
+            $userMessages=[
+                0=>[
+                    'name'=> $this->apiUser['name'],
+                    'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
+                    'message'=> fake()->sentence(),
+                ],
+                1=>[
+                    'name'=> $this->apiUser['name'],
+                    'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
+                    'message'=> fake()->sentence(),
+                ]
             ];
 
+            $this->userMessages = (rand(0, 1) === 0) ? $userMessages : [];
+        } else {
+            //check : new user if true return [];
+            // fetch messages using api
+        }
+
     }
+
     public function findUser()
     {
-        if (!$this->apiUser ) {
-            $this->userId = $this->apiUser->account_id;
-            $this->loadmessage();
-            return;
+        if ($this->mock) {
+            $data =[
+                'user_id' => rand(100, 999),
+                'name' =>  fake()->name(),
+                'last name' =>  fake()->name(),
+                'email' => $this->email,
+                'locationId' => rand(1000, 9999),
+                'phone' => $this->phone,
+            ];
+          $data =  (rand(0, 1) === 0) ? $data : [];
+        } else {
+            //api call getuser
         }
 
-        if ($this->phone) {
-            // $data = $this->sms->getUser([
-            //     'searchString' =>$this->phone,
-            //     'limit'=> 1,
-            //     'locationIds' =>config('kenect.KENECT_LOCATION')
-            // ]);
-            $data=1;
-            if (!empty($data)) {
-                //$this->userId = $data[0]['id'];
-                $this->userId = 1;
-            }
-        }
-
-        if ($this->email && !$this->userId ) {
-            // $data = $this->sms->getUser([
-            //     'searchString' =>$this->email,
-            //     'limit'=> 1,
-            //     'locationIds' =>config('kenect.KENECT_LOCATION')
-            // ]);
-
-            if (!empty($data)) {
-                //$this->userId = $data[0]['id'];
-            }
-        }
-
-        if ($this->userId) {
-            $this->loadmessage();
-            return;
-        }
-        $this->createUser();
+       if (!empty($data)) {
+           KenectCache::create($data);
+           return $data;
+       }
+       return;
     }
 
     public function createUser()
     {
-        // $data = $this->sms->create([
-        //     "emailAddress"=> $this->email,
-        //     "locationId"=> config('kenect.KENECT_LOCATION'),
-
-        //     "phoneNumbers"=> [
-        //       [
-        //         "number"=> $this->phone,
-        //         "primary"=> true,
-        //         "status"=> "true",
-        //         "smsCapable"=> true
-        //       ]
-        //     ]
-        // ]);
-        if(empty($data)){
-            $this->alert('error','failed to create new user!');
-            return false;
+        if ($this->mock) {
+            $data = [
+                'user_id' => rand(100, 999),
+                'name' =>  null,
+                'last name' =>  null,
+                'email' => $this->email,
+                'locationId' => rand(1000, 9999),
+                'phone' => rand(1000000000, 9999999999),
+            ];
+        } else {
+            // populate $data with values from api
         }
-
-        $this->userId = 12;
-        KenectCache::create([
-            'phone'=>$this->phone,
-            'user_id'=>$this->userId,
-            'email'=>$this->email
-        ]);
+        $user = KenectCache::create($data);
+        $data['newUser'] =true;
+        return $data;
 
     }
 
     public function sendMessage()
     {
+        $this->validate();
+        if ($this->mock) {
+            sleep(3);
+            $this->userMessages[] = [
+                'name'=> $this->apiUser['name'],
+                'created_at'=> now(),
+                'message'=> $this->newMessage,
+            ];
+            $this->reset(['newMessage']);
+        }
+    }
 
-        sleep(5);
-        $this->userMessages[] = [
-            'name'=> 'arun',
-            'created_at'=> '34-34-3',
-            'message'=> $this->newMessage,
-        ];
-        $this->reset(['newMessage','attachment']);
+    public function loadMoreMessages($offset=null,$limit=5)
+    {
+        if ($this->mock) {
+            $userMessages=[
+                0=>[
+                    'name'=> $this->apiUser['name'],
+                    'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
+                    'message'=> fake()->sentence(),
+                ],
+                1=>[
+                    'name'=> $this->apiUser['name'],
+                    'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
+                    'message'=> fake()->sentence(),
+                ]
+            ];
+            foreach($userMessages as $item) {
+                $this->userMessages[] = $item;
+            }
+        }
     }
 
     public function render()

@@ -8,6 +8,6 @@ return [
 
     'endpoint' => 'https://api.kenect.com',
 
-    'location' => env('KENECT_LOCATION')
-
+    'location' => env('KENECT_LOCATION'),
+    'mock'  => env('KENECT_MOCK_API')
 ];
