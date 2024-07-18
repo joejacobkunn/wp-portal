@@ -601,7 +601,7 @@ class Show extends Component
         if(Str::contains($template,'[LineItems]')) $template = Str::replace('[LineItems]', $this->formatLineItems($this->sx_order_line_items), $template);
         if(Str::contains($template,'[BackorderLineItems]')) $template = Str::replace('[BackorderLineItems]', $this->formatOtherLineItems($this->backorder_line_items,$sms), $template);
         if(Str::contains($template,'[DNRItems]')) $template = Str::replace('[DNRItems]', $this->formatOtherLineItems($this->dnr_line_items), $template);
-        if(Str::contains($template,'[NonDNRItems]')) $template = Str::replace('[NonDNRItems]', $this->formatOtherLineItems($this->non_dnr_line_items), $template);
+        if(Str::contains($template,'[NonDNRItems]')) $template = Str::replace('[NonDNRItems]', $this->formatOtherLineItems($this->non_dnr_line_items,$sms), $template);
         if(Str::contains($template,'[WarehousePhone]')) $template = Str::replace('[WarehousePhone]', Warehouse::where('short', strtolower($this->order->whse))->first()->phone, $template);
         if(Str::contains($template,'[ShipVia]')) $template = Str::replace('[ShipVia]', $this->shipping?->getCarrier() , $template);
         if(Str::contains($template,'[ShippingTrackingNumber]')) $template = Str::replace('[ShippingTrackingNumber]', $this->shipping?->trackerno , $template);
@@ -675,18 +675,34 @@ class Show extends Component
     }
 
 
-    private function formatOtherLineItems($line_items)
+    private function formatOtherLineItems($line_items, $sms = false)
     {
-        $html = '<ul>';
-        
-        foreach($line_items as $item)
+        if($sms)
         {
-            $html .= '<li>'.$item['full_name'].'</li>';
+            $string = '';
+
+            foreach($line_items as $item)
+            {
+                $string .= $item['full_name'].', ';
+            }
+
+            return $string;
+
         }
-
-        $html .= '</ul>';
-
-        return $html;
+        else
+        {
+            $html = '<ul>';
+        
+            foreach($line_items as $item)
+            {
+                $html .= '<li>'.$item['full_name'].'</li>';
+            }
+    
+            $html .= '</ul>';
+    
+            return $html;
+    
+        }
     }
 
     public function templateChanged($name, $value, $recheckValidation = false)

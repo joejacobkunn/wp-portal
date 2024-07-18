@@ -91,7 +91,7 @@
                 <x-forms.input label="Phone Number" model="smsPhone" />
                 <div class="row">
                     <div class="col-md-12 mb-3 mt-3">
-                        <x-forms.textarea label="Text Message" model="smsMessage" lazy />
+                        <x-forms.textarea label="Text Message" model="smsMessage" rows="4" lazy />
                     </div>
                 </div>
             @endif
@@ -127,7 +127,7 @@
                 <x-forms.input label="Phone Number" model="smsPhone" />
                 <div class="row">
                     <div class="col-md-12 mb-3 mt-3">
-                        <x-forms.textarea label="Text Message" model="smsMessage" lazy />
+                        <x-forms.textarea label="Text Message" model="smsMessage" rows="4" lazy />
                     </div>
                 </div>
             @endif
