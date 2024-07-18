@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class KenectCache extends Model
 {
     use HasFactory;
-    protected $fillable = ["email", "phone", "user_id"];
+    protected $fillable = ["first_name", "location_id", "last_name", "email", "phone", "user_id"];
 }

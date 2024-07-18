@@ -37,7 +37,7 @@ class SMSComponent extends Component
             $this->apiUser = $data = [
                 'id' => $user->id,
                 'user_id' =>$user->user_id,
-                'name' => $user->first_name,
+                'first_name' => $user->first_name,
                 'last name' => $user->lat_name,
                 'email' => $user->email,
                 'locationId' => $user->location_id,

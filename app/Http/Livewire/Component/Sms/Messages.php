@@ -54,12 +54,12 @@ class Messages extends Component
         if ($this->mock) {
             $userMessages=[
                 0=>[
-                    'name'=> $this->apiUser['name'],
+                    'name'=> $this->apiUser['first_name'],
                     'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
                     'message'=> fake()->sentence(),
                 ],
                 1=>[
-                    'name'=> $this->apiUser['name'],
+                    'name'=> $this->apiUser['first_name'],
                     'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
                     'message'=> fake()->sentence(),
                 ]
@@ -78,10 +78,10 @@ class Messages extends Component
         if ($this->mock) {
             $data =[
                 'user_id' => rand(100, 999),
-                'name' =>  fake()->name(),
-                'last name' =>  fake()->name(),
+                'first_name' =>  fake()->name(),
+                'last_name' =>  fake()->name(),
                 'email' => $this->email,
-                'locationId' => rand(1000, 9999),
+                'location_id' => rand(1000, 9999),
                 'phone' => $this->phone,
             ];
           $data =  (rand(0, 1) === 0) ? $data : [];
@@ -101,10 +101,10 @@ class Messages extends Component
         if ($this->mock) {
             $data = [
                 'user_id' => rand(100, 999),
-                'name' =>  null,
+                'first_name' =>  null,
                 'last name' =>  null,
                 'email' => $this->email,
-                'locationId' => rand(1000, 9999),
+                'location_id' => rand(1000, 9999),
                 'phone' => rand(1000000000, 9999999999),
             ];
         } else {
@@ -122,7 +122,7 @@ class Messages extends Component
         if ($this->mock) {
             sleep(3);
             $this->userMessages[] = [
-                'name'=> $this->apiUser['name'],
+                'name'=> $this->apiUser['first_name'],
                 'created_at'=> now(),
                 'message'=> $this->newMessage,
             ];
@@ -135,12 +135,12 @@ class Messages extends Component
         if ($this->mock) {
             $userMessages=[
                 0=>[
-                    'name'=> $this->apiUser['name'],
+                    'name'=> $this->apiUser['first_name'],
                     'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
                     'message'=> fake()->sentence(),
                 ],
                 1=>[
-                    'name'=> $this->apiUser['name'],
+                    'name'=> $this->apiUser['first_name'],
                     'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
                     'message'=> fake()->sentence(),
                 ]
