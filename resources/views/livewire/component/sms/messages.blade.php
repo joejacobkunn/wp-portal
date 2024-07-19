@@ -1,6 +1,6 @@
 <div>
          <h5 class="card-title mb-3">Messages</h5>
-            <div class="messages-container" style="max-height: 400px; overflow-y: auto;">
+            <div class="sms-container">
                 @forelse ($userMessages as $message)
                     <div class="mb-3 pb-3 ">
                         <div class="d-flex justify-content-between align-items-center mb-2">
