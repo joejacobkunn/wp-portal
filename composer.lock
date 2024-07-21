@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "776fa2d93d9844f9b3a3f78039d858e1",
+    "content-hash": "a09dbb826042f9f30db4d86ef63074ef",
     "packages": [
         {
             "name": "accentinteractive/laravel-logcleaner",
@@ -3437,35 +3437,37 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.3.0",
+            "version": "v3.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "7c1f609515e74ef1197c08e56a5606571b3ec1d9"
+                "reference": "b158c6386a892efc6c5e4682e682829baac1f933"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/7c1f609515e74ef1197c08e56a5606571b3ec1d9",
-                "reference": "7c1f609515e74ef1197c08e56a5606571b3ec1d9",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/b158c6386a892efc6c5e4682e682829baac1f933",
+                "reference": "b158c6386a892efc6c5e4682e682829baac1f933",
                 "shasum": ""
             },
             "require": {
-                "illuminate/database": "^10.0",
-                "illuminate/support": "^10.0",
-                "illuminate/validation": "^10.0",
+                "illuminate/database": "^10.0|^11.0",
+                "illuminate/routing": "^10.0|^11.0",
+                "illuminate/support": "^10.0|^11.0",
+                "illuminate/validation": "^10.0|^11.0",
                 "league/mime-type-detection": "^1.9",
                 "php": "^8.1",
-                "symfony/http-kernel": "^6.2"
+                "symfony/console": "^6.0|^7.0",
+                "symfony/http-kernel": "^6.2|^7.0"
             },
             "require-dev": {
                 "calebporzio/sushi": "^2.1",
-                "laravel/framework": "^10.0",
+                "laravel/framework": "^10.15.0|^11.0",
                 "laravel/prompts": "^0.1.6",
                 "mockery/mockery": "^1.3.1",
-                "orchestra/testbench": "^8.0",
-                "orchestra/testbench-dusk": "^8.0",
-                "phpunit/phpunit": "^9.0",
-                "psy/psysh": "@stable"
+                "orchestra/testbench": "^8.21.0|^9.0",
+                "orchestra/testbench-dusk": "^8.24|^9.1",
+                "phpunit/phpunit": "^10.4",
+                "psy/psysh": "^0.11.22|^0.12"
             },
             "type": "library",
             "extra": {
@@ -3499,7 +3501,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.3.0"
+                "source": "https://github.com/livewire/livewire/tree/v3.5.4"
             },
             "funding": [
                 {
@@ -3507,7 +3509,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-11T18:04:00+00:00"
+            "time": "2024-07-15T18:27:32+00:00"
         },
         {
             "name": "maatwebsite/excel",
@@ -5686,16 +5688,16 @@
         },
         {
             "name": "rappasoft/laravel-livewire-tables",
-            "version": "v3.2.0",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rappasoft/laravel-livewire-tables.git",
-                "reference": "9b05c6480bdc6d57ad72715dd5b9d0c0d8ccf33a"
+                "reference": "e74d8343d06a677c21ed5c99852db3a44d224d35"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rappasoft/laravel-livewire-tables/zipball/9b05c6480bdc6d57ad72715dd5b9d0c0d8ccf33a",
-                "reference": "9b05c6480bdc6d57ad72715dd5b9d0c0d8ccf33a",
+                "url": "https://api.github.com/repos/rappasoft/laravel-livewire-tables/zipball/e74d8343d06a677c21ed5c99852db3a44d224d35",
+                "reference": "e74d8343d06a677c21ed5c99852db3a44d224d35",
                 "shasum": ""
             },
             "require": {
@@ -5708,10 +5710,10 @@
             "require-dev": {
                 "brianium/paratest": "^5.0|^6.0|^7.0|^8.0",
                 "ext-sqlite3": "*",
+                "larastan/larastan": "^2.6",
                 "laravel/pint": "^1.10",
                 "monolog/monolog": "*",
                 "nunomaduro/collision": "^6.0|^7.0|^8.0",
-                "nunomaduro/larastan": "^2.6",
                 "orchestra/testbench": "^7.0|^8.0|^9.0",
                 "phpunit/phpunit": "^9.0|^10.0|^11.0"
             },
@@ -5737,6 +5739,11 @@
                     "name": "Anthony Rappa",
                     "email": "rappa819@gmail.com",
                     "role": "Developer"
+                },
+                {
+                    "name": "Joe McElwee",
+                    "email": "joe@lowerrocklabs.com",
+                    "role": "Developer"
                 }
             ],
             "description": "A dynamic table component for Laravel Livewire",
@@ -5750,7 +5757,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rappasoft/laravel-livewire-tables/issues",
-                "source": "https://github.com/rappasoft/laravel-livewire-tables/tree/v3.2.0"
+                "source": "https://github.com/rappasoft/laravel-livewire-tables/tree/v3.3.2"
             },
             "funding": [
                 {
@@ -5758,7 +5765,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-01-04T02:34:31+00:00"
+            "time": "2024-07-20T00:28:29+00:00"
         },
         {
             "name": "socialiteproviders/manager",
