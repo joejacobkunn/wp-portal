@@ -31,9 +31,9 @@
             <h5 class="card-title mb-3">Send a Message</h5>
             <form wire:submit.prevent="sendMessage">
                 <div class="mb-3">
-                    <x-forms.textarea label="Notes" model="newMessage" rows="5" lazy />
+                    <x-forms.textarea label="Notes" model="newMessage" rows="3" lazy />
                 </div>
-                <div class="d-flex justify-content-end align-items-center">
+                <div class="d-flex justify-content-start align-items-center">
                     <button
                         type="submit"
                         class="btn btn-primary"
