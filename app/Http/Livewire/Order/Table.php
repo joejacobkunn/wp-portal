@@ -164,9 +164,8 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect(),
 
             Column::make('Last Line Entered Date', 'last_line_added_at')
-                ->secondaryHeader($this->getFilterByKey('order_date'))
                 ->format(function ($value, $row) {
-                    return $value?->toFormattedDateString().'<span class="badge bg-light-secondary float-end"><i class="fas fa-history"></i> '.$value->diffForHumans().'</span>';
+                    return (!is_null($value)) ? $value?->toFormattedDateString() : '';
                 })
                 ->html()
                 ->sortable(),
