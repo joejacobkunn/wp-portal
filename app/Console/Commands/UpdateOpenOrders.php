@@ -64,7 +64,7 @@ class UpdateOpenOrders extends Command
                 'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'promise_date' => Carbon::parse($sx_order['promisedt'])->format('Y-m-d'),
-                'last_line_added_at' => $this->getLatestEnteredLineDate($line_items)
+                'last_line_added_at' => $this->getLatestEnteredLineDate($line_items,$open_order->enterdt)
             ]);
 
         }
@@ -171,9 +171,11 @@ class UpdateOpenOrders extends Command
         return false;
     }
 
-    private function getLatestEnteredLineDate($line_items)
+    private function getLatestEnteredLineDate($line_items, $order_date)
     {
         $dates = [];
+
+        if($line_items->isEmpty()) return $order_date;
 
         foreach($line_items as $line_item)
         {
