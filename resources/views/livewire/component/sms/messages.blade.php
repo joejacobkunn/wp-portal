@@ -9,7 +9,7 @@
                                     <i class="fas fa-user"></i>
                                     <span class="fw-bold">{{ !empty($message['name']) ? $message['name'] : $apiUser['phone'] }}</span>
                                 </a>
-                                <span class="fw-normal ms-2">{{ $message['created_at'] }}</span>
+                                <span class="fw-normal ms-2" title="{{ $message['created_at'] }}">{{ \Carbon\Carbon::parse($message['created_at'])->diffForHumans() }}</span>
                             </span>
                         </div>
                         <p class="m-0">{{ $message['message'] }}</p>
@@ -18,20 +18,22 @@
                     <p>No messages yet.</p>
                 @endforelse
             </div>
-            <center>
-                <button wire:click="loadMoreMessages({{++$this->messageOffset}})" class="btn btn-sm btn-gray-200 mb-2" type="button">
-                    <div wire:loading wire:target="loadMoreMessages">
-                        <span class="spinner-border spinner-border-sm" role="status"
-                            aria-hidden="true"></span>
-                    </div>
-                    Load More Messages
-                </button>
-            </center>
+            @if ($loadMoreBtn)
+                <center>
+                    <button wire:click="loadmessage({{ ++$messageOffset }}, {{$messageLimit}})" class="btn btn-sm btn-gray-200 mb-2" type="button">
+                        <div wire:loading wire:target="loadmessage">
+                            <span class="spinner-border spinner-border-sm" role="status"
+                                aria-hidden="true"></span>
+                        </div>
+                        Load More Messages
+                    </button>
+                </center>
+            @endif
             <hr>
             <h5 class="card-title mb-3">Send a Message</h5>
             <form wire:submit.prevent="sendMessage">
                 <div class="mb-3">
-                    <x-forms.textarea label="Notes" model="newMessage" rows="3" lazy />
+                    <x-forms.textarea label="Message" model="newMessage" rows="3" lazy />
                 </div>
                 <div class="d-flex justify-content-start align-items-center">
                     <button

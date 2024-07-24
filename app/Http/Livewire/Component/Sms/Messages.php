@@ -7,7 +7,7 @@ use App\Models\SMS\KenectCache;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-
+use Carbon\Carbon;
 class Messages extends Component
 {
     use LivewireAlert, WithFileUploads;
@@ -19,7 +19,10 @@ class Messages extends Component
     public $newMessage;
     public $mock;
     public $userMessages=[];
-    public $messageOffset =1;
+    public $messageOffset =0;
+    public $messageLimit =5;
+    public $loadMoreBtn =false;
+
     protected  $rules =[
         'newMessage' => 'required',
     ];
@@ -33,122 +36,147 @@ class Messages extends Component
     public function mount()
     {
         $this->mock = config('kenect.mock');
-
         if (!$this->apiUser) {
             $this->apiUser = $this->findUser() ?? $this->createUser();
         }
 
         if (!$this->apiUser) {
-            $this->alert('error','Unable to find or create user');
+            $this->dispatch('displayMessage', status: 404, message: 'Unable to find or create user');
             return;
         }
 
         $this->loadmessage();
     }
 
-    public function loadmessage($offset=null, $limit=2)
+    public function loadmessage($offset=0, $limit=5)
     {
+        $sms = app(SmsInterface::class);
+
         if (isset($this->apiUser['newUser'])) {
             return;
         }
-        if ($this->mock) {
-            $userMessages=[
-                0=>[
-                    'name'=> $this->apiUser['first_name'],
-                    'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
-                    'message'=> fake()->sentence(),
-                ],
-                1=>[
-                    'name'=> $this->apiUser['first_name'],
-                    'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
-                    'message'=> fake()->sentence(),
-                ]
-            ];
 
-            $this->userMessages = (rand(0, 1) === 0) ? $userMessages : [];
-        } else {
-            //check : new user if true return [];
-            // fetch messages using api
+        $data = $sms->getMessages([
+            'limit'=> $limit,
+            'userIds' =>$this->mock ? config('kenect.demo_user') : $this->apiUser['user_id'],
+            'offset' => $offset,
+            'locationIds' =>config('kenect.location')
+        ]);
+
+        if ($data['status'] != 200) {
+            $this->dispatch('displayMessage', status: $data['status'], message: 'failed to fetch messages');
         }
 
+        $this->loadMoreBtn = true;
+        if ($data['body']->totalConversationsCount < $this->messageLimit) {
+            $this->loadMoreBtn = false;
+        }
+
+        foreach($data['body']->conversationModels as $item) {
+            foreach($item->messages as $message) {
+                $this->userMessages[] = [
+                    'name'=> $this->apiUser['first_name'],
+                    'created_at'=> Carbon::createFromTimestampMs($item->createdDate)
+                                ->format(config('app.default_datetime_format')),
+                    'message'=> $message->body,
+                ];
+            }
+        }
     }
 
     public function findUser()
     {
-        if ($this->mock) {
-            $data =[
-                'user_id' => rand(100, 999),
-                'first_name' =>  fake()->name(),
-                'last_name' =>  fake()->name(),
-                'email' => $this->email,
-                'location_id' => rand(1000, 9999),
-                'phone' => $this->phone,
-            ];
-          $data =  (rand(0, 1) === 0) ? $data : [];
-        } else {
-            //api call getuser
+        $sms = app(SmsInterface::class);
+
+        if ($this->phone) {
+            $record = $this->searchUser($sms, $this->mock ? config('kenect.demo_phone') : $this->phone);
         }
 
-       if (!empty($data)) {
-           KenectCache::create($data);
-           return $data;
-       }
+        if (empty($record) && $this->email ) {
+            $record = $this->searchUser($sms, $this->mock ? config('kenect.demo_email') : $this->email);
+        }
+
+        if (!empty($record['body'])) {
+            $item = $record['body'][0];
+            $data =[
+                'user_id' => $item->id,
+                'first_name' =>  $item->firstName,
+                'last_name' =>  $item->lastName,
+                'email' => $item->emailAddress,
+                'location_id' => $item->locationId,
+                'phone' => $this->phone,
+            ];
+
+            KenectCache::create($data);
+            return $data;
+        }
        return;
     }
 
     public function createUser()
     {
-        if ($this->mock) {
-            $data = [
-                'user_id' => rand(100, 999),
-                'first_name' =>  null,
-                'last name' =>  null,
-                'email' => $this->email,
-                'location_id' => rand(1000, 9999),
-                'phone' => rand(1000000000, 9999999999),
-            ];
-        } else {
-            // populate $data with values from api
+        $sms = app(SmsInterface::class);
+        $record = $sms->create([
+            "emailAddress"=> $this->mock ? config('kenect.demo_email') : $this->email,
+            "locationId"=> config('kenect.location'),
+            "phoneNumbers"=> [
+                [
+                "number"=> $this->mock ? config('kenect.demo_phone') : $this->phone,
+                "primary"=> true,
+                "status"=> "true",
+                "smsCapable"=> true
+                ]
+            ]
+        ]);
+
+        if ($record['status'] != 200) {
+           return;
         }
-        $user = KenectCache::create($data);
+
+        $data =[
+            'user_id' => $record['body']->id,
+            'first_name' =>  $record['body']->firstName,
+            'last_name' =>  $record['body']->lastName,
+            'email' => $record['body']->emailAddress,
+            'location_id' => $record['body']->locationId,
+            'phone' => $record['body']->phoneNumbers[0]->number,
+        ];
+
+        KenectCache::create($data);
         $data['newUser'] =true;
         return $data;
-
     }
 
     public function sendMessage()
     {
+        $sms = app(SmsInterface::class);
         $this->validate();
-        if ($this->mock) {
-            sleep(3);
-            $this->userMessages[] = [
-                'name'=> $this->apiUser['first_name'],
-                'created_at'=> now(),
-                'message'=> $this->newMessage,
-            ];
-            $this->reset(['newMessage']);
+        $response = $sms->send([
+            'phone' => $this->mock ? config('kenect.demo_phone') : $this->phone,
+            'message' => $this->newMessage,
+            'locationId' =>config('kenect.location'),
+        ]);
+        if ($response['status']!=201) {
+            $this->addError('newMessage', 'sending failed');
+            return;
         }
+
+        $this->userMessages[] = [
+            'name'=> $this->apiUser['first_name'],
+            'created_at'=> now(),
+            'message'=> $this->newMessage,
+        ];
+        $this->reset(['newMessage']);
     }
 
-    public function loadMoreMessages($offset=null,$limit=5)
+    public function searchUser($sms, $key)
     {
-        if ($this->mock) {
-            $userMessages=[
-                0=>[
-                    'name'=> $this->apiUser['first_name'],
-                    'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
-                    'message'=> fake()->sentence(),
-                ],
-                1=>[
-                    'name'=> $this->apiUser['first_name'],
-                    'created_at'=> fake()->dateTimeThisYear->format(config('app.default_datetime_format')),
-                    'message'=> fake()->sentence(),
-                ]
-            ];
-            foreach($userMessages as $item) {
-                $this->userMessages[] = $item;
-            }
-        }
+        $record = $sms->getUser([
+            'searchString' =>$key,
+            'limit'=> 1,
+            'locationIds' =>config('kenect.location')
+        ]);
+        return $record;
     }
 
     public function render()

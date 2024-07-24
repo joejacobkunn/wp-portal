@@ -9,9 +9,17 @@ class SMSComponent extends Component
 {
     public $phone;
     public $email;
-    public $isLoading=true;
     public $apiUser;
-    public $alert=false;
+    public $alert=[
+        'status' =>false,
+        'code' =>null,
+        'message' =>null,
+    ];
+
+    //listeners
+    protected $listeners = [
+        'displayMessage' => 'displayMessage'
+    ];
 
     public function render()
     {
@@ -19,12 +27,10 @@ class SMSComponent extends Component
     }
     public function mount()
     {
-        if (!$this->phone || !$this->email) {
-            $this->alert=true;
-            $this->isLoading=false;
+        if (!$this->phone ) {
+            $this->dispatch('displayMessage', status: 404, message: 'Please provide a phone number!');
             return;
         }
-
         $this->checkUserIncache();
     }
 
@@ -34,7 +40,7 @@ class SMSComponent extends Component
             ->orWhere('email', $this->email)->first();
 
         if ($user) {
-            $this->apiUser = $data = [
+            $this->apiUser = [
                 'id' => $user->id,
                 'user_id' =>$user->user_id,
                 'first_name' => $user->first_name,
@@ -45,4 +51,11 @@ class SMSComponent extends Component
             ];
         }
     }
+
+    public function displayMessage($status, $message) {
+        $this->alert['status'] = true;
+        $this->alert['code'] = $status;
+        $this->alert['message'] = $message;
+    }
 }
+
