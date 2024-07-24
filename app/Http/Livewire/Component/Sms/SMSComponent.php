@@ -10,6 +10,7 @@ class SMSComponent extends Component
     public $phone;
     public $email;
     public $apiUser;
+    public $isLoading = true;
     public $alert=[
         'status' =>false,
         'code' =>null,
@@ -31,6 +32,7 @@ class SMSComponent extends Component
             $this->dispatch('displayMessage', status: 404, message: 'Please provide a phone number!');
             return;
         }
+
         $this->checkUserIncache();
     }
 
