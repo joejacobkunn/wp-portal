@@ -131,6 +131,7 @@ class UpdateOpenOrders extends Command
             'oeel.user8',
             'oeel.vendno',
             'oeel.whse',
+            'oeel.enterdt',
             'oeel.stkqtyord',
             'oeel.stkqtyship',
             'oeel.returnfl',
