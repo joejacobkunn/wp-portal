@@ -50,6 +50,7 @@ class Order extends Model
     protected $casts = [
         'order_date' => 'date',
         'promise_date' => 'date',
+        'last_line_added_at' => 'date',
         'last_followed_up_at' => 'datetime',
         'status' => OrderStatus::class,
         'dnr_items' => 'array',
