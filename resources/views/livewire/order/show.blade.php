@@ -388,6 +388,10 @@
                                                                 {{ $item->getSpecType() }}</span>
                                                         </small>
                                                         <small>
+                                                            <span class="badge bg-light-warning">Enter Dt :
+                                                                {{ date('M j,Y', strtotime($item->enterdt)) }}</span>
+                                                        </small>
+                                                        <small>
                                                             <span class="badge bg-light-primary">Qty Ordered :
                                                                 @if ($item->returnfl == '1')
                                                                     -
@@ -427,7 +431,7 @@
                                                         @if (!empty($item->user8))
                                                             <small>
                                                                 <span class="badge bg-light-info">Exp Date :
-                                                                    {{ date('M j, Y', strtotime($item->user8)) ?: 'N/A' }}</span>
+                                                                    {{ date('M j,Y', strtotime($item->user8)) ?: 'N/A' }}</span>
                                                             </small>
                                                         @endif
 

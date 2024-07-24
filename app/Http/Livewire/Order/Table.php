@@ -163,6 +163,14 @@ class Table extends DataTableComponent
                 ->sortable()
                 ->excludeFromColumnSelect(),
 
+            Column::make('Last Line Entered Date', 'last_line_added_at')
+                ->secondaryHeader($this->getFilterByKey('order_date'))
+                ->format(function ($value, $row) {
+                    return $value?->toFormattedDateString().'<span class="badge bg-light-secondary float-end"><i class="fas fa-history"></i> '.$value->diffForHumans().'</span>';
+                })
+                ->html()
+                ->sortable(),
+
             Column::make('Promise Date', 'promise_date')
                 ->secondaryHeader($this->getFilterByKey('promise_date'))
                 ->format(function ($value, $row) {
@@ -276,7 +284,7 @@ class Table extends DataTableComponent
                     'p-wt' => 'WT Partial',
                     'non-stock' => 'Non-Stock'
                 ])->filter(function (Builder $builder, string $value) {
-                    if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship');
+                    if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship')->where('last_line_added_at', '<', Carbon::today());
                     if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
                     if($value == 'wt') $builder->where('warehouse_transfer_available','=',1);
                     if($value == 'p-wt') $builder->where('partial_warehouse_transfer_available','=',1);

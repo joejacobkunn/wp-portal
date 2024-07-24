@@ -64,6 +64,7 @@ class UpdateOpenOrders extends Command
                 'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'promise_date' => Carbon::parse($sx_order['promisedt'])->format('Y-m-d'),
+                'last_line_added_at' => $this->getLatestEnteredLineDate($line_items)
             ]);
 
         }
@@ -133,6 +134,7 @@ class UpdateOpenOrders extends Command
             'oeel.stkqtyord',
             'oeel.stkqtyship',
             'oeel.returnfl',
+            'oeel.enterdt',
             'icsp.descrip',
             'icsl.user3',
             'icsl.whse',
@@ -166,6 +168,18 @@ class UpdateOpenOrders extends Command
         }
 
         return false;
+    }
+
+    private function getLatestEnteredLineDate($line_items)
+    {
+        $dates = [];
+
+        foreach($line_items as $line_item)
+        {
+            $dates[] = Carbon::parse($line_item['enterdt'])->format('Y-m-d');
+        }
+
+        return max($dates);
     }
 
 
