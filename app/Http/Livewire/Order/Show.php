@@ -624,7 +624,7 @@ class Show extends Component
                 $string .= $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).', ';
             }
 
-            return $string;
+            return rtrim($string,",");
 
         }
         else
@@ -655,7 +655,7 @@ class Show extends Component
                 $string .= $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).', ';
             }
 
-            return $string;
+            return rtrim($string,",");
 
         }
         else
@@ -689,7 +689,7 @@ class Show extends Component
                 $string .= $item['full_name'].', ';
             }
 
-            return $string;
+            return rtrim($string,",");
 
         }
         else
