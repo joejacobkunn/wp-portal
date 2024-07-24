@@ -376,12 +376,14 @@ class Show extends Component
             $backorder_count = intval($item->stkqtyord) - intval($item->stkqtyship);
 
             if($backorder_count > 0)
-            $estimated_date = (!empty($item->user8)) ? date("F j, Y", strtotime($item->user8)) : '';
-            $backorders[] = [
-                'shipprod' => $item->shipprod,
-                'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).' ('.$estimated_date.')'
-            ];
-
+            {
+                $estimated_date = (!empty($item->user8)) ? date("F j, Y", strtotime($item->user8)) : '';
+                $backorders[] = [
+                    'shipprod' => $item->shipprod,
+                    'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).' ('.$estimated_date.')'
+                ];
+    
+            }
         }
 
         return $backorders;
