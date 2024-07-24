@@ -89,7 +89,7 @@ class Table extends DataTableComponent
                 ->searchable()->excludeFromColumnSelect()
                 ->secondaryHeader($this->getFilterByKey('order_number'))
                 ->format(function ($value, $row) {
-                    $link = '<a href="'.route('order.show', $row->id).'" class="text-decoration-underline">'.$value.'-'.$row->order_number_suffix.'</a>';
+                    $link = '<a href="'.route('order.show', $row->id).'" class="text-decoration-underline" wire:navigate>'.$value.'-'.$row->order_number_suffix.'</a>';
                     if($row->is_dnr) $link = $link.'<span class="badge bg-light-danger float-end">DNR</span>';
                     if($row->qty_ord > $row->qty_ship) $link = $link.'<span class="badge bg-light-warning float-end">BACKORDER</span>';
                     if($row->is_sro) $link = $link.'<span class="badge bg-light-info float-end">SRO</span>';
