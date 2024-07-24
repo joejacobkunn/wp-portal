@@ -119,6 +119,7 @@ class Show extends Component
         'oeel.stkqtyord',
         'oeel.stkqtyship',
         'oeel.returnfl',
+        'oeel.enterdt',
         'icsp.descrip',
         'icsl.user3',
         'icsl.whse',

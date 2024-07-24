@@ -43,7 +43,8 @@ class Order extends Model
         'is_web_order',
         'partial_warehouse_transfer_available',
         'wt_transfers',
-        'golf_parts'
+        'golf_parts',
+        'last_line_added_at'
     ];
 
     protected $casts = [

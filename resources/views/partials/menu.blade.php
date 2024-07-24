@@ -86,9 +86,10 @@
                                     class="submenu-link">Unavailable Units</a>
                             </li>
                         @endcan
-                        @canany(['equipment.warranty.view','equipment.warranty.manage'])
+                        @canany(['equipment.warranty.view', 'equipment.warranty.manage'])
                             <li class="submenu-item  ">
-                                <a href="{{ route('equipment.warranty.index') }}" wire:navigate class="submenu-link">Warranty Registration</a>
+                                <a href="{{ route('equipment.warranty.index') }}" wire:navigate class="submenu-link">Warranty
+                                    Registration</a>
                             </li>
                         @endcan
                     </ul>
@@ -103,7 +104,7 @@
         @canany(['order.view'])
             <li class="menu-item  {{ request()->is('orders*') ? 'active' : '' }}">
                 <a href="{{ route('order.index') }}" wire:navigate class='menu-link'>
-                    <i class="far fa-list-alt"></i>
+                    <i class="fas fa-boxes"></i>
                     <span>Orders</span>
                 </a>
             </li>

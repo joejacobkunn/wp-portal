@@ -261,6 +261,7 @@ class SXSync
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
                 'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
+                'last_line_added_at' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
                 'status' => 'Pending Review'
             ]
         );
@@ -306,6 +307,7 @@ class SXSync
             'icsl.whse',
             'icsl.prodline',
             'oeel.cono',
+            'oeel.enterdt',
         ];
     
         return OrderLineItem::select($required_line_item_columns)
