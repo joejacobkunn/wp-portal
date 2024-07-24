@@ -35,7 +35,6 @@ class Messages extends Component
     }
     public function loadData()
     {
-        sleep(10);
         $this->mock = config('kenect.mock');
         if (!$this->apiUser) {
             $this->apiUser = $this->findUser() ?? $this->createUser();
