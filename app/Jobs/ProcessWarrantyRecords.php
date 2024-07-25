@@ -66,7 +66,7 @@ class ProcessWarrantyRecords implements ShouldQueue
 
                 $serialized_product = SerializedProduct::where('cono', 10)
                     ->whereIn('whse', ['wate','utic','ann','livo','ceda','farm'])
-                    ->where('serialno', $row['serial'])
+                    ->where('serialno', trim($row['serial']))
                     ->where('prod', 'like', $brand_config->prefix.'%')
                     ->where('currstatus', 's')
                     ->whereRaw("custno <> ''")
