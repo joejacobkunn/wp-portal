@@ -96,7 +96,7 @@ class Table extends DataTableComponent
                     if($row->warehouse_transfer_available) $link = $link.'<span class="badge bg-light-primary float-end">WT</span>';
                     if($row->partial_warehouse_transfer_available) $link = $link.'<span class="badge bg-light-primary float-end">P-WT</span>';
                     if(!empty($row->golf_parts)) $link = $link.'<span class="badge bg-light-primary float-end">GOLF</span>';
-                    if(!empty($row->non_stock_line_items)) $link = $link.'<span class="badge bg-light-warning float-end">Non Stock</span>';
+                    if(!empty($row->non_stock_line_items)) $link = $link.'<span class="badge bg-light-danger float-end">NON-STOCK</span>';
                     return $link;
                 })
                 ->html(),
