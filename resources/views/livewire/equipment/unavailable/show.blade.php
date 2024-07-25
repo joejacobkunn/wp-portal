@@ -80,18 +80,22 @@
                                 <h4 class="card-title">Location</h4>
                                 @if ($unavailable_unit->current_location)
                                     <div class="alert alert-light-primary color-primary">
-                                        <button wire:click='showLocationUpdateModal()'
-                                            class="btn btn-sm btn-outline-primary float-end">Update
-                                            Location</button>
+                                        @can('equipment.unavailable.manage')
+                                            <button wire:click='showLocationUpdateModal()'
+                                                class="btn btn-sm btn-outline-primary float-end">Update
+                                                Location</button>
+                                        @endcan
                                         <i class="fas fa-map-pin"></i>
                                         This equipment is currently located at
                                         <strong>{{ $unavailable_unit->current_location }}</strong>
                                     </div>
                                 @else
                                     <div class="alert alert-light-warning color-warning">
-                                        <button wire:click='showLocationUpdateModal()'
-                                            class="btn btn-sm btn-outline-primary float-end">Update
-                                            Location</button>
+                                        @can('equipment.unavailable.manage')
+                                            <button wire:click='showLocationUpdateModal()'
+                                                class="btn btn-sm btn-outline-primary float-end">Update
+                                                Location</button>
+                                        @endcan
                                         <i class="fas fa-map-pin"></i>
                                         No location has been set for this equipment
                                     </div>

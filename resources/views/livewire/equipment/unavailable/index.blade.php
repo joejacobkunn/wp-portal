@@ -20,14 +20,16 @@
                                     href="{{ route('equipment.unavailable.index') }}" role="tab"
                                     aria-controls="home" aria-selected="true">Equipments</a>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link" id="profile-tab"
-                                    href="{{ route('equipment.unavailable.report.index') }}" role="tab"
-                                    aria-controls="profile" aria-selected="false" tabindex="-1">Reports @if ($pending_report_count)
-                                        <span class="badge bg-light-secondary">{{ $pending_report_count }}</span>
-                                    @endif
-                                </a>
-                            </li>
+                            @can('equipment.unavailable.reports.view')
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" id="profile-tab"
+                                        href="{{ route('equipment.unavailable.report.index') }}" role="tab"
+                                        aria-controls="profile" aria-selected="false" tabindex="-1">Reports @if ($pending_report_count)
+                                            <span class="badge bg-light-secondary">{{ $pending_report_count }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                            @endcan
                         </ul>
 
                         <div class="tab-content mt-4" id="myTabContent">
