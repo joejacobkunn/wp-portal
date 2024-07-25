@@ -51,12 +51,21 @@
 
     @if (($cancelOrderModal && $order_is_cancelled_manually_via_sx) || $followUpModal || $shippingModal || $receivingModal)
         <div class="row">
-            <div class="col-md-12 mb-2 mt-2">
+            <div class="col-md-10 mb-2 mt-2">
                 <div class="form-group">
                     <x-forms.select wire:key="'template-dropdown-'.now()" label="Template" model="templateId"
                         :options="$templates" :selected="$templateId ?? null" default-selectable default-option-label="- None -"
                         label-index="name" value-index="id" :listener="'templateChanged'" />
                 </div>
+            </div>
+            <div class="col-md-2 mt-4">
+                @can('order.manage')
+                    @if ($templateId)
+                        <a href="{{ route('order.email-template.show', $templateId) }}" target="_blank"
+                            class="btn btn-link">Edit
+                            Template</a>
+                    @endif
+                @endcan
             </div>
         </div>
 
