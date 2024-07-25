@@ -378,7 +378,7 @@ class Show extends Component
 
             if($backorder_count > 0)
             {
-                $estimated_date = (!empty($item->user8)) ? date("F j, Y", strtotime($item->user8)) : '';
+                $estimated_date = (!empty($item->user8)) ? date("F j, Y", strtotime($item->user8)) : 'n/a';
                 $backorders[] = [
                     'shipprod' => $item->shipprod,
                     'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).' ('.$estimated_date.')'
