@@ -60,8 +60,8 @@ class ProcessWarrantyRecords implements ShouldQueue
             foreach($this->records as $row)
             {
                 $brand_config = BrandWarranty::whereHas('brand', function($q) use($row){
-                    $q->where('name', 'like','%'.$row['brand'].'%');
-                 })->orWhere('alt_name', 'like', '%{'.$row['brand'].'}%')->first();
+                    $q->where('name', 'like',$row['brand'].'%');
+                 })->orWhere('alt_name', 'like', $row['brand'].'%')->first();
 
 
                 $serialized_product = SerializedProduct::where('cono', 10)
