@@ -36,6 +36,14 @@
             {
                 "name":"equipment.warranty.view",
                 "label": "View All Equipments Warranty"
+            },
+            {
+                "name":"equipment.floor-model-inventory.view",
+                "label": "View All Floor Model Inventory"
+            },
+            {
+                "name":"equipment.floor-model-inventory.manage",
+                "label": "Manage Floor Model Inventory"
             }
         ]
     }
