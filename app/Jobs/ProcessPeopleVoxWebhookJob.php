@@ -9,14 +9,6 @@ class ProcessPeopleVoxWebhookJob extends ProcessWebhookJob
 {
 
     /**
-     * Create a new job instance.
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
      * Execute the job.
      */
     public function handle(PeopleVox $peopleVox): void
