@@ -1,5 +1,5 @@
 <div>
-    <div id="div-{{ $fieldDomId }}" class="x-multiselect">
+    <div id="div-{{ $fieldDomId }}" class="x-multiselect {{ $class }}">
         <select id="{{ $fieldDomId }}" name="{{ $fieldName }}" {{ $multiple ? 'multiple' : ''}} {{ $disabled ? 'disabled' : ''}}>
             @if($selectAllOption)
                 <optgroup label="Select All" class="select-all-item">
@@ -8,7 +8,11 @@
                 <option value="{{ $item['value'] }}" 
                     {{ !empty($item['default']) && !$multiple && empty($selectedItem) ? 'selected' : '' }} 
                     {{ !empty($item['disabled']) && !$defaultOptionSelectable ? 'disabled' : '' }} 
-                    {{ in_array($item['value'], $selectedItem) ? 'selected' : '' }}>{{ $item['text'] }}</option>
+                    {{ in_array($item['value'], $selectedItem) ? 'selected' : '' }}
+                    {{ !empty($item['class']) ? 'class='.$item['class'] : '' }} 
+                >
+                {!! $item['text'] !!}
+            </option>
             @endforeach
             @if($selectAllOption)
             </optgroup>
@@ -24,49 +28,9 @@
     @script
     <script>
         (function () {
-
-            function loadScript( url, callback ) {
-                var scripts = Array
-                    .from(document.scripts)
-                    .map(scr => scr.src);
-
-                if (!scripts.includes(url)) {
-                    var script = document.createElement( "script" )
-                    script.type = "text/javascript";
-
-                    if(script.readyState) {  // only required for IE <9
-                        script.onreadystatechange = function() {
-                        if ( script.readyState === "loaded" || script.readyState === "complete" ) {
-                            script.onreadystatechange = null;
-                            callback();
-                        }
-                        };
-                    } else {  //Others
-
-                        script.addEventListener("load",function(event) {
-                            callback();
-                        })
-
-                    }
-
-                    script.src = url;
-                    document.getElementsByTagName( "head" )[0].appendChild( script );
-                } else {
-                    let selectedScriptTag = document.scripts[scripts.indexOf(url)]
-                    document.querySelector('script[src="'+ selectedScriptTag.src +'"]').addEventListener("load",function(event) {
-                        callback();
-                    })
-                }
-        }
-        
-
         let isMultiple =  Boolean({{ $multiple ? 1 : 0 }});
+
         var selectTimer = selectTimer || null;
-        if (typeof SlimSelect == 'function') {
-            initPlugin()
-        } else {
-            loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initPlugin);
-        }
         
         if (typeof SlimSelect == 'function') {
             initPlugin()
