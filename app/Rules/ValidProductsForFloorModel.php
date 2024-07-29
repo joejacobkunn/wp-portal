@@ -18,7 +18,7 @@ class ValidProductsForFloorModel implements ValidationRule
         $product = Product::with('line')->where('prod',$value)->first();
 
         if (!$product || !$product->line) {
-            $fail('The selected product is invalid.');
+            $fail("The Selected Product does'nt exist.");
             return;
         }
 

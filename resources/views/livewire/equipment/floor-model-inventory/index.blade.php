@@ -5,7 +5,6 @@
         <x-slot:title>Floor Model Inventory</x-slot>
         <x-slot:description>Manage Floor Model Inventory</x-slot>
         <x-slot:content>
-
                 <div class="card border-light shadow-sm warranty-tab">
                         @if (!$addRecord)
                         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">

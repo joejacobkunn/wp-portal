@@ -32,7 +32,7 @@ class Table extends DataTableComponent
             ->sortable()->searchable()->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return '<a  href="'.route('equipment.floor-model-inventory.show', ['id'=> $row->id]).
+                return '<a  href="'.route('equipment.floor-model-inventory.show', ['floorModel'=> $row->id]).
                     '" wire:navigate class="text-primary text-decoration-underline">'.
                     $value.'</a>';
             })

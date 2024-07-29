@@ -1,6 +1,5 @@
 <div class="row">
     <div class="col-12 col-md-12">
-        <div class="card card-body shadow-sm mb-4">
             <form wire:submit.prevent="submit()">
                 <div class="row">
                     <div class="col-md-12 mb-3">
@@ -8,7 +7,7 @@
                             <x-forms.select label="Warehouse"
                                 model="warehouseId"
                                 :options="$warehouses"
-                                :selected="$warehouseId ?? $defalutLocation"
+                                :selected="$warehouseId"
                                 hasAssociativeIndex
                                 default-option-label="- None -"
                                 label-index="title"
@@ -19,25 +18,55 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        @if($product)
                         <div class="form-group x-input">
                             <label>Product</label>
                             <div class="input-group">
                                 <input id="product_input-field" type="text" class="form-control" placeholder="Search Product"  wire:model.live.debounce.300ms="product">
                             </div>
                         </div>
-                        @else
-                            <button type="button" class="btn btn-primary" wire:click="SelectProduct">
-                                Add Product
-                            </button>
-                        @endif
                         @error('product')
-
                         <p><span class="text-danger">{{ $message }}</span></p>
                         @enderror
                     </div>
                 </div>
-                <div class="row" style="position: relative; z-index: 0; margin-top: -15px;">
+                @if ($showBox)
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="card border shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">Matching Products</h5>
+                                    <small class="badge bg-light-warning">product/brand/description</small>
+                                    <div wire:loading.class="opacity-50" wire:target="nextPage,previousPage">
+                                        <ul class="list-group mb-2">
+                                            @foreach ($products as $item)
+                                                <li class="list-group-item">{{ $item->prod.'/ '.$item->brand->name.'/ '.$item->description }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    @if ($totalCount > $limit)
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination">
+                                                <li class="page-item {{ $offset == 0 ? 'disabled' : '' }}">
+                                                    <a class="page-link" href="#" wire:click.prevent="previousPage" aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                        <span class="sr-only">Previous</span>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item {{ ($offset + $limit) >= $totalCount ? 'disabled' : '' }}">
+                                                    <a class="page-link" href="#" wire:click.prevent="nextPage" aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                        <span class="sr-only">Next</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="form-group">
                             <x-forms.select label="Quantity"
@@ -62,24 +91,5 @@
                     </button>
                 </div>
             </form>
-        </div>
     </div>
-</div>
-<div class="product-search-modal">
-    <x-modal :toggle="$productSearchModal" size="xl" :closeEvent="'closeProductSearch'">
-        <x-slot name="title">
-            <div>Select Products</div>
-        </x-slot>
-        @if($ShowLoader)
-            <div class="prod-loading-cart">
-                Adding product to form <i class="fa fa-spin fa-spinner ms-1"></i>
-            </div>
-        @endif
-        <div wire:ignore>
-            <livewire:equipment.floor-model-inventory.product-table
-                :key="'product'"
-            />
-        </div>
-
-    </x-modal>
 </div>

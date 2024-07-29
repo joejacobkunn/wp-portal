@@ -16,7 +16,6 @@ class Index extends Component
 
     public $addRecord = false;
     public $warehouses;
-    public $ShowLoader =false;
     public FloorModelInventory $floorModel;
     public $productSearchModal = false;
     public $breadcrumbs = [
@@ -24,15 +23,10 @@ class Index extends Component
             'title' => 'Floor Model Inventory',
         ],
     ];
-    protected $listeners = [
-        'closeProductSearch'=>'closeProductSearch',
-        'addProductsToForm'=>'addProductsToForm'
-    ];
 
     public function mount()
     {
-        $this->warehouses = Warehouse::where('cono',10)->select('id','title')->get();
-        $this->warehouseId = Auth::user()->office_location;
+        $this->formInit();
     }
 
     public function render()
@@ -40,37 +34,16 @@ class Index extends Component
         return $this->renderView('livewire.equipment.floor-model-inventory.index');
     }
 
-    public function closeProductSearch()
-    {
-        $this->productSearchModal =false;
-    }
-
-    public function SelectProduct()
-    {
-        $this->productSearchModal =true;
-    }
-
-    public function addProduct($item)
-    {
-        $this->product = $item;
-        $this->resetValidation('product');
-
-    }
-
-    public function addProductsToForm($product)
-    {
-        $this->product = $product;
-        $this->closeProductSearch();
-    }
-
     public function create()
     {
-        //$this->authorize('view', FloorModelInventory::class);
+        $this->authorize('store', FloorModelInventory::class);
         $this->addRecord = true;
     }
 
     public function cancel()
     {
         $this->addRecord = false;
+        $this->resetValidation();
+        $this->reset(['product', 'warehouseId', 'qty']);
     }
 }

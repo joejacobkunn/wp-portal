@@ -90,7 +90,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('equipment/warranty', \App\Http\Livewire\Equipment\Warranty\Index::class)->name('equipment.warranty.index');
         Route::get('equipment/warranty/{warranty}/show', \App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Show::class)->name('equipment.warranty.show');
         Route::get('equipment/floor-model-inventory/', \App\Http\Livewire\Equipment\FloorModelInventory\Index::class)->name('equipment.floor-model-inventory.index');
-        Route::get('equipment/floor-model-inventory/{id}/show', \App\Http\Livewire\Equipment\FloorModelInventory\Show::class)->name('equipment.floor-model-inventory.show');
+        Route::get('equipment/floor-model-inventory/{floorModel}/show', \App\Http\Livewire\Equipment\FloorModelInventory\Show::class)->name('equipment.floor-model-inventory.show');
 
     });
 });
