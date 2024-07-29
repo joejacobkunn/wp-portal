@@ -17,7 +17,7 @@ class Index extends Component
     public $addRecord = false;
     public $warehouses;
     public FloorModelInventory $floorModel;
-    public $productSearchModal = false;
+
     public $breadcrumbs = [
         [
             'title' => 'Floor Model Inventory',
