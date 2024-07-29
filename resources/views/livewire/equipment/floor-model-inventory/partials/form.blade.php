@@ -43,7 +43,7 @@
                                             @endforeach
                                         </ul>
                                     </div>
-                                    @if ($totalCount > $limit)
+                                    @if ($hasMorePages)
                                         <nav aria-label="Page navigation">
                                             <ul class="pagination">
                                                 <li class="page-item {{ $offset == 0 ? 'disabled' : '' }}">
@@ -52,7 +52,7 @@
                                                         <span class="sr-only">Previous</span>
                                                     </a>
                                                 </li>
-                                                <li class="page-item {{ ($offset + $limit) >= $totalCount ? 'disabled' : '' }}">
+                                                <li class="page-item {{ !$hasMorePages ? 'disabled' : '' }}">
                                                     <a class="page-link" href="#" wire:click.prevent="nextPage" aria-label="Next">
                                                         <span aria-hidden="true">&raquo;</span>
                                                         <span class="sr-only">Next</span>

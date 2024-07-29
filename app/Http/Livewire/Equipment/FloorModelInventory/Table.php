@@ -19,7 +19,6 @@ class Table extends DataTableComponent
         $this->setDefaultSort('floor_model_inventory.created_at');
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setFilterLayout('slide-down');
-       // $this->setFilterSlideDownDefaultStatusEnabled();
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
@@ -68,6 +67,7 @@ class Table extends DataTableComponent
 
         ];
     }
+
     public function filters(): array
     {
         $warehouses = Warehouse::select('id','title')->get();
@@ -95,6 +95,7 @@ class Table extends DataTableComponent
                 }),
         ];
     }
+
     public function builder(): Builder
     {
         $query = FloorModelInventory::with(['products', 'warehouse:id,cono,title'])->select('id','product','whse','qty','sx_operator_id');

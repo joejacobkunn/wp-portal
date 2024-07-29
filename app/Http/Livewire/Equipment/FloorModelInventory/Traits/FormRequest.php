@@ -18,7 +18,7 @@ trait FormRequest
     public $qty;
     public $warehouseId;
 
-    public $totalCount =0;
+    public $hasMorePages =false;
     public $offset=0;
     public $limit=10;
     public $showBox =false;
@@ -73,19 +73,26 @@ trait FormRequest
                             });
                         })->where('prod', 'like', '%' . $this->product . '%');
 
-        $this->totalCount = $query->count();
-        if ($this->totalCount <= 0) {
+        //fetching one extra to check limit
+        $this->products = $query->offset($this->offset)
+                            ->limit($this->limit + 1)
+                            ->get();
+
+        if ($this->products->isEmpty()) {
             return;
         }
+
+        $this->hasMorePages = $this->products->count() > $this->limit;
+
+        if ($this->hasMorePages) {
+            $this->products = $this->products->slice(0, $this->limit);
+        }
         $this->showBox =true;
-        $this->products = $query->offset($this->offset)
-                          ->limit($this->limit)
-                          ->get();
     }
 
     public function nextPage()
     {
-        if ($this->offset + $this->limit < $this->totalCount) {
+        if ($this->hasMorePages) {
             $this->offset += $this->limit;
             $this->updatedProduct();
         }

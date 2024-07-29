@@ -6,17 +6,17 @@
         <x-slot:description>Manage Floor Model Inventory</x-slot>
         <x-slot:content>
                 <div class="card border-light shadow-sm warranty-tab">
-                        @if (!$addRecord)
+                    @if (!$addRecord)
                         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
                                 @can('equipment.floor-model-inventory.manage')
                                     <button wire:click='create' class="btn btn-sm btn-outline-primary float-end"><i
                                             class="fas fa-plus"></i>
                                             Add New Inventory
-                                        </button>
+                                    </button>
                                 @endcan
                                 <h3 class="h5 mb-0">Inventory List</h3>
-                            </div>
-                        @endif
+                        </div>
+                    @endif
 
                     <div class="card-body">
                         <div class="tab-content" id="myTabContent">
