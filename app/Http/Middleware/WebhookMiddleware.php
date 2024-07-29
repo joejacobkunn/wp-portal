@@ -19,6 +19,10 @@ class WebhookMiddleware
             return $next($request);
         }
 
+        if (!$request->hasHeader('Signature')) {
+            return $next($request);
+        }
+
         return response([
             'status' => 'Unauthorized! Missing signature in header',
         ], 401);
