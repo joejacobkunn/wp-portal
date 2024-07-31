@@ -55,7 +55,7 @@
                                 model="qty"
                                 :options="['0','1','2','3']"
                                 :selected="$qty"
-                                default-option-label="- None -"
+                                :defaultOption=false
                                 :key="'qty-' . now()" />
                         </div>
                     </div>
@@ -68,9 +68,7 @@
                         </div>
                         {{ $button_text }}
                     </button>
-                    @if($addRecord ?? false)
                         <button type="button" wire:click="cancel" class="btn btn-light-secondary">Cancel</button>
-                    @endif
                 </div>
             </form>
     </div>

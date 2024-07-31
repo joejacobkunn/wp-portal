@@ -8,7 +8,7 @@
                 <div class="card border-light shadow-sm warranty-tab">
                     @if(!$addRecord)
                         <div class="card-header border-gray-300 p-3 mb-4">
-                                @can('equipment.warranty.manage')
+                                @can('equipment.floor-model-inventory.manage')
                                     <button wire:click="create" class="btn btn-primary btn-lg btn-fab"><i class="fas fa-plus"></i></button>
                                 @endcan
                         </div>

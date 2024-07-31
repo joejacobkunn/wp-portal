@@ -64,10 +64,11 @@ class Table extends DataTableComponent
             ->html(),
 
             Column::make('Operator', 'sx_operator_id')
+            ->secondaryHeader($this->getFilterByKey('operator'))
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return $row->operator->name.' ('.strtoupper($value).')' ?? 'N/A';
+                return $row->operator?->name.' ('.strtoupper($value).')' ?? 'N/A';
             })
             ->html(),
 
@@ -108,6 +109,17 @@ class Table extends DataTableComponent
             ->filter(function (Builder $builder, string $value) {
                 $builder->whereHas('warehouse', function($query) use ($value) {
                     $query->where('title', 'like', '%'.$value.'%');
+                });
+            }),
+            TextFilter::make('Operator')
+            ->hiddenFromAll()
+            ->config([
+                'placeholder' => 'Search Operator',
+                'maxlength' => '15',
+            ])
+            ->filter(function (Builder $builder, string $value) {
+                $builder->whereHas('operator', function($query) use ($value) {
+                    $query->where('name', 'like', '%'.$value.'%');
                 });
             }),
 

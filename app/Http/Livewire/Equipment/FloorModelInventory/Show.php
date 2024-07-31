@@ -11,12 +11,12 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
 {
-    use AuthorizesRequests, HasTabs,FormRequest;
+    use AuthorizesRequests, HasTabs, FormRequest;
 
     public FloorModelInventory $floorModel;
-    public $editRecord =false;
     public $warehouses;
     public $page;
+    public $qtyModal = false;
     public $tabs = [
         'floor-model-comment-tabs' => [
             'active' => 'comments',
@@ -33,11 +33,6 @@ class Show extends Component
         ]];
     public $actionButtons = [
         [
-            'icon' => 'fa-edit',
-            'color' => 'primary',
-            'listener' => 'edit',
-        ],
-        [
             'icon' => 'fa-trash',
             'color' => 'danger',
             'confirm' => true,
@@ -47,7 +42,7 @@ class Show extends Component
     ];
     protected $listeners = [
         'deleteRecord' => 'delete',
-        'edit' => 'edit',
+        'closeQtyUpdate' => 'closeQtyUpdate'
     ];
 
     public function render()
@@ -66,13 +61,6 @@ class Show extends Component
         $this->formInit();
     }
 
-    public function edit()
-    {
-        $this->authorize('update', $this->floorModel);
-        $this->page = 'Update Floor Model Inventory';
-        $this->editRecord = true;
-    }
-
     public function resetForm()
     {
         $this->resetValidation();
@@ -80,4 +68,15 @@ class Show extends Component
         $this->formInit();
         $this->updatedProduct();
     }
+
+    public function showModel()
+    {
+        $this->qtyModal = true;
+    }
+
+    public function closeQtyUpdate()
+    {
+        $this->qtyModal = false;
+    }
+
 }

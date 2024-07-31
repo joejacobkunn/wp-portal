@@ -9,8 +9,6 @@
             </div>
 
             <div class="card-body">
-
-
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
@@ -25,13 +23,15 @@
                         </div>
                     </li>
 
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Quantity</h3>
-                            <p class="small pe-4">{{ $floorModel->qty }}</p>
+                            <p class="small mb-0">{{ $floorModel->qty }}</p>
                         </div>
+                        @can('equipment.floor-model-inventory.manage')
+                            <button class="btn btn-sm btn-outline-primary" wire:click="showModel">Update</button>
+                        @endcan
                     </li>
-
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                         <div>
                             <h3 class="h6 mb-1">Created At</h3>
@@ -61,5 +61,32 @@
                     :key="'activity-'. time()">
                 </x-slot>
             </x-tabs>
+    </div>
+    <div class="qty-update-model">
+        <x-modal :toggle="$qtyModal" size="md" :closeEvent="'closeQtyUpdate'">
+            <x-slot name="title">Update Quantity</x-slot>
+            <form wire:submit.prevent="submit()">
+                    <div class="row w-100">
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group">
+                                <x-forms.select label="Quantity"
+                                    model="qty"
+                                    :options="['0','1','2','3']"
+                                    :selected="$qty"
+                                    :defaultOption=false
+                                    :key="'qty-' . now()" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2 float-start">
+                        <button type="submit" class="btn btn-primary">
+                            <div wire:loading wire:target="submit">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                            Update
+                        </button>
+                    </div>
+            </form>
+        </x-modal>
     </div>
 </div>

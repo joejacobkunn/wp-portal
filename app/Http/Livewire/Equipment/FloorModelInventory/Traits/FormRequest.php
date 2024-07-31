@@ -98,13 +98,10 @@ trait FormRequest
         $this->authorize('update', $this->floorModel);
 
         $this->floorModel->fill([
-            'product' => $this->product,
-            'whse' => $this->warehouseId,
-            'qty' => $this->qty,
+            'qty' => $this->qty
         ]);
         $this->floorModel->save();
 
-        $this->editRecord = false;
         $this->alert('success', 'Record updated!');
         return redirect()->route('equipment.floor-model-inventory.index');
     }
