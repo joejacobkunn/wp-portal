@@ -24,7 +24,7 @@ class ValidProductsForFloorModel implements ValidationRule
 
         // Check if the product is active and not labor
         if ($product->active === 'inactive' || $product->active === 'labor') {
-            $fail('The selected product cannot be inactive or labor.');
+            $fail('The selected product is not active.');
             return;
         }
 
