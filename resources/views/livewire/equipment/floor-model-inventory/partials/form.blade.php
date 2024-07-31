@@ -1,70 +1,52 @@
 <div class="row">
     <div class="col-12 col-md-12">
             <form wire:submit.prevent="submit()">
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="form-group">
-                            <x-forms.select label="Warehouse"
-                                model="warehouseId"
-                                :options="$warehouses"
-                                :selected="$warehouseId"
-                                hasAssociativeIndex
-                                default-option-label="- None -"
-                                label-index="title"
-                                value-index="id"
-                                :key="'warehouse-' . now()" />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="form-group x-input">
-                            <label>Product</label>
-                            <div class="input-group">
-                                <input id="product_input-field" type="text" class="form-control" placeholder="Search Product"  wire:model.live.debounce.300ms="product">
-                            </div>
-                        </div>
-                        @error('product')
-                        <p><span class="text-danger">{{ $message }}</span></p>
-                        @enderror
-                    </div>
-                </div>
-                @if ($showBox)
+                @if($addRecord ?? false)
                     <div class="row">
                         <div class="col-md-12 mb-3">
-                            <div class="card border shadow-sm">
-                                <div class="card-body">
-                                    <h5 class="card-title">Matching Products</h5>
-                                    <small class="badge bg-light-warning">product/brand/description</small>
-                                    <div wire:loading.class="opacity-50" wire:target="nextPage,previousPage">
-                                        <ul class="list-group mb-2">
-                                            @foreach ($products as $item)
-                                                <li class="list-group-item">{{ $item->prod.'/ '.$item->brand->name.'/ '.$item->description }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                    @if ($hasMorePages)
-                                        <nav aria-label="Page navigation">
-                                            <ul class="pagination">
-                                                <li class="page-item {{ $offset == 0 ? 'disabled' : '' }}">
-                                                    <a class="page-link" href="#" wire:click.prevent="previousPage" aria-label="Previous">
-                                                        <span aria-hidden="true">&laquo;</span>
-                                                        <span class="sr-only">Previous</span>
-                                                    </a>
-                                                </li>
-                                                <li class="page-item {{ !$hasMorePages ? 'disabled' : '' }}">
-                                                    <a class="page-link" href="#" wire:click.prevent="nextPage" aria-label="Next">
-                                                        <span aria-hidden="true">&raquo;</span>
-                                                        <span class="sr-only">Next</span>
-                                                    </a>
-                                                </li>
+                            <div class="form-group">
+                                <x-forms.select label="Warehouse"
+                                    model="warehouseId"
+                                    :options="$warehouses"
+                                    :selected="$warehouseId"
+                                    hasAssociativeIndex
+                                    default-option-label="- None -"
+                                    label-index="title"
+                                    value-index="id"
+                                    :key="'warehouse-' . now()" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group x-input">
+                                <label>Product</label>
+                                <div class="input-group">
+                                    <input id="product_input-field" type="text" class="form-control" placeholder="Search Product"  wire:model.blur="product">
+                                </div>
+                            </div>
+                            @error('product')
+                            <p><span class="text-danger">{{ $message }}</span></p>
+                            @enderror
+                        </div>
+                    </div>
+                    @endif
+                    @if ($showBox)
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="card border shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Product Details</h5>
+                                        <small class="badge bg-light-warning">product/brand/description</small>
+                                        <div wire:loading.class="opacity-50">
+                                            <ul class="list-group mb-2">
+                                                    <li class="list-group-item">{{ $matchedProduct->prod.'/ '.$matchedProduct->brand->name.'/ '.$matchedProduct->description }}</li>
                                             </ul>
-                                        </nav>
-                                    @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                 @endif
                 <div class="row">
                     <div class="col-md-12 mb-3">
@@ -86,9 +68,9 @@
                         </div>
                         {{ $button_text }}
                     </button>
-                    <button type="button" wire:click="{{ $editRecord ?? false ? 'resetForm' : 'cancel' }}" class="btn btn-light-secondary">
-                        {{ $editRecord ?? false ? 'Reset' : 'Cancel' }}
-                    </button>
+                    @if($addRecord ?? false)
+                        <button type="button" wire:click="cancel" class="btn btn-light-secondary">Cancel</button>
+                    @endif
                 </div>
             </form>
     </div>

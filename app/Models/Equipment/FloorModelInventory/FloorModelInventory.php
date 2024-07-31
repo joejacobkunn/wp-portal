@@ -2,6 +2,8 @@
 
 namespace App\Models\Equipment\FloorModelInventory;
 
+use App\Models\Core\Comment;
+use App\Models\Core\Operator;
 use App\Models\Core\Warehouse;
 use App\Models\Product\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,5 +24,15 @@ class FloorModelInventory extends Model
     public function products()
     {
         return $this->belongsTo(Product::class, 'product');
+    }
+
+    public function operator()
+    {
+        return $this->belongsTo(Operator::class,'sx_operator_id');
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

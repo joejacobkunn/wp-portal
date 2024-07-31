@@ -18,11 +18,8 @@ trait FormRequest
     public $qty;
     public $warehouseId;
 
-    public $hasMorePages =false;
-    public $offset=0;
-    public $limit=10;
     public $showBox =false;
-    public $products;
+    public $matchedProduct;
     protected $validationAttributes = [
         'warehouseId' => 'Warehouse',
         'qty' => 'Quantity',
@@ -62,49 +59,11 @@ trait FormRequest
     public function updatedProduct()
     {
         $this->showBox =false;
-        if (strlen($this->product) < 3) {
-            return;
-        }
-        $query = Product::whereNotIn('products.active', ['inactive', 'labor'])
-                        ->whereHas('line', function ($query) {
-                            $query->where(function ($q) {
-                                $q->where('name', 'like', '%-E')
-                                ->orWhere('name', 'like', '%-A');
-                            });
-                        })->where('prod', 'like', '%' . $this->product . '%');
-
-        //fetching one extra to check limit
-        $this->products = $query->offset($this->offset)
-                            ->limit($this->limit + 1)
-                            ->get();
-
-        if ($this->products->isEmpty()) {
-            return;
-        }
-
-        $this->hasMorePages = $this->products->count() > $this->limit;
-
-        if ($this->hasMorePages) {
-            $this->products = $this->products->slice(0, $this->limit);
-        }
+        $this->validateOnly('product');
+        $this->matchedProduct = Product::where('prod',$this->product)->first();
         $this->showBox =true;
     }
 
-    public function nextPage()
-    {
-        if ($this->hasMorePages) {
-            $this->offset += $this->limit;
-            $this->updatedProduct();
-        }
-    }
-
-    public function previousPage()
-    {
-        if ($this->offset - $this->limit >= 0) {
-            $this->offset -= $this->limit;
-            $this->updatedProduct();
-        }
-    }
     public function submit()
     {
         $this->validate();

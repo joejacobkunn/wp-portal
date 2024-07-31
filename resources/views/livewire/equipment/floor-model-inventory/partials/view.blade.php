@@ -40,4 +40,5 @@
             </ul>
         </div>
     </div>
+    <livewire:component.comments :entity="$floorModel">
 </div>

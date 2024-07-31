@@ -16,6 +16,7 @@ class Index extends Component
 
     public $addRecord = false;
     public $warehouses;
+    public $page;
     public FloorModelInventory $floorModel;
 
     public $breadcrumbs = [
@@ -26,6 +27,7 @@ class Index extends Component
 
     public function mount()
     {
+        $this->page ="Inventory List";
         $this->formInit();
     }
 
@@ -36,6 +38,7 @@ class Index extends Component
 
     public function create()
     {
+        $this->page ="Add New Inventory";
         $this->authorize('store', FloorModelInventory::class);
         $this->addRecord = true;
     }

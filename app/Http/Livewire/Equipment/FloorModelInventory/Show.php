@@ -15,6 +15,7 @@ class Show extends Component
     public FloorModelInventory $floorModel;
     public $editRecord =false;
     public $warehouses;
+    public $page;
     public $breadcrumbs = [[
             'title' => 'Floor Model Inventory',
             'route_name' => 'equipment.floor-model-inventory.index',
@@ -47,6 +48,7 @@ class Show extends Component
     public function mount()
     {
         $this->authorize('view', $this->floorModel);
+        $this->page = 'View Floor Model Inventory';
         $this->breadcrumbs = array_merge($this->breadcrumbs,[
             ['title' => $this->floorModel->warehouse->title],
             ['title' => $this->floorModel->product]
@@ -57,6 +59,7 @@ class Show extends Component
     public function edit()
     {
         $this->authorize('update', $this->floorModel);
+        $this->page = 'Update Floor Model Inventory';
         $this->editRecord = true;
     }
 

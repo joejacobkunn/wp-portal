@@ -1,7 +1,7 @@
 <div>
     <x-page :breadcrumbs="$breadcrumbs">
         <x-slot:title>Floor Model Inventory</x-slot>
-        <x-slot:description>Manage Floor Model Inventory</x-slot>
+        <x-slot:description>{{ $page }}</x-slot>
         <x-slot:content>
             @if($editRecord)
                 <div class="card card-body shadow-sm mb-4">
