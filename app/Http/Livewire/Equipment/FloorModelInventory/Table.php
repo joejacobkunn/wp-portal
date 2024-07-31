@@ -31,9 +31,18 @@ class Table extends DataTableComponent
             ->sortable()->searchable()->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
+                if($row->qty > 0)
+                {
+                    $badge = '<span class="badge bg-light-success float-end"><i class="fas fa-check-circle"></i></span>';
+                }
+                else
+                {
+                    $badge = '<span class="badge bg-light-danger float-end"><i class="fas fa-times-circle"></i></span>';
+                }
+
                 return '<a  href="'.route('equipment.floor-model-inventory.show', ['floorModel'=> $row->id]).
                     '" wire:navigate class="text-primary text-decoration-underline">'.
-                    $value.'</a>';
+                    $value.'</a>'.$badge;
             })
             ->html(),
 
@@ -58,7 +67,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return $row->operator->name ?? 'N/A';
+                return $row->operator->name.' ('.strtoupper($value).')' ?? 'N/A';
             })
             ->html(),
 
@@ -66,7 +75,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return  '<span title="'.$row->updated_at.'">'.$row->updated_at->diffForHumans().'</span>';
+                return  '<span title="'.$row->updated_at.'">'.$row->updated_at->toDayDateTimeString().'</span>';
             })
             ->html()
         ];
