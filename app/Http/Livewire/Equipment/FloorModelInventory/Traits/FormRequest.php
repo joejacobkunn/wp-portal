@@ -90,7 +90,7 @@ trait FormRequest
         return redirect()->route('equipment.floor-model-inventory.index');
     }
 
-        /**
+    /**
      * Update existing record
      */
     public function update()

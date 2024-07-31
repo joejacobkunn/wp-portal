@@ -5,19 +5,30 @@ namespace App\Http\Livewire\Equipment\FloorModelInventory;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Equipment\FloorModelInventory\Traits\FormRequest;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
+use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 
 class Show extends Component
 {
-    use AuthorizesRequests, FormRequest;
+    use AuthorizesRequests, HasTabs,FormRequest;
 
     public FloorModelInventory $floorModel;
     public $editRecord =false;
     public $warehouses;
     public $page;
+    public $tabs = [
+        'floor-model-comment-tabs' => [
+            'active' => 'comments',
+            'links' => [
+                'comments' => 'Comments',
+                'activity' => 'Activity',
+            ],
+        ],
+    ];
+
     public $breadcrumbs = [[
-            'title' => 'Floor Model Inventory',
+        'title' => 'Floor Model Inventory',
             'route_name' => 'equipment.floor-model-inventory.index',
         ]];
     public $actionButtons = [
@@ -34,7 +45,6 @@ class Show extends Component
             'listener' => 'deleteRecord',
         ],
     ];
-
     protected $listeners = [
         'deleteRecord' => 'delete',
         'edit' => 'edit',
