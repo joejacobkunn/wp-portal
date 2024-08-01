@@ -4,6 +4,7 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 
+use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -36,6 +37,7 @@ class AuthServiceProvider extends ServiceProvider
         $policies += $this->getReportingPolicies();
         $policies += $this->getOrderPolicies();
         $policies += $this->getWarrantyPolicies();
+        $policies += $this->getFloorModelPolicies();
         return $policies;
     }
 
@@ -82,5 +84,10 @@ class AuthServiceProvider extends ServiceProvider
         ];
     }
 
-
+    private function getFloorModelPolicies()
+    {
+        return [
+            FloorModelInventory::class => \App\Policies\Equipment\FloorModel\FloorModelInventoryPolicy::class
+        ];
+    }
 }

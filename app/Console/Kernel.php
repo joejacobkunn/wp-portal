@@ -34,15 +34,15 @@ class Kernel extends ConsoleKernel
 
         //task to sync unavailable/demo units
         $schedule->command('sx:sync-unavailable-units')->timezone('America/New_York')->dailyAt('04:15');
-        $schedule->command('app:create-unavailable-equipment-report')->timezone('America/New_York')->twiceMonthly(1, 15, '07:00');
+        $schedule->command('app:create-unavailable-equipment-report')->timezone('America/New_York')->monthlyOn(1, '07:00');
 
         //purge old auth logs that are more than a year old
         $schedule->command('authentication-log:purge')->monthly();
         
         //Product Seeders
-        $schedule->command('db:seed --class=ProductMetaSeeder')->dailyAt('04:45');
-        $schedule->command('db:seed --class=ProductSeeder')->dailyAt('04:55');
-        $schedule->command('db:seed --class=UnitSellSeeder')->dailyAt('05:45');
+        $schedule->command('db:seed --class=ProductMetaSeeder')->daily();
+        $schedule->command('db:seed --class=ProductSeeder')->daily();
+        $schedule->command('db:seed --class=UnitSellSeeder')->daily();
 
         //purge old webhooks daily - 90 days or older
         $schedule->command('model:prune', [

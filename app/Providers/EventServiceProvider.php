@@ -43,6 +43,22 @@ class EventServiceProvider extends ServiceProvider
             \App\Listeners\Orders\OrderBreakTieListener::class,
         ],
 
+        \App\Events\Floormodel\InventoryAdded::class => [
+            \App\Listeners\Floormodel\InventoryAddedListener::class
+        ],
+
+        \App\Events\Floormodel\InventoryUpdated::class => [
+            \App\Listeners\Floormodel\InventoryUpdatedListener::class
+        ],
+
+        \App\Events\Floormodel\InventoryDeleted::class => [
+            \App\Listeners\Floormodel\InventoryDeletedListener::class
+        ],
+
+
+
+
+
         
     ];
 
