@@ -1,6 +1,9 @@
 <?php
 namespace App\Http\Livewire\Equipment\FloorModelInventory\Traits;
 
+use App\Events\Floormodel\InventoryAdded;
+use App\Events\Floormodel\InventoryDeleted;
+use App\Events\Floormodel\InventoryUpdated;
 use App\Models\Core\Warehouse;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
 use App\Models\Product\Product;
@@ -79,12 +82,14 @@ trait FormRequest
     {
         $this->authorize('store', FloorModelInventory::class);
 
-        FloorModelInventory::create([
+        $inventory = FloorModelInventory::create([
             'whse' => $this->warehouseId,
             'product' => $this->product,
             'qty' => $this->qty,
             'sx_operator_id' => Auth::user()->sx_operator_id
         ]);
+
+        InventoryAdded::dispatch($inventory);
 
         $this->alert('success','Inventory Record Created');
         return redirect()->route('equipment.floor-model-inventory.index');
@@ -102,6 +107,8 @@ trait FormRequest
         ]);
         $this->floorModel->save();
 
+        InventoryUpdated::dispatch($this->floorModel);
+
         $this->alert('success', 'Record updated!');
         return redirect()->route('equipment.floor-model-inventory.index');
     }
@@ -114,6 +121,8 @@ trait FormRequest
             $this->alert('success', 'Record deleted!');
             return redirect()->route('equipment.floor-model-inventory.index');
         }
+
+        InventoryDeleted::dispatch($this->floorModel);
 
         $this->alert('error','Record not found');
         return redirect()->route('equipment.floor-model-inventory.index');

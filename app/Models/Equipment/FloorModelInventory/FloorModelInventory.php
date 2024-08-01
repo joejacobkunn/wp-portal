@@ -9,10 +9,11 @@ use App\Models\Product\Product;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FloorModelInventory extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = ['whse','product','qty','sx_operator_id', 'created_at', 'updated_at'];
     protected $table = 'floor_model_inventory';
@@ -52,6 +53,6 @@ class FloorModelInventory extends Model
     public function resolveWarehouse($value)
     {
       $warehouse = Warehouse::find($value);
-      return $warehouse->title ?? 'N/A';
+      return $warehouse->title.' ('.$warehouse->short.')' ?? 'N/A';
     }
 }

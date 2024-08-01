@@ -31,9 +31,40 @@
         let isMultiple =  Boolean({{ $multiple ? 1 : 0 }});
 
         var selectTimer = selectTimer || null;
+
+        function loadScript( url, callback ) {
+                var scripts = Array
+                    .from(document.scripts)
+                    .map(scr => scr.src);
+                if (!scripts.includes(url)) {
+                    var script = document.createElement( "script" )
+                    script.type = "text/javascript";
+                    if(script.readyState) {  // only required for IE <9
+                        script.onreadystatechange = function() {
+                        if ( script.readyState === "loaded" || script.readyState === "complete" ) {
+                            script.onreadystatechange = null;
+                            callback();
+                        }
+                        };
+                    } else {  //Others
+                        script.addEventListener("load",function(event) {
+                            callback();
+                        })
+                    }
+                    script.src = url;
+                    document.getElementsByTagName( "head" )[0].appendChild( script );
+                } else {
+                    let selectedScriptTag = document.scripts[scripts.indexOf(url)]
+                    document.querySelector('script[src="'+ selectedScriptTag.src +'"]').addEventListener("load",function(event) {
+                        callback();
+                    })
+                }
+        }
         
         if (typeof SlimSelect == 'function') {
             initPlugin()
+        } else {
+            loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initPlugin);
         }
         
         function initPlugin(type) {
