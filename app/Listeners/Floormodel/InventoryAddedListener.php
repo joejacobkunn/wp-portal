@@ -25,7 +25,7 @@ class InventoryAddedListener
     {
         if(!config('sx.mock'))
         {
-            DB::connection('sx')->insert("INSERT INTO pub.sastaz (cono, codeiden, primarykey,secondarykey,codeval,operinit,transproc,transdt,transtm) VALUES (?, ?, ?, ?, ?, ?, ?', ?, ?)", [
+            DB::connection('sx')->insert("INSERT INTO pub.sastaz (cono, codeiden, primarykey,secondarykey,codeval,operinit,transproc,transdt,transtm) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
                 10,
                 '*Floor Model Inventory',
                 strtoupper($event->inventory->warehouse->short),

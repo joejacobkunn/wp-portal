@@ -68,7 +68,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return $row->operator?->name.' ('.strtoupper($value).')' ?? 'N/A';
+                return $row->operator?->name.'<span class="badge bg-light-secondary float-end">'.strtoupper($value).'</span>';
             })
             ->html(),
 

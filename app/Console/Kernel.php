@@ -40,9 +40,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('authentication-log:purge')->monthly();
         
         //Product Seeders
-        $schedule->command('db:seed --class=ProductMetaSeeder')->dailyAt('04:45');
-        $schedule->command('db:seed --class=ProductSeeder')->dailyAt('04:55');
-        $schedule->command('db:seed --class=UnitSellSeeder')->dailyAt('05:45');
+        $schedule->command('db:seed --class=ProductMetaSeeder')->daily();
+        $schedule->command('db:seed --class=ProductSeeder')->daily();
+        $schedule->command('db:seed --class=UnitSellSeeder')->daily();
 
         //purge old webhooks daily - 90 days or older
         $schedule->command('model:prune', [

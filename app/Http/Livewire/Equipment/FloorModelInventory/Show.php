@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Equipment\FloorModelInventory;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Equipment\FloorModelInventory\Traits\FormRequest;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
+use App\Models\SX\Product;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -17,6 +18,8 @@ class Show extends Component
     public $warehouses;
     public $page;
     public $qtyModal = false;
+    public $sxproduct;
+
     public $tabs = [
         'floor-model-comment-tabs' => [
             'active' => 'comments',
@@ -59,6 +62,8 @@ class Show extends Component
             ['title' => $this->floorModel->product]
         ]);
         $this->formInit();
+
+        $this->sxproduct = $this->getProduct();
     }
 
     public function resetForm()
@@ -77,6 +82,14 @@ class Show extends Component
     public function closeQtyUpdate()
     {
         $this->qtyModal = false;
+    }
+
+    private function getProduct()
+    {
+        if(config('sx.mock')) return [];
+
+        $product = Product::where('cono', 10)->where('prod', $this->floorModel->product)->first();
+        return $product->getMetaData()[0];
     }
 
 }
