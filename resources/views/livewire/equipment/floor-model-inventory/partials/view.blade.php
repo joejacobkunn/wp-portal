@@ -62,6 +62,12 @@
                 </x-slot>
             </x-tabs>
     </div>
+
+    @include('livewire.equipment.floor-model-inventory.partials.product-card',[
+        'product' => $floorModel->product ?? '--',
+        'brand'=> $floorModel->products->brand->name ?? '--',
+        'description' => $floorModel->products->description ?? '--'
+        ])
     <div class="qty-update-model">
         <x-modal :toggle="$qtyModal" size="md" :closeEvent="'closeQtyUpdate'">
             <x-slot name="title">Update Quantity</x-slot>

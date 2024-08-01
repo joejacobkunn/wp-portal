@@ -36,7 +36,7 @@ class FloorModelInventory extends Model
 
     public function products()
     {
-        return $this->belongsTo(Product::class, 'product');
+        return $this->belongsTo(Product::class, 'product', 'prod');
     }
 
     public function operator()
