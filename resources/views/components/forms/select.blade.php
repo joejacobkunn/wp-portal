@@ -24,10 +24,16 @@
         :direction="$direction ?? 'auto'"
         :hasAssociativeIndex="$hasAssociativeIndex ?? false"
         :allowDeselect="isset($allowDeselect) ? filter_var($allowDeselect, FILTER_VALIDATE_BOOL) : true"
+        :class="$class ?? ''"
         parentComponent="{{ $parentComponent ?? $this::class }}"
     >
 
     @if(isset($model))
         @error($model) <span class="text-danger">{{ $message }}</span> @enderror
     @endif
+
+    @if(!empty($hint))
+    <small class="form-text text-muted d-block">{{ $hint }}</small>
+    @endif
+
 </div>
