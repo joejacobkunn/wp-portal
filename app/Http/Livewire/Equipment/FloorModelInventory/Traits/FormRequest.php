@@ -110,7 +110,7 @@ trait FormRequest
         InventoryUpdated::dispatch($this->floorModel);
 
         $this->alert('success', 'Record updated!');
-        $this->qtyModal = false;
+        return redirect()->route('equipment.floor-model-inventory.index');
     }
 
     public function delete()
