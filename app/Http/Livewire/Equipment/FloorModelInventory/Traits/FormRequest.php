@@ -18,7 +18,7 @@ trait FormRequest
 
     //attributes
     public $product;
-    public $qty;
+    public $qty =0;
     public $warehouseId;
 
     public $showBox =false;
@@ -33,7 +33,7 @@ trait FormRequest
     {
         return [
             'warehouseId' => 'required|exists:warehouses,id',
-            'qty' => 'required|in:0,1,2,3',
+            'qty' => 'required|integer|in:0,1,2,3',
             'product' => [
                 'required',
                 'exists:products,prod',
@@ -103,7 +103,7 @@ trait FormRequest
         $this->authorize('update', $this->floorModel);
 
         $this->floorModel->fill([
-            'qty' => $this->qty
+            'qty' => $this->qty ?? 0
         ]);
         $this->floorModel->save();
 

@@ -32,6 +32,12 @@
                             <button class="btn btn-sm btn-outline-primary" wire:click="showModel">Update</button>
                         @endcan
                     </li>
+                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                        <div>
+                            <h3 class="h6 mb-1">Operator</h3>
+                            <p class="small pe-4">{{ $floorModel->operator?->name ?? '---' }}</p>
+                        </div>
+                    </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                         <div>
                             <h3 class="h6 mb-1">Created At</h3>
