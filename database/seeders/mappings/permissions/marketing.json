@@ -1,0 +1,19 @@
+[
+    {
+        "group": "Marketing",
+        "user_groups": [
+            "super-admin",
+            "master-admin"
+        ],
+        "items": [
+            {
+                "name": "marketing.sms-view",
+                "label": "View imported SMS marketing data"
+            },
+            {
+                "name": "marketing.sms-manage",
+                "label": "Manage SMS marketing"
+            }
+        ]
+    }
+]
