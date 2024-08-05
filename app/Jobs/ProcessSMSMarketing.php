@@ -39,7 +39,7 @@ class ProcessSMSMarketing implements ShouldQueue
                 $value = mt_rand(0,1);
                 if ($value) {
                     foreach ($this->locations as $location) {
-                        if ($location->name === $row['office']) {
+                        if (str_replace('Weingartz - ', '', $location->name) === trim($row['office'])) {
                             $this->validData[$key]['location_id'] = $location->id;
                             break;
                         }

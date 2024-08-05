@@ -15,9 +15,16 @@ class ValidateOfficeForSMS implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        $formatted_locations = [];
         $kenet = new Kenect();
         $locations = array_column(json_decode($kenet->locations()), 'name');
-        if (!in_array($value, $locations)) {
+
+        foreach($locations as $location)
+        {
+            $formatted_locations[] = str_replace('Weingartz - ', '', $location);
+        }
+
+        if (!in_array(trim($value), $formatted_locations)) {
             $fail("Location not found");
         }
     }
