@@ -50,7 +50,7 @@ class Table extends DataTableComponent
         $this->setConfigurableAreas([
             'toolbar-right-start' => 'livewire.order.partials.settings-table-btn',
             ]);
-    
+
 
 
     }
@@ -290,7 +290,7 @@ class Table extends DataTableComponent
                     if($value == 'non-stock') $builder->where('non_stock_line_items','<>',null);
                 }),
 
-                
+
                 SelectFilter::make('Order Type', 'order_type')
                 ->options([
                     '' => 'All',
@@ -314,7 +314,7 @@ class Table extends DataTableComponent
                         $builder->whereIn(DB::raw('lower(whse)'), $values);
                     }
                 ),
-            
+
             DateRangeFilter::make('Order Date', 'order_date')
             ->hiddenFromMenus()
                 ->config(['placeholder' => 'Enter Date Range'])
@@ -338,8 +338,8 @@ class Table extends DataTableComponent
                         if($value == 'two_weeks_plus') $builder->where('promise_date', '>', Carbon::now()->addWeek(2))->where('promise_date', '<>', '2049-01-01');
                         if($value == 'less_than_two_weeks') $builder->whereBetween('promise_date', [Carbon::yesterday()->format('Y-m-d'),Carbon::now()->addWeek(2)])->where('promise_date', '<>', '2049-01-01');
                 }),
-    
-    
+
+
 
             SelectFilter::make('Operators', 'operator')
             ->hiddenFromMenus()
@@ -403,8 +403,18 @@ class Table extends DataTableComponent
                 ])
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('status', $value);
-            })
+            }),
 
+            TextFilter::make('Search by Part', 'line_items')
+                ->config([
+                    'placeholder' => 'Search Parts',
+                    'maxlength' => '20',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->whereJsonContains('line_items->line_items', ['shipprod' => $value])
+                            ->whereNotIn('status', ['Cancelled', 'Closed']);
+
+                })
         ];
     }
 
