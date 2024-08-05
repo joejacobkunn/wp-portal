@@ -4,15 +4,17 @@
             <thead>
                 <!-- for header -->
                     <tr>
-                        <th style="width:30%">Phone</th>
-                        <th style="width: 70%">Message</th>
+                        <th>Phone</th>
+                        <th>Message</th>
+                        <th>Office</th>
                     </tr>
             </thead>
             <tbody>
                 @forelse($records as $cell)
                     <tr>
-                        <td style="width: 30%">{{ $cell['phone'] }}</td>
-                        <td style="width: 70%">{{ $cell['message'] }}</td>
+                        <td>{{ $cell['phone'] }}</td>
+                        <td>{{ $cell['message'] }}</td>
+                        <td>{{ $cell['office'] }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="4" class="text-center">No valid records are available.</td></tr>

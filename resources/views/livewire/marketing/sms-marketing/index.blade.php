@@ -2,7 +2,7 @@
     <x-page :breadcrumbs="$breadcrumbs">
 
         <x-slot:title>SMS Marketing</x-slot>
-        <x-slot:description>sms marketing imported records</x-slot>
+        <x-slot:description>{{ $page }}</x-slot>
         <x-slot:content>
             <div class="card border-light shadow-sm">
                 <div class="card-header border-gray-300 mt-4 p-3 mb-md-0">

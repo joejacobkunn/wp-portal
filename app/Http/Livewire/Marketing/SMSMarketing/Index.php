@@ -15,6 +15,7 @@ class Index extends Component
     public $smsImportTableId = 'smstab-id';
     public $importFile;
     public $name;
+    public $page ='sms marketing imported records';
     public $showalert=[
         'status' => false,
         'class' => null,
@@ -73,6 +74,7 @@ class Index extends Component
     public function create()
     {
         $this->addRecord = true;
+        $this->page = 'import new file';
     }
 
     public function cancel()

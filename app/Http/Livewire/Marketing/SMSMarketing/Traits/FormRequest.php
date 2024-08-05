@@ -5,6 +5,7 @@ use App\Exports\SMSMarketingExport;
 use App\Imports\SMSMarketingImport;
 use App\Jobs\ProcessSMSMarketing;
 use App\Models\Marketing\SMSMarketing;
+use App\Services\Kenect;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -25,7 +26,6 @@ trait FormRequest
         $this->validatedRows = $import->getData();
         $failures = $import->failures();
 
-
         if (count($failures) > 0) {
             foreach ($failures as $failure) {
                 $this->importErrorRows[$failure->row()] = $failure->values();
@@ -44,6 +44,7 @@ trait FormRequest
         $uploadedFileName = uniqid() . '.' . $extension;
         $uploadDirectory =  config('marketing.sms.upload_location');
         $validPath = config('marketing.sms.valid_file_location') . uniqid() . '.csv';
+        $kenet = new Kenect();
 
         try {
             $filePath = $this->importFile->storeAs($uploadDirectory, $uploadedFileName, 'public');
@@ -65,8 +66,9 @@ trait FormRequest
             'created_by' => Auth::user()->id,
             'status' => 'queued'
         ]);
-        ProcessSMSMarketing::dispatch($this->validatedRows, $data, $this->importErrorRows);
-        return redirect()->route('marketing.sms-marketing.index');
 
+        $locations = json_decode($kenet->locations());
+        ProcessSMSMarketing::dispatch($this->validatedRows, $data, $this->importErrorRows, $locations);
+        return redirect()->route('marketing.sms-marketing.index');
     }
 }

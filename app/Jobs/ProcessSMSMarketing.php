@@ -17,14 +17,16 @@ class ProcessSMSMarketing implements ShouldQueue
     public $model;
     public $validData;
     public $errorRows = [];
+    public $locations;
     /**
      * Create a new job instance.
      */
-    public function __construct($validData, $model, $errorRows)
+    public function __construct($validData, $model, $errorRows, $locations)
     {
         $this->validData = $validData;
         $this->model = $model;
         $this->errorRows = $errorRows;
+        $this->locations = $locations;
     }
 
     /**
@@ -33,12 +35,19 @@ class ProcessSMSMarketing implements ShouldQueue
     public function handle(): void
     {
         if (config('sx.mock')) {
-            foreach($this->validData as $row) {
+            foreach($this->validData as $key => $row) {
                 $value = mt_rand(0,1);
                 if ($value) {
+                    foreach ($this->locations as $location) {
+                        if ($location->name === $row['office']) {
+                            $this->validData[$key]['location_id'] = $location->id;
+                            break;
+                        }
+                    }
                     $this->model->increment('processed_count');
                 } else {
                     $this->errorRows[] = $row;
+                    unset($this->validData[$key]);
                 }
             }
         } else {
@@ -59,7 +68,6 @@ class ProcessSMSMarketing implements ShouldQueue
         $recordPath =  $path. uniqid() . '.csv';
         if (!empty($records)) {
             $exportRecord = new SMSMarketingExport($records);
-
             Excel::store($exportRecord,  $recordPath, 'public');
             return $recordPath;
         }

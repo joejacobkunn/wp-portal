@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Rules\ValidateOfficeForSMS;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -40,6 +41,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
         $rules = [
             'phone' =>  ['required', 'digits:10'],
             'message' =>  ['required', 'string', 'max:300'],
+            'office' =>  ['required', new ValidateOfficeForSMS()],
         ];
         return $rules;
     }
@@ -73,7 +75,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
 
     protected function fileBaseValidation(BeforeImport $event)
     {
-        $requiredHeaders = ['PHONE', 'MESSAGE'];
+        $requiredHeaders = ['PHONE', 'MESSAGE', 'OFFICE'];
 
         $worksheet = $event->reader->getActiveSheet();
         $headerRow = $worksheet->getRowIterator()->current();

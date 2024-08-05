@@ -17,9 +17,8 @@
                     @endif
                 </div>
                 <div class="col-md-6 mb-3">
-                    <x-forms.input label="Import Name" model="name" lazy />
+                    <x-forms.input label="Name" model="name" lazy />
                 </div>
-
                 <div class="col-md-12 mt-2" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
                     x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
                     x-on:livewire-upload-error="uploading = false">
