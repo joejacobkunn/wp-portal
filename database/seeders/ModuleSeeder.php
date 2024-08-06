@@ -53,8 +53,11 @@ class ModuleSeeder extends Seeder
                 'slug' => 'equipment',
                 'description' => 'View and manage equipment',
             ],
-
-
+            [
+                'name' => 'Marketing',
+                'slug' => 'marketing',
+                'description' => 'Manage Marketing',
+            ],
         ];
 
         foreach ($modules as $module) {
