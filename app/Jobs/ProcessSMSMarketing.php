@@ -35,12 +35,8 @@ class ProcessSMSMarketing implements ShouldQueue
      */
     public function handle(): void
     {
-        if (config('sx.mock')) {
-            $this->setLocationId();
-            $this->sendSms();
-        } else {
-            //
-        }
+        $this->setLocationId();
+        $this->sendSms();
 
         $failedFile = $this->saveRecords(config('marketing.sms.failed_file_location'), $this->errorRows);
         $validFile = $this->saveRecords(config('marketing.sms.valid_file_location'), $this->validData);
