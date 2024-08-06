@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Exports\SMSMarketingExport;
+use App\Services\Kenect;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -35,21 +36,8 @@ class ProcessSMSMarketing implements ShouldQueue
     public function handle(): void
     {
         if (config('sx.mock')) {
-            foreach($this->validData as $key => $row) {
-                $value = mt_rand(0,1);
-                if ($value) {
-                    foreach ($this->locations as $location) {
-                        if (str_replace('Weingartz - ', '', $location->name) === trim($row['office'])) {
-                            $this->validData[$key]['location_id'] = $location->id;
-                            break;
-                        }
-                    }
-                    $this->model->increment('processed_count');
-                } else {
-                    $this->errorRows[] = $row;
-                    unset($this->validData[$key]);
-                }
-            }
+            $this->setLocationId();
+            $this->sendSms();
         } else {
             //
         }
@@ -72,5 +60,36 @@ class ProcessSMSMarketing implements ShouldQueue
             return $recordPath;
         }
         return null;
+    }
+
+    public function setLocationId()
+    {
+        foreach($this->validData as $key => $row) {
+            $value = mt_rand(0,1);
+            if ($value) {
+                foreach ($this->locations as $location) {
+                    if (str_replace('Weingartz - ', '', $location->name) === trim($row['office'])) {
+                        $this->validData[$key]['location_id'] = $location->id;
+                        break;
+                    }
+                }
+            } else {
+                $this->errorRows[] = $row;
+                unset($this->validData[$key]);
+            }
+        }
+    }
+
+    public function sendSms()
+    {
+        $kenet = new Kenect();
+        foreach ($this->validData as $key => $row) {
+           if ($kenet->send($row['phone'], $row['message']) === 'error') {
+                $this->errorRows[] = $row;
+                unset($this->validData[$key]);
+           } else {
+                $this->model->increment('processed_count');
+           }
+        }
     }
 }

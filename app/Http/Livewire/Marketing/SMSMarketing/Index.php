@@ -99,4 +99,17 @@ class Index extends Component
         }
         $this->reset('smsImportTableId');
     }
+
+    public function downloadDemo()
+    {
+        $filePath = public_path(config('marketing.sms.demo_file_path'));
+
+        if (!file_exists($filePath)) {
+            $this->showalert['status'] = true;
+            $this->showalert['class'] = 'danger';
+            $this->showalert['message'] = 'File not found!';
+            return;
+        }
+        return response()->download($filePath);
+    }
 }

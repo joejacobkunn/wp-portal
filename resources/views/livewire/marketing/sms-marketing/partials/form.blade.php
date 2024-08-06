@@ -12,7 +12,8 @@
                         <div class="alert alert-light-info color-info">
                             <i class="fas fa-info-circle"></i>
                             Please upload sms marketing file csv here, you will see a preview of the data in the next step before
-                            import.
+                            import. <a href="#" wire:click.prevent="downloadDemo">
+                                click here </a>to download csv file template <i class="fas fa-download"></i>
                         </div>
                     @endif
                 </div>
