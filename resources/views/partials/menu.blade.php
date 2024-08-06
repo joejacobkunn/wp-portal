@@ -94,7 +94,8 @@
                         @endcan
                         @canany(['equipment.warranty.view', 'equipment.warranty.manage'])
                             <li class="submenu-item  ">
-                                <a href="{{ route('equipment.floor-model-inventory.index') }}" wire:navigate class="submenu-link">Floor Model Inventory</a>
+                                <a href="{{ route('equipment.floor-model-inventory.index') }}" wire:navigate
+                                    class="submenu-link">Floor Model Inventory</a>
                             </li>
                         @endcan
                     </ul>
@@ -103,7 +104,25 @@
         </li>
     @endif
 
-
+    @if (auth()->user()->account->hasModule('marketing'))
+        <li class="menu-item {{ request()->is('marketing*') ? 'active' : '' }}  has-sub">
+            <a href="#" class="menu-link">
+                <span><i class="far fa-list-alt"></i> Marketing</span>
+            </a>
+            <div class="submenu ">
+                <div class="submenu-group-wrapper">
+                    <ul class="submenu-group">
+                        @canany(['marketing.sms-view', 'marketing.sms-manage'])
+                            <li class="submenu-item">
+                                <a href="{{ route('marketing.sms-marketing.index') }}" wire:navigate
+                                    class="submenu-link">Kenect Blast</a>
+                            </li>
+                        @endcan
+                    </ul>
+                </div>
+            </div>
+        </li>
+    @endif
     @if (auth()->user()->account->hasModule('orders'))
 
         @canany(['order.view'])

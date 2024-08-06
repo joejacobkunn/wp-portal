@@ -92,6 +92,8 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('equipment/floor-model-inventory/', \App\Http\Livewire\Equipment\FloorModelInventory\Index::class)->name('equipment.floor-model-inventory.index');
         Route::get('equipment/floor-model-inventory/{floorModel}/show', \App\Http\Livewire\Equipment\FloorModelInventory\Show::class)->name('equipment.floor-model-inventory.show');
 
+
+        Route::get('marketing/sms-marketing/', \App\Http\Livewire\Marketing\SMSMarketing\Index::class)->name('marketing.sms-marketing.index');
     });
 });
 
