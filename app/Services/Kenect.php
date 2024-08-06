@@ -11,14 +11,14 @@ class Kenect{
         return ['x-api-key' => config('kenect.key'), 'x-api-token' => config('kenect.token')];
     }
 
-    public function send($to, $message)
+    public function send($to, $message, $locationId = null)
     {
         if(!config('sx.mock'))
         {
             $to =  app()->environment('production') ? $to : '5863658884';
             $response = Http::acceptJson()
             ->withHeaders($this->headers())
-            ->post(config('kenect.endpoint').'/v2/conversations/messages', ['contactPhone' => $to, 'messageBody' => $message, 'locationId' => config('kenect.location')]);
+            ->post(config('kenect.endpoint').'/v2/conversations/messages', ['contactPhone' => $to, 'messageBody' => $message, 'locationId' => $locationId ?? config('kenect.location')]);
     
             return $response->ok() ? 'success' : 'error';
         }

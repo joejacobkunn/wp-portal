@@ -84,7 +84,7 @@ class ProcessSMSMarketing implements ShouldQueue
     {
         $kenet = new Kenect();
         foreach ($this->validData as $key => $row) {
-           if ($kenet->send($row['phone'], $row['message']) === 'error') {
+           if ($kenet->send($row['phone'], $row['message'], $row['location_id']) === 'error') {
                 $this->errorRows[] = $row;
                 unset($this->validData[$key]);
            } else {

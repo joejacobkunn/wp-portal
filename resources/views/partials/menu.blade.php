@@ -94,7 +94,8 @@
                         @endcan
                         @canany(['equipment.warranty.view', 'equipment.warranty.manage'])
                             <li class="submenu-item  ">
-                                <a href="{{ route('equipment.floor-model-inventory.index') }}" wire:navigate class="submenu-link">Floor Model Inventory</a>
+                                <a href="{{ route('equipment.floor-model-inventory.index') }}" wire:navigate
+                                    class="submenu-link">Floor Model Inventory</a>
                             </li>
                         @endcan
                     </ul>
@@ -111,10 +112,10 @@
             <div class="submenu ">
                 <div class="submenu-group-wrapper">
                     <ul class="submenu-group">
-                        @canany(['marketing.sms-view','marketing.sms-manage'])
+                        @canany(['marketing.sms-view', 'marketing.sms-manage'])
                             <li class="submenu-item">
                                 <a href="{{ route('marketing.sms-marketing.index') }}" wire:navigate
-                                    class="submenu-link">SMS Marketing</a>
+                                    class="submenu-link">Kenect Blast</a>
                             </li>
                         @endcan
                     </ul>
