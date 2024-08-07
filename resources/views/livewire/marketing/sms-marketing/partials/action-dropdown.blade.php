@@ -1,11 +1,16 @@
-<div class="dropdown-tab text-center">
-    <button class="btn btn-icon" type="button" id="dropdownMenuButton{{ $id }}" data-bs-toggle="dropdown" aria-expanded="false">
+<div wire:ignore class="table-action">
+    <div class="dropdown-tab text-center" x-data="{ isOpen: false }">
+    <button class="btn btn-icon" type="button" id="dropdownMenuButton{{ $id }}" @click="isOpen = true">
         <i class="fas fa-ellipsis-v"></i>
     </button>
-    <ul class="dropdown-menu custom-dropdown" aria-labelledby="dropdownMenuButton{{ $id }}">
-        <li><a class="dropdown-item" href="{{ $orginal }}">Download Uploaded File</a></li>
+
+    <div x-show="isOpen" @click.away="isOpen = false" class="popup">
+        <div class="popup-content">
+        <a class="popup-item" href="{{ $orginal }}">Download Uploaded File</a>
         @if ($failedPath)
-            <li><a class="dropdown-item" href="{{ $failedPath }}">Download Failed Records</a></li>
+            <a class="popup-item" href="{{ $failedPath }}">Download Failed Records</a>
         @endif
-    </ul>
+        </div>
+    </div>
+    </div>
 </div>
