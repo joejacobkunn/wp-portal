@@ -37,13 +37,6 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
         return 1;
     }
 
-    public function prepareForValidation($data, $index)
-    {
-        $data['message'] = trim(preg_replace('/\s+/', ' ', $data['message']));
-        
-        return $data;
-    }
-
     public function rules(): array
     {
         $kenect = new Kenect();
@@ -51,7 +44,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
 
         $rules = [
             'phone' =>  ['required', 'digits:10'],
-            'message' =>  ['required', 'string', 'max:350'],
+            'message' =>  ['required', 'string', 'max:500'],
             'office' =>  ['required', new ValidateOfficeForSMS($locations)],
         ];
         return $rules;
