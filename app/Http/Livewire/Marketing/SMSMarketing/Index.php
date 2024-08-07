@@ -16,7 +16,7 @@ class Index extends Component
     public $smsImportTableId = 'smstab-id';
     public $importFile;
     public $name;
-    public $page ='sms marketing imported records';
+    public $page ='Send bulk sms campaigns via Kenect';
     public $showalert=[
         'status' => false,
         'class' => null,
