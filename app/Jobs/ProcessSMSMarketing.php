@@ -61,18 +61,12 @@ class ProcessSMSMarketing implements ShouldQueue
     public function setLocationId()
     {
         foreach($this->validData as $key => $row) {
-            $value = mt_rand(0,1);
-            if ($value) {
                 foreach ($this->locations as $location) {
-                    if (str_replace('Weingartz - ', '', $location->name) === trim($row['office'])) {
+                    if (str_contains(strtolower(trim($location->name)),strtolower(trim($row['office'])))) {
                         $this->validData[$key]['location_id'] = $location->id;
                         break;
                     }
                 }
-            } else {
-                $this->errorRows[] = $row;
-                unset($this->validData[$key]);
-            }
         }
     }
 
@@ -80,12 +74,14 @@ class ProcessSMSMarketing implements ShouldQueue
     {
         $kenet = new Kenect();
         foreach ($this->validData as $key => $row) {
-           if ($kenet->send($row['phone'], $row['message'], $row['location_id']) === 'error') {
+           if ($kenet->send($row['phone'], $row['message'], $row['location_id']) == 'error') {
                 $this->errorRows[] = $row;
                 unset($this->validData[$key]);
            } else {
                 $this->model->increment('processed_count');
            }
         }
+
+        sleep(1);
     }
 }
