@@ -18,7 +18,7 @@ class Kenect{
             $to =  app()->environment('production') ? $to : '5863658884';
             $response = Http::acceptJson()
             ->withHeaders($this->headers())
-            ->post(config('kenect.endpoint').'/v2/conversations/messages', ['contactPhone' => trim($to), 'messageBody' => trim(preg_replace('/\s+/', ' ', $message)), 'locationId' => $locationId ?? config('kenect.location')]);
+            ->post(config('kenect.endpoint').'/v2/conversations/messages', ['contactPhone' => trim($to), 'messageBody' => trim($message), 'locationId' => $locationId ?? config('kenect.location')]);
     
             return $response->ok() ? 'success' : 'error';
         }
