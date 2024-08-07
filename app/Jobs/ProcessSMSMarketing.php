@@ -35,6 +35,7 @@ class ProcessSMSMarketing implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->model->update(['status' => 'processing']);
         $this->setLocationId();
         $this->sendSms();
 

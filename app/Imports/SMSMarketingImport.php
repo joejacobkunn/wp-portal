@@ -36,6 +36,13 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
         return 1;
     }
 
+    public function prepareForValidation($data, $index)
+    {
+        $data['message'] = trim(preg_replace('/\s+/', ' ', $data['message']));
+        
+        return $data;
+    }
+
     public function rules(): array
     {
         $rules = [
