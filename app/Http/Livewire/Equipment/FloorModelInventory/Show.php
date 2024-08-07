@@ -32,8 +32,9 @@ class Show extends Component
 
     public $breadcrumbs = [[
         'title' => 'Floor Model Inventory',
-            'route_name' => 'equipment.floor-model-inventory.index',
-        ]];
+        'route_name' => 'javascript:window.history.back()',
+    ]];
+    
     public $actionButtons = [
         [
             'icon' => 'fa-trash',

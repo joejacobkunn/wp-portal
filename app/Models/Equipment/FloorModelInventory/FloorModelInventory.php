@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FloorModelInventory extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasFactory, LogsActivity;
 
     protected $fillable = ['whse','product','qty','sx_operator_id', 'created_at', 'updated_at'];
     protected $table = 'floor_model_inventory';
