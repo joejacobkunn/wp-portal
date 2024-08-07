@@ -92,7 +92,7 @@
                                     Registration</a>
                             </li>
                         @endcan
-                        @canany(['equipment.warranty.view', 'equipment.warranty.manage'])
+                        @canany(['equipment.floor-model-inventory.view', 'equipment.floor-model-inventory.manage'])
                             <li class="submenu-item  ">
                                 <a href="{{ route('equipment.floor-model-inventory.index') }}" wire:navigate
                                     class="submenu-link">Floor Model Inventory</a>
