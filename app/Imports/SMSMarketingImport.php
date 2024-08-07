@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Rules\ValidateOfficeForSMS;
+use App\Services\Kenect;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -45,10 +46,13 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
 
     public function rules(): array
     {
+        $kenect = new Kenect();
+        $locations = array_column(json_decode($kenect->locations()), 'name');
+
         $rules = [
             'phone' =>  ['required', 'digits:10'],
-            'message' =>  ['required', 'string', 'max:300'],
-            'office' =>  ['required', new ValidateOfficeForSMS()],
+            'message' =>  ['required', 'string', 'max:350'],
+            'office' =>  ['required', new ValidateOfficeForSMS($locations)],
         ];
         return $rules;
     }

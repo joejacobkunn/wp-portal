@@ -83,6 +83,6 @@ class ProcessSMSMarketing implements ShouldQueue
            }
         }
 
-        sleep(1);
+        sleep(0.5);
     }
 }
