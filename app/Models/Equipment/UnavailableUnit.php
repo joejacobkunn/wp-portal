@@ -3,6 +3,7 @@
 namespace App\Models\Equipment;
 
 use App\Models\Core\Comment;
+use App\Models\Core\User;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ class UnavailableUnit extends Model
 
     protected $table = 'unavailable_equipments';
 
-    protected $fillable = ['cono', 'whse', 'possessed_by', 'product_code', 'product_name', 'serial_number', 'base_price', 'is_unavailable', 'current_location'];
+    protected $fillable = ['cono', 'whse', 'possessed_by', 'product_code', 'product_name', 'serial_number', 'base_price', 'is_unavailable', 'current_location', 'hours'];
 
     const LOG_FIELD_MAPS = [
         'created_at' => [
@@ -23,6 +24,9 @@ class UnavailableUnit extends Model
         'current_location' => [
             'field_label' => 'Current Location',
         ],
+        'hours' => [
+            'field_label' => 'Hours',
+        ],
     ];
 
     public function comments()
@@ -30,6 +34,8 @@ class UnavailableUnit extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-
+    public function user() {
+        return $this->belongsTo(User::class, 'possessed_by', 'unavailable_equipments_id');
+    }
 
 }

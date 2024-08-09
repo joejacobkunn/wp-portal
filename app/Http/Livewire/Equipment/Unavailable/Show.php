@@ -10,7 +10,9 @@ class Show extends Component
 {
     public UnavailableUnit $unavailable_unit;
     public $location_modal = false;
+    public $hours_modal = false;
     public $current_location;
+    public $hours;
 
     public $breadcrumbs = [
         [
@@ -21,6 +23,7 @@ class Show extends Component
 
     protected $listeners = [
         'closeModal',
+        'closeHoursModel'
     ];
 
     public function mount()
@@ -31,6 +34,7 @@ class Show extends Component
     {
         return [
             'current_location' => 'required|min:3',
+            'hours' => 'required|numeric',
         ];
     }
 
@@ -51,15 +55,32 @@ class Show extends Component
         $this->location_modal = true;
     }
 
+    public function showHoursUpdateModal()
+    {
+        $this->hours_modal = true;
+    }
+
     public function updateLocation()
     {
-        $this->validate();
+        $this->validateOnly('current_location');
         $this->unavailable_unit->update(['current_location' => $this->current_location]);
         $this->closeModal();
+    }
+
+    public function updateHours()
+    {
+        $this->validateOnly('hours');
+        $this->unavailable_unit->update(['hours' => $this->hours]);
+        $this->closeHoursModel();
     }
 
     public function closeModal()
     {
         $this->location_modal = false;
+    }
+
+    public function closeHoursModel()
+    {
+        $this->hours_modal = false;
     }
 }
