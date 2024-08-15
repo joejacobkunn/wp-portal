@@ -51,7 +51,7 @@ trait FormRequest
      */
     public function formInit()
     {
-        $this->warehouses = Warehouse::where('cono',10)->select('id','title')->get();
+        $this->warehouses = Warehouse::where('cono',10)->select('id','title')->orderBy('title', 'asc')->get();
         $this->warehouseId = Warehouse::where('cono',10)->where('title', Auth::user()->office_location)->first()?->id;
         if (!empty($this->floorModel->id)) {
             $this->product = $this->floorModel->product;
