@@ -35,15 +35,19 @@
                         <div class="tab-content mt-4" id="myTabContent">
                             <div class="tab-pane fade show active" id="home" role="tabpanel"
                                 aria-labelledby="home-tab">
-                                @if (!auth()->user()->can('equipment.unavailable.viewall'))
-                                    <div class="alert alert-secondary">
-                                        Showing all equipment in possession by
-                                        <strong>{{ auth()->user()->name }} -
-                                            {{ auth()->user()->unavailable_equipments_id }}</strong>
+                                @if (!auth()->user()->can('equipment.unavailable.viewall') && $showEquipment)
+                                    <div class="alert alert-secondary d-flex justify-content-between align-items-center">
+                                        <div>
+                                            Showing all equipment in possession by
+                                            <strong>{{ auth()->user()->name }} -
+                                                {{ auth()->user()->unavailable_equipments_id }}</strong>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input"  type="checkbox" key="toggleEquipment" wire:model.live="showEquipment">
+                                        </div>
                                     </div>
                                 @endif
-
-                                <livewire:equipment.unavailable.table lazy>
+                                <livewire:equipment.unavailable.table :showAll="$showEquipment" :key="$showEquipment" lazy>
 
                             </div>
                         </div>

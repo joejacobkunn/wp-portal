@@ -17,6 +17,8 @@ class Table extends DataTableComponent
 {
     use AuthorizesRequests;
 
+    public $showAll;
+
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -26,11 +28,6 @@ class Table extends DataTableComponent
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
-    }
-
-    public function mount()
-    {
-        $this->setFilter('user', 'show_mine');
     }
 
     public function boot(): void
@@ -74,13 +71,14 @@ class Table extends DataTableComponent
                 ->html(),
 
                 Column::make('Possessed By', 'possessed_by')
+                ->hideIf(!auth()->user()->can('equipment.unavailable.viewall') && $this->showAll)
                 ->secondaryHeader($this->getFilterByKey('possessed_by'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
                     $name = $row->user ? $row->user->name.' '. $row->user?->abbreviation.'('.$value.')' : $value;
                     return strtoupper($name);
                 })
-                ->hideIf(!auth()->user()->can('equipment.unavailable.viewall'))
+
                 ->html(),
 
                 Column::make('Current Location', 'current_location')
@@ -123,7 +121,7 @@ class Table extends DataTableComponent
     {
         $query = UnavailableUnit::where('cono', auth()->user()->account->sx_company_number);
 
-        if(!auth()->user()->can('equipment.unavailable.viewall'))
+        if(!auth()->user()->can('equipment.unavailable.viewall') && $this->showAll)
         {
             $query->where('possessed_by', strtolower(auth()->user()->unavailable_equipments_id));
         }
@@ -158,21 +156,7 @@ class Table extends DataTableComponent
                     ->filter(function (Builder $builder, string $value) {
                         $builder->where('whse', $value);
                 }),
-
-                SelectFilter::make('Equipment Visibility', 'user')
-                ->options([
-                    'show_mine' => 'Show Mine',
-                    '' => 'Show All',
-                    ])
-                    ->filter(function (Builder $builder, string $value) {
-                        $builder->where('possessed_by', $value=='show_mine'? Auth::user()->unavailable_equipments_id : $value );
-                })
         ];
     }
 
-    public function setFilterValue($filter, $value)
-    {
-        $this->setFilterDefaults();
-        $this->setFilter($filter, $value);
-    }
 }

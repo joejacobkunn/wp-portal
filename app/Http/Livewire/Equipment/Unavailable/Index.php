@@ -9,7 +9,7 @@ class Index extends Component
 {
     public $account;
     public $pending_report_count = 0;
-
+    public $showEquipment =true;
     public $breadcrumbs = [
         [
             'title' => 'Unavailable Equipments',
