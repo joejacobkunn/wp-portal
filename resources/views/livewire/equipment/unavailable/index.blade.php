@@ -35,15 +35,17 @@
                         <div class="tab-content mt-4" id="myTabContent">
                             <div class="tab-pane fade show active" id="home" role="tabpanel"
                                 aria-labelledby="home-tab">
-                                @if (!auth()->user()->can('equipment.unavailable.viewall') && $showEquipment)
+                                @if (!auth()->user()->can('equipment.unavailable.viewall') )
                                     <div class="alert alert-secondary d-flex justify-content-between align-items-center">
                                         <div>
                                             Showing all equipment in possession by
-                                            <strong>{{ auth()->user()->name }} -
-                                                {{ auth()->user()->unavailable_equipments_id }}</strong>
+                                            <strong> {{ $showEquipment ? auth()->user()->name.' -'
+                                            .auth()->user()->unavailable_equipments_id : 'All' }}</strong>
                                         </div>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input"  type="checkbox" key="toggleEquipment" wire:model.live="showEquipment">
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-primary " wire:click="$toggle('showEquipment')">
+                                                {{ $showEquipment ? 'Show All' : 'Show Mine' }}
+                                            </button>
                                         </div>
                                     </div>
                                 @endif
