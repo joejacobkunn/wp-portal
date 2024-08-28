@@ -120,8 +120,10 @@ trait FormRequest
         ]);
 
         $this->floorModel->fill([
-            'qty' => $this->qty ?? 0
+            'qty' => $this->qty ?? 0,
+            'sx_operator_id' => Auth::user()->sx_operator_id
         ]);
+        
         $this->floorModel->save();
 
         InventoryUpdated::dispatch($this->floorModel);

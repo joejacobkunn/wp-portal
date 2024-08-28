@@ -2,7 +2,7 @@
     <div class="col-8 col-md-8 col-xxl-8">
         @if ($floorModel->qty == 0)
             <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
-                This product is not being displayed , update qty to change</div>
+                This product is not being displayed , update <strong>quantity</strong> to change</div>
         @endif
         <div class="card border-light shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">
@@ -38,10 +38,18 @@
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
-                            <h3 class="h6 mb-1">Added By</h3>
-                            <p class="small pe-4">{{ $floorModel->operator?->name ?? '---' }}</p>
+                            <h3 class="h6 mb-1">Last Updated By</h3>
+                            <p class="small pe-4">{{ $floorModel->sx_operator_id ?? '---' }}</p>
                         </div>
                     </li>
+                    <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                        <div>
+                            <h3 class="h6 mb-1">Last Updated At</h3>
+                            <p class="small pe-4">
+                                {{ $floorModel->updated_at?->format(config('app.default_datetime_format')) }}</p>
+                        </div>
+                    </li>
+
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                         <div>
                             <h3 class="h6 mb-1">Created At</h3>
@@ -120,10 +128,6 @@
                                 <p class="small pe-4">{{ $sxproduct->Status }}</p>
                             </div>
                         </li>
-
-
-
-
                     </ul>
                 </div>
             </div>
@@ -148,12 +152,12 @@
                     <div class="col-md-12 mb-3">
                         <div class="form-group">
                             <x-forms.select label="Quantity" model="qty" :options="['0', '1', '2', '3']" :selected="$qty"
-                                :defaultOption=false :key="'qty-' . now()" />
+                                :defaultOption=false :key="'qty-' . now()" listener="qty:changed" />
                         </div>
                     </div>
                 </div>
                 <div class="mt-2 float-start">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" @if (!$enableButton) disabled @endif>
                         <div wire:loading wire:target="submit">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>

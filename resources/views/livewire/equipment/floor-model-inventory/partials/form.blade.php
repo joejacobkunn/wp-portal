@@ -47,12 +47,14 @@
             </div>
             <hr>
             <div class="mt-2 float-start">
+
                 <button type="submit" class="btn btn-primary">
                     <div wire:loading wire:target="submit">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>
                     {{ $button_text }}
                 </button>
+
                 <button type="button" wire:click="cancel" class="btn btn-light-secondary">Cancel</button>
             </div>
         </form>
