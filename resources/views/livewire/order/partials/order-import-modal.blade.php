@@ -1,6 +1,6 @@
 <div class="order-import-modal">
     <x-modal :toggle="$importModal" size="lg" :closeEvent="'closeModel'">
-        <x-slot name="title">Update Quantity</x-slot>
+        <x-slot name="title">Import Orders</x-slot>
         <form wire:submit.prevent="submit()">
             <div class="row w-100">
                 <div class="col-md-12 mb-3">
@@ -22,7 +22,7 @@
                 <div class="col-md-12 mt-2" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
                     x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
                     x-on:livewire-upload-error="uploading = false">
-                    <label>Import Warranty File</label>
+                    <label>Import File</label>
                     <input type="file" id="csv-{{ $importIteration }}" class="form-control" wire:model="importFile">
                     @error('importFile')
                         <span class="text-danger">{{ $message }}</span>
