@@ -108,7 +108,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
         }
 
         if ($totalRows-1 > 10000 ) {
-            throw new \Exception('Maximum number of rows allowed is 10000. please adjust the import file.');
+            throw new \Exception('Maximum number of rows allowed is 10000. Please adjust the import file');
         }
     }
 }

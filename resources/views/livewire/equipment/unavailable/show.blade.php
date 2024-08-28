@@ -79,13 +79,11 @@
                                 <h4 class="card-title">Location</h4>
                                 @if ($unavailable_unit->current_location)
                                     <div class="alert alert-light-primary color-primary">
-                                        @can('equipment.unavailable.manage')
-                                            @if(strtolower(Auth::user()->unavailable_equipments_id) == strtolower($unavailable_unit->possessed_by))
-                                                <button wire:click='showLocationUpdateModal()'
-                                                    class="btn btn-sm btn-outline-primary float-end">Update
-                                                    Location</button>
-                                            @endif
-                                        @endcan
+                                        @if (strtolower(Auth::user()->unavailable_equipments_id) == strtolower($unavailable_unit->possessed_by))
+                                            <button wire:click='showLocationUpdateModal()'
+                                                class="btn btn-sm btn-outline-primary float-end">Update
+                                                Location</button>
+                                        @endif
                                         <i class="fas fa-map-pin"></i>
                                         This equipment is currently located at
                                         <strong>{{ $unavailable_unit->current_location }}</strong>
@@ -93,7 +91,7 @@
                                 @else
                                     <div class="alert alert-light-warning color-warning">
                                         @can('equipment.unavailable.manage')
-                                            @if(strtolower(Auth::user()->unavailable_equipments_id) == strtolower($unavailable_unit->possessed_by))
+                                            @if (strtolower(Auth::user()->unavailable_equipments_id) == strtolower($unavailable_unit->possessed_by))
                                                 <button wire:click='showLocationUpdateModal()'
                                                     class="btn btn-sm btn-outline-primary float-end">Update
                                                     Location</button>
@@ -109,14 +107,12 @@
                     <div class="card">
                         <div class="card-content">
                             <div class="card-body">
-                                @can('equipment.unavailable.manage')
-                                    @if(strtolower(Auth::user()->unavailable_equipments_id) == strtolower($unavailable_unit->possessed_by))
+                                @if (strtolower(Auth::user()->unavailable_equipments_id) == strtolower($unavailable_unit->possessed_by))
                                     <button wire:click='showHoursUpdateModal()'
-                                    class="btn btn-sm btn-outline-primary float-end">Update
-                                    Hours</button>
-                                    @endif
-                                @endcan
-                                <h4 class="card-title">Hours : {{ $unavailable_unit->hours }}</h4>
+                                        class="btn btn-sm btn-outline-primary float-end">Update
+                                        Hours</button>
+                                @endif
+                                <h4 class="card-title">Hours : {{ $unavailable_unit->hours ?? 'Not Set' }}</h4>
                             </div>
                         </div>
                     </div>

@@ -16,7 +16,7 @@ class Table extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
-        $this->setDefaultSort('floor_model_inventory.created_at');
+        $this->setDefaultSort('warehouse.title', 'asc');
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
             'class' => 'table table-bordered',
@@ -37,7 +37,7 @@ class Table extends DataTableComponent
                 }
                 else
                 {
-                    $badge = '<span class="badge bg-light-danger float-end"><i class="fas fa-times-circle"></i></span>';
+                    $badge = '<span class="badge bg-light-warning float-end"><i class="fas fa-pause-circle"></i></span>';
                 }
 
                 return '<a  href="'.route('equipment.floor-model-inventory.show', ['floorModel'=> $row->id]).
@@ -63,20 +63,30 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->html(),
 
-            Column::make('Operator', 'sx_operator_id')
+            Column::make('Last Updated By', 'sx_operator_id')
             ->secondaryHeader($this->getFilterByKey('operator'))
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return $row->operator?->name.'<span class="badge bg-light-secondary float-end">'.strtoupper($value).'</span>';
+                return $row->operator?->name.' <span class="badge bg-light-secondary">'.strtoupper($value).'</span>';
             })
             ->html(),
 
             Column::make('Updated at', 'updated_at')
+            ->sortable()
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return  '<span title="'.$row->updated_at.'">'.$row->updated_at->toDayDateTimeString().'</span>';
+                return  '<span title="'.$row->updated_at.'">'.$row->updated_at->diffForHumans().'</span>';
+            })
+            ->html(),
+
+            Column::make('Created at', 'created_at')
+            ->sortable()
+            ->excludeFromColumnSelect()
+            ->format(function ($value, $row)
+            {
+                return  '<span title="'.$row->created_at.'">'.$row->created_at->format(config('app.default_datetime_format')).'</span>';
             })
             ->html()
         ];
