@@ -30,11 +30,11 @@ class PeopleVox
 
         $parsed['line_items'] = $this->transformLineItems($data);
 
-        //dd($parsed);
+        $payload = $this->createSXApiPayload($parsed);
 
-        Mail::send([], [],function (Message $message) use($parsed) {
+        Mail::send([], [],function (Message $message) use($payload) {
             $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
-            $message->html('<span>Received Response : <br><br>'.json_encode($this->payload).'<br><br>Parsed Data<br><br>'.json_encode($parsed).'</span>');
+            $message->html('<span>Received Response : <br><br>'.json_encode($this->payload).'<br><br>Parsed Data<br><br>'.json_encode($payload).'</span>');
         });
     }
 
@@ -67,6 +67,54 @@ class PeopleVox
 
         return $line_items;
 
+    }
+
+    private function createSXApiPayload($data)
+    {
+        $line_items = [];
+
+        foreach($data['line_items'] as $line_item)
+        {
+            $line_items[] = [
+                'lineno' => $line_item['line_no'],
+                'qtyrcv' => $line_item['quantity'],
+                'price' => $line_item['amount'],
+                'cancelfl' => false,
+                'unavail' => false,
+                'reasunavty' => '',
+                'user1' => '',
+                'user2' => '',
+                'user3' => '',
+                'user4' => '',
+                'user5' => '',
+                'user6' => 0,
+                'user7' => 0,
+                'user8' => '',
+                'user9' => ''
+            ];
+        }
+
+        $po_number_split = explode('-',$data['po_number']);
+
+        return [
+            'request' => [
+                'companyNumber' => 80,
+                'operatorInit' => "wpa",
+                'operatorPassword' => "",
+                "purchaseOrderNumber" => $po_number_split[0],
+                'purchaseOrderSuffix' => $po_number_split[1],
+                'reference' => "",
+                'ttRcvline' => [
+                    'tt-rcvline' => $line_items
+                ],
+                'tInfieldvalue' => [
+                    't-infieldvalue' => [
+
+                    ]
+                ]
+
+            ]
+        ];
     }
 
     private function clean($string) {
