@@ -59,7 +59,6 @@ class ProcessOrders implements ShouldQueue
         if (!$stageCodes) {
             return [];
         }
-
         foreach($this->importFile as $key => $order) {
             if(in_array($order['stage_code'], $stageCodes)) {
                 $filteredRecords[] = $order;
@@ -67,7 +66,7 @@ class ProcessOrders implements ShouldQueue
                 $this->importErrorRows[] = $order;
             }
         }
-        return $filteredRecords;
+        return $filteredRecords ?? [];
     }
 
     public function getStageCode()

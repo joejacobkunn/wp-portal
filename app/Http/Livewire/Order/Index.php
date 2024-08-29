@@ -137,5 +137,6 @@ class Index extends Component
         $this->importModal =false;
         $this->importIteration++;
         $this->reset(['orderType', 'importFile']);
+        $this->resetValidation();
     }
 }

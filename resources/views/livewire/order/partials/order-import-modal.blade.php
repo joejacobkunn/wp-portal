@@ -3,7 +3,7 @@
         <x-slot name="title">Import Orders</x-slot>
         <form wire:submit.prevent="submit()">
             <div class="row w-100">
-                <div class="col-md-12 mb-3">
+                <div class="col-md-12">
                     <div class="form-group">
                         <x-forms.select label="Order Type"
                             model="orderType"
@@ -19,7 +19,7 @@
                             :key="'import-' . now()" />
                     </div>
                 </div>
-                <div class="col-md-12 mt-2" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
+                <div class="col-md-12 mb-3" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
                     x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
                     x-on:livewire-upload-error="uploading = false">
                     <label>Import File</label>
@@ -36,7 +36,7 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2 float-start">
+            <div class="float-start mt-2">
                 <button type="submit" class="btn btn-primary">
                     <div wire:loading wire:target="submit">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
