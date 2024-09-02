@@ -18,16 +18,12 @@ class ProcessOrders implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $importFile;
-    public $importErrorRows;
     public $orderType;
     /**
      * Create a new job instance.
      */
-    public function __construct($importFile, $errorFile, $orderType)
+    public function __construct($orderType)
     {
-        $this->importFile = $importFile;
-        $this->importErrorRows = $errorFile;
         $this->orderType = $orderType;
     }
 
@@ -36,22 +32,13 @@ class ProcessOrders implements ShouldQueue
      */
     public function handle(): void
     {
+        ini_set('max_execution_time', 300);
 
-        $orders = $this->importFile;
-        if($this->orderType != 'all') {
+        $stageCodes = $this->getStageCode();
+        $path = $this->getValidRecords($stageCodes);
 
-            $stageCodes = $this->getStageCode();
-            $orders = $this->getValidRecords($stageCodes);
-        }
-
-        foreach ($orders as $order) {
-            order::create($order);
-        }
-        $path = $this->storeFailedRecords();
-
-        $total = count($this->importErrorRows)+ count($orders);
         $user = Auth::user();
-        Notification::send($user, new OrdersImportNotification($total, count($this->importErrorRows), $path));
+        Notification::send($user, new OrdersImportNotification($path));
     }
 
     public function getValidRecords($stageCodes)
@@ -59,14 +46,46 @@ class ProcessOrders implements ShouldQueue
         if (!$stageCodes) {
             return [];
         }
-        foreach($this->importFile as $key => $order) {
-            if(in_array($order['stage_code'], $stageCodes)) {
-                $filteredRecords[] = $order;
-            } else {
-                $this->importErrorRows[] = $order;
+
+        $fileName = uniqid().'.csv';
+        Order::whereIn('stage_code', $stageCodes)->chunk(1000, function ($orders) use ($fileName) {
+            $filePath = storage_path('app/public/'.config('order.url') . $fileName);
+
+            $fileExists = file_exists($filePath);
+
+            $fileHandle = fopen($filePath, 'a+');
+
+
+            if (!$fileExists) {
+                fputcsv($fileHandle, [
+                    'id', 'cono', 'order_number', 'order_number_suffix', 'whse', 'taken_by',
+                    'is_dnr', 'order_date', 'promise_date', 'warehouse_transfer_available',
+                    'partial_warehouse_transfer_available', 'wt_transfers', 'is_web_order',
+                    'last_line_added_at', 'golf_parts', 'non_stock_line_items', 'is_sro',
+                    'last_followed_up_at', 'ship_via', 'line_items', 'is_sales_order', 'qty_ship',
+                    'qty_ord', 'stage_code', 'dnr_items', 'sx_customer_number', 'status', 'last_updated_by'
+                ]);
             }
-        }
-        return $filteredRecords ?? [];
+
+            foreach ($orders as $order) {
+
+                fputcsv($fileHandle, [
+                    $order->id, $order->cono, $order->order_number, $order->order_number_suffix,
+                    $order->whse, $order->taken_by, $order->is_dnr, $order->order_date,
+                    $order->promise_date, $order->warehouse_transfer_available,
+                    $order->partial_warehouse_transfer_available,
+                    json_encode($order->wt_transfers),
+                    $order->is_web_order, $order->last_line_added_at, json_encode($order->golf_parts, JSON_UNESCAPED_UNICODE),
+                    json_encode($order->non_stock_line_items, JSON_UNESCAPED_UNICODE), $order->is_sro, $order->last_followed_up_at, $order->ship_via,
+                    json_encode($order->line_items, JSON_UNESCAPED_UNICODE), $order->is_sales_order, $order->qty_ship, $order->qty_ord, $order->stage_code,
+                    json_encode($order->dnr_items, JSON_UNESCAPED_UNICODE), $order->sx_customer_number, $order->status->value, $order->last_updated_by
+                ]);
+            }
+
+            fclose($fileHandle);
+        });
+        return $fileName;
+
     }
 
     public function getStageCode()
@@ -91,14 +110,4 @@ class ProcessOrders implements ShouldQueue
 
     }
 
-    public function storeFailedRecords()
-    {
-        $recordPath =  config('order.url'). uniqid() . '.csv';
-        if (!empty($this->importErrorRows)) {
-            $exportRecord = new OrderExport($this->importErrorRows);
-            Excel::store($exportRecord,  $recordPath, 'public');
-            return $recordPath;
-        }
-        return null;
-    }
 }

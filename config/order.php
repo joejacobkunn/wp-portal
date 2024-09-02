@@ -2,6 +2,6 @@
 
 return [
 
-    'url' => env('ORDER_IMPORT_FAIl_URL'),
+    'url' => env('ORDER_EXPORT_URL', 'order/exports/'),
 
 ];

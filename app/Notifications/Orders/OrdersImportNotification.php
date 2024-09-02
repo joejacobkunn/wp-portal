@@ -13,17 +13,13 @@ class OrdersImportNotification extends Notification
 {
     use Queueable;
 
-    public $totalCount;
-    public $failedCount;
     public $path;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($totalCount, $failedCount, $path=null)
+    public function __construct($path=null)
     {
-        $this->totalCount = $totalCount;
-        $this->failedCount = $failedCount;
         $this->path = $path;
     }
 
@@ -42,23 +38,15 @@ class OrdersImportNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $subject = 'Order Import Notification';
+        $subject = 'Order Export Notification';
 
         $mail = (new MailMessage)
                 ->from('noreply@weingartz.com')
                 ->subject($subject)
-                ->line('Order import process completed')
-                ->line('Summary')
-                ->line(new HtmlString(
-                    '<ul>
-                    <li> Total processed : '.$this->totalCount -$this->failedCount .'/'.$this->totalCount.'</li>
-                    <li> Failed : '.$this->failedCount.'</li>
-                    '
-                ));
+                ->line('Order Export process completed');
         if ($this->path) {
 
-            $mail->action('Download Failed Records', url('/').'/storage/'.$this->path);
-
+            $mail->action('Download Records', url('/').'/storage/'.config('order.url').$this->path);
         }
 
 

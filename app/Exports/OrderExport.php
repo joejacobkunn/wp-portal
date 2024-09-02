@@ -23,6 +23,7 @@ class OrderExport implements FromArray, WithHeadings
     public function headings(): array
     {
         return [
+            'id',
             'cono',
             'order_number',
             'order_number_suffix',
@@ -51,5 +52,9 @@ class OrderExport implements FromArray, WithHeadings
             'status',
             'last_updated_by'
         ];
+    }
+    public function chunkSize(): int
+    {
+        return 1000; // Adjust the chunk size as needed
     }
 }

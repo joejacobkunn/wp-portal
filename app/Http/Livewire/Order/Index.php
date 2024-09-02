@@ -2,8 +2,10 @@
 
 namespace App\Http\Livewire\Order;
 
+
 use App\Http\Livewire\Component\Component;
 use App\Imports\OrdersImport;
+
 use App\Jobs\ProcessOrders;
 use App\Models\Order\Order;
 use App\Models\SX\Company;
@@ -34,18 +36,14 @@ class Index extends Component
 
     public $ignored_count = 0;
 
-    public $importModal = false;
+    public $exportModal = false;
 
     public $order_data_sync_timestamp;
 
     public $metricFilter = [];
 
     public $orderType;
-    public $importFile;
-    public $importIteration;
-    public $validatedRows = [];
-    public $importErrorRows = [];
-    public $showImportNotification = false;
+    public $showExportNotification = false;
     public $breadcrumbs = [
         [
             'title' => 'Orders',
@@ -53,11 +51,8 @@ class Index extends Component
     ];
     protected $rules = [
         'orderType' => 'required',
-        'importFile' => 'required|file|mimes:csv,txt|ends_with_csv'
     ];
-    protected $validationAttributes = [
-        'importFile' => 'File'
-    ];
+
     protected $listeners = [
         'closeModel'=> 'closeModel'
     ];
@@ -100,43 +95,23 @@ class Index extends Component
         $this->dispatch('refreshDatatable');
     }
 
-    public function import()
+    public function export()
     {
-        $this->importModal = true;
+        $this->exportModal = true;
     }
 
     public function submit()
     {
-        $data = $this->validate();
-        $this->dataImport();
-        ProcessOrders::dispatch($this->validatedRows, $this->importErrorRows, $this->orderType);
-        $this->showImportNotification = true;
+        $this->validate();
+        ProcessOrders::dispatch($this->orderType);
+        $this->showExportNotification = true;
         $this->closeModel();
-    }
-
-    public function dataImport()
-    {
-        try {
-            $import = new OrdersImport();
-            Excel::import($import, $this->importFile);
-        } catch (\Exception $e) {
-           $this->addError('importFile', $e->getMessage());
-        }
-
-        $this->validatedRows = $import->getData();
-        $failures = $import->failures();
-        if (count($failures) > 0) {
-            foreach ($failures as $failure) {
-                $this->importErrorRows[$failure->row()] = $failure->values();
-            }
-        }
     }
 
     public function closeModel()
     {
-        $this->importModal =false;
-        $this->importIteration++;
-        $this->reset(['orderType', 'importFile']);
+        $this->exportModal =false;
+        $this->reset(['orderType']);
         $this->resetValidation();
     }
 }
