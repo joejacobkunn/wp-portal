@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Exports\OrderExport;
 use App\Models\Order\Order;
 use App\Notifications\Orders\OrdersImportNotification;
+use ArrayIterator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Maatwebsite\Excel\Facades\Excel;
-
+use League\Csv\Writer;
 class ProcessOrders implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -47,17 +48,14 @@ class ProcessOrders implements ShouldQueue
             return [];
         }
 
-        $fileName = uniqid().'.csv';
+        $fileName = uniqid() . '.csv';
         Order::whereIn('stage_code', $stageCodes)->chunk(1000, function ($orders) use ($fileName) {
-            $filePath = storage_path('app/public/'.config('order.url') . $fileName);
-
+            $filePath = storage_path('app/public/' . config('order.url') . $fileName);
             $fileExists = file_exists($filePath);
-
-            $fileHandle = fopen($filePath, 'a+');
-
+            $writer = Writer::createFromPath($filePath, 'a+');
 
             if (!$fileExists) {
-                fputcsv($fileHandle, [
+                $writer->insertOne([
                     'id', 'cono', 'order_number', 'order_number_suffix', 'whse', 'taken_by',
                     'is_dnr', 'order_date', 'promise_date', 'warehouse_transfer_available',
                     'partial_warehouse_transfer_available', 'wt_transfers', 'is_web_order',
@@ -67,26 +65,44 @@ class ProcessOrders implements ShouldQueue
                 ]);
             }
 
-            foreach ($orders as $order) {
+            $records = $orders->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'cono' => $order->cono,
+                    'order_number' => $order->order_number,
+                    'order_number_suffix' => $order->order_number_suffix,
+                    'whse' => $order->whse,
+                    'taken_by' => $order->taken_by,
+                    'is_dnr' => $order->is_dnr,
+                    'order_date' => $order->order_date,
+                    'promise_date' => $order->promise_date,
+                    'warehouse_transfer_available' => $order->warehouse_transfer_available,
+                    'partial_warehouse_transfer_available' => $order->partial_warehouse_transfer_available,
+                    'wt_transfers' => json_encode($order->wt_transfers),
+                    'is_web_order' => $order->is_web_order,
+                    'last_line_added_at' => $order->last_line_added_at,
+                    'golf_parts' => json_encode($order->golf_parts),
+                    'non_stock_line_items' => json_encode($order->non_stock_line_items),
+                    'is_sro' => $order->is_sro,
+                    'last_followed_up_at' => $order->last_followed_up_at,
+                    'ship_via' => $order->ship_via,
+                    'line_items' => json_encode($order->line_items),
+                    'is_sales_order' => $order->is_sales_order,
+                    'qty_ship' => $order->qty_ship,
+                    'qty_ord' => $order->qty_ord,
+                    'stage_code' => $order->stage_code,
+                    'dnr_items' => json_encode($order->dnr_items),
+                    'sx_customer_number' => $order->sx_customer_number,
+                    'status' => $order->status->value,
+                    'last_updated_by' => $order->last_updated_by,
+                ];
+            });
 
-                fputcsv($fileHandle, [
-                    $order->id, $order->cono, $order->order_number, $order->order_number_suffix,
-                    $order->whse, $order->taken_by, $order->is_dnr, $order->order_date,
-                    $order->promise_date, $order->warehouse_transfer_available,
-                    $order->partial_warehouse_transfer_available,
-                    json_encode($order->wt_transfers),
-                    $order->is_web_order, $order->last_line_added_at, json_encode($order->golf_parts, JSON_UNESCAPED_UNICODE),
-                    json_encode($order->non_stock_line_items, JSON_UNESCAPED_UNICODE), $order->is_sro, $order->last_followed_up_at, $order->ship_via,
-                    json_encode($order->line_items, JSON_UNESCAPED_UNICODE), $order->is_sales_order, $order->qty_ship, $order->qty_ord, $order->stage_code,
-                    json_encode($order->dnr_items, JSON_UNESCAPED_UNICODE), $order->sx_customer_number, $order->status->value, $order->last_updated_by
-                ]);
-            }
-
-            fclose($fileHandle);
+            $writer->insertAll($records->toArray());
         });
         return $fileName;
-
     }
+
 
     public function getStageCode()
     {
