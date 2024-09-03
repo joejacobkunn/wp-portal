@@ -39,7 +39,8 @@ class Index extends Component
         'importFile' => 'File'
     ];
     protected $listeners = [
-        'cancel'=> 'cancel'
+        'cancel'=> 'cancel',
+        'showError' => 'showError'
     ];
 
     public function updatedImportFile()
@@ -111,5 +112,12 @@ class Index extends Component
             return;
         }
         return response()->download($filePath);
+    }
+
+    public function showError($message)
+    {
+        $this->showalert['status'] = true;
+        $this->showalert['class'] = 'danger';
+        $this->showalert['message'] = $message;
     }
 }

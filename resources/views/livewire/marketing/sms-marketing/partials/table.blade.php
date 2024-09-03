@@ -7,6 +7,7 @@
                         <th>Phone</th>
                         <th>Message</th>
                         <th>Office</th>
+                        <th>Assignee</th>
                     </tr>
             </thead>
             <tbody>
@@ -15,6 +16,7 @@
                         <td>{{ $cell['phone'] }}</td>
                         <td>{{ $cell['message'] }}</td>
                         <td>{{ $cell['office'] }}</td>
+                        <td>{{ $cell['assignee'] }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="4" class="text-center">No valid records are available.</td></tr>

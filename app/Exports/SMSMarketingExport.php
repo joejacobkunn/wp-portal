@@ -13,7 +13,7 @@ class SMSMarketingExport implements FromArray, WithHeadings
     public function __construct(array $rows)
     {
         $this->rows = array_map(function($row) {
-            return array_intersect_key($row, array_flip(['phone', 'message', 'office']));
+            return array_intersect_key($row, array_flip(['phone', 'message', 'office', 'assignee']));
         }, $rows);
     }
 
@@ -24,6 +24,6 @@ class SMSMarketingExport implements FromArray, WithHeadings
 
     public function headings(): array
     {
-        return ['PHONE', 'MESSAGE', 'OFFICE'];
+        return ['PHONE', 'MESSAGE', 'OFFICE', 'ASSIGNEE'];
     }
 }

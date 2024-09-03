@@ -25,7 +25,6 @@ trait FormRequest
 
         $this->validatedRows = $import->getData();
         $failures = $import->failures();
-
         if (count($failures) > 0) {
             foreach ($failures as $failure) {
                 $this->importErrorRows[$failure->row()] = $failure->values();
@@ -50,11 +49,23 @@ trait FormRequest
             $filePath = $this->importFile->storeAs($uploadDirectory, $uploadedFileName, 'public');
 
         } catch (\Exception $e) {
-            $this->showalert['staus'] = true;
-            $this->showalert['class'] = 'danger';
-            $this->showalert['message'] = 'Error saving uploaded file';
+            $this->dispatch('showError', 'Error saving uploaded file');
             return;
         }
+
+        $locations = json_decode($kenet->locations());
+        if(empty($locations)) {
+            $this->dispatch('showError', 'Failed to fetch Locations');
+            return;
+        }
+
+        $response = $kenet->teams();
+
+        if($response['status']!=200) {
+            $this->dispatch('showError', 'Failed to fetch Assignee details');
+            return;
+        }
+        $teams = $response['body'];
 
         $data =  SMSMarketing::create([
             'name' => $this->name,
@@ -67,8 +78,7 @@ trait FormRequest
             'status' => 'queued'
         ]);
 
-        $locations = json_decode($kenet->locations());
-        ProcessSMSMarketing::dispatch($this->validatedRows, $data, $this->importErrorRows, $locations);
+        ProcessSMSMarketing::dispatch($this->validatedRows, $data, $this->importErrorRows, $locations, json_decode($teams));
         return redirect()->route('marketing.sms-marketing.index');
     }
 }

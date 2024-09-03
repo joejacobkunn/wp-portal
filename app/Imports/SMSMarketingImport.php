@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Rules\ValidAssigneeForSMS;
 use App\Rules\ValidateOfficeForSMS;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
@@ -42,6 +43,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
             'phone' =>  ['required', 'digits:10'],
             'message' =>  ['required', 'string', 'max:300'],
             'office' =>  ['required', new ValidateOfficeForSMS()],
+            'assignee' =>  ['required', new ValidAssigneeForSMS()],
         ];
         return $rules;
     }
@@ -75,7 +77,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
 
     protected function fileBaseValidation(BeforeImport $event)
     {
-        $requiredHeaders = ['PHONE', 'MESSAGE', 'OFFICE'];
+        $requiredHeaders = ['PHONE', 'MESSAGE', 'OFFICE', 'ASSIGNEE'];
 
         $worksheet = $event->reader->getActiveSheet();
         $headerRow = $worksheet->getRowIterator()->current();
@@ -83,7 +85,6 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
         $cellIterator->setIterateOnlyExistingCells(false);
         $totalRows = $worksheet->getHighestDataRow();
         $actualHeaders = [];
-
         foreach ($cellIterator as $cell) {
             $actualHeaders[] = $cell->getValue();
         }
