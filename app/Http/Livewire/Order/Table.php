@@ -271,7 +271,8 @@ class Table extends DataTableComponent
                     'sro' => 'SRO',
                     'will' => 'WILL'
                 ])->filter(function (Builder $builder, string $value) {
-                    $builder->where(DB::raw('lower(ship_via)'), strtolower($value));
+                    if($value == 'pkup') $builder->whereIn(DB::raw('lower(ship_via)'), ['pkup','pkfh','pkcl','pkcs','pkaa', 'pkut','pkli']);
+                    else $builder->where(DB::raw('lower(ship_via)'), strtolower($value));
                 }),
 
                 SelectFilter::make('Order Status', 'order_standing')

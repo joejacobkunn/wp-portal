@@ -27,8 +27,7 @@ class Kenect{
 
             $response = Http::acceptJson()
             ->withHeaders($this->headers())
-            ->post(config('kenect.endpoint').'/v2/conversations/messages', ['contactPhone' => trim($to), 'messageBody' => trim(preg_replace('/\s+/', ' ', $message)),
-             'locationId' => $locationId ?? config('kenect.location'), 'assignedTeamId' => $teamId]);
+            ->post(config('kenect.endpoint').'/v2/conversations/messages', $payload);
 
             return $response->ok() ? 'success' : 'error';
         }
