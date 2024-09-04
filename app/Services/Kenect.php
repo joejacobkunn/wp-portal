@@ -37,7 +37,15 @@ class Kenect{
         ->get(config('kenect.endpoint').'/v1/locations');
 
         return $response->body();
+    }
 
+    public function teams($locationId)
+    {
+        $response = Http::acceptJson()
+        ->withHeaders($this->headers())
+        ->get(config('kenect.endpoint').'/v1/locations/'.$locationId.'/teams');
+
+        return $response->body();
 
     }
 

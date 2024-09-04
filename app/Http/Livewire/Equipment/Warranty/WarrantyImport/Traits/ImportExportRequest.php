@@ -56,7 +56,7 @@ trait ImportExportRequest
 
         if (count($failures) > 0) {
             foreach ($failures as $failure) {
-                $this->importErrorRows[] = $failure->values();
+                $this->importErrorRows[$failure->row()] = $failure->values();
             }
         }
     }
@@ -71,12 +71,9 @@ trait ImportExportRequest
         $extension = $this->csvFile->getClientOriginalExtension();
         $uploadedFileName = uniqid() . '.' . $extension;
         $uploadDirectory =  config('warranty.upload_location');
-        $validPath = config('warranty.valid_file_location') . uniqid() . '.csv';
 
         try {
             $filePath = $this->csvFile->storeAs($uploadDirectory, $uploadedFileName, 'public');
-            $export = new WarrantyExport($this->validatedRows);
-            Excel::store($export, $validPath, 'public');
         } catch (\Exception $e) {
             $this->showalert['staus'] = true;
             $this->showalert['class'] = 'error';
@@ -89,7 +86,7 @@ trait ImportExportRequest
             'file_path' => $filePath,
             'uploaded_by' => Auth::user()->id,
             'failed_records' =>  null,
-            'valid_records' =>  $validPath,
+            'valid_records' =>  null,
             'processed_count' =>  0,
             'total_records' => count($this->validatedRows) + count($this->importErrorRows),
             'status'        =>'queued'

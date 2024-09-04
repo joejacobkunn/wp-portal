@@ -2,7 +2,6 @@
 
 namespace App\Rules;
 
-use App\Services\Kenect;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 

@@ -3,9 +3,11 @@
 namespace App\Http\Livewire\Equipment\Unavailable;
 
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Models\Core\Warehouse;
 use App\Models\Equipment\UnavailableUnit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Columns\BooleanColumn;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
@@ -18,12 +20,17 @@ class Table extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
-        $this->setDefaultSort('created_at', 'desc');
+        $this->setDefaultSort('unavailable_equipments.created_at', 'desc');
 
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
+    }
+
+    public function mount()
+    {
+        $this->setFilter('user', 'show_mine');
     }
 
     public function boot(): void
@@ -57,8 +64,9 @@ class Table extends DataTableComponent
                     return $value;
                 })
                 ->html(),
-            
+
                 Column::make('Warehouse', 'whse')
+                ->secondaryHeader($this->getFilterByKey('whse'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
                     return strtoupper($value);
@@ -69,7 +77,8 @@ class Table extends DataTableComponent
                 ->secondaryHeader($this->getFilterByKey('possessed_by'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return strtoupper($value);
+                    $name = $row->user ? $row->user->name.' '. $row->user?->abbreviation.'('.$value.')' : $value;
+                    return strtoupper($name);
                 })
                 ->hideIf(!auth()->user()->can('equipment.unavailable.viewall'))
                 ->html(),
@@ -83,7 +92,12 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
-
+                Column::make('Hours', 'hours')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row) {
+                    return $value;
+                })
+                ->html(),
 
             Column::make('Base Price', 'base_price')
                 ->excludeFromColumnSelect()
@@ -113,22 +127,52 @@ class Table extends DataTableComponent
         {
             $query->where('possessed_by', strtolower(auth()->user()->unavailable_equipments_id));
         }
-        
+
         return $query;
     }
 
     public function filters(): array
     {
+        $warehouses = Warehouse::pluck('short')->toArray();
+            foreach ($warehouses as $item) {
+                $whse[$item] = strtoupper($item);
+            }
         return [
             TextFilter::make('Possessed By', 'possessed_by')
                 ->hiddenFromAll()
                 ->config([
-                    'placeholder' => 'Search By Initial',
-                    'maxlength' => '3',
+                    'placeholder' => 'Search User',
+                    'maxlength' => '15',
                 ])
                 ->filter(function (Builder $builder, string $value) {
-                    $builder->where('possessed_by', 'like', '%'.$value.'%');
+                    $builder->whereHas('user', function ($query) use ($value) {
+                        $query->where('name', 'like', '%' . $value . '%')
+                            ->orWhere('abbreviation', 'like', '%' . $value . '%');
+                    })
+                    ->orWhere('possessed_by', 'like', '%' . $value . '%');
                 }),
+
+                SelectFilter::make('Warehouse', 'whse')
+                ->options(['' => 'All'] + $whse)
+                ->hiddenFromAll()
+                    ->filter(function (Builder $builder, string $value) {
+                        $builder->where('whse', $value);
+                }),
+
+                SelectFilter::make('Equipment Visibility', 'user')
+                ->options([
+                    'show_mine' => 'Show Mine',
+                    '' => 'Show All',
+                    ])
+                    ->filter(function (Builder $builder, string $value) {
+                        $builder->where('possessed_by', $value=='show_mine'? Auth::user()->unavailable_equipments_id : $value );
+                })
         ];
+    }
+
+    public function setFilterValue($filter, $value)
+    {
+        $this->setFilterDefaults();
+        $this->setFilter($filter, $value);
     }
 }

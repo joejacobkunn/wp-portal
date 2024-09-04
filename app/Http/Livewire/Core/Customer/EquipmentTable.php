@@ -220,10 +220,10 @@ class EquipmentTable extends DataTableComponent
                                                     s.user8 AS 'YEPP_LastService'
                                                     FROM pub.icses s
                                                     WHERE s.cono = 10
-                                                    AND s.prod = '".$model_number."'
-                                                    AND s.serialno = '".$serial_number."'
+                                                    AND s.prod = ?
+                                                    AND s.serialno = ?
                                                     AND s.custno <> 0
-                                                WITH(NOLOCK)");
+                                                WITH(NOLOCK)", [$model_number, $serial_number]);
 
         if(is_null($status) || empty($status)) return ['status' => 'Inactive'];
 

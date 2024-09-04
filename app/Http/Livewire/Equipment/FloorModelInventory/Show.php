@@ -19,6 +19,7 @@ class Show extends Component
     public $page;
     public $qtyModal = false;
     public $sxproduct;
+    public $enableButton = false;
 
     public $tabs = [
         'floor-model-comment-tabs' => [
@@ -32,8 +33,9 @@ class Show extends Component
 
     public $breadcrumbs = [[
         'title' => 'Floor Model Inventory',
-            'route_name' => 'equipment.floor-model-inventory.index',
-        ]];
+        'href' => 'javascript:window.history.back()',
+    ]];
+
     public $actionButtons = [
         [
             'icon' => 'fa-trash',
@@ -45,7 +47,8 @@ class Show extends Component
     ];
     protected $listeners = [
         'deleteRecord' => 'delete',
-        'closeQtyUpdate' => 'closeQtyUpdate'
+        'closeQtyUpdate' => 'closeQtyUpdate',
+        'qty:changed' => 'updateQuantity'
     ];
 
     public function render()
@@ -90,6 +93,14 @@ class Show extends Component
 
         $product = Product::where('cono', 10)->where('prod', $this->floorModel->product)->first();
         return $product->getMetaData()[0];
+    }
+
+    public function updateQuantity($cartIndex, $value, $recheckValidation = true)
+    {
+        if($this->floorModel->qty != $value) $this->enableButton = true;
+        else $this->enableButton = false;
+
+        $this->qty = $value;
     }
 
 }

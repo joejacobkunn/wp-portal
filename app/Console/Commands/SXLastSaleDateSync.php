@@ -42,7 +42,11 @@ class SXLastSaleDateSync extends Command
         foreach ($invoiced_orders as $invoiced_order) {
             $cust_numbers[] = $invoiced_order->custno;
             $customer = Customer::where('sx_customer_number', $invoiced_order->custno)->where('account_id', $account->id)->first();
-            $customer->update(['last_sale_date' => Carbon::parse($invoiced_order->lastsaledt)->format('Y-m-d')]);
+            
+            if(!is_null($customer))
+            {
+                $customer->update(['last_sale_date' => Carbon::parse($invoiced_order->lastsaledt)->format('Y-m-d')]);
+            }
         }
 
         echo 'Synced customers are SX# '.implode(', ', $cust_numbers);

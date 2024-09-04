@@ -43,6 +43,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
     {
         $kenect = new Kenect();
         $locations = array_column(json_decode($kenect->locations()), 'name');
+
         $teams = array_column(json_decode($kenect->teams($this->teamLocationId)), 'name');
     
         $rules = [
@@ -50,6 +51,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
             'message' =>  ['required', 'string', 'max:300'],
             'office' =>  ['required', new ValidateOfficeForSMS($locations)],
             'assignee' =>  ['required', new ValidAssigneeForSMS($teams)],
+
         ];
         return $rules;
     }
@@ -111,7 +113,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
         }
 
         if ($totalRows-1 > 10000 ) {
-            throw new \Exception('Maximum number of rows allowed is 10000. please adjust the import file.');
+            throw new \Exception('Maximum number of rows allowed is 10000. Please adjust the import file');
         }
     }
 }

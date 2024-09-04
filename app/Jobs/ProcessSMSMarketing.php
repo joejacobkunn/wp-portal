@@ -37,6 +37,7 @@ class ProcessSMSMarketing implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->model->update(['status' => 'processing']);
         $this->setLocationId();
         $this->setAssigneeId();
         $this->sendSms();
@@ -84,7 +85,7 @@ class ProcessSMSMarketing implements ShouldQueue
            }
         }
 
-        sleep(1);
+        sleep(0.5);
     }
 
     public function setAssigneeId()

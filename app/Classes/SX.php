@@ -551,6 +551,27 @@ class SX
     }
 
 
+    public function receive_po($request)
+    {
+        $response = Http::withToken($this->token())
+        ->acceptJson()
+        ->withBody(json_encode($request), 'application/json')
+        ->post($this->web_endpoint.'/sxapisrreceivepo');
+
+        if ($response->ok()) {
+            $data = [];
+            $response_body = json_decode($response->body());
+
+            $return_data = $response_body->response;
+            
+            return [
+                'status' => 'success',
+            ];
+
+        }
+    }
+
+
 
 
     public function mock($function, $request)
