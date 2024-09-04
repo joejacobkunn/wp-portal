@@ -8,6 +8,12 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class ValidateOfficeForSMS implements ValidationRule
 {
+    public $locations;
+
+    public function __construct($locations = [])
+    {
+        $this->locations = $locations;
+    }
     /**
      * Run the validation rule.
      *
@@ -15,16 +21,16 @@ class ValidateOfficeForSMS implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $formatted_locations = [];
-        $kenet = new Kenect();
-        $locations = array_column(json_decode($kenet->locations()), 'name');
+        $is_valid = false;
 
-        foreach($locations as $location)
+        foreach($this->locations as $location)
         {
-            $formatted_locations[] = str_replace('Weingartz - ', '', $location);
+            if (str_contains(strtolower(trim($location)),strtolower(trim($value)))) {
+                $is_valid = true;
+            }
         }
 
-        if (!in_array(trim($value), $formatted_locations)) {
+        if (!$is_valid) {
             $fail("Location not found");
         }
     }

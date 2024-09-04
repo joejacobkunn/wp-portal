@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Rules\ValidAssigneeForSMS;
 use App\Rules\ValidateOfficeForSMS;
+use App\Services\Kenect;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -22,6 +23,7 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
 
     public $data = [];
     protected $failures = [];
+    public $teamLocationId = '18771';
 
     public function registerEvents(): array
     {
@@ -39,11 +41,15 @@ class SMSMarketingImport implements ToCollection, WithValidation, WithHeadingRow
 
     public function rules(): array
     {
+        $kenect = new Kenect();
+        $locations = array_column(json_decode($kenect->locations()), 'name');
+        $teams = array_column(json_decode($kenect->teams($this->teamLocationId)), 'name');
+    
         $rules = [
             'phone' =>  ['required', 'digits:10'],
             'message' =>  ['required', 'string', 'max:300'],
-            'office' =>  ['required', new ValidateOfficeForSMS()],
-            'assignee' =>  ['required', new ValidAssigneeForSMS()],
+            'office' =>  ['required', new ValidateOfficeForSMS($locations)],
+            'assignee' =>  ['required', new ValidAssigneeForSMS($teams)],
         ];
         return $rules;
     }

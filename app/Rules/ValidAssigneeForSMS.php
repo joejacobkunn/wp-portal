@@ -8,6 +8,12 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class ValidAssigneeForSMS implements ValidationRule
 {
+    public $teams;
+
+    public function __construct($teams = [])
+    {
+        $this->teams = $teams;
+    }
     /**
      * Run the validation rule.
      *
@@ -15,12 +21,18 @@ class ValidAssigneeForSMS implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $kenet = new Kenect();
-        $response = $kenet->teams();
-        $teams = array_column(json_decode($response['body']), 'name');
+        $is_valid = false;
 
-        if (!in_array(trim($value), $teams)) {
-            $fail("Teams not found");
+        foreach($this->teams as $team)
+        {
+            if (str_contains(strtolower(trim($team)),strtolower(trim($value)))) {
+                $is_valid = true;
+            }
         }
+
+        if (!$is_valid) {
+            $fail("Team not found");
+        }
+
     }
 }
