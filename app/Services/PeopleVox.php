@@ -4,11 +4,14 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Mail\Message;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class PeopleVox
 {
     protected $payload;
+
+    private $cono = 80;
 
     public function __construct()
     {
@@ -30,12 +33,26 @@ class PeopleVox
 
         $parsed['line_items'] = $this->transformLineItems($data);
 
-        $payload = $this->createSXApiPayload($parsed);
+        $po_number_split = explode('-',$parsed['po_number']);
 
-        Mail::send([], [],function (Message $message) use($payload) {
-            $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
-            $message->html('<span>Received Response : <br><br>'.json_encode($this->payload).'<br><br>Parsed Data<br><br>'.json_encode($payload).'</span>');
-        });
+        if(is_numeric($po_number_split[0]) && is_numeric($po_number_split[1]))
+        {
+            $sx_po_line_data = DB::connection('sx')->select("SELECT poel.lineno, poel.shipprod, poel.qtyord FROM pub.poel
+                                                            WHERE poel.cono = ?
+                                                            AND poel.pono = ?
+                                                            AND poel.posuf = ?
+                                                            AND poel.statustype = 'a'
+                                            WITH(NOLOCK)", [$this->cono,$po_number_split[0],$po_number_split[1]]);
+
+            $payload = $this->createSXApiPayload($parsed);
+
+            Mail::send([], [],function (Message $message) use($payload, $sx_po_line_data) {
+                $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
+                $message->html('<span>Received Response : <br><br>'.json_encode($this->payload).'<br><br>Parsed Data<br><br>'.json_encode($payload).'<br><br>SX Data<br><br>'.json_encode($sx_po_line_data).'</span>');
+            });
+
+        }
+
     }
 
     private function transformLineItems($data)
@@ -98,7 +115,7 @@ class PeopleVox
 
         return [
             'request' => [
-                'companyNumber' => 80,
+                'companyNumber' => $this->cono,
                 'operatorInit' => "wpa",
                 'operatorPassword' => "",
                 "purchaseOrderNumber" => $po_number_split[0],

@@ -13,6 +13,7 @@ trait FormRequest
 {
     public $importErrorRows = [];
     public $validatedRows = [];
+    public $teamLocationId = '18771';
 
     public function dataImport()
     {
@@ -43,7 +44,7 @@ trait FormRequest
         $uploadedFileName = uniqid() . '.' . $extension;
         $uploadDirectory =  config('marketing.sms.upload_location');
         $validPath = config('marketing.sms.valid_file_location') . uniqid() . '.csv';
-        $kenet = new Kenect();
+        $kenect = new Kenect();
 
         try {
             $filePath = $this->importFile->storeAs($uploadDirectory, $uploadedFileName, 'public');
@@ -53,19 +54,13 @@ trait FormRequest
             return;
         }
 
-        $locations = json_decode($kenet->locations());
+        $locations = json_decode($kenect->locations());
         if(empty($locations)) {
             $this->dispatch('showError', 'Failed to fetch Locations');
             return;
         }
 
-        $response = $kenet->teams();
-
-        if($response['status']!=200) {
-            $this->dispatch('showError', 'Failed to fetch Assignee details');
-            return;
-        }
-        $teams = $response['body'];
+        $teams = $kenect->teams($this->teamLocationId);
 
         $data =  SMSMarketing::create([
             'name' => $this->name,
