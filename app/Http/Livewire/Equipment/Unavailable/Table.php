@@ -121,7 +121,7 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $query = UnavailableUnit::where('cono', auth()->user()->account->sx_company_number);
+        $query = UnavailableUnit::where('cono', auth()->user()->account->sx_company_number)->where('is_unavailable', 1);
 
         if(!auth()->user()->can('equipment.unavailable.viewall'))
         {
@@ -133,7 +133,7 @@ class Table extends DataTableComponent
 
     public function filters(): array
     {
-        $warehouses = Warehouse::pluck('short')->toArray();
+        $warehouses = Warehouse::where('cono',40)->pluck('short')->toArray();
             foreach ($warehouses as $item) {
                 $whse[$item] = strtoupper($item);
             }
