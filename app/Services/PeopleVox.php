@@ -63,15 +63,13 @@ class PeopleVox
         {
             if(str_contains($row,'Line=')) $keys['line'] = $key;
             if(str_contains($row,'LineQuantity=')) $keys['quantity'] = $key;
-            if(str_contains($row,'Sequence=')) $keys['sequence'] = $key;
             if(str_contains($row,'CostPrice=')) $keys['cost'] = $key;
-            if(str_contains($row,'LineRequestedDeliveryDate=')) $keys['delivery'] = $key;
         }
 
         $line_items = [];
         $j=0;
 
-        for($i=$keys['line']; $i<$keys['sequence'];$i++)
+        for($i=$keys['line']; $i<$keys['quantity'];$i++)
         {
             $line_items[] = [
                 'line_no' => (int)filter_var($data[$i] ,FILTER_SANITIZE_NUMBER_INT),
