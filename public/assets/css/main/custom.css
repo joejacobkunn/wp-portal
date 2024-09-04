@@ -665,6 +665,7 @@
 .table-action .dropdown-tab {
     position: relative;
 }
+
 .table-action .dropdown-tab .btn-icon:hover,
 .table-action .dropdown-tab .btn-icon:focus {
     background: none;
@@ -688,6 +689,9 @@
     border-radius: 4px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     margin-top: 5px;
+}
+.table-action .dropdown-tab .custom-width {
+    width: 285px!important;
 }
 
 .table-action .dropdown-tab .popup .popup-content {

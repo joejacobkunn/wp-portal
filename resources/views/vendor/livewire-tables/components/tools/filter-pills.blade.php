@@ -44,7 +44,7 @@
                         @else
                             <a
                                 href="#"
-                                wire:click="resetFilter('{{ $filter->getKey() }}')"
+                                wire:click.prevent="resetFilter('{{ $filter->getKey() }}')"
                                 @class([
                                     'text-white ml-2' => ($component->isBootstrap()),
                                 ])
