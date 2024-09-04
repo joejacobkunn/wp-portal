@@ -23,7 +23,7 @@
                 <div class="col-md-12 mt-2" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
                     x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
                     x-on:livewire-upload-error="uploading = false">
-                    <label>Import Warranty File</label>
+                    <label>Upload File</label>
                     <input type="file" id="csv-{{ $importIteration }}" class="form-control" wire:model="importFile">
                     @error('importFile')
                         <span class="text-danger">{{ $message }}</span>
