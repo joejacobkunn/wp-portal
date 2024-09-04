@@ -37,8 +37,12 @@ class OrderCancelledListener
     
         //send email
 
-        Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
-                    ->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent, $event->customer_name));
+        if($this->eligibleForEmail($event))
+        {
+            Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
+            ->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent, $event->customer_name));
+
+        }
 
         //add custom log
 
@@ -70,4 +74,14 @@ class OrderCancelledListener
 
     
     }
+
+    private function eligibleForEmail($event)
+    {
+        if(empty($event->email)) return false;
+        if(empty($event->mailContent)) return false;
+        if(empty($event->mailSubject)) return false;
+
+        return true;
+    }
+
 }

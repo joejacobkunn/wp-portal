@@ -64,8 +64,8 @@ class Show extends Component
     public $templates = [];
     public $templateId;
 
-    public $smsEnabled = true;
-    public $emailEnabled = true;
+    public $smsEnabled = false;
+    public $emailEnabled = false;
     public $wtModal = false;
 
     public $line_item_inventory = [];
@@ -129,9 +129,9 @@ class Show extends Component
     public function rules()
     {
         return [
-            'emailTo' => 'required|email',
-            'emailSubject' => 'required',
-            'emailContent' => 'required',
+            'emailTo' => [Rule::requiredIf($this->emailEnabled)],
+            'emailSubject' => [Rule::requiredIf($this->emailEnabled)],
+            'emailContent' => [Rule::requiredIf($this->emailEnabled)],
             'smsPhone' => [Rule::requiredIf($this->smsEnabled)],
             'smsMessage' => [Rule::requiredIf($this->smsEnabled)]
         ];

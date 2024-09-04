@@ -31,8 +31,12 @@ class OrderFollowUpListener
     {
             //send email
 
-            Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
-            ->notify(new OrderFollowUpNotification($event->order, $event->mailSubject, $event->mailContent, $event->customer_name));
+            if($this->eligibleForEmail($event))
+            {
+                Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
+                ->notify(new OrderFollowUpNotification($event->order, $event->mailSubject, $event->mailContent, $event->customer_name));
+    
+            }
 
             //add custom log
 
@@ -60,5 +64,14 @@ class OrderFollowUpListener
                 $sx_response = $sx_client->create_order_note('Followed Up by '.$operator->name.'('.$operator->sx_operator_id.') via Portal on '.now()->toDayDateTimeString(),$event->order->order_number);
             }
     
+    }
+
+    private function eligibleForEmail($event)
+    {
+        if(empty($event->email)) return false;
+        if(empty($event->mailContent)) return false;
+        if(empty($event->mailSubject)) return false;
+
+        return true;
     }
 }
