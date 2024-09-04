@@ -19,15 +19,17 @@ class ProcessSMSMarketing implements ShouldQueue
     public $validData;
     public $errorRows = [];
     public $locations;
+    public $teams = [];
     /**
      * Create a new job instance.
      */
-    public function __construct($validData, $model, $errorRows, $locations)
+    public function __construct($validData, $model, $errorRows, $locations, $teams)
     {
         $this->validData = $validData;
         $this->model = $model;
         $this->errorRows = $errorRows;
         $this->locations = $locations;
+        $this->teams = $teams;
     }
 
     /**
@@ -37,8 +39,8 @@ class ProcessSMSMarketing implements ShouldQueue
     {
         $this->model->update(['status' => 'processing']);
         $this->setLocationId();
+        $this->setAssigneeId();
         $this->sendSms();
-
         $failedFile = $this->saveRecords(config('marketing.sms.failed_file_location'), $this->errorRows);
         $validFile = $this->saveRecords(config('marketing.sms.valid_file_location'), $this->validData);
         $this->model->update([
@@ -75,7 +77,7 @@ class ProcessSMSMarketing implements ShouldQueue
     {
         $kenet = new Kenect();
         foreach ($this->validData as $key => $row) {
-           if ($kenet->send($row['phone'], $row['message'], $row['location_id']) == 'error') {
+           if ($kenet->send($row['phone'], $row['message'], $row['location_id'], $row['teamId']) == 'error') {
                 $this->errorRows[] = $row;
                 unset($this->validData[$key]);
            } else {
@@ -84,5 +86,18 @@ class ProcessSMSMarketing implements ShouldQueue
         }
 
         sleep(0.5);
+    }
+
+    public function setAssigneeId()
+    {
+
+        foreach($this->validData as $key => $row) {
+            foreach ($this->teams as $team) {
+                if (str_contains(strtolower(trim($team->name)), strtolower(trim($row['assignee'])))) {
+                    $this->validData[$key]['teamId'] = $team->id;
+                    break;
+                }
+            }
+    }
     }
 }
