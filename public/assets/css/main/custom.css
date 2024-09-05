@@ -72,7 +72,6 @@
 .ss-main .placeholder {
     background: #fff !important;
 }
-
 .ss-main .ss-single-selected .placeholder .ss-disabled {
     color: #5e5e5e;
 }
@@ -386,7 +385,6 @@
     width: 250px;
     line-height: 30px;
 }
-
 .checkout-outer-div .price-update-span {
     border-bottom: 1px dashed #333;
     cursor: pointer;
@@ -565,24 +563,20 @@
     --bs-btn-font-size: .875rem;
     --bs-btn-border-radius: .2rem
 }
-
 .text-link {
     cursor: pointer;
 }
-
 .checkout-outer-div .multi-units {
     border-bottom: 1px dashed #333;
     cursor: pointer;
 }
-
 .checkout-outer-div .warehouse-selected-list-div {
     display: inline-flex;
     text-align: left;
     padding-left: 4px;
     min-width: 120px;
 }
-
-.layout-horizontal .main-navbar .submenu .submenu-group .submenu-item a {
+.layout-horizontal .main-navbar .submenu .submenu-group .submenu-item a{
     padding: .6rem 1rem .6rem .6rem !important;
 }
 
@@ -598,7 +592,6 @@
     -ms-user-select: none;
     user-select: none;
 }
-
 .checkbox-container input {
     position: absolute;
     opacity: 0;
@@ -606,7 +599,6 @@
     height: 0;
     width: 0;
 }
-
 .checkbox-container .checkmark {
     position: absolute;
     top: 0;
@@ -618,32 +610,26 @@
     z-index: 1;
     border-radius: 4px;
 }
-
-.checkbox-container:hover input~.checkmark {
+.checkbox-container:hover input ~ .checkmark {
     background-color: #ccc;
 }
-
-.checkbox-container input:disabled~.checkmark {
+.checkbox-container input:disabled ~ .checkmark {
     border-color: #eee;
     cursor: not-allowed;
     background: #eee;
 }
-
-.checkbox-container input:checked~.checkmark {
+.checkbox-container input:checked ~ .checkmark {
     background-color: var(--bs-blue);
     border: 0.5px solid var(--bs-blue);
 }
-
 .checkbox-container .checkmark:after {
     content: "";
     position: absolute;
     display: none;
 }
-
-.checkbox-container input:checked~.checkmark:after {
+.checkbox-container input:checked ~ .checkmark:after {
     display: block;
 }
-
 .checkbox-container .checkmark:after {
     left: 9px;
     top: 5px;
@@ -655,25 +641,20 @@
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
 }
-
-.csv-table-col .csv-table-wrap {
+.csv-table-col .csv-table-wrap{
     max-height: 300px;
 }
-
-.warranty-tab {
+.warranty-tab{
     min-height: 600px;
-    margin-top: 23px;
+    margin-top:23px;
 }
-
 .warranty-import .alert a {
     color: #435ebe;
     text-decoration: underline !important;
 }
-
 .warranty-import .alert-success {
     color: #000 !important;
 }
-
 .dropdown-tab .btn-icon {
     background: none;
     border: none;
@@ -681,7 +662,6 @@
     margin: 0;
     color: inherit;
 }
-
 .table-action .dropdown-tab {
     position: relative;
 }
@@ -702,17 +682,16 @@
     top: 100%;
     right: 0;
     z-index: 1000;
-    width: 260px;
+    width: 220px;
     min-width: 200px;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     margin-top: 5px;
 }
-
 .table-action .dropdown-tab .custom-width {
-    width: 285px !important;
+    width: 285px!important;
 }
 
 .table-action .dropdown-tab .popup .popup-content {
@@ -721,15 +700,14 @@
 }
 
 .table-action .dropdown-tab .popup .popup-content .popup-item {
-    padding: 10px 13px;
+    padding: 10px 15px;
     color: #333;
     text-decoration: none;
     transition: background-color 0.2s;
-}
+  }
 
 .table-action .dropdown-tab .popup-content .popup-item {
-    color: #212529;
-    /* Text color */
+    color: #212529; /* Text color */
 }
 
 .table-action .dropdown-tab .popup-content .popup-item:hover,
