@@ -69,7 +69,7 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect(),
 
             Column::make('Unavailable Equipment', 'unavailable_equipments_id')
-                ->hideIf(auth()->user()->account->id != 2)
+                ->hideIf(!in_array(auth()->user()->account_id, [2,null]))
                 ->excludeFromColumnSelect(),
 
             BooleanColumn::make('Is Active', 'is_active')
