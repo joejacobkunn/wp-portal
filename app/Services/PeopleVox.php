@@ -31,7 +31,6 @@ class PeopleVox
             if(str_contains($this->clean($row),'Status')) $parsed['status'] = str_replace('Status', '', $this->clean($row));
         }
 
-        $parsed['line_items'] = $this->transformLineItems($data);
 
         $po_number_split = explode('-',$parsed['po_number']);
 
@@ -44,18 +43,20 @@ class PeopleVox
                                                             AND poel.statustype = 'a'
                                             WITH(NOLOCK)", [$this->cono,$po_number_split[0],$po_number_split[1]]);
 
+            $parsed['line_items'] = $this->transformLineItems($data,$sx_po_line_data);
+
             $payload = $this->createSXApiPayload($parsed);
 
             Mail::send([], [],function (Message $message) use($payload, $sx_po_line_data) {
                 $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
-                $message->html('<span>Received Response : <br><br>'.json_encode($this->payload).'<br><br>Parsed Data<br><br>'.json_encode($payload).'<br><br>SX Data<br><br>'.json_encode($sx_po_line_data).'</span>');
+                $message->html('<span><strong>Received Response :</strong> <br><br>'.json_encode($this->payload).'<br><br><strong>Parsed Data</strong><br><br>'.json_encode($payload).'<br><br><strong>SX PO Data</strong><br><br>'.json_encode($sx_po_line_data).'</span>');
             });
 
         }
 
     }
 
-    private function transformLineItems($data)
+    private function transformLineItems($data,$sx_po_line_data)
     {
         //get array key of start of line item
         $keys = [];
@@ -64,6 +65,15 @@ class PeopleVox
             if(str_contains($row,'Line=')) $keys['line'] = $key;
             if(str_contains($row,'LineQuantity=')) $keys['quantity'] = $key;
             if(str_contains($row,'CostPrice=')) $keys['cost'] = $key;
+            if(str_contains($row,'ItemQuantity=')) $keys['item_qty'] = $key;
+            if(str_contains($row,'ItemCode=')) $keys['item_codes'] = $key;
+        }
+
+        $receipted_products = [];
+
+        for($m = $keys['item_codes']; $m < $keys['cost']; $m++)
+        {
+            $receipted_products[] = str_replace('ItemCode=', '', $data[$m]);
         }
 
         $line_items = [];
@@ -71,16 +81,22 @@ class PeopleVox
 
         for($i=$keys['line']; $i<$keys['quantity'];$i++)
         {
-            $line_items[] = [
-                'line_no' => (int)filter_var($data[$i] ,FILTER_SANITIZE_NUMBER_INT),
-                'quantity' => (int)filter_var($data[$keys['quantity'] + ($j)] ,FILTER_SANITIZE_NUMBER_INT),
-                'amount' => str_replace('CostPrice=', '', $data[$keys['cost'] + ($j)]),
-            ];
+            $line_no = (int)filter_var($data[$i] ,FILTER_SANITIZE_NUMBER_INT);
+
+            if($this->lineEligibleForReceipt($line_no,$receipted_products,$sx_po_line_data))
+            {
+                $line_items[] = [
+                    'line_no' => $line_no,
+                    'quantity' => (int)filter_var($data[$keys['quantity'] + ($j)] ,FILTER_SANITIZE_NUMBER_INT),
+                    'amount' => str_replace('CostPrice=', '', $data[$keys['cost'] + ($j)]),
+                ];
+    
+            }
 
             $j++;
         }
 
-        return $line_items;
+        return collect($line_items)->sortBy('line_no')->toArray();
 
     }
 
@@ -132,11 +148,26 @@ class PeopleVox
         ];
     }
 
+    private function lineEligibleForReceipt($line_no,$receipted_products,$sx_po_line_data)
+    {
+        foreach($sx_po_line_data as $sx_po_line)
+        {
+            if(in_array($sx_po_line->shipprod,$receipted_products))
+            {
+                if($sx_po_line->lineno == $line_no)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private function clean($string) {
         $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
         $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
         return preg_replace('/-+/', '-', $string); // Replaces multiple hyphens with single one.
      }
-
 
 }
