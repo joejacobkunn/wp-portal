@@ -260,8 +260,7 @@ class Show extends Component
 
     public function sendEmail()
     {
-            $this->validate();
-            $this->authorize('manage', $this->order);
+        $this->authorize('manage', $this->order);
             $this->order->status = OrderStatus::FollowUp->value;
             $this->order->last_updated_by = auth()->user()->id;
             $this->order->last_followed_up_at = now();
@@ -272,7 +271,6 @@ class Show extends Component
 
     public function sendShippingEmail()
     {
-        $this->validate();
         $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::ShipmentFollowUp->value;
         $this->order->last_updated_by = auth()->user()->id;
@@ -285,7 +283,6 @@ class Show extends Component
 
     public function sendReceivingEmail()
     {
-        $this->validate();
         $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::ReceivingFollowUp->value;
         $this->order->last_updated_by = auth()->user()->id;
