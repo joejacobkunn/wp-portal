@@ -198,7 +198,7 @@ class Table extends DataTableComponent
             Column::make('Ship Via', 'ship_via')
                 ->secondaryHeader($this->getFilterByKey('ship_via'))
                 ->format(function ($value, $row) {
-                    return $value;
+                    return strtoupper($value);
                 })
                 ->html(),
 
