@@ -14,8 +14,8 @@ class Table extends DataTableComponent
 {
 
     public array $bulkActions = [
-        'deleteSelected' => 'Delete',
-        'updateSelected' => 'Update'
+        'deleteSelected' => 'Delete Selected',
+        'updateSelected' => 'Update Selected'
 
     ];
 
@@ -27,8 +27,6 @@ class Table extends DataTableComponent
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
-        $this->setHideBulkActionsWhenEmptyStatus(true);
-        //$this->setBulkActionsEnabled();
     }
 
     public function columns(): array
@@ -184,6 +182,15 @@ class Table extends DataTableComponent
     {
         $rows = $this->getSelected();
         $this->dispatch('bulkDelete', $rows);
+        $this->clearSelected();
+
+    }
+    public function updateSelected()
+    {
+        $rows = $this->getSelected();
+        $this->dispatch('bulkUpdate', $rows);
+        $this->clearSelected();
+
     }
 
     public function builder(): Builder
