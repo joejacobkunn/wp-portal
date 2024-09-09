@@ -10,6 +10,7 @@ use App\Models\Product\Product;
 use App\Models\SX\Product as SXProduct;
 use App\Rules\ValidProductsForFloorModel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
@@ -123,7 +124,7 @@ trait FormRequest
             'qty' => $this->qty ?? 0,
             'sx_operator_id' => Auth::user()->sx_operator_id
         ]);
-        
+
         $this->floorModel->save();
 
         InventoryUpdated::dispatch($this->floorModel);
@@ -136,7 +137,6 @@ trait FormRequest
     public function delete()
     {
         $this->authorize('delete', $this->floorModel);
-
         InventoryDeleted::dispatch($this->floorModel);
 
         if ( FloorModelInventory::where('id', $this->floorModel->id )->delete() ) {

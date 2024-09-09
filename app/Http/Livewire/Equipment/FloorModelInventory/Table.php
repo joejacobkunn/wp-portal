@@ -13,6 +13,12 @@ use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
 class Table extends DataTableComponent
 {
 
+    public array $bulkActions = [
+        'deleteSelected' => 'Delete',
+        'updateSelected' => 'Update'
+
+    ];
+
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -21,6 +27,8 @@ class Table extends DataTableComponent
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
+        $this->setHideBulkActionsWhenEmptyStatus(true);
+        //$this->setBulkActionsEnabled();
     }
 
     public function columns(): array
@@ -40,9 +48,11 @@ class Table extends DataTableComponent
                     $badge = '<span class="badge bg-light-warning float-end"><i class="fas fa-pause-circle"></i></span>';
                 }
 
-                return '<a  href="'.route('equipment.floor-model-inventory.show', ['floorModel'=> $row->id]).
-                    '" wire:navigate class="text-primary text-decoration-underline">'.
-                    $value.'</a>'.$badge;
+                return '<a href="' . route('equipment.floor-model-inventory.show', ['floorModel' => $row->id]) . '"
+                wire:click.prevent="viewDetails(' . $row->id . ')"
+                class="text-primary text-decoration-underline">' .
+                $value . '</a>' . $badge;
+
             })
             ->html(),
 
@@ -145,9 +155,41 @@ class Table extends DataTableComponent
         ];
     }
 
+    public function viewDetails($id)
+    {
+        $this->storeTableStateInSession();
+        return redirect()->route('equipment.floor-model-inventory.show', $id);
+    }
+
+    public function mount()
+    {
+        if (session()->has('table_state')) {
+            $state = session('table_state');
+
+            foreach ($state['filters'] as $key => $value) {
+                $this->setFilter($key, $value);
+            }
+            session()->forget('table_state');
+        }
+    }
+
+    public function storeTableStateInSession()
+    {
+        session(['table_state' => [
+            'filters' => $this->getAppliedFilters(),
+        ]]);
+    }
+
+    public function deleteSelected()
+    {
+        $rows = $this->getSelected();
+        $this->dispatch('bulkDelete', $rows);
+    }
+
     public function builder(): Builder
     {
         $query = FloorModelInventory::with(['products', 'warehouse:id,cono,title'])->select('floor_model_inventory.id','product','whse','qty','sx_operator_id');
         return $query;
     }
+
 }

@@ -17,12 +17,18 @@ class Index extends Component
     public $addRecord = false;
     public $warehouses;
     public $page;
+    public $ShowUpdateModel;
     public FloorModelInventory $floorModel;
 
     public $breadcrumbs = [
         [
             'title' => 'Floor Model Inventory',
         ],
+    ];
+
+    protected $listeners = [
+        'bulkUpdate' => 'bulkUpdate',
+        'bulkDelete' => 'bulkDelete',
     ];
 
     public function mount()
@@ -48,5 +54,14 @@ class Index extends Component
         $this->addRecord = false;
         $this->resetValidation();
         $this->reset(['product', 'warehouseId', 'qty']);
+    }
+
+    public function bulkUpdate()
+    {
+    }
+
+    public function bulkDelete($rows)
+    {
+        $this->ShowUpdateModel =true;
     }
 }

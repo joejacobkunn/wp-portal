@@ -29,6 +29,29 @@
 
                     </div>
                 </div>
+                <div class="update-model">
+                    <x-modal :toggle="$ShowUpdateModel" size="md" :closeEvent="'closeUpdate'">
+                        <x-slot name="title">Update Quantity</x-slot>
+                        <form wire:submit.prevent="submit()">
+                            <div class="row w-100">
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-group">
+                                        <x-forms.select label="Quantity" model="qty" :options="['0', '1', '2', '3']" :selected="$qty"
+                                            :defaultOption=false :key="'qty-' . now()" listener="qty:changed" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2 float-start">
+                                <button type="submit" class="btn btn-primary" >
+                                    <div wire:loading wire:target="submit">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    </div>
+                                    Update
+                                </button>
+                            </div>
+                        </form>
+                    </x-modal>
+                </div>
         </x-slot>
     </x-page>
 </div>
