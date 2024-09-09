@@ -181,6 +181,7 @@ class Table extends DataTableComponent
     public function deleteSelected()
     {
         $rows = $this->getSelected();
+        $this->storeTableStateInSession();
         $this->dispatch('bulkDelete', $rows);
         $this->clearSelected();
 
@@ -188,8 +189,8 @@ class Table extends DataTableComponent
     public function updateSelected()
     {
         $rows = $this->getSelected();
+        $this->storeTableStateInSession();
         $this->dispatch('bulkUpdate', $rows);
-        $this->clearSelected();
 
     }
 
