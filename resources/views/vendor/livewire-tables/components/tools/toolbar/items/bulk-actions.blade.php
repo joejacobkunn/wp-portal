@@ -76,7 +76,7 @@
             >
                 @foreach ($component->getBulkActions() as $action => $title)
                     <a
-                        href="#"
+                        href="javascript:;"
                         @if($component->hasConfirmationMessage($action))
                             wire:confirm="{{ $component->getBulkActionConfirmMessage($action) }}"
                         @endif
