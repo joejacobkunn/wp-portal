@@ -48,24 +48,25 @@ class ProcessOrders implements ShouldQueue
             return [];
         }
 
-        $fileName = uniqid() . '.csv';
-        Order::whereIn('stage_code', $stageCodes)->chunk(1000, function ($orders) use ($fileName) {
-            $filePath = storage_path('app/public/' . config('order.url') . $fileName);
-            $fileExists = file_exists($filePath);
-            $writer = Writer::createFromPath($filePath, 'a+');
 
-            if (!$fileExists) {
-                $writer->insertOne([
-                    'id', 'cono', 'order_number', 'order_number_suffix', 'whse', 'taken_by',
-                    'is_dnr', 'order_date', 'promise_date', 'warehouse_transfer_available',
-                    'partial_warehouse_transfer_available', 'wt_transfers', 'is_web_order',
-                    'last_line_added_at', 'golf_parts', 'non_stock_line_items', 'is_sro',
-                    'last_followed_up_at', 'ship_via', 'line_items', 'is_sales_order', 'qty_ship',
-                    'qty_ord', 'stage_code', 'dnr_items', 'sx_customer_number', 'status', 'last_updated_by'
-                ]);
-            }
+        $fileName = uniqid() . '.csv';
+        $filePath = storage_path('app/public/' . config('order.url') . $fileName);
+        $writer = Writer::createFromPath($filePath, 'a+');
+        $writer->forceEnclosure();
+        $writer->encloseAll(); //return true;
+        $writer->insertOne([
+            'id', 'cono', 'order_number', 'order_number_suffix', 'whse', 'taken_by',
+            'is_dnr', 'order_date', 'promise_date', 'warehouse_transfer_available',
+            'partial_warehouse_transfer_available', 'wt_transfers', 'is_web_order',
+            'last_line_added_at', 'golf_parts', 'non_stock_line_items', 'is_sro',
+            'last_followed_up_at', 'ship_via', 'line_items', 'is_sales_order', 'qty_ship',
+            'qty_ord', 'stage_code', 'dnr_items', 'sx_customer_number', 'status', 'last_updated_by'
+        ]);
+
+        Order::where('stage_code', $stageCodes)->chunk(1000, function ($orders) use ($writer) {
 
             $records = $orders->map(function ($order) {
+
                 return [
                     'id' => $order->id,
                     'cono' => $order->cono,
@@ -78,20 +79,20 @@ class ProcessOrders implements ShouldQueue
                     'promise_date' => $order->promise_date,
                     'warehouse_transfer_available' => $order->warehouse_transfer_available,
                     'partial_warehouse_transfer_available' => $order->partial_warehouse_transfer_available,
-                    'wt_transfers' => json_encode($order->wt_transfers),
+                    'wt_transfers' => str_replace('"','`', json_encode($order->wt_transfers)),
                     'is_web_order' => $order->is_web_order,
                     'last_line_added_at' => $order->last_line_added_at,
-                    'golf_parts' => json_encode($order->golf_parts),
-                    'non_stock_line_items' => json_encode($order->non_stock_line_items),
+                    'golf_parts' => str_replace('"','`', json_encode($order->golf_parts)),
+                    'non_stock_line_items' => str_replace('"','`', json_encode($order->non_stock_line_items)),
                     'is_sro' => $order->is_sro,
                     'last_followed_up_at' => $order->last_followed_up_at,
                     'ship_via' => $order->ship_via,
-                    'line_items' => json_encode($order->line_items),
+                    'line_items' => str_replace('"','`', json_encode($order->line_items)),
                     'is_sales_order' => $order->is_sales_order,
                     'qty_ship' => $order->qty_ship,
                     'qty_ord' => $order->qty_ord,
                     'stage_code' => $order->stage_code,
-                    'dnr_items' => json_encode($order->dnr_items),
+                    'dnr_items' => str_replace('"','`', json_encode($order->dnr_items)),
                     'sx_customer_number' => $order->sx_customer_number,
                     'status' => $order->status->value,
                     'last_updated_by' => $order->last_updated_by,
