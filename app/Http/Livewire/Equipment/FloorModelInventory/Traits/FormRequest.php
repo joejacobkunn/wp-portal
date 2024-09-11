@@ -165,7 +165,15 @@ trait FormRequest
     public function bulkQtyUpdate()
     {
         $this->validate();
-        FloorModelInventory::whereIn('id', $this->selectedRows)->update(['qty' => $this->bulkqty]);
+        
+        $floor_models = FloorModelInventory::whereIn('id', $this->selectedRows)->get();
+
+        foreach($floor_models as $floor_model)
+        {
+            $floor_model->update(['qty' => $this->bulkqty]);
+            InventoryUpdated::dispatch($floor_model);
+        }
+
         $this->tableKey = uniqid();
 
         if(! $this->comments) {
@@ -181,7 +189,7 @@ trait FormRequest
         }
     }
 
-    public function getbulkDeleteRecords()
+    public function getSelectedRecords()
     {
        $floorModel = FloorModelInventory::whereIn('id', $this->selectedRows)->get();
         $this->headers = ['whse' => 'Warehouse', 'product' => 'Product', 'qty' => 'Quantity'];

@@ -75,7 +75,7 @@ class ProcessWarrantyRecords implements ShouldQueue
 
                 if($serialized_product)
                 {
-                    DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y", strtotime($row['reg_date']))."', user4 = '".$this->warrantyImport->uploader->sx_operator_id."' where cono = 10 AND whse IN('wate','utic','ann','livo','ceda','farm') and serialno = '".$row['serial']."' and prod like '".$brand_config->prefix."%' and custno <> '' and currstatus = 's'");
+                    DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y", strtotime($row['reg_date']))."', user4 = '".$this->warrantyImport->uploader->sx_operator_id."' where cono = 10 AND whse IN('wate','utic','ann','livo','ceda','farm') and serialno = '".trim($row['serial'])."' and prod like '".$brand_config->prefix."%' and custno <> '' and currstatus = 's'");
 
                     $this->warrantyImport->increment('processed_count');
                 }else{

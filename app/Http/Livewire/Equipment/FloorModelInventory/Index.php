@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Equipment\FloorModelInventory;
 
+use App\Events\Floormodel\InventoryDeleted;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Equipment\FloorModelInventory\Traits\FormRequest;
 use App\Models\Core\Warehouse;
@@ -65,7 +66,7 @@ class Index extends Component
     public function bulkDeleteListner($rows)
     {
         $this->selectedRows =$rows;
-        $this->getbulkDeleteRecords();
+        $this->getSelectedRecords();
         $this->ShowDeleteModel = true;
     }
 
@@ -75,7 +76,14 @@ class Index extends Component
 
         $this->authorize('delete', $floorModel);
 
-        FloorModelInventory::whereIn('id', $this->selectedRows)->delete();
+        $floor_models = FloorModelInventory::whereIn('id', $this->selectedRows)->get();
+
+        foreach($floor_models as $floor_model)
+        {
+            InventoryDeleted::dispatch($floor_model);
+            $floor_model->delete();
+        }
+
         $this->reset('selectedRows');
         $this->ShowDeleteModel = false;
         $this->tableKey = uniqid();
@@ -85,6 +93,7 @@ class Index extends Component
     public function bulkUpdateListner($rows)
     {
         $this->selectedRows =$rows;
+        $this->getSelectedRecords();
         $this->ShowUpdateModel =true;
     }
 
