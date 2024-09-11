@@ -10,6 +10,7 @@ use App\Models\Product\Product;
 use App\Models\SX\Product as SXProduct;
 use App\Rules\ValidProductsForFloorModel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
@@ -21,17 +22,30 @@ trait FormRequest
     public $product;
     public $qty =0;
     public $warehouseId;
-
+    public $bulkqty;
     public $showBox =false;
     public $matchedProduct;
+    public $ShowUpdateModel = false;
+    public $tableKey ='234';
+    public $comments;
+    public $headers = [];
+    public $records = [];
+
     protected $validationAttributes = [
         'warehouseId' => 'Warehouse',
         'qty' => 'Quantity',
         'product' => 'Product',
+        'bulkqty' => 'Quantity',
     ];
 
     protected function rules()
     {
+        if($this->ShowUpdateModel) {
+            return [
+                'bulkqty' => 'required|integer|in:0,1,2,3',
+                'comments' => 'nullable',
+            ];
+        }
         return [
             'warehouseId' => 'required|exists:warehouses,id',
             'qty' => 'required|integer|in:0,1,2,3',
@@ -123,7 +137,7 @@ trait FormRequest
             'qty' => $this->qty ?? 0,
             'sx_operator_id' => Auth::user()->sx_operator_id
         ]);
-        
+
         $this->floorModel->save();
 
         InventoryUpdated::dispatch($this->floorModel);
@@ -136,7 +150,6 @@ trait FormRequest
     public function delete()
     {
         $this->authorize('delete', $this->floorModel);
-
         InventoryDeleted::dispatch($this->floorModel);
 
         if ( FloorModelInventory::where('id', $this->floorModel->id )->delete() ) {
@@ -147,5 +160,37 @@ trait FormRequest
 
         $this->alert('error','Record not found');
         return redirect()->route('equipment.floor-model-inventory.index');
+    }
+
+    public function bulkQtyUpdate()
+    {
+        $this->validate();
+        FloorModelInventory::whereIn('id', $this->selectedRows)->update(['qty' => $this->bulkqty]);
+        $this->tableKey = uniqid();
+
+        if(! $this->comments) {
+            return;
+        }
+        $floorModel = FloorModelInventory::whereIn('id', $this->selectedRows)->get();
+
+        foreach($floorModel as $item) {
+           $item->comments()->create([
+            'user_id' => Auth::user()->id,
+            'comment' => $this->comments,
+           ]);
+        }
+    }
+
+    public function getbulkDeleteRecords()
+    {
+       $floorModel = FloorModelInventory::whereIn('id', $this->selectedRows)->get();
+        $this->headers = ['whse' => 'Warehouse', 'product' => 'Product', 'qty' => 'Quantity'];
+        $this->records = $floorModel->map(function($item) {
+            return [
+                'whse' => $item->warehouse->title,
+                'product' => $item->product,
+                'qty' => $item->qty,
+            ];
+        });
     }
 }
