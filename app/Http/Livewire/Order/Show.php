@@ -22,6 +22,7 @@ use App\Models\SX\Shipping;
 use App\Models\SX\WarehouseProduct;
 use App\Services\Kenect;
 use App\Services\Kinect;
+use Carbon\Carbon;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
@@ -381,10 +382,19 @@ class Show extends Component
 
             if($backorder_count > 0)
             {
-                $estimated_date = (!empty($item->user8)) ? date("F j, Y", strtotime($item->user8)) : 'n/a';
+                $display_date = '';
+                if(!empty($item->user8))
+                {   $past_three_year_date = Carbon::now()->subYears(3);
+                    $future_three_year = Carbon::now()->addYears(3);
+                    $estimated_date = Carbon::parse($item->user8);
+                    if($estimated_date->greaterThan($past_three_year_date) && $estimated_date->lessThan($future_three_year))
+                    {
+                        $display_date = ' ('.date("F j, Y", strtotime($item->user8)).')';
+                    }
+                }
                 $backorders[] = [
                     'shipprod' => $item->shipprod,
-                    'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).' ('.$estimated_date.')'
+                    'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).$display_date
                 ];
     
             }

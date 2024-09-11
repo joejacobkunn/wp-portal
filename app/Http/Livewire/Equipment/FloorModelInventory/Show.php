@@ -20,7 +20,6 @@ class Show extends Component
     public $qtyModal = false;
     public $sxproduct;
     public $enableButton = false;
-
     public $tabs = [
         'floor-model-comment-tabs' => [
             'active' => 'comments',
