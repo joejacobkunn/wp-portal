@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Core\PurchaseOrderReceipt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\DB;
@@ -29,34 +30,41 @@ class PeopleVox
             if(str_contains($this->clean($row),'Reference') && ctype_alnum($this->clean($row)) && empty($parsed['people_vox_reference_number'])) $parsed['people_vox_reference_number'] = (int)filter_var($row ,FILTER_SANITIZE_NUMBER_INT);
             if(str_contains($this->clean($row),'PONumber')) $parsed['po_number'] = str_replace('PONumber', '', $this->clean($row));
             if(str_contains($this->clean($row),'Status')) $parsed['status'] = str_replace('Status', '', $this->clean($row));
+            if(str_contains($row,'DeliveryDateTime')) $parsed['delivery_date'] = str_replace('DeliveryDateTime=', '', $row);
         }
 
+        $po_number = $parsed['po_number'];
 
-        $po_number_split = explode('-',$parsed['po_number']);
-
-        if(is_numeric($po_number_split[0]) && is_numeric($po_number_split[1]))
+        if(is_numeric($po_number))
         {
-            $sx_po_line_data = DB::connection('sx')->select("SELECT poel.lineno, poel.shipprod, poel.qtyord FROM pub.poel
-                                                            WHERE poel.cono = ?
-                                                            AND poel.pono = ?
-                                                            AND poel.posuf = ?
-                                                            AND poel.statustype = 'a'
-                                            WITH(NOLOCK)", [$this->cono,$po_number_split[0],$po_number_split[1]]);
+            // $sx_po_line_data = DB::connection('sx')->select("SELECT poel.lineno, poel.shipprod, poel.qtyord FROM pub.poel
+            //                                                 WHERE poel.cono = ?
+            //                                                 AND poel.pono = ?
+            //                                                 AND poel.posuf = ?
+            //                                                 AND poel.statustype = 'a'
+            //                                 WITH(NOLOCK)", [$this->cono,$po_number_split[0],$po_number_split[1]]);
 
-            $parsed['line_items'] = $this->transformLineItems($data,$sx_po_line_data);
+            $parsed['line_items'] = $this->transformLineItems($data);
 
-            $payload = $this->createSXApiPayload($parsed);
+            PurchaseOrderReceipt::create([
+                'po_number' => $po_number,
+                'people_vox_reference_no' => $parsed['people_vox_reference_number'],
+                'receipt_date' => \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $parsed['delivery_date'])->format('Y-m-d'),
+                'line_items' => $parsed['line_items']
+            ]);
 
-            Mail::send([], [],function (Message $message) use($payload, $sx_po_line_data) {
-                $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
-                $message->html('<span><strong>Received Response :</strong> <br><br>'.json_encode($this->payload).'<br><br><strong>Parsed Data</strong><br><br>'.json_encode($payload).'<br><br><strong>SX PO Data</strong><br><br>'.json_encode($sx_po_line_data).'</span>');
-            });
+            // $payload = $this->createSXApiPayload($parsed);
+
+            // Mail::send([], [],function (Message $message) use($payload) {
+            //     $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
+            //     $message->html('<span><strong>Received Response :</strong> <br><br>'.json_encode($this->payload).'<br><br><strong>Parsed Data</strong><br><br>'.json_encode($payload).'<br><br><strong>SX PO Data</strong><br><br>'.json_encode($sx_po_line_data).'</span>');
+            // });
 
         }
 
     }
 
-    private function transformLineItems($data,$sx_po_line_data)
+    private function transformLineItems($data)
     {
         //get array key of start of line item
         $keys = [];
@@ -83,15 +91,17 @@ class PeopleVox
         {
             $line_no = (int)filter_var($data[$i] ,FILTER_SANITIZE_NUMBER_INT);
 
-            if($this->lineEligibleForReceipt($line_no,$receipted_products,$sx_po_line_data))
-            {
-                $line_items[] = [
-                    'line_no' => $line_no,
-                    'quantity' => (int)filter_var($data[$keys['quantity'] + ($j)] ,FILTER_SANITIZE_NUMBER_INT),
-                    'amount' => str_replace('CostPrice=', '', $data[$keys['cost'] + ($j)]),
-                ];
+            // if($this->lineEligibleForReceipt($line_no,$receipted_products,$sx_po_line_data))
+            // {
     
-            }
+            // }
+
+            $line_items[] = [
+                'line_no' => $line_no,
+                'quantity' => (int)filter_var($data[$keys['quantity'] + ($j)] ,FILTER_SANITIZE_NUMBER_INT),
+                'amount' => str_replace('CostPrice=', '', $data[$keys['cost'] + ($j)]),
+            ];
+
 
             $j++;
         }
