@@ -37,12 +37,6 @@ class PeopleVox
 
         if(is_numeric($po_number))
         {
-            // $sx_po_line_data = DB::connection('sx')->select("SELECT poel.lineno, poel.shipprod, poel.qtyord FROM pub.poel
-            //                                                 WHERE poel.cono = ?
-            //                                                 AND poel.pono = ?
-            //                                                 AND poel.posuf = ?
-            //                                                 AND poel.statustype = 'a'
-            //                                 WITH(NOLOCK)", [$this->cono,$po_number_split[0],$po_number_split[1]]);
 
             $parsed['line_items'] = $this->transformLineItems($data);
 
@@ -53,12 +47,10 @@ class PeopleVox
                 'line_items' => $parsed['line_items']
             ]);
 
-            // $payload = $this->createSXApiPayload($parsed);
-
-            // Mail::send([], [],function (Message $message) use($payload) {
-            //     $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
-            //     $message->html('<span><strong>Received Response :</strong> <br><br>'.json_encode($this->payload).'<br><br><strong>Parsed Data</strong><br><br>'.json_encode($payload).'<br><br><strong>SX PO Data</strong><br><br>'.json_encode($sx_po_line_data).'</span>');
-            // });
+            Mail::send([], [],function (Message $message) {
+                $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
+                $message->html('<span><strong>Received Response :</strong> <br><br>'.json_encode($this->payload));
+            });
 
         }
 
@@ -84,7 +76,7 @@ class PeopleVox
             $receipted_products[] = str_replace('ItemCode=', '', $data[$m]);
         }
 
-        $line_items = [];
+        $parsed_data = [];
         $j=0;
 
         for($i=$keys['line']; $i<$keys['quantity'];$i++)
@@ -96,7 +88,7 @@ class PeopleVox
     
             // }
 
-            $line_items[] = [
+            $parsed_data['line_items'][] = [
                 'line_no' => $line_no,
                 'quantity' => (int)filter_var($data[$keys['quantity'] + ($j)] ,FILTER_SANITIZE_NUMBER_INT),
                 'amount' => str_replace('CostPrice=', '', $data[$keys['cost'] + ($j)]),
@@ -106,73 +98,12 @@ class PeopleVox
             $j++;
         }
 
-        return collect($line_items)->sortBy('line_no')->toArray();
+        $parsed_data['products'] = $receipted_products;
+
+        return $parsed_data;
 
     }
 
-    private function createSXApiPayload($data)
-    {
-        $line_items = [];
-
-        foreach($data['line_items'] as $line_item)
-        {
-            $line_items[] = [
-                'lineno' => $line_item['line_no'],
-                'qtyrcv' => $line_item['quantity'],
-                'price' => $line_item['amount'],
-                'cancelfl' => false,
-                'unavail' => false,
-                'reasunavty' => '',
-                'user1' => '',
-                'user2' => '',
-                'user3' => '',
-                'user4' => '',
-                'user5' => '',
-                'user6' => 0,
-                'user7' => 0,
-                'user8' => '',
-                'user9' => ''
-            ];
-        }
-
-        $po_number_split = explode('-',$data['po_number']);
-
-        return [
-            'request' => [
-                'companyNumber' => $this->cono,
-                'operatorInit' => "wpa",
-                'operatorPassword' => "",
-                "purchaseOrderNumber" => $po_number_split[0],
-                'purchaseOrderSuffix' => $po_number_split[1],
-                'reference' => "",
-                'ttRcvline' => [
-                    'tt-rcvline' => $line_items
-                ],
-                'tInfieldvalue' => [
-                    't-infieldvalue' => [
-
-                    ]
-                ]
-
-            ]
-        ];
-    }
-
-    private function lineEligibleForReceipt($line_no,$receipted_products,$sx_po_line_data)
-    {
-        foreach($sx_po_line_data as $sx_po_line)
-        {
-            if(in_array($sx_po_line->shipprod,$receipted_products))
-            {
-                if($sx_po_line->lineno == $line_no)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 
     private function clean($string) {
         $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
