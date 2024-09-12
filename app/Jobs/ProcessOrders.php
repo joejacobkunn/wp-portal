@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Maatwebsite\Excel\Facades\Excel;
 use League\Csv\Writer;
+use Illuminate\Support\Str;
+
 class ProcessOrders implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -54,6 +56,7 @@ class ProcessOrders implements ShouldQueue
         $writer = Writer::createFromPath($filePath, 'a+');
         $writer->forceEnclosure();
         $writer->encloseAll(); //return true;
+
         $writer->insertOne([
             'id', 'cono', 'order_number', 'order_number_suffix', 'whse', 'taken_by',
             'is_dnr', 'order_date', 'promise_date', 'warehouse_transfer_available',
@@ -63,7 +66,8 @@ class ProcessOrders implements ShouldQueue
             'qty_ord', 'stage_code', 'dnr_items', 'sx_customer_number', 'status', 'last_updated_by'
         ]);
 
-        Order::where('stage_code', $stageCodes)->chunk(1000, function ($orders) use ($writer) {
+        Order::where('stage_code', $stageCodes)
+            ->chunk(1000, function ($orders) use ($writer) {
 
             $records = $orders->map(function ($order) {
 
@@ -98,7 +102,10 @@ class ProcessOrders implements ShouldQueue
                     'last_updated_by' => $order->last_updated_by,
                 ];
             });
-
+            $records->transform(function ($item) {
+                $item['line_items'] = Str::limit($item['line_items'], 32000);
+                return $item;
+            });
             $writer->insertAll($records->toArray());
         });
         return $fileName;
