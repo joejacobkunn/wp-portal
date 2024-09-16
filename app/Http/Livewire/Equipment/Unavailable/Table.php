@@ -61,6 +61,7 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->searchable()
                 ->format(function ($value, $row) {
+                    if(empty($value)) return '<span class="badge bg-light-warning">Not Set</span>';
                     return $value;
                 })
                 ->html(),
@@ -123,11 +124,6 @@ class Table extends DataTableComponent
     {
         $query = UnavailableUnit::where('cono', auth()->user()->account->sx_company_number)->where('is_unavailable', 1);
 
-        if(!auth()->user()->can('equipment.unavailable.viewall'))
-        {
-            $query->where('possessed_by', strtolower(auth()->user()->unavailable_equipments_id));
-        }
-
         return $query;
     }
 
@@ -145,7 +141,7 @@ class Table extends DataTableComponent
                     'maxlength' => '15',
                 ])
                 ->filter(function (Builder $builder, string $value) {
-                    $builder->whereHas('user', function ($query) use ($value) {
+                    $builder->where('is_unavailable', 1)->whereHas('user', function ($query) use ($value) {
                         $query->where('name', 'like', '%' . $value . '%')
                             ->orWhere('abbreviation', 'like', '%' . $value . '%');
                     })
@@ -165,7 +161,7 @@ class Table extends DataTableComponent
                     '' => 'Show All',
                     ])
                     ->filter(function (Builder $builder, string $value) {
-                        $builder->where('possessed_by', $value=='show_mine'? Auth::user()->unavailable_equipments_id : $value );
+                        $builder->where('is_unavailable', 1)->where('possessed_by', $value=='show_mine'? Auth::user()->unavailable_equipments_id : $value );
                 })
         ];
     }
