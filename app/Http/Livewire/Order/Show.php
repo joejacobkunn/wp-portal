@@ -255,7 +255,7 @@ class Show extends Component
         $this->order->save();
         $this->closePopup('cancelOrderModal');
 
-        event(new OrderCancelled($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
+        event(new OrderCancelled($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled, $this->emailEnabled));
 
     }
 
@@ -268,7 +268,7 @@ class Show extends Component
             $this->order->last_followed_up_at = now();
             $this->order->save();
             $this->closePopup('followUpModal');
-            event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
+            event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled, $this->emailEnabled));
     }
 
     public function sendShippingEmail()
@@ -280,7 +280,7 @@ class Show extends Component
         $this->order->last_followed_up_at = now();
         $this->order->save();
         $this->closePopup('shippingModal');
-        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->shippingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
+        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->shippingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled, $this->emailEnabled));
 
     }
 
@@ -293,7 +293,7 @@ class Show extends Component
         $this->order->last_followed_up_at = now();
         $this->order->save();
         $this->closePopup('receivingModal');
-        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->receivingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
+        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->receivingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled, $this->emailEnabled));
     }
 
     public function getCustomerProperty()

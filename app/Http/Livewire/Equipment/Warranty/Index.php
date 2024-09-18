@@ -22,6 +22,7 @@ class Index extends Component
             'active' => 'warrantyImport',
             'links' => [
                 'warrantyImport' => 'Warranty Import',
+                'warrantyReport' => 'Warranty Report',
                 'brand' => 'Brand Configurator',
             ]]];
 

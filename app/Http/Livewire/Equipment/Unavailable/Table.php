@@ -145,7 +145,10 @@ class Table extends DataTableComponent
                         $query->where('name', 'like', '%' . $value . '%')
                             ->orWhere('abbreviation', 'like', '%' . $value . '%');
                     })
-                    ->orWhere('possessed_by', 'like', '%' . $value . '%');
+                    ->orWhere(function (Builder $query) use($value) {
+                        $query->where('possessed_by', 'like', '%' . $value . '%')
+                              ->where('is_unavailable', 1);
+                    });
                 }),
 
                 SelectFilter::make('Warehouse', 'whse')
