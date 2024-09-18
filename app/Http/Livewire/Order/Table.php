@@ -89,7 +89,7 @@ class Table extends DataTableComponent
                 ->searchable()->excludeFromColumnSelect()
                 ->secondaryHeader($this->getFilterByKey('order_number'))
                 ->format(function ($value, $row) {
-                    $link = '<a href="'.route('order.show', $row->id).'" class="text-decoration-underline" wire:navigate>'.$value.'-'.$row->order_number_suffix.'</a>';
+                    $link = '<a href="'.route('order.show', $row->id).'" class="text-decoration-underline" wire:navigate>'.$value.'-0'.$row->order_number_suffix.'</a>';
                     if($row->is_dnr) $link = $link.'<span class="badge bg-light-danger float-end">DNR</span>';
                     if($row->qty_ord > $row->qty_ship) $link = $link.'<span class="badge bg-light-warning float-end">BACKORDER</span>';
                     if($row->is_sro) $link = $link.'<span class="badge bg-light-info float-end">SRO</span>';
@@ -337,7 +337,7 @@ class Table extends DataTableComponent
                         if($value == 'past_due') $builder->where('promise_date', '<',Carbon::today());
                         if($value == 'unknown') $builder->where('promise_date', '2049-01-01');
                         if($value == 'two_weeks_plus') $builder->where('promise_date', '>', Carbon::now()->addWeek(2))->where('promise_date', '<>', '2049-01-01');
-                        if($value == 'less_than_two_weeks') $builder->whereBetween('promise_date', [Carbon::yesterday()->format('Y-m-d'),Carbon::now()->addWeek(2)])->where('promise_date', '<>', '2049-01-01');
+                        if($value == 'less_than_two_weeks') $builder->whereBetween('promise_date', [Carbon::yesterday()->format('Y-m-d'),Carbon::now()->addDay(13)])->where('promise_date', '<>', '2049-01-01');
                 }),
 
 

@@ -9,6 +9,9 @@
                     <x-slot:tab_content_warrantyImport component="equipment.warranty.warranty-import.index" wire:key="brand_import">
                     </x-slot>
 
+                    <x-slot:tab_content_warrantyReport component="equipment.warranty.warranty-import.report" wire:key="warranty_report">
+                    </x-slot>
+
                     @can('equipment.warranty.view')
                         <x-slot:tab_content_brand component="equipment.warranty.brand-configurator.index" wire:key="brand_index">
                         </x-slot>

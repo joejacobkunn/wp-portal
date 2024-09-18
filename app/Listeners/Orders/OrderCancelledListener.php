@@ -37,7 +37,7 @@ class OrderCancelledListener
     
         //send email
 
-        if($this->eligibleForEmail($event))
+        if($this->eligibleForEmail($event) && $event->email_enabled)
         {
             Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
             ->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent, $event->customer_name));

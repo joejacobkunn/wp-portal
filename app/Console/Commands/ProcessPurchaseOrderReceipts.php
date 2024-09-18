@@ -33,7 +33,12 @@ class ProcessPurchaseOrderReceipts extends Command
     {
         $receipt_date = $this->argument('date') ?? now()->format('Y-m-d');
 
-        $purchase_orders_numbers = PurchaseOrderReceipt::where('receipt_date', $receipt_date)->where('is_processed',0)->pluck('po_number')->unique();
+        $purchase_orders_numbers = PurchaseOrderReceipt::where('receipt_date', $receipt_date)->where('is_processed',0)->where('po_number', '>', 143113)->pluck('po_number')->unique();
+
+        Mail::send([], [],function (Message $message) use($purchase_orders_numbers) {
+            $message->to('jkunnummyalil@wandpmanagement.com')->subject('PO Processing started for '.date('Y-m-d'));
+            $message->html('<span><strong>Included POs  :</strong> <br><br>'.json_encode($purchase_orders_numbers));
+        });
 
         foreach($purchase_orders_numbers as $purchase_order_number)
         {
@@ -74,12 +79,13 @@ class ProcessPurchaseOrderReceipts extends Command
 
     private function getSxPoData($po_number)
     {
-        return DB::connection('sx')->select("SELECT poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord
-                                                            FROM pub.poeh
-                                                            LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
-                                                            WHERE poeh.cono = ?
-                                                            AND poeh.pono = ?
-                                                            AND poeh.stagecd IN (0,1,2,3) WITH(NOLOCK)", [$this->cono,$po_number]);
+        return DB::connection('sx')->select("SELECT TOP 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord
+                                                FROM pub.poeh
+                                                LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
+                                                WHERE poeh.cono = ?
+                                                AND poeh.pono = ?
+                                                ORDER BY poeh.posuf DESC
+                                                WITH(NOLOCK)", [$this->cono,$po_number]);
 
     }
 
