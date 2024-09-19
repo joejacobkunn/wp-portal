@@ -57,6 +57,13 @@ class Table extends DataTableComponent
                 ->searchable()
                 ->hideIf(1),
 
+                Column::make('Qty', 'qty')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row) {
+                    return $value;
+                })
+                ->html(),
+
             Column::make('Serial No', 'serial_number')
                 ->excludeFromColumnSelect()
                 ->searchable()
