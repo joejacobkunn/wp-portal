@@ -15,7 +15,7 @@ class UnavailableUnit extends Model
 
     protected $table = 'unavailable_equipments';
 
-    protected $fillable = ['cono', 'whse', 'possessed_by', 'product_code', 'product_name', 'serial_number', 'base_price', 'is_unavailable', 'current_location', 'hours'];
+    protected $fillable = ['cono', 'whse', 'possessed_by', 'product_code', 'product_name', 'serial_number', 'base_price', 'is_unavailable', 'current_location', 'hours', 'qty'];
 
     const LOG_FIELD_MAPS = [
         'created_at' => [
