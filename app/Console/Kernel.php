@@ -32,6 +32,9 @@ class Kernel extends ConsoleKernel
         //task to fetch sx operators
         $schedule->command('sx:fetch-operators')->wednesdays();
 
+        //task to generate warranty regsitration
+        $schedule->command('sx:generate-warranty-report')->hourly();
+
         //task to refresh open order data
         $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->dailyAt('03:15');
 

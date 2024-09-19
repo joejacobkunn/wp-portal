@@ -27,6 +27,22 @@ class ReportTable extends DataTableComponent
             Column::make('Store', 'store')
             ->html(),
 
+            Column::make('Customer Number', 'cust_no')
+            ->hideIf(1)
+            ->html(),
+
+            Column::make('Description', 'description')
+            ->hideIf(1)
+            ->html(),
+
+
+            Column::make('Customer Name', 'customer_name')
+            ->format(function ($value, $row) {
+                return $value.' ('.$row->cust_no.')';
+            })
+            ->html(),
+
+
             Column::make('Order Number', 'order_no')
             ->searchable()
             ->excludeFromColumnSelect()
@@ -44,11 +60,21 @@ class ReportTable extends DataTableComponent
 
             Column::make('Model', 'model')
             ->searchable()
+            ->format(function ($value, $row) {
+                return $value.' ('.$row->description.')';
+            })
             ->excludeFromColumnSelect()
             ->html(),
 
             Column::make('Serial', 'serial')
             ->searchable()
+            ->excludeFromColumnSelect()
+            ->html(),
+
+            Column::make('Sold On', 'sold')
+            ->format(function ($value, $row) {
+                return date("F j, Y", strtotime($value));
+            })
             ->excludeFromColumnSelect()
             ->html(),
 
