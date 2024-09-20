@@ -714,3 +714,13 @@
 .table-action .dropdown-tab .popup-content .popup-item:focus {
     background-color: #e9ecef;
 }
+
+.order-total-count {
+    height: 37px;
+}
+.order-total-count .order-padding {
+    padding: 13px;
+}
+.order-total-count  .order-margin-left {
+    margin-left: 8px;
+}

@@ -33,6 +33,8 @@ class Table extends DataTableComponent
 
     public $enableEcomZwhs = false;
 
+    public $filteredRowCount;
+
     public $warehouses = [];
 
     public function configure(): void
@@ -49,10 +51,8 @@ class Table extends DataTableComponent
         //$this->setFilterLayout('slide-down');
         $this->setConfigurableAreas([
             'toolbar-right-start' => 'livewire.order.partials.settings-table-btn',
-            ]);
-
-
-
+            'toolbar-left-end' => 'livewire.order.partials.result-count'
+        ]);
     }
 
     /**
@@ -78,8 +78,6 @@ class Table extends DataTableComponent
     {
         $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
-
-
     }
 
     public function columns(): array
@@ -237,6 +235,17 @@ class Table extends DataTableComponent
                     $builder->where('order_number', 'like', '%'.$value.'%');
                 }),
 
+                // MultiSelectDropdownFilter::make('DNR Visibility', 'is_dnr')
+                // ->options([
+                //     '' => 'All',
+                //     1 => 'DNR',
+                //     0 => 'Non-DNR',
+                //     2 => 'DNR Pending Review'
+                // ])
+                // ->filter(function (Builder $builder, array $values) {
+                //         $builder->whereIn(DB::raw('lower(whse)'), $values);
+                //     }
+                // ),
             SelectFilter::make('DNR Visibility', 'is_dnr')
                 ->options([
                     '' => 'All',
@@ -481,6 +490,14 @@ class Table extends DataTableComponent
         return $stage_codes[$code];
     }
 
+    public function getFilteredCountProperty()
+    {
 
+        return $this->getRows()->total();
+    }
 
+    public function updatedFilterComponents()
+    {
+        $this->filteredRowCount = $this->getRows()->total();
+    }
 }
