@@ -13,6 +13,17 @@
                         <span class="badge bg-light-success">Yes</span>
                     @endif
                 </a>
+
+                <div class="popup-item d-flex justify-content-between align-items-center">
+                    <span>Save Last Filter State</span>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault"
+                            wire:model="isFilterSaved"
+                            wire:change="saveFilter"
+                            @if($this->isFilterSaved) {{'checked'}} @endif
+                        >
+                    </div>
+                </div>
             </div>
         </div>
     </div>
