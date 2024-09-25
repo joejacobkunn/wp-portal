@@ -82,7 +82,7 @@ class Table extends DataTableComponent
 
     public function mount()
     {
-       // $this->setFilter('stage_codes', 'open');
+        $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
 
         $this->isFilterSaved = auth()->user()->orderFilterCache?->status ?? false;
@@ -595,11 +595,7 @@ class Table extends DataTableComponent
 
     public function setFilterDefaults(): void
     {
-        foreach ($this->getFilters() as $filter) {
-            if ($filter->isResetByClearButton()) {
-                $this->resetFilter($filter);
-            }
-        }
+        parent::setFilterDefaults();
         $this->filteredRowCount = $this->getRows()->total();
         $this->saveFilter();
 
