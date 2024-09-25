@@ -56,7 +56,8 @@ class Table extends DataTableComponent
         //$this->setFilterLayout('slide-down');
         $this->setConfigurableAreas([
             'toolbar-right-start' => 'livewire.order.partials.settings-table-btn',
-            'toolbar-left-end' => 'livewire.order.partials.result-count'
+            'toolbar-left-end' => 'livewire.order.partials.result-count',
+
         ]);
     }
 
@@ -84,21 +85,13 @@ class Table extends DataTableComponent
        // $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
 
-        // $userId = auth()->id();
-        // $cacheKey = 'user_' . $userId . '_filters';
-        // $data = Cache::get($cacheKey, []);
-        // if(!empty($data)) {
-
-        //     $this->isFilterSaved = $data['status'];
-        //     if($this->isFilterSaved) {
-        //         $filters = $data['filters'];
-        //         foreach ($filters as $key => $value) {
-        //             $this->setFilter($key, $value);
-        //         }
-        //     }
-        // }
-
-
+        $this->isFilterSaved = auth()->user()->orderFilterCache?->status ?? false;
+        if($this->isFilterSaved) {
+            $filters = auth()->user()->orderFilterCache->filters;
+            foreach ($filters as $key => $value) {
+                $this->setFilter($key, $value);
+            }
+        }
     }
 
     public function columns(): array
@@ -536,10 +529,15 @@ class Table extends DataTableComponent
 
 
         $query = Order::where('cono', auth()->user()->account->sx_company_number)->whereIn('whse', array_keys($this->warehouses));
-        $this->filteredRowCount = $query->count();
-        //$this->dispatch('showTotalRecords',  $query->count());
-
+        $this->setFilterCountInitLoad($query->count());
         return $query;
+    }
+
+    public function setFilterCountInitLoad($total)
+    {
+        if(!$this->filteredRowCount) {
+            $this->filteredRowCount = $total;
+        }
     }
 
     public function setFilterValue($filter, $value)
@@ -589,28 +587,35 @@ class Table extends DataTableComponent
         return $stage_codes[$code];
     }
 
-    // public function getFilteredCountProperty()
-    // {
-    //     return $this->getRows()->total();
-    // }
-
     public function updatedFilterComponents()
     {
-       // $this->filteredRowCount = $this->getRows()->total();
-        //$this->dispatch('showTotalRecords', $this->filteredRowCount);
+        $this->filteredRowCount = $this->getRows()->total();
         $this->saveFilter();
+    }
+
+    public function setFilterDefaults(): void
+    {
+        foreach ($this->getFilters() as $filter) {
+            if ($filter->isResetByClearButton()) {
+                $this->resetFilter($filter);
+            }
+        }
+        $this->filteredRowCount = $this->getRows()->total();
+        $this->saveFilter();
+
     }
 
     public function saveFilter()
     {
-        $data = ['status' => $this->isFilterSaved, 'filters' => $this->getAppliedFilters()];
+        $filters = $this->getAppliedFilters();
         $user = Auth::user();
-
-        $cacheKey = 'user_' . $user->id . '_filters';
-        Cache::put($cacheKey, $data);
-        //$data2 = Cache::get($cacheKey, []);
+        $orderFilterCache = OrderFilterCache::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'filters' => $filters,
+                'status' => $this->isFilterSaved
+            ]
+        );
 
     }
-
-
 }

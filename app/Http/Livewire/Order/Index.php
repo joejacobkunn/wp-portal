@@ -44,10 +44,6 @@ class Index extends Component
         ],
     ];
 
-    protected $listener = [
-        'showTotalRecords' => 'showTotalRecords'
-    ];
-
     public function mount()
     {
         $this->authorize('viewAny', Order::class);
@@ -84,10 +80,6 @@ class Index extends Component
         Artisan::call('sx:update-open-orders');
         $this->order_data_sync_timestamp = Cache::get('order_data_sync_timestamp');
         $this->dispatch('refreshDatatable');
-    }
-
-    public function showTotalRecords($total) {
-        $this->orderCount =$total;
     }
 
 }
