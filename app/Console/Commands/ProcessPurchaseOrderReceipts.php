@@ -18,7 +18,7 @@ class ProcessPurchaseOrderReceipts extends Command
      */
     private $cono = 80;
 
-    protected $signature = 'app:process-purchase-order-receipts {date?}';
+    protected $signature = 'app:process-purchase-order-receipts {--mode=test} {--po=}';
 
     /**
      * The console command description.
@@ -32,9 +32,29 @@ class ProcessPurchaseOrderReceipts extends Command
      */
     public function handle()
     {
-        $receipt_date = $this->argument('date') ?? now()->format('Y-m-d');
+        $mode = $this->option('mode');
 
-        $purchase_orders_numbers = PurchaseOrderReceipt::where('is_processed',0)->where('po_number', '>', 100000)->pluck('po_number')->unique();
+        $po_number = $this->option('po') ?? null;
+
+        $this->info('Starting process in mode : '.$mode);
+
+        if($po_number)
+        {
+            $this->newLine();
+            $this->info(' for PO Number : '.$po_number);
+        }
+
+        $query = PurchaseOrderReceipt::query();
+
+        $query->when(!is_null($po_number), function ($q) use($po_number) {
+            return $q->where('po_number', $po_number);
+        });
+
+        $query->when(is_null($po_number), function ($q) {
+            return $q->where('po_number', '>', 143113);
+        });
+
+        $purchase_orders_numbers = $query->where('is_processed',0)->pluck('po_number')->unique();
 
         foreach($purchase_orders_numbers as $purchase_order_number)
         {
@@ -90,24 +110,31 @@ class ProcessPurchaseOrderReceipts extends Command
                     $sx_payload = $this->createSXApiPayload($purchase_order_number,$po_suffix,$line_items);
     
                     $sx_client = new SX();
-        
-                    //$sx_client->receive_po($sx_payload);
 
-                    Mail::send([], [],function (Message $message) use($sx_payload,$purchase_order_number) {
+                    if($mode == 'process')
+                    {
+                        $sx_client->receive_po($sx_payload);
+                        $this->flag_po_in_sx($purchase_order_number,$po_suffix,$purchase_order->people_vox_reference_no);
+                    }
+        
+                    Mail::send([], [],function (Message $message) use($sx_payload,$purchase_order_number,$mode) {
                         $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('SX Payload for PO# '.$purchase_order_number.' on '.date('Y-m-d'));
+                        $message->html('<strong>Mode : </strong>'.$mode);
                         $message->html('<span><strong>Aggregated daily SX payload  :</strong> <br><br>'.json_encode($sx_payload));
                     });
         
     
                 }
     
-                PurchaseOrderReceipt::whereIn('id', $purchase_order_ids)->update(['is_processed' => 1]);
+                if($mode == 'process') PurchaseOrderReceipt::whereIn('id', $purchase_order_ids)->update(['is_processed' => 1]);
     
             }
             else{
-                PurchaseOrderReceipt::where('po_number', $purchase_order_number)->update(['is_processed', 1]);
+                if($mode == 'process') PurchaseOrderReceipt::where('po_number', $purchase_order_number)->update(['is_processed', 1]);
             }
         }
+
+        $this->info('The job is complete');
     }
 
     private function getSxPoData($po_number)
@@ -158,6 +185,11 @@ class ProcessPurchaseOrderReceipts extends Command
         }
 
         return false;
+    }
+
+    private function flag_po_in_sx($purchase_order_number,$po_suffix,$peoplevox_ref_no)
+    {
+        DB::connection('sx')->statement("UPDATE pub.poeh SET user11 = '".$peoplevox_ref_no."' where cono = ".$this->cono." and AND pono = '".$purchase_order_number."' AND posuf = '".$po_suffix."'");
     }
 
     private function checkForIneligibleProducts($products,$sx_po_line_data)
