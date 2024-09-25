@@ -7,6 +7,7 @@ use App\Models\Order\Order;
 use App\Models\SX\Company;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Queue\Listener;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
@@ -32,6 +33,8 @@ class Index extends Component
 
     public $order_data_sync_timestamp;
 
+    public $orderCount;
+
     public $metricFilter = [];
 
     public $samplecheck = 8;
@@ -41,6 +44,10 @@ class Index extends Component
         ],
     ];
 
+    protected $listener = [
+        'showTotalRecords' => 'showTotalRecords'
+    ];
+
     public function mount()
     {
         $this->authorize('viewAny', Order::class);
@@ -48,7 +55,7 @@ class Index extends Component
         $this->order_data_sync_timestamp = Cache::get('order_data_sync_timestamp', '');
 
         $this->account = account();
-
+       /// $this->orderCount = Order::count();
     }
 
     public function render()
@@ -77,6 +84,10 @@ class Index extends Component
         Artisan::call('sx:update-open-orders');
         $this->order_data_sync_timestamp = Cache::get('order_data_sync_timestamp');
         $this->dispatch('refreshDatatable');
+    }
+
+    public function showTotalRecords($total) {
+        $this->orderCount =$total;
     }
 
 }

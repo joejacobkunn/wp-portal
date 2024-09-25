@@ -81,7 +81,7 @@ class Table extends DataTableComponent
 
     public function mount()
     {
-        $this->setFilter('stage_codes', 'open');
+       // $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
 
         // $userId = auth()->id();
@@ -536,6 +536,8 @@ class Table extends DataTableComponent
 
 
         $query = Order::where('cono', auth()->user()->account->sx_company_number)->whereIn('whse', array_keys($this->warehouses));
+        $this->filteredRowCount = $query->count();
+        //$this->dispatch('showTotalRecords',  $query->count());
 
         return $query;
     }
@@ -587,16 +589,15 @@ class Table extends DataTableComponent
         return $stage_codes[$code];
     }
 
-    public function getFilteredCountProperty()
-    {
-
-        return $this->getRows()->total();
-    }
+    // public function getFilteredCountProperty()
+    // {
+    //     return $this->getRows()->total();
+    // }
 
     public function updatedFilterComponents()
     {
-        $this->filteredRowCount = $this->getRows()->total();
-        $this->dispatch('showTotalRecords', $this->filteredRowCount);
+       // $this->filteredRowCount = $this->getRows()->total();
+        //$this->dispatch('showTotalRecords', $this->filteredRowCount);
         $this->saveFilter();
     }
 
@@ -612,10 +613,4 @@ class Table extends DataTableComponent
     }
 
 
-    // public function hydrate() : void
-    // {
-    //     logger('Table component initialized');
-    //     $this->filteredRowCount = $this->getRows()->total();
-    //     $this->dispatch('showTotalRecords', $this->filteredRowCount);
-    // }
 }
