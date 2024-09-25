@@ -69,36 +69,15 @@ class PeopleVox
             if(str_contains($row,'ItemCode=')) $keys['item_codes'] = $key;
         }
 
-        $receipted_products = [];
-
-        for($m = $keys['item_codes']; $m < $keys['cost']; $m++)
-        {
-            $receipted_products[] = str_replace('ItemCode=', '', $data[$m]);
-        }
-
         $parsed_data = [];
         $j=0;
 
-        for($i=$keys['line']; $i<$keys['quantity'];$i++)
+        for($i=$keys['item_qty']; $i<$keys['item_codes'];$i++)
         {
-            $line_no = (int)filter_var($data[$i] ,FILTER_SANITIZE_NUMBER_INT);
-
-            // if($this->lineEligibleForReceipt($line_no,$receipted_products,$sx_po_line_data))
-            // {
-    
-            // }
-
-            $parsed_data['line_items'][] = [
-                'line_no' => $line_no,
-                'quantity' => (int)filter_var($data[$keys['quantity'] + ($j)] ,FILTER_SANITIZE_NUMBER_INT),
-                'amount' => str_replace('CostPrice=', '', $data[$keys['cost'] + ($j)]),
-            ];
-
-
+            $parsed_data['line_items'][trim(str_replace('ItemCode=', '', $data[$keys['item_codes'] + ($j)]))] = (int)filter_var($data[$keys['item_qty'] + $j] ,FILTER_SANITIZE_NUMBER_INT);
             $j++;
         }
 
-        $parsed_data['products'] = $receipted_products;
 
         return $parsed_data;
 
