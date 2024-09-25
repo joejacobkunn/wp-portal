@@ -34,7 +34,7 @@ class ProcessPurchaseOrderReceipts extends Command
     {
         $receipt_date = $this->argument('date') ?? now()->format('Y-m-d');
 
-        $purchase_orders_numbers = PurchaseOrderReceipt::where('is_processed',0)->where('po_number', '>', 143113)->pluck('po_number')->unique();
+        $purchase_orders_numbers = PurchaseOrderReceipt::where('is_processed',0)->where('po_number', '>', 100000)->pluck('po_number')->unique();
 
         foreach($purchase_orders_numbers as $purchase_order_number)
         {
@@ -51,9 +51,9 @@ class ProcessPurchaseOrderReceipts extends Command
     
                 foreach($purchase_orders as $purchase_order)
                 {
-                    foreach($purchase_order->line_items['products'] as $product)
+                    foreach($purchase_order->line_items['line_items'] as $item => $line_item)
                     {
-                        $products[] = $product;
+                        $products[] = $item;
                     }
 
                     $ineligible_products = $this->checkForIneligibleProducts($products,$sx_po_line_data);
@@ -66,21 +66,24 @@ class ProcessPurchaseOrderReceipts extends Command
                         });
         
                     }
+
+                    $po_suffix = $sx_po_line_data[0]->posuf;
     
-                    foreach($purchase_order->line_items['line_items'] as $line_item)
+                    $stage_code = $sx_po_line_data[0]->stagecd;
+    
+                    foreach($purchase_order->line_items['line_items'] as $item => $qty)
                     {
-                        if($this->lineEligibleForReceipt($line_item['line_no'], $products, $sx_po_line_data))
+                        $po_meta_data = $this->getPOMetaDataForItem($item,$purchase_order_number,$po_suffix);
+                        
+                        if($this->lineEligibleForReceipt($po_meta_data->lineno, $products, $sx_po_line_data))
                         {
-                            $line_items[$line_item['line_no']] = $line_item;
+                            $line_items[$po_meta_data->lineno] = ['line_no' => $po_meta_data->lineno, 'quantity' => $qty, 'amount' => $po_meta_data->price];
                         }
                     }
     
                     $purchase_order_ids[] = $purchase_order->id;
                 }
     
-                $po_suffix = $sx_po_line_data[0]->posuf;
-    
-                $stage_code = $sx_po_line_data[0]->stagecd;
     
                 if(in_array($stage_code,[0,1,2,3,4]))
                 {
@@ -88,15 +91,17 @@ class ProcessPurchaseOrderReceipts extends Command
     
                     $sx_client = new SX();
         
-                    $sx_client->receive_po($sx_payload);
+                    //$sx_client->receive_po($sx_payload);
+
+                    Mail::send([], [],function (Message $message) use($sx_payload,$purchase_order_number) {
+                        $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('SX Payload for PO# '.$purchase_order_number.' on '.date('Y-m-d'));
+                        $message->html('<span><strong>Aggregated daily SX payload  :</strong> <br><br>'.json_encode($sx_payload));
+                    });
+        
+    
                 }
     
                 PurchaseOrderReceipt::whereIn('id', $purchase_order_ids)->update(['is_processed' => 1]);
-    
-                Mail::send([], [],function (Message $message) use($sx_payload,$purchase_order_number) {
-                    $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('SX Payload for PO# '.$purchase_order_number.' on '.date('Y-m-d'));
-                    $message->html('<span><strong>Aggregated daily SX payload  :</strong> <br><br>'.json_encode($sx_payload));
-                });
     
             }
             else{
@@ -107,14 +112,36 @@ class ProcessPurchaseOrderReceipts extends Command
 
     private function getSxPoData($po_number)
     {
-        return DB::connection('sx')->select("SELECT TOP 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poeh.stagecd
+        $last_suffix = DB::connection('sx')->select("SELECT top 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poeh.stagecd
+                                                        FROM pub.poeh
+                                                        LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
+                                                        WHERE poeh.cono = ?
+                                                        AND poeh.pono = ?
+                                                        ORDER BY poeh.posuf DESC
+                                                        WITH(NOLOCK)", [$this->cono,$po_number]);
+
+        return DB::connection('sx')->select("SELECT poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
                                                 FROM pub.poeh
                                                 LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
                                                 WHERE poeh.cono = ?
                                                 AND poeh.pono = ?
-                                                ORDER BY poeh.posuf DESC
-                                                WITH(NOLOCK)", [$this->cono,$po_number]);
+                                                AND poeh.posuf = ?
+                                                WITH(NOLOCK)", [$this->cono,$po_number,$last_suffix[0]->posuf]);
 
+    }
+
+    private function getPOMetaDataForItem($item,$po_number,$po_suffix)
+    {
+        $meta_data = DB::connection('sx')->select("SELECT top 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
+                                                FROM pub.poeh
+                                                LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
+                                                WHERE poeh.cono = ?
+                                                AND poeh.pono = ?
+                                                AND poeh.posuf = ?
+                                                AND poel.shipprod = ?
+                                                WITH(NOLOCK)", [$this->cono,$po_number,$po_suffix,$item]);
+
+                                                return $meta_data[0];
     }
 
     private function lineEligibleForReceipt($line_no,$receipted_products,$sx_po_line_data)
