@@ -34,6 +34,7 @@ class Index extends Component
 
     public $metricFilter = [];
 
+    public $samplecheck = 8;
     public $breadcrumbs = [
         [
             'title' => 'Orders',

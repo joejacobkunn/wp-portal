@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Columns\BooleanColumn;
@@ -82,13 +83,22 @@ class Table extends DataTableComponent
     {
         $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
-        $this->isFilterSaved = auth()->user()->orderFilterCache?->status ?? false;
-        if($this->isFilterSaved) {
-            $filters = auth()->user()->orderFilterCache->filters;
-            foreach ($filters as $key => $value) {
-                $this->setFilter($key, $value);
-            }
-        }
+
+        // $userId = auth()->id();
+        // $cacheKey = 'user_' . $userId . '_filters';
+        // $data = Cache::get($cacheKey, []);
+        // if(!empty($data)) {
+
+        //     $this->isFilterSaved = $data['status'];
+        //     if($this->isFilterSaved) {
+        //         $filters = $data['filters'];
+        //         foreach ($filters as $key => $value) {
+        //             $this->setFilter($key, $value);
+        //         }
+        //     }
+        // }
+
+
     }
 
     public function columns(): array
@@ -586,19 +596,26 @@ class Table extends DataTableComponent
     public function updatedFilterComponents()
     {
         $this->filteredRowCount = $this->getRows()->total();
+        $this->dispatch('showTotalRecords', $this->filteredRowCount);
         $this->saveFilter();
     }
 
     public function saveFilter()
     {
-        $filters = $this->getAppliedFilters();
+        $data = ['status' => $this->isFilterSaved, 'filters' => $this->getAppliedFilters()];
         $user = Auth::user();
-        $orderFilterCache = OrderFilterCache::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'filters' => $filters,
-                'status' => $this->isFilterSaved
-            ]
-        );
+
+        $cacheKey = 'user_' . $user->id . '_filters';
+        Cache::put($cacheKey, $data);
+        //$data2 = Cache::get($cacheKey, []);
+
     }
+
+
+    // public function hydrate() : void
+    // {
+    //     logger('Table component initialized');
+    //     $this->filteredRowCount = $this->getRows()->total();
+    //     $this->dispatch('showTotalRecords', $this->filteredRowCount);
+    // }
 }
