@@ -2,15 +2,19 @@
 namespace App\Http\Livewire\Equipment\Warranty\WarrantyImport;
 
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Models\Core\Warehouse;
 use App\Models\Equipment\Warranty\Report;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Equipment\Warranty\WarrantyImport\WarrantyImports;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Rappasoft\LaravelLivewireTables\Views\Column;
+use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class ReportTable extends DataTableComponent
 {
+    public $warehouses;
         public function configure(): void
         {
             $this->setPrimaryKey('id');
@@ -21,10 +25,20 @@ class ReportTable extends DataTableComponent
             ]);
         }
 
+    public function mount()
+    {
+        $this->warehouses = Warehouse::orderBy('title')->pluck('title', 'short')->toArray();
+
+    }
+
     public function columns(): array
     {
         return [
             Column::make('Store', 'store')
+            ->secondaryHeader($this->getFilterByKey('whse'))
+            ->format(function ($value, $row) {
+                return strtoupper($value);
+            })
             ->html(),
 
             Column::make('Customer Number', 'cust_no')
@@ -88,6 +102,17 @@ class ReportTable extends DataTableComponent
             ->excludeFromColumnSelect()
             ->html(),
 
+        ];
+    }
+    public function filters(): array
+    {
+        return [
+            SelectFilter::make('Warehouse', 'whse')
+            ->hiddenFromMenus()
+            ->options($this->warehouses)
+            ->filter(function ($row, string $value) {
+                return strtolower($row['store']) === strtolower($value);
+            }),
         ];
     }
 

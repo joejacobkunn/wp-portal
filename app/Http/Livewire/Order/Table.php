@@ -79,7 +79,6 @@ class Table extends DataTableComponent
         $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
 
-
     }
 
     public function columns(): array
