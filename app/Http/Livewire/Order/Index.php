@@ -57,7 +57,8 @@ class Index extends Component
     ];
 
     protected $listeners = [
-        'closeModel'=> 'closeModel'
+        'closeModel'=> 'closeModel',
+        'openExportModal' => 'export'
     ];
 
     public function mount()
@@ -67,7 +68,6 @@ class Index extends Component
         $this->order_data_sync_timestamp = Cache::get('order_data_sync_timestamp', '');
 
         $this->account = account();
-       /// $this->orderCount = Order::count();
     }
 
     public function render()

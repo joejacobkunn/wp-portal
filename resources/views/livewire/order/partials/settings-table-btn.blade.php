@@ -5,8 +5,8 @@
         </button>
         <div x-show="isOpen" @click.away="isOpen = false" class="popup custom-width">
             <div class="popup-content">
-                <a class="popup-item" wire:navigate href="{{ route('order.email-template.index') }}">Templates</a>
-                <a class="popup-item" @click="isOpen = false" wire:click="$toggle('enableEcomZwhs')">Show ECOM and ZWHS :
+                <a class="popup-item d-flex justify-content-between align-items-center" wire:navigate href="{{ route('order.email-template.index') }}">Templates</a>
+                <a class="popup-item d-flex justify-content-between align-items-center" @click="isOpen = false" wire:click="$toggle('enableEcomZwhs')">Show ECOM and ZWHS :
                     @if (!$this->enableEcomZwhs)
                         <span class="badge bg-light-danger">No</span>
                     @else
@@ -14,6 +14,10 @@
                     @endif
                 </a>
 
+                <div class="popup-item d-flex justify-content-between">
+                    <span> Export Orders  </span>
+                    <button wire:click="export" class="btn btn-sm btn-outline-primary float-end"><i class="fas fa-download"></i></button>
+                </div>
                 <div class="popup-item d-flex justify-content-between align-items-center">
                     <span>Save Last Filter State</span>
                     <div class="form-check form-switch">

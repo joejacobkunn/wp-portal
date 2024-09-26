@@ -605,8 +605,8 @@ class Table extends DataTableComponent
         parent::setFilterDefaults();
         $this->filteredRowCount = $this->getRows()->total();
         $this->saveFilter();
-
     }
+
 
     public function saveFilter()
     {
@@ -623,5 +623,10 @@ class Table extends DataTableComponent
     {
         $user = Auth::user();
         return  __CLASS__.'\user_'.$user->id.'_filters';
+    }
+
+    public function export()
+    {
+        $this->dispatch('openExportModal');
     }
 }

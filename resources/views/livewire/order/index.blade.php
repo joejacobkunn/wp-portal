@@ -7,10 +7,6 @@
         <x-slot:content>
 
             <div class="card border-light shadow-sm mb-4" style="min-height: 600px">
-                <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
-                    <button wire:click='export' class="btn btn-sm btn-outline-primary float-end"> Export Orders  <i class="fas fa-download"></i></button>
-                </div>
-
                 <div class="card-body">
 
                     @if ($order_data_sync_timestamp)
