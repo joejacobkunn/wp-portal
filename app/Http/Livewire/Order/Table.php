@@ -85,11 +85,18 @@ class Table extends DataTableComponent
         $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
 
-        $this->isFilterSaved = auth()->user()->orderFilterCache?->status ?? false;
-        if($this->isFilterSaved) {
-            $filters = auth()->user()->orderFilterCache->filters;
-            foreach ($filters as $key => $value) {
-                $this->setFilter($key, $value);
+        $cacheKey = $this->getCacheKey();
+        $data = Cache::get($cacheKey, []);
+        if(!empty($data)) {
+
+            $data = json_decode($data);
+            $this->isFilterSaved = $data->status;
+
+            if($this->isFilterSaved) {
+                $filters = $data->filters;
+                foreach ($filters as $key => $value) {
+                    $this->setFilter($key, $value);
+                }
             }
         }
     }
@@ -603,15 +610,18 @@ class Table extends DataTableComponent
 
     public function saveFilter()
     {
-        $filters = $this->getAppliedFilters();
-        $user = Auth::user();
-        $orderFilterCache = OrderFilterCache::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'filters' => $filters,
-                'status' => $this->isFilterSaved
-            ]
-        );
+        $data = json_encode([
+            'status' => $this->isFilterSaved ?? 0,
+            'filters' => $this->getAppliedFilters()
+        ]);
 
+        $cacheKey = $this->getCacheKey();
+        Cache::put($cacheKey, $data);
+    }
+
+    public function getCacheKey()
+    {
+        $user = Auth::user();
+        return  __CLASS__.'\user_'.$user->id.'_filters';
     }
 }
