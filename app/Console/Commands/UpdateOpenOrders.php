@@ -55,7 +55,7 @@ class UpdateOpenOrders extends Command
             $open_order->update([
                 'status' => $status, 
                 'stage_code' => $sx_order->stagecd,
-                'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
+                'is_sro' => $this->isSro($sx_order,$line_items->toArray()),
                 'ship_via' => $sx_order['shipviaty'],
                 'qty_ship' => $sx_order['totqtyshp'],
                 'qty_ord' => $sx_order['totqtyord'],
@@ -165,10 +165,31 @@ class UpdateOpenOrders extends Command
     {
         foreach($line_items as $line_item)
         {
-            if(str_contains($line_item['prodline'], '-E')) return true;
+            if(!str_contains($line_item['prodline'], 'LR-E') && str_contains($line_item['prodline'], '-E'))
+            {
+                return true;
+            } 
         }
 
         return false;
+    }
+
+    private function isSro($order,$line_items)
+    {
+        $is_sro = $order['user1'] == 'SRO' ? 1 : 0;
+
+        if($is_sro) return true;
+
+        foreach($line_items as $line_item)
+        {
+            if(str_contains($line_item['prodline'], 'LR-E'))
+            {
+                return true;
+            } 
+        }
+
+        return false;
+
     }
 
     private function getLatestEnteredLineDate($line_items, $order_date)

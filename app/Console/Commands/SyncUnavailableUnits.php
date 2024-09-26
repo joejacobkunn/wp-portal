@@ -77,7 +77,8 @@ class SyncUnavailableUnits extends Command
                         'product_name' => explode(";",$icsp[0]->descrip)[0].' '.explode(";",$icsp[0]->descrip)[1],
                         'serial_number' => '',
                         'base_price' => $icsw[0]->baseprice,
-                        'is_unavailable' => 1
+                        'is_unavailable' => 1,
+                        'qty' => $unit->qtyunavail
                     ]
                 );
     
