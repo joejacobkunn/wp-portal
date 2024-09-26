@@ -14,7 +14,7 @@ class Report extends Model
     public function getRows()
     {
 
-        return Storage::json('reports/warranty-report.json');
+        return Storage::json('public/reports/warranty-report.json');
     }
 
     protected function sushiShouldCache()

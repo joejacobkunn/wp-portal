@@ -6,6 +6,7 @@ use App\Models\Core\Warehouse;
 use App\Models\Equipment\Warranty\Report;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Equipment\Warranty\WarrantyImport\WarrantyImports;
+use App\Models\Product\Brand;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +16,7 @@ use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 class ReportTable extends DataTableComponent
 {
     public $warehouses;
+    public $brand;
         public function configure(): void
         {
             $this->setPrimaryKey('id');
@@ -25,10 +27,11 @@ class ReportTable extends DataTableComponent
             ]);
         }
 
+
     public function mount()
     {
         $this->warehouses = Warehouse::orderBy('title')->pluck('title', 'short')->toArray();
-
+        $this->brand = Brand::pluck('name', 'name')->toArray();
     }
 
     public function columns(): array
@@ -36,9 +39,7 @@ class ReportTable extends DataTableComponent
         return [
             Column::make('Store', 'store')
             ->secondaryHeader($this->getFilterByKey('whse'))
-            ->format(function ($value, $row) {
-                return strtoupper($value);
-            })
+
             ->html(),
 
             Column::make('Customer Number', 'cust_no')
@@ -63,6 +64,7 @@ class ReportTable extends DataTableComponent
             ->html(),
 
             Column::make('Brand', 'brand')
+            ->secondaryHeader($this->getFilterByKey('brand'))
             ->searchable()
             ->excludeFromColumnSelect()
             ->html(),
@@ -107,11 +109,18 @@ class ReportTable extends DataTableComponent
     public function filters(): array
     {
         return [
-            SelectFilter::make('Warehouse', 'whse')
+            SelectFilter::make('Store', 'whse')
             ->hiddenFromMenus()
-            ->options($this->warehouses)
-            ->filter(function ($row, string $value) {
-                return strtolower($row['store']) === strtolower($value);
+            ->options([''=>'All']+ $this->warehouses)
+            ->filter(function (Builder $builder, string $value) {
+                $builder->where(DB::raw('lower(store)'), strtolower($value));
+            }),
+
+            SelectFilter::make('Brand', 'brand')
+            ->hiddenFromMenus()
+            ->options([''=>'All']+ $this->brand)
+            ->filter(function (Builder $builder, string $value) {
+                $builder->where(DB::raw('lower(brand)'), strtolower($value));
             }),
         ];
     }
