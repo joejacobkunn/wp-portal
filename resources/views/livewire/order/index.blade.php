@@ -8,6 +8,7 @@
 
             <div class="card border-light shadow-sm mb-4" style="min-height: 600px">
                 <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                    <button wire:click='export' class="btn btn-sm btn-outline-primary float-end"> Export Orders  <i class="fas fa-download"></i></button>
                 </div>
 
                 <div class="card-body">
@@ -29,12 +30,17 @@
                                 minute</span>
                         </div>
                     @endif
+                    @if ($showExportNotification)
+                        <div class="alert alert-light-info color-info">
+                            <i class="bi bi-exclamation-circle"></i> Your import request has been received and is being processed. You will receive an email when it is complete.
+                        </div>
 
+                    @endif
                     <livewire:order.table lazy>
                 </div>
             </div>
-
-
+            @include('livewire.order.partials.order-import-modal')
         </x-slot>
     </x-page>
+
 </div>
