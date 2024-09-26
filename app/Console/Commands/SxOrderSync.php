@@ -52,7 +52,7 @@ class SxOrderSync extends Command
                     'order_date' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
                     'stage_code' => $sx_order['stagecd'],
                     'sx_customer_number' => $sx_order['custno'],
-                    'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
+                    'is_sro' => $this->isSro($sx_order,$line_items->toArray()),
                     'ship_via' => $sx_order['shipviaty'],
                     'qty_ship' => $sx_order['totqtyshp'],
                     'qty_ord' => $sx_order['totqtyord'],
@@ -135,11 +135,32 @@ class SxOrderSync extends Command
     {
         foreach($line_items as $line_item)
         {
-            if(str_contains($line_item['prodline'], '-E')) return true;
+            if(!str_contains($line_item['prodline'], 'LR-E') && str_contains($line_item['prodline'], '-E'))
+            {
+                return true;
+            } 
         }
 
         return false;
     }
+
+    private function isSro($order,$line_items)
+    {
+        $is_sro = $order['user1'] == 'SRO' ? 1 : 0;
+
+        if($is_sro) return true;
+
+        foreach($line_items as $line_item)
+        {
+            if(str_contains($line_item['prodline'], 'LR-E'))
+            {
+                return true;
+            } 
+        }
+
+        return false;
+    }
+
 
     private function checkForWarehouseTransfer($sx_order, $line_items)
     {
