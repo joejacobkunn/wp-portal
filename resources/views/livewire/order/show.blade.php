@@ -311,8 +311,6 @@
                                                                     and Notify Customer</span></a></li>
                                                     @endif
 
-
-
                                                 </ul>
                                             @endcan
 
