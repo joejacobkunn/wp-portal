@@ -3,9 +3,11 @@
 namespace App\Http\Livewire\Equipment\Warranty\WarrantyImport;
 
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Models\Core\Operator;
 use App\Models\Core\Warehouse;
 use App\Models\Equipment\Warranty\Report;
 use App\Models\Product\Brand;
+use App\Models\Product\Line;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
@@ -16,6 +18,8 @@ class ReportTable extends DataTableComponent
 {
     public $warehouses;
     public $brands;
+    public $lines;
+    public $operators;
     public array $filterValues = [];
 
     public function configure(): void
@@ -32,6 +36,8 @@ class ReportTable extends DataTableComponent
     {
         $this->warehouses = Warehouse::orderBy('title')->pluck('title', 'short')->toArray();
         $this->brands = Brand::orderBy('name')->pluck('name', 'name')->toArray();
+        $this->lines = Line::orderBy('name')->pluck('name', 'name')->toArray();
+        $this->operators = Operator::orderBy('name')->pluck('name', 'name')->toArray();
     }
 
     public function columns(): array
@@ -72,6 +78,7 @@ class ReportTable extends DataTableComponent
 
                 Column::make('Prod Line', 'prodline')
                 ->searchable()
+                ->secondaryHeader($this->getFilterByKey('lines'))
                 ->excludeFromColumnSelect()
                 ->html(),
 
@@ -89,6 +96,9 @@ class ReportTable extends DataTableComponent
                 ->html(),
 
                 Column::make('Sold On', 'sold')
+                ->searchable()
+                ->sortable()
+                ->secondaryHeader($this->getFilterByKey('sold_on'))
                 ->format(function ($value, $row) {
                     return date("F j, Y", strtotime($value));
                 })
@@ -96,11 +106,14 @@ class ReportTable extends DataTableComponent
                 ->html(),
 
                 Column::make('Reg Date', 'registration_date')
+                ->secondaryHeader($this->getFilterByKey('reg_date'))
+                ->sortable()
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->html(),
 
                 Column::make('Reg By', 'registered_by')
+                ->secondaryHeader($this->getFilterByKey('registered_by'))
                 ->searchable()
                 ->excludeFromColumnSelect()
                 ->html(),
@@ -117,20 +130,43 @@ class ReportTable extends DataTableComponent
                     $builder->whereRaw('LOWER(store) = ?', [strtolower($value)]);
                 }),
 
-            // Add more filters here as needed
             SelectFilter::make('brand')
                 ->options(['All Brands'] + $this->brands)
+                ->hiddenFromMenus()
                 ->filter(function(Builder $builder, string $value) {
                     $builder->where('brand', $value);
                 }),
 
+            SelectFilter::make('lines')
+                ->options(['All'] + $this->lines)
+                ->hiddenFromMenus()
+                ->filter(function(Builder $builder, string $value) {
+                    $builder->where('prodline', $value);
+                }),
+
+            SelectFilter::make('registered_by')
+                ->options(['All'] + $this->operators)
+                ->hiddenFromMenus()
+                ->filter(function(Builder $builder, string $value) {
+                    $builder->where('registered_by', $value);
+                }),
+
             DateRangeFilter::make('Sold On', 'sold_on')
             ->hiddenFromMenus()
-                ->config(['placeholder' => 'Enter Date Range'])
-                ->filter(function (Builder $builder, array $dateRange) { // Expects an array.
+            ->config(['placeholder' => 'Enter Date Range'])
+                ->filter(function (Builder $builder, array $dateRange) {
                     $builder
-                        ->whereDate('sold', '>=', $dateRange['minDate']) // minDate is the start date selected
-                        ->whereDate('sold', '<=', $dateRange['maxDate']); // maxDate is the end date selected
+                        ->whereDate('sold', '>=', $dateRange['minDate'])
+                        ->whereDate('sold', '<=', $dateRange['maxDate']);
+                }),
+
+            DateRangeFilter::make('Reg Date', 'reg_date')
+            ->hiddenFromMenus()
+            ->config(['placeholder' => 'Enter Date Range'])
+                ->filter(function (Builder $builder, array $dateRange) {
+                    $builder
+                        ->whereDate('registration_date', '>=', $dateRange['minDate'])
+                        ->whereDate('registration_date', '<=', $dateRange['maxDate']);
                 }),
         ];
     }
@@ -138,19 +174,7 @@ class ReportTable extends DataTableComponent
     public function builder(): Builder
     {
         $query = Report::query();
-
-        // Apply filters
-        foreach ($this->getFilters() as $filter) {
-            $filterName = $filter->getName();
-            if (isset($this->filterValues[$filterName]) && $this->filterValues[$filterName] !== '') {
-                $query->where($filterName, $this->filterValues[$filterName]);
-            }
-        }
-        return $query;
+         return $query;
     }
 
-    public function updatedFilterValues($value, $key)
-    {
-        $this->resetPage();
-    }
 }
