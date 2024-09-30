@@ -724,3 +724,16 @@
 .order-total-count  .order-margin-left {
     margin-left: 8px;
 }
+
+.order-message .list-group .inbox-item {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.order-message .list-group .inbox-item:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-message .list-group .inbox-content {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
