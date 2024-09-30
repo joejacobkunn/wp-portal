@@ -21,47 +21,4 @@
                 </div>
             </div>
         @endforeach
-
-
-      <div class="list-group-item inbox-item">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1">Ecommerce website Paypal integration </h5>
-            <p class="inbox-content mb-1">We will start the new application development soon...</p>
-          </div>
-          <small>2:15 AM</small>
-        </div>
-      </div>
-
-      <div class="list-group-item inbox-item">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1">How To Set Intentions That Energize You</h5>
-            <p class="inbox-content mb-1">I will provide you more details after this Saturday...</p>
-          </div>
-          <small>2:13 AM</small>
-        </div>
-      </div>
-
-      <div class="list-group-item inbox-item">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1">Harness The Power Of Words In Your Life</h5>
-            <p class="inbox-content mb-1">When the equation, first to ability the forwards...</p>
-          </div>
-          <small>Yesterday</small>
-        </div>
-      </div>
-
-      <div class="list-group-item inbox-item">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1">Helen Keller A Teller And A Seller</h5>
-            <p class="inbox-content mb-1">Thanks for your feedback! Here's a new layout for...</p>
-          </div>
-          <small>1:15 PM</small>
-        </div>
-      </div>
-    </div>
-
   </div>
