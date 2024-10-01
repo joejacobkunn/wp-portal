@@ -125,6 +125,7 @@ class ReportTable extends DataTableComponent
     {
         return [
             SelectFilter::make('store')
+                ->hiddenFromMenus()
                 ->options([''=>'All Stores']+$this->warehouses)
                 ->filter(function(Builder $builder, string $value) {
                     $builder->whereRaw('LOWER(store) = ?', [strtolower($value)]);
