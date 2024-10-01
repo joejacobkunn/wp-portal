@@ -9,11 +9,9 @@
             <div class="list-group-item inbox-item">
                 <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="mb-1">{{ $message->subject }} #{{ $message->order_number}}
-                        <span class="badge bg-light-success">{{ $message->medium }}</span>
-                        <span class="badge bg-light-success">{{ strtolower($message->status) }}</span></h5>
-                    <h6>Email : {{$message->contact}}</h6>
-                    <p class="inbox-content mb-1">{{ $message->content }}</p>
+                   <a  href="#" wire:click.prevent="viewMessage({{ $message->id }})" > <h5 class="mb-1">
+                        {{ $message->subject }} #{{ $message->order_number}}</h5></a>
+                    <p>Email : {{$message->contact}}</p>
                 </div>
                 <div>
                     <small>{{ $message->created_at->diffForHumans() }}</small>
@@ -21,4 +19,33 @@
                 </div>
             </div>
         @endforeach
-  </div>
+    </div>
+
+    <div class="order-message-model">
+        <x-modal :toggle="$orderMessageModal" size="lg" :closeEvent="'closeOrderMessage'">
+            <x-slot name="title">Order Message: #{{ $selectedMessage?->order_number }}</x-slot>
+            <div class="row w-100">
+                <div class="col-md-12">
+                    @if ($selectedMessage)
+                        <h5>{{ $selectedMessage->subject }}
+                             <span class="badge bg-light-info">{{ $message->medium }}</span>
+                            <span class="badge bg-light-info">{{ strtolower($message->status) }}</span>
+                        </h5>
+                        <p>Email: {{ $selectedMessage->contact }}</p>
+                        <hr>
+                        <h5>Message : </h5>
+                        <p>{{ $selectedMessage->content }}</p>
+                    @endif
+                    <hr>
+
+                </div>
+
+            </div>
+            <div class="mt-2 float-start">
+                <p><small>Created: {{ $selectedMessage?->created_at->diffForHumans() }}</small></p>
+
+            </div>
+        </x-modal>
+    </div>
+
+</div>

@@ -13,13 +13,28 @@ class OrderMessages extends Component
     public $orderId;
     public $orderSuffix;
 
-    public function mount()
-    {
-    }
+    public $orderMessageModal =false;
+    public $selectedMessage;
+
+    protected $listeners = [
+        'closeOrderMessage' => 'closeOrderMessage'
+    ];
+
     public function render()
     {
         return view('livewire.component.order-messages', [
             'messages' => Message::paginate(10),
         ]);
+    }
+
+    public function viewMessage($id)
+    {
+        $this->orderMessageModal = true;
+        $this->selectedMessage = Message::find($id);
+    }
+
+    public function closeOrderMessage()
+    {
+        $this->orderMessageModal = false;
     }
 }
