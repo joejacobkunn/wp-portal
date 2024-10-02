@@ -2,17 +2,24 @@
 
 namespace App\Http\Livewire\Order;
 
+
 use App\Http\Livewire\Component\Component;
+use App\Imports\OrdersImport;
+
+use App\Jobs\ProcessOrders;
 use App\Models\Order\Order;
 use App\Models\SX\Company;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Queue\Listener;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Index extends Component
 {
-    use HasTabs, AuthorizesRequests;
+    use HasTabs, AuthorizesRequests, WithFileUploads;
 
     public $account;
 
@@ -30,14 +37,28 @@ class Index extends Component
 
     public $ignored_count = 0;
 
+    public $exportModal = false;
+
     public $order_data_sync_timestamp;
+
+    public $orderCount;
 
     public $metricFilter = [];
 
+    public $orderType;
+    public $showExportNotification = false;
     public $breadcrumbs = [
         [
             'title' => 'Orders',
         ],
+    ];
+    protected $rules = [
+        'orderType' => 'required',
+    ];
+
+    protected $listeners = [
+        'closeModel'=> 'closeModel',
+        'openExportModal' => 'export'
     ];
 
     public function mount()
@@ -47,7 +68,6 @@ class Index extends Component
         $this->order_data_sync_timestamp = Cache::get('order_data_sync_timestamp', '');
 
         $this->account = account();
-
     }
 
     public function render()
@@ -78,4 +98,23 @@ class Index extends Component
         $this->dispatch('refreshDatatable');
     }
 
+    public function export()
+    {
+        $this->exportModal = true;
+    }
+
+    public function submit()
+    {
+        $this->validate();
+        ProcessOrders::dispatch($this->orderType);
+        $this->showExportNotification = true;
+        $this->closeModel();
+    }
+
+    public function closeModel()
+    {
+        $this->exportModal =false;
+        $this->reset(['orderType']);
+        $this->resetValidation();
+    }
 }

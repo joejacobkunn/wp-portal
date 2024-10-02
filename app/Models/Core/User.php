@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use App\Traits\LogsActivity;
 use Laravel\Sanctum\HasApiTokens;
 use App\Enums\User\UserStatusEnum;
+use App\Models\Order\OrderFilterCache;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -152,5 +153,10 @@ class User extends Authenticatable
     public function resolveStatus($value, $cache = true)
     {
         return $value ? 'Active' : 'Inactive';
+    }
+
+    public function orderFilterCache()
+    {
+        return $this->hasOne(OrderFilterCache::class, 'user_id');
     }
 }
