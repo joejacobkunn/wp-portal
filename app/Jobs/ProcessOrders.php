@@ -66,7 +66,25 @@ class ProcessOrders implements ShouldQueue
             'qty_ord', 'stage_code', 'dnr_items', 'sx_customer_number', 'status', 'last_updated_by'
         ]);
 
-        Order::where('stage_code', $stageCodes)
+        $query = Order::query();
+
+        if($this->orderType == 'ready_for_shipment_web')
+        {
+            $query->openOrders()->orWhereColumn('qty_ord', '=', 'qty_ship')->where('is_web_order', 1);
+        }
+
+        if($this->orderType == 'open')
+        {
+            $query->openOrders();
+        }
+
+        if($this->orderType == 'closed')
+        {
+            $query->closedOrders();
+        }
+
+
+        $query
             ->chunk(1000, function ($orders) use ($writer) {
 
             $records = $orders->map(function ($order) {

@@ -46,16 +46,18 @@ class OrderFollowUpListener
                     'status' => $event->order->status,
                     'contact' => $event->email
                 ]);
-    
-            }
 
-            //add custom log
+                            //add custom log
 
             activity()
             ->causedBy(User::find($event->order->last_updated_by))
             ->performedOn($event->order)
             ->event('custom')
             ->log('Sent '.$event->order->status->value.' Email "'.$event->mailSubject);
+
+    
+            }
+
 
 
                      //sent sms

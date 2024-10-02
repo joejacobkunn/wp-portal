@@ -124,6 +124,12 @@ class Order extends Model
         $query->whereIn('stage_code', [1, 2]);
     }
 
+    public function scopeClosedOrders(Builder $query)
+    {
+        $query->whereIn('stage_code', [3,4,5]);
+    }
+
+
 
     public function getShippingStage($stage_code)
     {

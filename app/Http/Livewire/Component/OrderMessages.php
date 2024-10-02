@@ -23,7 +23,7 @@ class OrderMessages extends Component
     public function render()
     {
         return view('livewire.component.order-messages', [
-            'messages' => Message::where('order_number',$this->orderNumber)->where('order_suffix',$this->orderSuffix)->paginate(10),
+            'messages' => Message::where('order_number',$this->orderNumber)->where('order_suffix',$this->orderSuffix)->latest()->paginate(10),
         ]);
     }
 
