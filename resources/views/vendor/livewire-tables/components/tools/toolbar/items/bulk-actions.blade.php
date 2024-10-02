@@ -12,9 +12,7 @@
             'btn btn-outline-warning dropdown-toggle d-block d-md-inline me-2' => $component->isBootstrap(),
             'inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600' => $component->isTailwind(),
         ]) type="button" id="{{ $tableName }}-bulkActionsDropdown"
-            @if ($component->isTailwind()) x-on:click="open = !open"
-                        @else
-                        data-toggle="dropdown" data-bs-toggle="dropdown" @endif
+            x-on:click="open = !open"
             aria-haspopup="true" aria-expanded="false">
 
             @lang('Bulk Actions')
@@ -48,10 +46,10 @@
                 </div>
             </div>
         @else
-            <div @class([
-                'dropdown-menu dropdown-menu-right w-100' => $component->isBootstrap4(),
-                'dropdown-menu dropdown-menu-end w-100' => $component->isBootstrap5(),
-            ]) aria-labelledby="{{ $tableName }}-bulkActionsDropdown">
+            <div  x-show="open" @click.away="open = false" @class([
+                'dropdown-menu dropdown-menu-right w-100 show' => $component->isBootstrap4(),
+                'dropdown-menu dropdown-menu-end w-100 show' => $component->isBootstrap5(),
+            ]) aria-labelledby="{{ $tableName }}-bulkActionsDropdown" >
                 @foreach ($component->getBulkActions() as $action => $title)
                     <a href="javascript:;"
                         @if ($component->hasConfirmationMessage($action)) wire:confirm="{{ $component->getBulkActionConfirmMessage($action) }}" @endif
