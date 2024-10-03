@@ -88,6 +88,24 @@
 @endif
 
 @if ($component->hasFilters())
+<div x-data="{
+        filterComponents: @entangle('filterComponents'),
+        sendEvent(filterComponents) {
+            console.log(filterComponents)
+            window.dispatchEvent(new CustomEvent('{{ $tableId }}:table-filter:emit', {
+                detail: {
+                    value: Alpine.raw(filterComponents)
+                }
+            }))
+        }
+    }"
+    x-init="() => {
+        sendEvent(filterComponents);
+    },
+    $watch('filterComponents', (data) => {
+        sendEvent(filterComponents);
+    })">
+
     @script
     <script>
         (function () {
@@ -98,7 +116,6 @@
                 loadScript("https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js", initSelect);
             }
 
-            alert("S");
             function initSelect(attrValues) {
                 if (inProcessFlag) return
 
@@ -159,4 +176,5 @@
         })()
     </script>
     @endscript
+    </div>
 @endif

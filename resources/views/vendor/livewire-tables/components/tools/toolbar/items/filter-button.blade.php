@@ -6,22 +6,7 @@
 @endphp
 
 <div x-cloak x-show="!currentlyReorderingStatus" 
-    x-data="{
-        filterComponents: @entangle('filterComponents'),
-        sendEvent(filterComponents) {
-            window.dispatchEvent(new CustomEvent('{{ $tableId }}:table-filter:emit', {
-                detail: {
-                    value: Alpine.raw(filterComponents)
-                }
-            }))
-        }
-    }"
-    x-init="() => {
-        sendEvent(filterComponents);
-    },
-    $watch('filterComponents', (data) => {
-        sendEvent(filterComponents);
-    })"
+    
                 @class([
                     'ml-0 ml-md-2 mb-3 mb-md-0' => $component->isBootstrap4(),
                     'ms-0 ms-md-2 mb-3 mb-md-0' => $component->isBootstrap5() && $component->searchIsEnabled(),
