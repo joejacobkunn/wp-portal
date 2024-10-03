@@ -24,11 +24,11 @@
                 @include($component->getConfigurableAreaFor('toolbar-left-start'), $component->getParametersForConfigurableArea('toolbar-left-start'))
             @endif
         </div>
-        
+
         @if ($component->reorderIsEnabled())
             <x-livewire-tables::tools.toolbar.items.reorder-buttons />
         @endif
-        
+
         @if ($component->searchIsEnabled() && $component->searchVisibilityIsEnabled())
             <x-livewire-tables::tools.toolbar.items.search-field />
         @endif
@@ -44,7 +44,7 @@
         @endif
     </div>
 
-    <div x-cloak x-show="!currentlyReorderingStatus"         
+    <div x-cloak x-show="!currentlyReorderingStatus"
         @class([
             'd-md-flex' => $component->isBootstrap(),
             'md:flex md:items-center space-y-4 md:space-y-0 md:space-x-2' => $component->isTailwind(),
@@ -57,13 +57,13 @@
         @if ($component->showBulkActionsDropdownAlpine())
             <x-livewire-tables::tools.toolbar.items.bulk-actions />
         @endif
-        
+
         @if ($component->columnSelectIsEnabled())
-            <x-livewire-tables::tools.toolbar.items.column-select /> 
+            <x-livewire-tables::tools.toolbar.items.column-select />
         @endif
 
         @if ($component->paginationIsEnabled() && $component->perPageVisibilityIsEnabled())
-            <x-livewire-tables::tools.toolbar.items.pagination-dropdown /> 
+            <x-livewire-tables::tools.toolbar.items.pagination-dropdown />
         @endif
 
         @if ($component->hasConfigurableAreaFor('toolbar-right-end'))
@@ -91,7 +91,6 @@
 <div x-data="{
         filterComponents: @entangle('filterComponents'),
         sendEvent(filterComponents) {
-            console.log(filterComponents)
             window.dispatchEvent(new CustomEvent('{{ $tableId }}:table-filter:emit', {
                 detail: {
                     value: Alpine.raw(filterComponents)
@@ -128,13 +127,13 @@
 
 
                         let id = '#' + el.getAttribute('id')
-                        let select = new SlimSelect({ 
+                        let select = new SlimSelect({
                             select: id,
                             allowDeselect: true,
                             onChange: (info) => {
-                                
+
                                 if (firstLoad) {
-                                    firstLoad = false 
+                                    firstLoad = false
                                     return
                                 };
 
@@ -142,20 +141,20 @@
                                 if (el.hasAttribute('multiple')) {
                                     val = info.map((v) => v.value)
                                 }
-                                
+
                                 $wire.set(el.getAttribute('field-key'), val).then(() => {
                                     initSelect()
                                 })
 
                             },
                         })
-                        
+
                         if (firstLoad && el.getAttribute('field-key')) {
                             let values = $wire.get(el.getAttribute('field-key'))
                             select.set(values)
                         }
 
-                        if ( attrValues 
+                        if ( attrValues
                             && attrValues.hasOwnProperty(el.getAttribute('field-index'))
                             && select.selected() != attrValues[el.getAttribute('field-index')]
                             ) {
