@@ -1,24 +1,26 @@
 <?php
 
-namespace App\Notifications\UnavailableEquipment;
+namespace App\Notifications\Orders;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\HtmlString;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
 
-class UnavailableEquipmentReportReminder extends Notification
+class OrdersImportNotification extends Notification
 {
     use Queueable;
 
-    public $report;
+    public $path;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($report)
+    public function __construct($path=null)
     {
-        $this->report = $report;
+        $this->path = $path;
     }
 
     /**
@@ -36,10 +38,19 @@ class UnavailableEquipmentReportReminder extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
-                    ->subject('Unavailable Equipment Report is due for '.$this->report->report_date->toFormattedDateString())
-                    ->line('Please complete your unavailable/demo report by '.$this->report->report_date->addDays(7)->toFormattedDateString().'. Click on the below link to get started.')
-                    ->action('Go to Report', 'https://ped.powerweb.app/equipment/unavailable/report/'.$this->report->id.'/show');
+        $subject = 'Order Export Notification';
+
+        $mail = (new MailMessage)
+                ->from('noreply@weingartz.com')
+                ->subject($subject)
+                ->line('Order Export process completed');
+        if ($this->path) {
+
+            $mail->action('Download Records', url('/').'/storage/'.config('order.url').$this->path);
+        }
+
+
+    return $mail;
     }
 
     /**

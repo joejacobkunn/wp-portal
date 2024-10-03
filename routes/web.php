@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +48,15 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         });
 
         Route::mediaLibrary();
+
+        Route::get('peoplevox/{mode}/{ponumber}', function (string $mode, string $ponumber) {
+            
+            $exitCode = Artisan::call('app:process-purchase-order-receipts', [
+                '--mode' => Route::current()->parameter('mode'), '--po' => Route::current()->parameter('ponumber')
+            ]);
+
+            return Artisan::output();
+        });
 
         Route::get('dashboard', \App\Http\Livewire\Dashboard\Index::class)->name('core.dashboard.index');
 

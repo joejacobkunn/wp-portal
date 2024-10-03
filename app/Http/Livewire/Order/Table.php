@@ -12,6 +12,8 @@ use App\Models\Core\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Columns\BooleanColumn;
@@ -33,7 +35,11 @@ class Table extends DataTableComponent
 
     public $enableEcomZwhs = false;
 
+    public $filteredRowCount;
+
     public $warehouses = [];
+
+    public $isFilterSaved;
 
     public function configure(): void
     {
@@ -49,10 +55,9 @@ class Table extends DataTableComponent
         //$this->setFilterLayout('slide-down');
         $this->setConfigurableAreas([
             'toolbar-right-start' => 'livewire.order.partials.settings-table-btn',
-            ]);
+            'toolbar-left-end' => 'livewire.order.partials.result-count',
 
-
-
+        ]);
     }
 
     /**
@@ -78,6 +83,21 @@ class Table extends DataTableComponent
     {
         $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
+
+        $cacheKey = $this->getCacheKey();
+        $data = Cache::get($cacheKey, []);
+        if(!empty($data)) {
+
+            $data = json_decode($data);
+            $this->isFilterSaved = $data->status;
+
+            if($this->isFilterSaved) {
+                $filters = $data->filters;
+                foreach ($filters as $key => $value) {
+                    $this->setFilter($key, $value);
+                }
+            }
+        }
 
     }
 
@@ -236,76 +256,135 @@ class Table extends DataTableComponent
                     $builder->where('order_number', 'like', '%'.$value.'%');
                 }),
 
-            SelectFilter::make('DNR Visibility', 'is_dnr')
+                MultiSelectDropdownFilter::make('DNR Visibility', 'is_dnr')
                 ->options([
-                    '' => 'All',
                     1 => 'DNR',
                     0 => 'Non-DNR',
                     2 => 'DNR Pending Review'
-                ])->filter(function (Builder $builder, string $value) {
-                    if($value == 2) $builder->where('is_dnr', 1)->where('status', 'Pending Review');
-                    else
-                    $builder->where('is_dnr', $value);
+                ])->filter(function (Builder $builder, $value) {
+                    $builder->where(function ($query) use ($value) {
+                        $conditions = [];
+
+                        if (in_array(2, $value)) {
+                            $conditions[] = ['is_dnr', '=', 1];
+                            $conditions[] = ['status', '=', 'Pending Review'];
+                        }
+                        if (in_array(1, $value) && !in_array(2, $value)) {
+                            $conditions[] = ['is_dnr', '=', 1];
+                        }
+                        if (in_array(0, $value)) {
+                            $conditions[] = ['is_dnr', '=', 0];
+                        }
+
+                        if (count($conditions) > 0) {
+                            foreach ($conditions as $condition) {
+                                $query->orWhere(...$condition);
+                            }
+                        }
+                    });
                 }),
 
-                SelectFilter::make('Follow Up Visibility', 'is_follow_up')
+                MultiSelectDropdownFilter::make('Follow Up Visibility', 'is_follow_up')
                 ->options([
-                    '' => 'All',
-                    0 => 'All Follow Ups',
                     1 => 'Customer',
                     2 => 'Shipment',
                     3 => 'Receiving'
-                ])->filter(function (Builder $builder, string $value) {
-                    if($value == 0) $builder->whereIn('status', ['Follow Up', 'Shipment Follow Up', 'Receiving Follow Up']);
-                    if($value == 1) $builder->where('status', 'Follow Up');
-                    if($value == 3) $builder->where('status', 'Receiving Follow Up');
+                ])->filter(function (Builder $builder, $value) {
+                    if(in_array(1, $value)) $searchKey[] = 'Follow Up';
+                    if(in_array(2, $value)) $searchKey[] = 'Shipment Follow Up';
+                    if(in_array(3, $value)) $searchKey[] = 'Receiving Follow Up';
+                    $builder->whereIn('status', array_unique($searchKey));
                 }),
 
-                SelectFilter::make('Ship Via', 'ship_via')
+                MultiSelectDropdownFilter::make('Ship Via', 'ship_via')
                 ->hiddenFromMenus()
                 ->options([
-                    '' => 'All',
+
                     'pkup' => 'PKUP',
                     'u11' => 'U11',
                     'sro' => 'SRO',
                     'will' => 'WILL'
-                ])->filter(function (Builder $builder, string $value) {
-                    if($value == 'pkup') $builder->whereIn(DB::raw('lower(ship_via)'), ['pkup','pkfh','pkcl','pkcs','pkaa', 'pkut','pkli']);
-                    else $builder->where(DB::raw('lower(ship_via)'), strtolower($value));
+                ])->filter(function (Builder $builder, $value) {
+                    $searchKey = [];
+                    if($value == 'pkup') $searchKey = array_merge($searchKey, ['pkfh','pkcl','pkcs','pkaa', 'pkut','pkli']);
+                    $searchKey = array_merge($searchKey, $value);
+                    $builder->whereIn(DB::raw('lower(ship_via)'), array_unique($searchKey));
                 }),
 
-                SelectFilter::make('Order Status', 'order_standing')
+                MultiSelectDropdownFilter::make('Order Status', 'order_standing')
                 ->options([
-                    '' => 'All',
                     'backorder' => 'Backorders',
                     'completed' => 'Completed',
                     'wt' => 'WT Availability',
                     'p-wt' => 'WT Partial',
                     'non-stock' => 'Non-Stock'
-                ])->filter(function (Builder $builder, string $value) {
-                    if($value == 'backorder') $builder->whereColumn('qty_ord','>','qty_ship')->where('last_line_added_at', '<', Carbon::today());
-                    if($value == 'completed') $builder->whereColumn('qty_ord','=','qty_ship');
-                    if($value == 'wt') $builder->where('warehouse_transfer_available','=',1);
-                    if($value == 'p-wt') $builder->where('partial_warehouse_transfer_available','=',1);
-                    if($value == 'non-stock') $builder->where('non_stock_line_items','<>',null);
+                ])->filter(function (Builder $builder, array $value) {
+
+                    $builder->where(function ($query) use ($value) {
+
+                        if (in_array('backorder', $value)) {
+                            $query->whereColumn('qty_ord', '>', 'qty_ship')
+                                  ->where('last_line_added_at', '<', Carbon::today());
+                        }
+
+                        if (in_array('completed', $value)) {
+                            $query->orWhereColumn('qty_ord', '=', 'qty_ship');
+                        }
+
+                        if (in_array('wt', $value)) {
+                            $query->orWhere('warehouse_transfer_available', '=', 1);
+                        }
+
+                        if (in_array('p-wt', $value)) {
+                            $query->orWhere('partial_warehouse_transfer_available', '=', 1);
+                        }
+
+                        if (in_array('non-stock', $value)) {
+                            $query->orWhere('non_stock_line_items', '<>', null);
+                        }
+                    });
                 }),
 
-
-                SelectFilter::make('Order Type', 'order_type')
+                MultiSelectDropdownFilter::make('Order Type', 'order_type')
                 ->options([
-                    '' => 'All',
                     'sro' => 'SRO',
                     'web' => 'Web',
                     'sales' => 'Sales',
                     'in-store' => 'Parts In-Store',
                     'golf' => 'Golf (WEB)'
-                ])->filter(function (Builder $builder, string $value) {
-                    if($value == 'web') $builder->where('is_web_order',1);
-                    if($value == 'sro') $builder->where('is_sro','=',1);
-                    if($value == 'sales') $builder->where('is_sales_order',1)->whereNot('is_sro',1);
-                    if($value == 'in-store') $builder->where('is_sales_order',0)->where('is_sro', 0)->where('taken_by', '<>', 'web');
-                    if($value == 'golf') $builder->where('golf_parts', '<>', null);
+                ])->filter(function (Builder $builder, array $value) {
+
+                    $builder->where(function ($query) use ($value) {
+
+                        if (in_array('web', $value)) {
+                            $query->where('is_web_order', 1);
+                        }
+
+                        if (in_array('sro', $value)) {
+                            $query->orWhere('is_sro', '=', 1);
+                        }
+
+                        if (in_array('sales', $value)) {
+                            $query->orWhere(function ($subQuery) {
+                                $subQuery->where('is_sales_order', '=', 1)
+                                         ->whereNot('is_sro', 1);
+                            });
+                        }
+
+                        if (in_array('in-store', $value)) {
+                            $query->orWhere(function ($subQuery) {
+                                $subQuery->where('is_sales_order', '=', 0)
+                                         ->where('is_sro', '=', 0)
+                                         ->where('taken_by', '<>', 'web');
+                            });
+                        }
+
+                        if (in_array('golf', $value)) {
+                            $query->orWhere('golf_parts', '<>', null);
+                        }
+                    });
                 }),
+
 
             MultiSelectDropdownFilter::make('Warehouse', 'whse')
                 ->hiddenFromMenus()
@@ -324,31 +403,49 @@ class Table extends DataTableComponent
                         ->whereDate('order_date', '<=', $dateRange['maxDate']); // maxDate is the end date selected
                 }),
 
-                SelectFilter::make('Promise Date', 'promise_date')
+                MultiSelectDropdownFilter::make('Promise Date', 'promise_date')
                 ->hiddenFromMenus()
-                    ->options(['' => 'All'] + [
+                    ->options([
                         'past_due' => 'Past Due',
                         'unknown' => 'Unknown',
                         'two_weeks_plus' => '2+ Weeks',
                         'less_than_two_weeks' => '<2 Weeks'
                     ])
-                    ->filter(function (Builder $builder, string $value) {
-                        if($value == 'past_due') $builder->where('promise_date', '<',Carbon::today());
-                        if($value == 'unknown') $builder->where('promise_date', '2049-01-01');
-                        if($value == 'two_weeks_plus') $builder->where('promise_date', '>', Carbon::now()->addWeek(2))->where('promise_date', '<>', '2049-01-01');
-                        if($value == 'less_than_two_weeks') $builder->whereBetween('promise_date', [Carbon::yesterday()->format('Y-m-d'),Carbon::now()->addDay(13)])->where('promise_date', '<>', '2049-01-01');
-                }),
+                    ->filter(function (Builder $builder, $value) {
+                        $builder->where(function ($query) use ($value) {
+                            $conditions = [];
 
+                            if (in_array('past_due', $value)) {
+                                $conditions[] = ['promise_date', '<', Carbon::today()];
+                            }
+                            if (in_array('unknown', $value)) {
+                                $conditions[] = ['promise_date', '=', '2049-01-01'];
+                            }
+                            if (in_array('two_weeks_plus', $value)) {
+                                $conditions[] = ['promise_date', '>', Carbon::now()->addWeek(2)];
+                                $conditions[] = ['promise_date', '<>', '2049-01-01'];
+                            }
+                            if (in_array('less_than_two_weeks', $value)) {
+                                $conditions[] = ['promise_date', '>=', Carbon::yesterday()->format('Y-m-d')];
+                                $conditions[] = ['promise_date', '<=', Carbon::now()->addDay(13)];
+                                $conditions[] = ['promise_date', '<>', '2049-01-01'];
+                            }
+                            if (count($conditions) > 0) {
+                                foreach ($conditions as $condition) {
+                                    $query->orWhere(...$condition);
+                                }
+                            }
+                        });
+                    }),
 
-
-            SelectFilter::make('Operators', 'operator')
+            MultiSelectDropdownFilter::make('Operators', 'operator')
             ->hiddenFromMenus()
-                ->options(['' => 'All'] + Operator::where('cono', auth()->user()->account->sx_company_number)->orderBy('name')->get()->pluck('full_name', 'operator')->toArray())
-                ->filter(function (Builder $builder, string $value) {
-                    $builder->where(DB::raw('lower(taken_by)'), strtolower($value));
+            ->options(Operator::where('cono', auth()->user()->account->sx_company_number)->orderBy('name')->get()->pluck('full_name', 'operator')->toArray())
+            ->filter(function (Builder $builder, $value) {
+                    $builder->whereIn(DB::raw('lower(taken_by)'), array_map('strtolower', $value));
             }),
 
-            SelectFilter::make('Stage Code', 'stage_codes')
+            MultiSelectDropdownFilter::make('Stage Code', 'stage_codes')
             ->hiddenFromMenus()
                 ->options([
                     'open' => 'Open',
@@ -356,43 +453,53 @@ class Table extends DataTableComponent
                     'cancelled' => 'Cancelled',
                     'quotes' => 'Quotes',
                 ])
-                ->filter(function (Builder $builder, string $value) {
-                    if($value == 'open') $builder->whereIn('stage_code', [1,2]);
-                    if($value == 'closed') $builder->whereIn('stage_code', [3,4,5]);
-                    if($value == 'cancelled') $builder->where('stage_code', 9);
-                    if($value == 'quotes') $builder->where('stage_code', 0);
+                ->filter(function (Builder $builder, $value) {
+                    $searchKey =[];
+                    if(in_array('open', $value)) $searchKey = array_merge($searchKey, [1,2]);
+                    if(in_array('closed', $value)) $searchKey = array_merge($searchKey, [3,4,5]);
+                    if(in_array('cancelled', $value)) $searchKey[] = 9;
+                    if(in_array('quotes', $value)) $searchKey[] = 0;
+
+                    $builder->whereIn('stage_code', $searchKey);
             }),
 
-            SelectFilter::make('Last Follow Up', 'last_followed_up_at')
+            MultiSelectDropdownFilter::make('Last Follow Up', 'last_followed_up_at')
             ->hiddenFromMenus()
-                ->options(['' => 'All'] + [
+                ->options( [
                     'today' => 'Today',
                     'yesterday' => 'Yesterday',
                     'this_week' => 'This Week',
                     'older_two_weeks' => 'Older than Two Weeks',
                 ])
-                ->filter(function (Builder $builder, string $value) {
-                    if($value == 'today')
-                    {
-                        $builder->whereDate('last_followed_up_at', Carbon::today());
-                    }
-                    if($value == 'yesterday')
-                    {
-                        $builder->whereDate('last_followed_up_at', Carbon::yesterday());
-                    }
-                    if($value == 'this_week')
-                    {
-                        $builder->whereBetween('last_followed_up_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-                    }
-                    if($value == 'older_two_weeks')
-                    {
-                        $builder->where('last_followed_up_at', '<', Carbon::now()->subWeek(2));
-                    }
+                ->filter(function (Builder $builder, $value) {
+                    $builder->where(function ($query) use ($value) {
+                        $conditions = [];
+
+                        if (in_array('today', $value)) {
+                            $conditions[] = ['last_followed_up_at', '=', Carbon::today()->toDateString()];
+                        }
+                        if (in_array('yesterday', $value)) {
+                            $conditions[] = ['last_followed_up_at', '=', Carbon::yesterday()->toDateString()];
+                        }
+                        if (in_array('this_week', $value)) {
+                            $conditions[] = ['last_followed_up_at', '>=', Carbon::now()->startOfWeek()->toDateString()];
+                            $conditions[] = ['last_followed_up_at', '<=', Carbon::now()->endOfWeek()->toDateString()];
+                        }
+                        if (in_array('older_two_weeks', $value)) {
+                            $conditions[] = ['last_followed_up_at', '<', Carbon::now()->subWeeks(2)->toDateString()];
+                        }
+
+                        if (count($conditions) > 0) {
+                            foreach ($conditions as $condition) {
+                                $query->orWhere(...$condition);
+                            }
+                        }
+                    });
             }),
 
-            SelectFilter::make('Status', 'status')
+            MultiSelectDropdownFilter::make('Status', 'status')
             ->hiddenFromMenus()
-                ->options(['' => 'All'] + [
+                ->options([
                     'Pending Review' => 'Pending Review',
                     'Ignored' => 'Ignored',
                     'Cancelled' => 'Cancelled',
@@ -401,8 +508,8 @@ class Table extends DataTableComponent
                     'Receiving Follow Up' => 'Receiving Follow Up',
                     'Closed' => 'Closed',
                 ])
-                ->filter(function (Builder $builder, string $value) {
-                    $builder->where('status', $value);
+                ->filter(function (Builder $builder, $value) {
+                    $builder->whereIn('status', $value);
             }),
 
             TextFilter::make('Search by Part', 'line_items')
@@ -429,8 +536,15 @@ class Table extends DataTableComponent
 
 
         $query = Order::where('cono', auth()->user()->account->sx_company_number)->whereIn('whse', array_keys($this->warehouses));
-
+        $this->setFilterCountInitLoad($query->count());
         return $query;
+    }
+
+    public function setFilterCountInitLoad($total)
+    {
+        if(!$this->filteredRowCount) {
+            $this->filteredRowCount = $total;
+        }
     }
 
     public function setFilterValue($filter, $value)
@@ -480,6 +594,39 @@ class Table extends DataTableComponent
         return $stage_codes[$code];
     }
 
+    public function updatedFilterComponents()
+    {
+        $this->filteredRowCount = $this->getRows()->total();
+        $this->saveFilter();
+    }
+
+    public function setFilterDefaults(): void
+    {
+        parent::setFilterDefaults();
+        $this->filteredRowCount = $this->getRows()->total();
+        $this->saveFilter();
+    }
 
 
+    public function saveFilter()
+    {
+        $data = json_encode([
+            'status' => $this->isFilterSaved ?? 0,
+            'filters' => $this->getAppliedFilters()
+        ]);
+
+        $cacheKey = $this->getCacheKey();
+        Cache::put($cacheKey, $data);
+    }
+
+    public function getCacheKey()
+    {
+        $user = Auth::user();
+        return  __CLASS__.'\user_'.$user->id.'_filters';
+    }
+
+    public function export()
+    {
+        $this->dispatch('openExportModal');
+    }
 }

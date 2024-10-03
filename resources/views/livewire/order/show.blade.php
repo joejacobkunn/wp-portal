@@ -311,8 +311,6 @@
                                                                     and Notify Customer</span></a></li>
                                                     @endif
 
-
-
                                                 </ul>
                                             @endcan
 
@@ -459,6 +457,7 @@
 
                     @include('livewire.order.partials.sx-notes')
 
+                    <livewire:component.order-messages :order-number="$order->order_number" :order-suffix="$order->order_number_suffix" :key="'messages-' . time()" lazy />
 
 
                 </div>
