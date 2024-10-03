@@ -6,6 +6,11 @@
                 the last one year from SX. This list is refreshed hourly<span class="float-end"><strong>Last
                         refreshed</strong>
                     {{ Carbon\Carbon::parse($last_refresh_timestamp)->diffForHumans() }}</span></div>
+            @if ($non_registered_count > 0)
+                <div class="alert alert-light-warning color-warning"><i class="fas fa-exclamation-triangle"></i>
+                    <strong>{{ $non_registered_count }}</strong> has missing warranty registration(s)
+                </div>
+            @endif
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <livewire:equipment.warranty.warranty-import.report-table lazy

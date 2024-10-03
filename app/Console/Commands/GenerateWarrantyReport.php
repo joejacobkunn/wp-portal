@@ -30,9 +30,11 @@ class GenerateWarrantyReport extends Command
     public function handle()
     {
         $rows = [];
+        $non_registered_count = 0;
         $data = DB::connection('zxt')->select($this->constructQuery());
 
         foreach($data as $row){
+            if(is_null($row->registration_date)) $non_registered_count++;
             $rows[] = (array)$row;
         }
 
@@ -41,6 +43,7 @@ class GenerateWarrantyReport extends Command
         //store last time in Cache
 
         Cache::put('warranty_registration_report_sync_timestamp', now());
+        Cache::put('warranty_registration_non_registered_count', $non_registered_count);
 
     }
 
@@ -84,7 +87,7 @@ class GenerateWarrantyReport extends Command
             AND icses.currstatus = 's'
             AND icses.invno <> 0
             AND icses.invoicedt IS NOT NULL
-            AND icses.invoicedt > '".Carbon::now()->subMonth(12)->format('Y-m-d')."' WITH(NOLOCK)";
+            AND icses.invoicedt > '".Carbon::now()->subMonth(24)->format('Y-m-d')."' WITH(NOLOCK)";
     }
 
 }

@@ -98,6 +98,7 @@ class Table extends DataTableComponent
                 }
             }
         }
+
     }
 
     public function columns(): array
