@@ -73,7 +73,7 @@ class ProcessPurchaseOrderReceipts extends Command
                 {
                     foreach($purchase_order->line_items['line_items'] as $item => $item_count)
                     {
-                        if(array_key_exists($item, $products)){
+                        if(!array_key_exists($item, $products)){
                             $products[$item] = $item_count;
                         }else{
                             $products[$item] = $products[$item] + $item_count;
@@ -194,7 +194,7 @@ class ProcessPurchaseOrderReceipts extends Command
 
     private function flag_po_in_sx($purchase_order_number,$po_suffix,$peoplevox_ref_no)
     {
-        DB::connection('sx')->statement("UPDATE pub.poeh SET user11 = '".$peoplevox_ref_no."' where cono = ".$this->cono." and AND pono = '".$purchase_order_number."' AND posuf = '".$po_suffix."'");
+        DB::connection('sx')->statement("UPDATE pub.poeh SET user11 = 'PeopleVoxRef:".$peoplevox_ref_no."' where cono = ".$this->cono." and pono = '".$purchase_order_number."' and posuf = '".$po_suffix."'");
     }
 
     private function checkForIneligibleProducts($products,$sx_po_line_data)
