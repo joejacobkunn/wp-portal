@@ -11,10 +11,13 @@ class Report extends Model
 {
     use \Sushi\Sushi;
 
+    protected $fillable = ['registration_date', 'registered_by'];
+
+
     public function getRows()
     {
 
-        return Storage::json('public/reports/warranty-report.json');
+        return Storage::json('reports/warranty-report.json');
     }
 
     protected function sushiShouldCache()

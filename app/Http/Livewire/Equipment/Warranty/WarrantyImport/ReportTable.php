@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
 
 class ReportTable extends DataTableComponent
@@ -29,6 +30,9 @@ class ReportTable extends DataTableComponent
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
+        $this->setSearchDebounce(500);
+        $this->setLoadingPlaceholderEnabled();
+
 
     }
 
@@ -38,11 +42,36 @@ class ReportTable extends DataTableComponent
         $this->brands = Brand::orderBy('name')->pluck('name', 'name')->toArray();
         $this->lines = Line::orderBy('name')->pluck('name', 'name')->toArray();
         $this->operators = Operator::orderBy('name')->pluck('name', 'name')->toArray();
+        $this->setFilter('status', 'all');
     }
 
     public function columns(): array
     {
         return [
+
+            Column::make('Serial', 'serial')
+                ->searchable()
+                ->format(function ($value, $row) {
+                    if(empty($row->registration_date))
+                    {
+                        return $value.' <span class="badge bg-light-danger float-end"><i class="fas fa-exclamation-triangle"></i></span>';
+                    }
+
+                    return $value.' <span class="badge bg-light-success float-end"><i class="far fa-check-circle"></i></span>';
+                })
+                ->excludeFromColumnSelect()
+                ->html(),
+
+
+            Column::make('Model', 'model')
+                ->searchable()
+                ->format(function ($value, $row) {
+                    return $value.' ('.$row->description.')';
+                })
+                ->excludeFromColumnSelect()
+                ->html(),
+
+
             Column::make('Store', 'store')
                 ->secondaryHeader($this->getFilterByKey('store'))
                 ->format(function ($value, $row) {
@@ -82,18 +111,6 @@ class ReportTable extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
-                Column::make('Model', 'model')
-                ->searchable()
-                ->format(function ($value, $row) {
-                    return $value.' ('.$row->description.')';
-                })
-                ->excludeFromColumnSelect()
-                ->html(),
-
-                Column::make('Serial', 'serial')
-                ->searchable()
-                ->excludeFromColumnSelect()
-                ->html(),
 
                 Column::make('Sold On', 'sold')
                 ->searchable()
@@ -109,6 +126,16 @@ class ReportTable extends DataTableComponent
                 ->secondaryHeader($this->getFilterByKey('reg_date'))
                 ->sortable()
                 ->searchable()
+                ->format(function ($value, $row) {
+                    if(empty($row->registration_date))
+                    {
+                        return $value.' <button wire:click="register(\''.$row->serial.'\', \''.$row->cust_no.'\')" class="btn btn-sm btn-outline-primary align-middle">Register</button>';
+                    }
+
+                    return $value;
+
+                })
+
                 ->excludeFromColumnSelect()
                 ->html(),
 
@@ -135,14 +162,25 @@ class ReportTable extends DataTableComponent
                 ->options(['All Brands'] + $this->brands)
                 ->hiddenFromMenus()
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->where('brand', $value);
+                    $builder->whereRaw('LOWER(brand) = ?', [strtolower($value)]);
                 }),
 
             SelectFilter::make('lines')
                 ->options(['All'] + $this->lines)
                 ->hiddenFromMenus()
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->where('prodline', $value);
+                    $builder->whereRaw('LOWER(prodline) = ?', [strtolower($value)]);
+                }),
+
+            SelectFilter::make('Status', 'status')
+                ->options(['all'=>'All', 'registered'=>'Registered','non-registered' => 'Non Registered'])
+                ->filter(function(Builder $builder, string $value) {
+                    if($value == 'registered')
+                        $builder->whereNot('registration_date', '');
+                    if($value == 'non-registered')
+                        $builder->where('registration_date', null);
+                    if($value == 'all')
+                        $builder->where('registration_date', null)->orWhereNot('registration_date', '');
                 }),
 
             SelectFilter::make('registered_by')
@@ -176,6 +214,13 @@ class ReportTable extends DataTableComponent
     {
         $query = Report::query();
          return $query;
+    }
+
+    public function register($serial_no, $cust_no)
+    {
+        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
+        $record = Report::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
+        $record->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
     }
 
 }
