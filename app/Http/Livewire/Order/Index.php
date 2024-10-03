@@ -5,8 +5,7 @@ namespace App\Http\Livewire\Order;
 
 use App\Http\Livewire\Component\Component;
 use App\Imports\OrdersImport;
-
-use App\Jobs\ProcessOrders;
+use App\Jobs\ExportOrders;
 use App\Models\Order\Order;
 use App\Models\SX\Company;
 use App\Traits\HasTabs;
@@ -106,7 +105,7 @@ class Index extends Component
     public function submit()
     {
         $this->validate();
-        ProcessOrders::dispatch($this->orderType);
+        ExportOrders::dispatch($this->orderType, auth()->user());
         $this->showExportNotification = true;
         $this->closeModel();
     }

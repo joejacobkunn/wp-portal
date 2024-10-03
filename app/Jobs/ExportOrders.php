@@ -17,17 +17,20 @@ use Maatwebsite\Excel\Facades\Excel;
 use League\Csv\Writer;
 use Illuminate\Support\Str;
 
-class ProcessOrders implements ShouldQueue
+class ExportOrders implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $orderType;
+
+    public $user;
     /**
      * Create a new job instance.
      */
-    public function __construct($orderType)
+    public function __construct($orderType, $user)
     {
         $this->orderType = $orderType;
+        $this->user = $user;
     }
 
     /**
@@ -40,8 +43,7 @@ class ProcessOrders implements ShouldQueue
         $stageCodes = $this->getStageCode();
         $path = $this->getValidRecords($stageCodes);
 
-        $user = Auth::user();
-        Notification::send($user, new OrdersImportNotification($path));
+        Notification::send($this->user, new OrdersImportNotification($path));
     }
 
     public function getValidRecords($stageCodes)

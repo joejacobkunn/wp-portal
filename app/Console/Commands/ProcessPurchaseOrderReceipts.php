@@ -71,9 +71,14 @@ class ProcessPurchaseOrderReceipts extends Command
     
                 foreach($purchase_orders as $purchase_order)
                 {
-                    foreach($purchase_order->line_items['line_items'] as $item => $line_item)
+                    foreach($purchase_order->line_items['line_items'] as $item => $item_count)
                     {
-                        $products[] = $item;
+                        if(array_key_exists($item, $products)){
+                            $products[$item] = $item_count;
+                        }else{
+                            $products[$item] = $products[$item] + $item_count;
+                        }
+                        
                     }
 
                     $ineligible_products = $this->checkForIneligibleProducts($products,$sx_po_line_data);
@@ -91,7 +96,7 @@ class ProcessPurchaseOrderReceipts extends Command
     
                     $stage_code = $sx_po_line_data[0]->stagecd;
     
-                    foreach($purchase_order->line_items['line_items'] as $item => $qty)
+                    foreach($products as $item => $qty)
                     {
                         $po_meta_data = $this->getPOMetaDataForItem($item,$purchase_order_number,$po_suffix);
                         
@@ -175,7 +180,7 @@ class ProcessPurchaseOrderReceipts extends Command
     {
         foreach($sx_po_line_data as $sx_po_line)
         {
-            if(in_array($sx_po_line->shipprod,$receipted_products))
+            if(in_array($sx_po_line->shipprod,array_keys($receipted_products)))
             {
                 if($sx_po_line->lineno == $line_no)
                 {
@@ -202,11 +207,11 @@ class ProcessPurchaseOrderReceipts extends Command
             $sx_products[] = $sx_po_line->shipprod;
         }
 
-        foreach($products as $product)
+        foreach($products as $item => $qty)
         {
-            if(!in_array($product,$sx_products))
+            if(!in_array($item,$sx_products))
             {
-                $in_eligible_products[] = $product;
+                $in_eligible_products[] = $item;
             }
         }
 
