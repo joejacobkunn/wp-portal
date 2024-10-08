@@ -39,17 +39,16 @@ class OrdersImportNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $subject = 'Order Export Notification';
+        $fullFilePath = storage_path('app/public/' .config('order.url'). $this->path);
 
         $mail = (new MailMessage)
                 ->from('noreply@weingartz.com')
                 ->subject($subject)
                 ->line('Order Export process completed');
-        if ($this->path) {
-
-            $mail->action('Download Records', url('/').'/storage/'.config('order.url').$this->path);
-        }
-
-
+                $mail->attach($fullFilePath, [
+                    'as' => 'OrderExport.csv',
+                    'mime' => 'text/csv',
+                ]);
     return $mail;
     }
 
