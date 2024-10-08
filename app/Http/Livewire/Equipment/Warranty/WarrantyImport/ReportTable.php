@@ -42,7 +42,7 @@ class ReportTable extends DataTableComponent
         $this->brands = Brand::orderBy('name')->pluck('name', 'name')->toArray();
         $this->lines = Line::orderBy('name')->pluck('name', 'name')->toArray();
         $this->operators = Operator::orderBy('name')->pluck('name', 'name')->toArray();
-        $this->setFilter('status', 'all');
+        $this->setFilter('status', '');
     }
 
     public function columns(): array
@@ -173,14 +173,12 @@ class ReportTable extends DataTableComponent
                 }),
 
             SelectFilter::make('Status', 'status')
-                ->options(['all'=>'All', 'registered'=>'Registered','non-registered' => 'Non Registered'])
+                ->options([''=>'All', 'registered'=>'Registered','non-registered' => 'Non Registered'])
                 ->filter(function(Builder $builder, string $value) {
                     if($value == 'registered')
                         $builder->whereNot('registration_date', '');
                     if($value == 'non-registered')
                         $builder->where('registration_date', null);
-                    if($value == 'all')
-                        $builder->where('registration_date', null)->orWhereNot('registration_date', '');
                 }),
 
             SelectFilter::make('registered_by')

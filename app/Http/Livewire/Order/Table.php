@@ -81,7 +81,6 @@ class Table extends DataTableComponent
 
     public function mount()
     {
-        $this->setFilter('stage_codes', 'open');
         $this->warehouses = Warehouse::where('cono', auth()->user()->account->sx_company_number)->orderBy('title')->pluck('title', 'short')->toArray();
 
         $cacheKey = $this->getCacheKey();
@@ -263,24 +262,32 @@ class Table extends DataTableComponent
                     2 => 'DNR Pending Review'
                 ])->filter(function (Builder $builder, $value) {
                     $builder->where(function ($query) use ($value) {
-                        $conditions = [];
 
-                        if (in_array(2, $value)) {
-                            $conditions[] = ['is_dnr', '=', 1];
-                            $conditions[] = ['status', '=', 'Pending Review'];
-                        }
-                        if (in_array(1, $value) && !in_array(2, $value)) {
-                            $conditions[] = ['is_dnr', '=', 1];
-                        }
-                        if (in_array(0, $value)) {
-                            $conditions[] = ['is_dnr', '=', 0];
+                        if (in_array(0, $value) && in_array(1, $value)) {
+                            $query->where('is_dnr', 1);
+                            $query->where('is_dnr', 0);
                         }
 
-                        if (count($conditions) > 0) {
-                            foreach ($conditions as $condition) {
-                                $query->orWhere(...$condition);
-                            }
+                        if(in_array(0, $value) && in_array(2, $value) && !in_array(1, $value)) {
+                            $query->where('is_dnr', 0);
+                            $query->orWhere(function ($subQuery) {
+                                $subQuery->where('is_dnr', 1)
+                                         ->where('status', 'Pending Review');
+                            });
                         }
+
+                        if (in_array(0, $value) && !in_array(1, $value) && !in_array(2, $value)) {
+                            $query->where('is_dnr', 0);
+                        }
+
+                        if (!in_array(0, $value) && in_array(1, $value)) {
+                            $query->where('is_dnr', 1);
+                        }
+
+                        if (!in_array(0, $value) && !in_array(1, $value) && in_array(2, $value)) {
+                            $query->where('is_dnr', 1);
+                            $query->where('status', 'Pending Review');                        }
+
                     });
                 }),
 
@@ -413,28 +420,31 @@ class Table extends DataTableComponent
                     ])
                     ->filter(function (Builder $builder, $value) {
                         $builder->where(function ($query) use ($value) {
-                            $conditions = [];
 
                             if (in_array('past_due', $value)) {
-                                $conditions[] = ['promise_date', '<', Carbon::today()];
+                                $query->orWhereDate('promise_date', '<', Carbon::today()->toDateString());
                             }
+
                             if (in_array('unknown', $value)) {
-                                $conditions[] = ['promise_date', '=', '2049-01-01'];
+                                $query->orWhereDate('promise_date', '=', '2049-01-01');
                             }
+
                             if (in_array('two_weeks_plus', $value)) {
-                                $conditions[] = ['promise_date', '>', Carbon::now()->addWeek(2)];
-                                $conditions[] = ['promise_date', '<>', '2049-01-01'];
+                                $query->orWhere(function ($subQuery) {
+                                    $subQuery->whereDate('promise_date', '>', Carbon::now()->addWeek(2))
+                                             ->whereDate('promise_date', '<>', '2049-01-01');
+                                });
                             }
+
                             if (in_array('less_than_two_weeks', $value)) {
-                                $conditions[] = ['promise_date', '>=', Carbon::yesterday()->format('Y-m-d')];
-                                $conditions[] = ['promise_date', '<=', Carbon::now()->addDay(13)];
-                                $conditions[] = ['promise_date', '<>', '2049-01-01'];
+                                $query->orWhere(function ($subQuery) {
+                                    $subQuery->whereDate('promise_date', '>=', Carbon::yesterday()->format('Y-m-d'))
+                                            ->whereDate('promise_date', '<=',  Carbon::now()->addDay(13))
+                                            ->whereDate('promise_date', '<>', '2049-01-01');
+                                });
+
                             }
-                            if (count($conditions) > 0) {
-                                foreach ($conditions as $condition) {
-                                    $query->orWhere(...$condition);
-                                }
-                            }
+
                         });
                     }),
 
@@ -465,36 +475,32 @@ class Table extends DataTableComponent
 
             MultiSelectDropdownFilter::make('Last Follow Up', 'last_followed_up_at')
             ->hiddenFromMenus()
-                ->options( [
-                    'today' => 'Today',
-                    'yesterday' => 'Yesterday',
-                    'this_week' => 'This Week',
-                    'older_two_weeks' => 'Older than Two Weeks',
-                ])
-                ->filter(function (Builder $builder, $value) {
-                    $builder->where(function ($query) use ($value) {
-                        $conditions = [];
+            ->options([
+                'today' => 'Today',
+                'yesterday' => 'Yesterday',
+                'this_week' => 'This Week',
+                'older_two_weeks' => 'Older than Two Weeks',
+            ])
+            ->filter(function (Builder $builder, $value) {
+                $builder->where(function ($query) use ($value) {
+                    if (in_array('today', $value)) {
+                        $query->orWhereDate('last_followed_up_at', Carbon::today()->toDateString());
+                    }
 
-                        if (in_array('today', $value)) {
-                            $conditions[] = ['last_followed_up_at', '=', Carbon::today()->toDateString()];
-                        }
-                        if (in_array('yesterday', $value)) {
-                            $conditions[] = ['last_followed_up_at', '=', Carbon::yesterday()->toDateString()];
-                        }
-                        if (in_array('this_week', $value)) {
-                            $conditions[] = ['last_followed_up_at', '>=', Carbon::now()->startOfWeek()->toDateString()];
-                            $conditions[] = ['last_followed_up_at', '<=', Carbon::now()->endOfWeek()->toDateString()];
-                        }
-                        if (in_array('older_two_weeks', $value)) {
-                            $conditions[] = ['last_followed_up_at', '<', Carbon::now()->subWeeks(2)->toDateString()];
-                        }
+                    if (in_array('yesterday', $value)) {
+                        $query->orWhereDate('last_followed_up_at', Carbon::yesterday()->toDateString());
+                    }
 
-                        if (count($conditions) > 0) {
-                            foreach ($conditions as $condition) {
-                                $query->orWhere(...$condition);
-                            }
-                        }
-                    });
+                    if (in_array('this_week', $value)) {
+                        $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
+                        $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
+                        $query->orWhereBetween('last_followed_up_at', [$startOfWeek, $endOfWeek]);
+                    }
+
+                    if (in_array('older_two_weeks', $value)) {
+                        $query->orWhere('last_followed_up_at', '<', Carbon::now()->subWeeks(2)->toDateString());
+                    }
+                });
             }),
 
             MultiSelectDropdownFilter::make('Status', 'status')
@@ -536,16 +542,10 @@ class Table extends DataTableComponent
 
 
         $query = Order::where('cono', auth()->user()->account->sx_company_number)->whereIn('whse', array_keys($this->warehouses));
-        $this->setFilterCountInitLoad($query->count());
         return $query;
     }
 
-    public function setFilterCountInitLoad($total)
-    {
-        if(!$this->filteredRowCount) {
-            $this->filteredRowCount = $total;
-        }
-    }
+
 
     public function setFilterValue($filter, $value)
     {
@@ -594,16 +594,10 @@ class Table extends DataTableComponent
         return $stage_codes[$code];
     }
 
-    public function updatedFilterComponents()
-    {
-        $this->filteredRowCount = $this->getRows()->total();
-        $this->saveFilter();
-    }
 
     public function setFilterDefaults(): void
     {
         parent::setFilterDefaults();
-        $this->filteredRowCount = $this->getRows()->total();
         $this->saveFilter();
     }
 
@@ -617,6 +611,12 @@ class Table extends DataTableComponent
 
         $cacheKey = $this->getCacheKey();
         Cache::put($cacheKey, $data);
+    }
+
+    public function rowsRetrieved($rows)
+    {
+        $this->filteredRowCount = $rows->total();
+        $this->saveFilter();
     }
 
     public function getCacheKey()
