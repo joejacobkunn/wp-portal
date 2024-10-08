@@ -541,16 +541,10 @@ class Table extends DataTableComponent
 
 
         $query = Order::where('cono', auth()->user()->account->sx_company_number)->whereIn('whse', array_keys($this->warehouses));
-        $this->setFilterCountInitLoad($query->count());
         return $query;
     }
 
-    public function setFilterCountInitLoad($total)
-    {
-        if(!$this->filteredRowCount) {
-            $this->filteredRowCount = $total;
-        }
-    }
+
 
     public function setFilterValue($filter, $value)
     {
@@ -599,16 +593,10 @@ class Table extends DataTableComponent
         return $stage_codes[$code];
     }
 
-    public function updatedFilterComponents()
-    {
-        $this->filteredRowCount = $this->getRows()->total();
-        $this->saveFilter();
-    }
 
     public function setFilterDefaults(): void
     {
         parent::setFilterDefaults();
-        $this->filteredRowCount = $this->getRows()->total();
         $this->saveFilter();
     }
 
@@ -622,6 +610,12 @@ class Table extends DataTableComponent
 
         $cacheKey = $this->getCacheKey();
         Cache::put($cacheKey, $data);
+    }
+
+    public function rowsRetrieved($rows)
+    {
+        $this->filteredRowCount = $rows->total();
+        $this->saveFilter();
     }
 
     public function getCacheKey()
