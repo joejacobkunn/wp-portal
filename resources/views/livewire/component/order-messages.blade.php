@@ -14,7 +14,7 @@
                             <div>
                                 <a href="#" wire:click.prevent="viewMessage({{ $message->id }})">
 
-                                    <h5 class="mb-1">
+                                    <h5 class="mb-1 link-primary">
                                         @if ($message->medium == 'email')
                                             <i class="far fa-envelope"></i>
                                         @endif
@@ -23,17 +23,16 @@
                                         @endif
                                         {{ $message->subject }}
                                         @if (strtolower($message->status) == 'cancelled')
-                                            <span
-                                                class="badge bg-light-danger">{{ strtolower($message->status) }}</span>
+                                            <span class="badge bg-light-danger">{{ ucwords($message->status) }}</span>
                                         @endif
                                         @if (strtolower($message->status) == 'follow up')
-                                            <span class="badge bg-light-info">{{ strtolower($message->status) }}</span>
+                                            <span class="badge bg-light-info">{{ ucwords($message->status) }}</span>
                                         @endif
 
 
                                     </h5>
                                 </a>
-                                <p>{{ Illuminate\Support\Str::limit($message->content, 125) }}</p>
+                                <p>{!! Illuminate\Support\Str::limit($message->content, 125) !!}</p>
                                 <small>Sent to {{ $message->contact }}</small>
                             </div>
                             <div>

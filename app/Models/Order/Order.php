@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
-
+use Spatie\Activitylog\LogOptions;
 
 class Order extends Model
 {
@@ -75,7 +75,13 @@ class Order extends Model
         ],
     ];
 
-    public bool $logOnlyDirty = true;
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['created_at', 'order_date', 'stage_code', 'status'])
+        ->logOnlyDirty();
+    }
+
 
     private $stage_codes = [
         0 => 'Quoted',
