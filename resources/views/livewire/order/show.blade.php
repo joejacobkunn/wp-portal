@@ -453,7 +453,7 @@
                         <livewire:x-comments :entity="$order" :key="'comments' . time()" :alert="$this->comment_alert" lazy />
                     </div>
 
-                    <livewire:x-activity-log show-only-user-activity :entity="$order" :key="'activity-' . time()" lazy />
+                    <livewire:x-activity-log :entity="$order" :key="'activity-' . time()" lazy />
 
                     @include('livewire.order.partials.sx-notes')
 

@@ -45,7 +45,7 @@ class OrderCancelledListener
 
             Message::create([
                 'order_number' => $event->order->order_number,
-                'order_number_suffix' => $event->order->order_number_suffix,
+                'order_suffix' => $event->order->order_number_suffix,
                 'medium' => 'email',
                 'subject' => $event->mailSubject,
                 'content' => $event->mailContent,
@@ -74,7 +74,7 @@ class OrderCancelledListener
 
             Message::create([
                 'order_number' => $event->order->order_number,
-                'order_number_suffix' => $event->order->order_number_suffix,
+                'order_suffix' => $event->order->order_number_suffix,
                 'medium' => 'sms',
                 'subject' => 'SMS via Kenect',
                 'content' => $event->sms_message,

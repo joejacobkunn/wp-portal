@@ -8,7 +8,8 @@
                     {{ Carbon\Carbon::parse($last_refresh_timestamp)->diffForHumans() }}</span></div>
             @if ($non_registered_count > 0)
                 <div class="alert alert-light-warning color-warning"><i class="fas fa-exclamation-triangle"></i>
-                    <strong>{{ $non_registered_count }}</strong> products have missing warranty registration(s)
+                    <strong>{{ number_format($non_registered_count) }}</strong> products have missing warranty
+                    registration(s)
                 </div>
             @endif
             <div class="tab-content" id="myTabContent">
