@@ -43,7 +43,7 @@ class ExportOrders implements ShouldQueue
         $stageCodes = $this->getStageCode();
         $path = $this->getValidRecords($stageCodes);
 
-        Notification::send($this->user, new OrdersImportNotification($path));
+        Notification::send($this->user, new OrdersImportNotification($path, $this->orderType));
     }
 
     public function getValidRecords($stageCodes)
@@ -57,7 +57,7 @@ class ExportOrders implements ShouldQueue
         $filePath = storage_path('app/public/' . config('order.url') . $fileName);
         $writer = Writer::createFromPath($filePath, 'a+');
         $writer->forceEnclosure();
-        $writer->encloseAll(); //return true;
+        $writer->encloseAll();
 
         $writer->insertOne([
             'id', 'cono', 'order_number', 'order_number_suffix', 'whse', 'taken_by',

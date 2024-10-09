@@ -40,8 +40,6 @@ class Index extends Component
 
     public $order_data_sync_timestamp;
 
-    public $orderCount;
-
     public $metricFilter = [];
 
     public $orderType;
