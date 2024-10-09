@@ -4,10 +4,10 @@ namespace App\Notifications\Orders;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Storage;
 
 class OrdersImportNotification extends Notification
 {
@@ -18,7 +18,7 @@ class OrdersImportNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($path=null)
+    public function __construct($path = null)
     {
         $this->path = $path;
     }
@@ -39,17 +39,18 @@ class OrdersImportNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $subject = 'Order Export Notification';
-        $fullFilePath = storage_path('app/public/' .config('order.url'). $this->path);
+        $fullFilePath = storage_path('app/public/'.config('order.url').$this->path);
 
         $mail = (new MailMessage)
                 ->from('noreply@weingartz.com')
                 ->subject($subject)
                 ->line('Order Export process completed');
+
                 $mail->attach($fullFilePath, [
-                    'as' => 'OrderExport.csv',
-                    'mime' => 'text/csv',
+                    'as' => 'order-export.csv',
                 ]);
-    return $mail;
+
+        return $mail;
     }
 
     /**
@@ -60,7 +61,7 @@ class OrdersImportNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            // Additional data can be returned here if needed
         ];
     }
 }
