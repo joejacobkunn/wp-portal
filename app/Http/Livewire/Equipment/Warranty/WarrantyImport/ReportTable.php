@@ -25,7 +25,7 @@ class ReportTable extends DataTableComponent
 
     public function configure(): void
     {
-        $this->setPrimaryKey('id');
+        $this->setPrimaryKey('serial');
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
             'class' => 'table table-bordered',
@@ -35,6 +35,9 @@ class ReportTable extends DataTableComponent
 
 
     }
+    public array $bulkActions = [
+        'registerBulk' => 'Register',
+    ];
 
     public function mount()
     {
@@ -219,6 +222,12 @@ class ReportTable extends DataTableComponent
         DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
         $record = Report::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
         $record->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
+    }
+
+    public function registerBulk()
+    {
+        $rows = $this->getSelected();
+        Report::whereIn('serial', $rows)->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
     }
 
 }
