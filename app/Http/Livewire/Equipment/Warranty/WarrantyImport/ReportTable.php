@@ -14,9 +14,12 @@ use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class ReportTable extends DataTableComponent
 {
+    use LivewireAlert;
+
     public $warehouses;
     public $brands;
     public $lines;
@@ -25,7 +28,7 @@ class ReportTable extends DataTableComponent
 
     public function configure(): void
     {
-        $this->setPrimaryKey('id');
+        $this->setPrimaryKey('serial');
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
             'class' => 'table table-bordered',
@@ -35,6 +38,9 @@ class ReportTable extends DataTableComponent
 
 
     }
+    public array $bulkActions = [
+        'registerBulk' => 'Register',
+    ];
 
     public function mount()
     {
@@ -94,6 +100,7 @@ class ReportTable extends DataTableComponent
                 })
                 ->sortable()
                 ->searchable(),
+                
                 Column::make('Order Number', 'order_no')
                 ->searchable()
                 ->excludeFromColumnSelect()
@@ -219,6 +226,20 @@ class ReportTable extends DataTableComponent
         DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
         $record = Report::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
         $record->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
+    }
+
+    public function registerBulk()
+    {
+        $rows = $this->getSelected();
+        foreach($rows as $row)
+        {
+            $report = Report::where('serial', $row)->first();
+            $report->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+        }
+        $this->clearSelected();
+        $this->alert('success', count($rows).' products registered!');
+
     }
 
 }

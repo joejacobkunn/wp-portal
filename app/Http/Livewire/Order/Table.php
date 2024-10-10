@@ -216,11 +216,9 @@ class Table extends DataTableComponent
             Column::make('Ship Via', 'ship_via')
                 ->secondaryHeader($this->getFilterByKey('ship_via'))
                 ->format(function ($value, $row) {
-                    return $value;
+                    return strtoupper($value);
                 })
                 ->html(),
-
-
 
             Column::make('SX Stage Code', 'stage_code')
                 ->format(function ($value, $row) {
@@ -292,15 +290,15 @@ class Table extends DataTableComponent
                 }),
 
                 MultiSelectDropdownFilter::make('Follow Up Visibility', 'is_follow_up')
-                ->options([
-                    1 => 'Customer',
-                    2 => 'Shipment',
-                    3 => 'Receiving'
-                ])->filter(function (Builder $builder, $value) {
-                    if(in_array(1, $value)) $searchKey[] = 'Follow Up';
-                    if(in_array(2, $value)) $searchKey[] = 'Shipment Follow Up';
-                    if(in_array(3, $value)) $searchKey[] = 'Receiving Follow Up';
-                    $builder->whereIn('status', array_unique($searchKey));
+                    ->options([
+                        1 => 'Customer',
+                        2 => 'Shipment',
+                        3 => 'Receiving'
+                    ])->filter(function (Builder $builder, $value) {
+                        if(in_array(1, $value)) $searchKey[] = 'Follow Up';
+                        if(in_array(2, $value)) $searchKey[] = 'Shipment Follow Up';
+                        if(in_array(3, $value)) $searchKey[] = 'Receiving Follow Up';
+                        $builder->whereIn('status', array_unique($searchKey));
                 }),
 
                 MultiSelectDropdownFilter::make('Ship Via', 'ship_via')
