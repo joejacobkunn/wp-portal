@@ -11,6 +11,9 @@ class Report extends Model
 {
     use \Sushi\Sushi;
 
+    protected $fillable = ['registration_date', 'registered_by'];
+
+
     public function getRows()
     {
 

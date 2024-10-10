@@ -11,11 +11,13 @@ class Report extends Component
     use AuthorizesRequests;
 
     public $last_refresh_timestamp;
+    public $non_registered_count;
 
     public function mount()
     {
         $this->updateBreadcrumb();
         $this->last_refresh_timestamp = Cache::get('warranty_registration_report_sync_timestamp');
+        $this->non_registered_count = Cache::get('warranty_registration_non_registered_count');
     }
 
     public function render()
@@ -31,4 +33,5 @@ class Report extends Component
         ];
         $this->dispatch('upBreadcrumb', $newBreadcrumbs);
     }
+
 }

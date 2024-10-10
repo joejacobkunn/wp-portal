@@ -7,10 +7,13 @@ use App\Models\Equipment\UnavailableReport;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Cache;
 
 class Index extends Component
 {
     use AuthorizesRequests, HasTabs;
+
+    public $non_registered_count;
     public $breadcrumbs = [
         [
             'title' => 'Warranty Registration',
@@ -32,6 +35,8 @@ class Index extends Component
     public function mount()
     {
         $this->authorize('view', BrandWarranty::class);
+        $this->non_registered_count = Cache::get('warranty_registration_non_registered_count');
+
     }
 
     public function upBreadcrumb($breadcrumbs)

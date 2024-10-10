@@ -6,6 +6,7 @@ use App\Classes\SX;
 use App\Enums\Order\OrderStatus;
 use App\Events\Orders\OrderCancelled;
 use App\Models\Core\User;
+use App\Models\Order\Message;
 use App\Notifications\Orders\OrderCancelledNotification;
 use App\Services\Kenect;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,6 +43,17 @@ class OrderCancelledListener
             Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
             ->notify(new OrderCancelledNotification($event->order, $event->mailSubject, $event->mailContent, $event->customer_name));
 
+            Message::create([
+                'order_number' => $event->order->order_number,
+                'order_suffix' => $event->order->order_number_suffix,
+                'medium' => 'email',
+                'subject' => $event->mailSubject,
+                'content' => $event->mailContent,
+                'status' => $event->order->status,
+                'contact' => $event->email
+            ]);
+
+
         }
 
         //add custom log
@@ -59,6 +71,17 @@ class OrderCancelledListener
          {
             $kenect = new Kenect();
             $kenect->send($event->sms_phone, $event->sms_message);
+
+            Message::create([
+                'order_number' => $event->order->order_number,
+                'order_suffix' => $event->order->order_number_suffix,
+                'medium' => 'sms',
+                'subject' => 'SMS via Kenect',
+                'content' => $event->sms_message,
+                'status' => $event->order->status,
+                'contact' => $event->sms_phone
+            ]);
+
          }
 
         //add note to sx order notes if cancelled
@@ -70,8 +93,6 @@ class OrderCancelledListener
             $sx_response = $sx_client->create_order_note('Order cancelled by '.$operator->name.'('.$operator->sx_operator_id.') via Portal due to no longer available parts',$event->order->order_number);
     
         }
-
-
     
     }
 

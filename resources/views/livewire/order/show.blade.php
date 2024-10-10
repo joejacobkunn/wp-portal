@@ -311,8 +311,6 @@
                                                                     and Notify Customer</span></a></li>
                                                     @endif
 
-
-
                                                 </ul>
                                             @endcan
 
@@ -455,10 +453,11 @@
                         <livewire:x-comments :entity="$order" :key="'comments' . time()" :alert="$this->comment_alert" lazy />
                     </div>
 
-                    <livewire:x-activity-log show-only-user-activity :entity="$order" :key="'activity-' . time()" lazy />
+                    <livewire:x-activity-log :entity="$order" :key="'activity-' . time()" lazy />
 
                     @include('livewire.order.partials.sx-notes')
 
+                    <livewire:component.order-messages :order-number="$order->order_number" :order-suffix="$order->order_number_suffix" :key="'messages-' . time()" lazy />
 
 
                 </div>
