@@ -49,7 +49,7 @@ class OrdersImportNotification extends Notification
                 ->line('Your order report is ready to download. Please find the attachment in the email');
 
                 $mail->attach($fullFilePath, [
-                    'as' => $this->orderType.'_orders_'.now()->format('Y_M_D'),
+                    'as' => $this->orderType.'_orders_'.now()->format('Y_M_D').'.csv',
                 ]);
 
         return $mail;

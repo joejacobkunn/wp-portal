@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use League\Csv\Writer;
 use Illuminate\Support\Str;
@@ -44,6 +45,9 @@ class ExportOrders implements ShouldQueue
         $path = $this->getValidRecords($stageCodes);
 
         Notification::send($this->user, new OrdersImportNotification($path, $this->orderType));
+
+        $this->deleteFile($path);
+
     }
 
     public function getValidRecords($stageCodes)
@@ -153,5 +157,11 @@ class ExportOrders implements ShouldQueue
         return $stageCode;
 
     }
-
+    private function deleteFile($fileName)
+    {
+        $filePath = config('order.url') . $fileName;
+        if (Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+        }
+    }
 }
