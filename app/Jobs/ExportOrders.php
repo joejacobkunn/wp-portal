@@ -48,10 +48,6 @@ class ExportOrders implements ShouldQueue
 
     public function getValidRecords($stageCodes)
     {
-        if (!$stageCodes) {
-            return [];
-        }
-
 
         $fileName = uniqid() . '.csv';
         $filePath = storage_path('app/public/' . config('order.url') . $fileName);
@@ -72,7 +68,7 @@ class ExportOrders implements ShouldQueue
 
         if($this->orderType == 'ready_for_shipment_web')
         {
-            $query->openOrders()->orWhereColumn('qty_ord', '=', 'qty_ship')->where('is_web_order', 1);
+            $query->openOrders()->whereColumn('qty_ord', '=', 'qty_ship')->where('is_web_order', 1);
         }
 
         if($this->orderType == 'open')

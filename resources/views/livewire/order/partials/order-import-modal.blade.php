@@ -49,7 +49,7 @@
                     <div wire:loading wire:target="submit">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>
-                    <i class="fas fa-file-download"></i> Download Report
+                    <i class="fas fa-file-download"></i> Email Report
                 </button>
             </div>
         </form>

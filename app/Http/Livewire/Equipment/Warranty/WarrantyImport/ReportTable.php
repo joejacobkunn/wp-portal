@@ -14,9 +14,12 @@ use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class ReportTable extends DataTableComponent
 {
+    use LivewireAlert;
+
     public $warehouses;
     public $brands;
     public $lines;
@@ -97,6 +100,7 @@ class ReportTable extends DataTableComponent
                 })
                 ->sortable()
                 ->searchable(),
+                
                 Column::make('Order Number', 'order_no')
                 ->searchable()
                 ->excludeFromColumnSelect()
@@ -227,7 +231,15 @@ class ReportTable extends DataTableComponent
     public function registerBulk()
     {
         $rows = $this->getSelected();
-        Report::whereIn('serial', $rows)->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
+        foreach($rows as $row)
+        {
+            $report = Report::where('serial', $row)->first();
+            $report->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+        }
+        $this->clearSelected();
+        $this->alert('success', count($rows).' products registered!');
+
     }
 
 }
