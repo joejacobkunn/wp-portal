@@ -37,6 +37,7 @@ class Order extends Model
     ];
 
     private $shipping_stages = [
+        0 => 'Quoted',
         1 => 'Reserved',
         2 => 'Committed',
         3 => 'Shipped',

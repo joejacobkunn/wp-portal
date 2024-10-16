@@ -15,11 +15,7 @@ class ProcessSMSMarketing implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 300;
-
     public $tries = 1;
-
-    public $failOnTimeout = true;
 
     public $model;
     public $validData;
@@ -43,17 +39,24 @@ class ProcessSMSMarketing implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->model->update(['status' => 'processing']);
-        $this->setLocationId();
-        $this->setAssigneeId();
-        $this->sendSms();
-        $failedFile = $this->saveRecords(config('marketing.sms.failed_file_location'), $this->errorRows);
-        $validFile = $this->saveRecords(config('marketing.sms.valid_file_location'), $this->validData);
-        $this->model->update([
-            'status' => 'complete',
-            'failed_file' =>  $failedFile,
-            'processed' =>  $validFile,
-        ]);
+        if($this->model->processed_count == 0 || empty($this->model->processed_count))
+        {
+            $this->model->update(['status' => 'processing']);
+            $this->setLocationId();
+            $this->setAssigneeId();
+            $this->sendSms();
+            $failedFile = $this->saveRecords(config('marketing.sms.failed_file_location'), $this->errorRows);
+            $validFile = $this->saveRecords(config('marketing.sms.valid_file_location'), $this->validData);
+            $this->model->update([
+                'status' => 'complete',
+                'failed_file' =>  $failedFile,
+                'processed' =>  $validFile,
+            ]);
+    
+        }
+        else{
+            $this->model->update(['status' => 'complete']);
+        }
     }
 
     public function saveRecords($path, $records)
