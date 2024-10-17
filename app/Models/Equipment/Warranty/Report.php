@@ -11,6 +11,10 @@ class Report extends Model
 {
     use \Sushi\Sushi;
 
+    protected $schema = [
+        'serial' => 'string',
+    ];
+
     protected $fillable = ['registration_date', 'registered_by'];
 
 
