@@ -40,6 +40,8 @@ class ReportTable extends DataTableComponent
     }
     public array $bulkActions = [
         'registerBulk' => 'Register',
+        'unregisterBulk' => 'Unregister',
+        'ignore' => 'Ignore'
     ];
 
     public function mount()
@@ -60,10 +62,10 @@ class ReportTable extends DataTableComponent
                 ->format(function ($value, $row) {
                     if(empty($row->registration_date))
                     {
-                        return $value.' <span class="badge bg-light-danger float-end"><i class="fas fa-exclamation-triangle"></i></span>';
+                        return (string)$value.' <span class="badge bg-light-danger float-end"><i class="fas fa-exclamation-triangle"></i></span>';
                     }
 
-                    return $value.' <span class="badge bg-light-success float-end"><i class="far fa-check-circle"></i></span>';
+                    return (string)$value.' <span class="badge bg-light-success float-end"><i class="far fa-check-circle"></i></span>';
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
@@ -90,13 +92,41 @@ class ReportTable extends DataTableComponent
                 ->hideIf(1)
                 ->html(),
 
+                Column::make('Customer Type', 'cust_type')
+                ->hideIf(1)
+                ->html(),
+
+
             Column::make('Description', 'description')
+                ->hideIf(1)
+                ->html(),
+
+            Column::make('Address', 'address')
+                ->hideIf(1)
+                ->html(),
+
+                Column::make('City', 'city')
+                ->hideIf(1)
+                ->html(),
+
+                Column::make('State', 'state')
+                ->hideIf(1)
+                ->html(),
+
+                Column::make('Zip', 'zip')
                 ->hideIf(1)
                 ->html(),
 
             Column::make('Customer Name', 'customer_name')
                 ->format(function ($value, $row) {
                     return $value.' ('.$row->cust_no.')';
+                })
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Ship To', 'shiptoname')
+                ->format(function ($value, $row) {
+                    return $value.', '.$row->address.', '.$row->state.', '.$row->city.', '.$row->zip;
                 })
                 ->sortable()
                 ->searchable(),
@@ -134,12 +164,17 @@ class ReportTable extends DataTableComponent
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    if(empty($row->registration_date))
+                    if($row->registration_date == '01/01/01' || $row->registration_date == '2001-01-01')
                     {
-                        return $value.' <button wire:click="register(\''.$row->serial.'\', \''.$row->cust_no.'\')" class="btn btn-sm btn-outline-primary align-middle">Register</button>';
+                        return '<span class="badge bg-light-secondary">Ignored</span> <button type="button" class="btn btn-sm btn-outline-warning" wire:click="unregister(\''.$row->serial.'\', \''.$row->cust_no.'\')">Reset</button>';
                     }
 
-                    return $value;
+                    if(empty($row->registration_date))
+                    {
+                        return '<div class="btn-group" role="group" aria-label="Basic example"><button type="button" class="btn btn-sm btn-outline-primary" wire:click="register(\''.$row->serial.'\', \''.$row->cust_no.'\')">Register</button><button type="button" class="btn btn-sm btn-outline-secondary" wire:click="ignore(\''.$row->serial.'\', \''.$row->cust_no.'\')">Ignore</button></div>';
+                    }
+
+                    return $value.' <button type="button" class="btn btn-sm btn-outline-danger" wire:click="unregister(\''.$row->serial.'\', \''.$row->cust_no.'\')">Unregister</button>';
 
                 })
 
@@ -180,12 +215,14 @@ class ReportTable extends DataTableComponent
                 }),
 
             SelectFilter::make('Status', 'status')
-                ->options([''=>'All', 'registered'=>'Registered','non-registered' => 'Non Registered'])
+                ->options([''=>'All', 'registered'=>'Registered','non-registered' => 'Non Registered', 'ignored' => 'Ignored'])
                 ->filter(function(Builder $builder, string $value) {
                     if($value == 'registered')
                         $builder->whereNot('registration_date', '');
                     if($value == 'non-registered')
                         $builder->where('registration_date', null);
+                    if($value == 'ignored')
+                        $builder->whereIn('registration_date', ['01/01/01','01-01-2001']);
                 }),
 
             SelectFilter::make('registered_by')
@@ -228,6 +265,22 @@ class ReportTable extends DataTableComponent
         $record->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
     }
 
+    public function unregister($serial_no, $cust_no)
+    {
+        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
+        $record = Report::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
+        $record->update(['registration_date' => '', 'registered_by' => '']);
+    }
+
+    public function ignore($serial_no, $cust_no)
+    {
+        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
+        $record = Report::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
+        $record->update(['registration_date' => '2001-01-01', 'registered_by' => auth()->user()->sx_operator_id]);
+    }
+
+
+
     public function registerBulk()
     {
         $rows = $this->getSelected();
@@ -241,5 +294,35 @@ class ReportTable extends DataTableComponent
         $this->alert('success', count($rows).' products registered!');
 
     }
+
+    public function unregisterBulk()
+    {
+        $rows = $this->getSelected();
+        foreach($rows as $row)
+        {
+            $report = Report::where('serial', $row)->first();
+            $report->update(['registration_date' => '', 'registered_by' => '']);
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+        }
+        $this->clearSelected();
+        $this->alert('success', count($rows).' products unregistered!');
+
+    }
+
+    public function ignoreBulk()
+    {
+        $rows = $this->getSelected();
+        foreach($rows as $row)
+        {
+            $report = Report::where('serial', $row)->first();
+            $report->update(['registration_date' => '2001-01-01', 'registered_by' => auth()->user()->sx_operator_id]);
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+        }
+        $this->clearSelected();
+        $this->alert('success', count($rows).' products ignored!');
+
+    }
+
+
 
 }

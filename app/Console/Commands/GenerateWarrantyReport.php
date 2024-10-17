@@ -56,6 +56,11 @@ class GenerateWarrantyReport extends Command
                     ELSE CAST(icses.invsuf AS NCHAR(2))
                     END
                 ) AS 'order_no'
+                ,oeeh.shiptonm AS 'shiptoname'
+                ,oeeh.shiptoaddr[1] AS 'address'
+                ,oeeh.shiptocity AS 'city'
+                ,oeeh.shiptost AS 'state'
+                ,oeeh.shiptozip AS 'zip'
             ,UPPER(icsl.user3) AS 'brand'
             ,icsl.prodline AS 'prodline'
             ,UPPER(icses.prod) AS 'model'
@@ -65,6 +70,7 @@ class GenerateWarrantyReport extends Command
             ,icses.user9 AS 'registration_date'
             ,icses.user4 AS 'registered_by'
             ,arsc.custno AS 'cust_no'
+            ,arsc.custtype AS 'cust_type'
             ,UPPER(arsc.name) AS 'customer_name'
         FROM pub.icses
         LEFT JOIN pub.arsc
@@ -82,12 +88,16 @@ class GenerateWarrantyReport extends Command
             AND icsl.whse = icsw.whse
             AND icsl.vendno = icsw.arpvendno
             AND icsl.prodline = icsw.prodline
+        LEFT JOIN pub.oeeh
+            ON oeeh.cono = icses.cono
+            AND oeeh.orderno = icses.invno
+            AND oeeh.ordersuf = icses.invsuf
         WHERE icses.cono = 10
             AND icses.whse IN ('ANN','CEDA','FARM','LIVO','UTIC','WATE')
             AND icses.currstatus = 's'
             AND icses.invno <> 0
             AND icses.invoicedt IS NOT NULL
-            AND icses.invoicedt > '".Carbon::now()->subMonth(24)->format('Y-m-d')."' WITH(NOLOCK)";
+            AND icses.invoicedt > '".Carbon::now()->subMonth(20)->format('Y-m-d')."' WITH(NOLOCK)";
     }
 
 }
