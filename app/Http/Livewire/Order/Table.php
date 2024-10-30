@@ -522,8 +522,10 @@ class Table extends DataTableComponent
                     'maxlength' => '20',
                 ])
                 ->filter(function (Builder $builder, string $value) {
-                    $builder->whereJsonContains('line_items->line_items', ['shipprod' => strtoupper($value)])
-                    ->orWhereJsonContains('line_items->line_items', ['shipprod' => strtolower($value)]);
+                    $builder->where(function ($query) use ($value) {
+                        $query->whereJsonContains('line_items->line_items', ['shipprod' => strtoupper($value)])
+                              ->orWhereJsonContains('line_items->line_items', ['shipprod' => strtolower($value)]);
+                    });
                 })
         ];
     }
