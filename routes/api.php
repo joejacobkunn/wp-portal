@@ -20,8 +20,11 @@ Route::group(['prefix' => 'v1', 'as' => 'api.'], function () {
 
         //order apis
         Route::post('order/create', [\App\Http\Controllers\Api\V1\OrderController::class, 'create'])->name('order.create');
+        Route::post('order/pending-payment', [\App\Http\Controllers\Api\V1\OrderController::class, 'pendingPayment'])->name('order.pending-payment');
 
         Route::get('vehicles', [\App\Http\Controllers\Api\V1\VehicleController::class, 'index'])->name('vehicle.list');
         Route::get('vehicles/{id}', [\App\Http\Controllers\Api\V1\VehicleController::class, 'show'])->name('vehicle.get');
+
+        //
     });
 });

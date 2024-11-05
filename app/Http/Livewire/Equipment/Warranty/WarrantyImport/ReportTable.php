@@ -105,6 +105,10 @@ class ReportTable extends DataTableComponent
                 ->hideIf(1)
                 ->html(),
 
+            Column::make('Address2', 'address2')
+                ->hideIf(1)
+                ->html(),
+
                 Column::make('City', 'city')
                 ->hideIf(1)
                 ->html(),
@@ -126,7 +130,8 @@ class ReportTable extends DataTableComponent
 
             Column::make('Ship To', 'shiptoname')
                 ->format(function ($value, $row) {
-                    return $value.', '.$row->address.', '.$row->state.', '.$row->city.', '.$row->zip;
+                    $address2 = (!empty($row->address2)) ? $row->address2.', ' : '';
+                    return $value.', '.$row->address.', '.$address2.$row->state.', '.$row->city.', '.$row->zip;
                 })
                 ->sortable()
                 ->searchable(),
