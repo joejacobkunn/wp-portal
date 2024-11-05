@@ -8,6 +8,7 @@ use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Classes\SX;
+use Illuminate\Support\Facades\Log;
 
 class ProcessPurchaseOrderReceipts extends Command
 {
@@ -26,6 +27,10 @@ class ProcessPurchaseOrderReceipts extends Command
      * @var string
      */
     protected $description = 'Command to process PeopleVox purchase order receipts';
+
+    public $line_item_slots = [];
+
+    public $line_item_totals = [];
 
     /**
      * Execute the console command.
@@ -65,47 +70,76 @@ class ProcessPurchaseOrderReceipts extends Command
             if(!empty($sx_po_line_data))
             {
                 $line_items = [];
+                $this->line_item_slots = [];
+                $this->line_item_totals = [];
                 $products = [];
                 $purchase_order_ids = [];
                 $ineligible_products = [];
-    
+
                 foreach($purchase_orders as $purchase_order)
                 {
                     foreach($purchase_order->line_items['line_items'] as $item => $item_count)
                     {
-                        if(!array_key_exists($item, $products)){
-                            $products[$item] = $item_count;
-                        }else{
-                            $products[$item] = $products[$item] + $item_count;
-                        }
-                        
+                        //$array_key = $this->checkForItem($item, $products);
+                        $this->line_item_slots[$item][] = ['qty' => $item_count, 'po_number' => $purchase_order_number];
+                        $products[] = ['prod' => $item, 'qty' => $item_count, 'po_number' => $purchase_order_number];                        
                     }
+
+                    foreach($this->line_item_slots as $item => $slots)
+                    {
+                        $this->line_item_totals[$item] = 0;
+                        foreach($slots as $slot){
+                            $this->line_item_totals[$item] += $slot['qty'];
+                        }
+                    }
+                }
+    
+                foreach($purchase_orders as $purchase_order)
+                {
 
                     $ineligible_products = $this->checkForIneligibleProducts($products,$sx_po_line_data);
-
-                    if(!empty($ineligible_products))
-                    {
-                        Mail::send([], [],function (Message $message) use($ineligible_products,$purchase_order) {
-                            $message->to(['miranda.beaudett@bwretail.com', 'jay.leblanc@bwretail.com', 'karl.hessell@bwretail.com'])->cc(['jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com'])->subject('Ineligible products for PO# '.$purchase_order->po_number);
-                            $message->html('<span><strong>Ineligible products found for PO#'.$purchase_order->po_number.'  :</strong> <br><br>'.implode(" ,",$ineligible_products));
-                        });
-        
-                    }
 
                     $po_suffix = $sx_po_line_data[0]->posuf;
     
                     $stage_code = $sx_po_line_data[0]->stagecd;
-    
-                    foreach($products as $item => $qty)
+
+
+                    if(!empty($ineligible_products))
                     {
-                        $po_meta_data = $this->getPOMetaDataForItem($item,$purchase_order_number,$po_suffix);
-                        
-                        if($this->lineEligibleForReceipt($po_meta_data->lineno, $products, $sx_po_line_data))
+                        $to = ['jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com'];
+
+                        if($mode == 'process') 
                         {
-                            $line_items[$po_meta_data->lineno] = ['line_no' => $po_meta_data->lineno, 'quantity' => $qty, 'amount' => $po_meta_data->price];
+                            $to = ['miranda.beaudett@bwretail.com', 'jay.leblanc@bwretail.com', 'karl.hessell@bwretail.com','jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com'];
+                            PurchaseOrderReceipt::whereIn('id', $purchase_order_ids)->update(['is_processed' => 1]);
                         }
+
+                        Mail::send([], [],function (Message $message) use($ineligible_products,$purchase_order,$po_suffix,$to) {
+                            $message->to('jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com'])->subject('Ineligible products for PO# '.$purchase_order->po_number.'-'.$po_suffix);
+                            $message->html('The following items were received in Peoplevox today but could not be found on PO# '.$purchase_order->po_number.'-'.$po_suffix.', therefore they were not received in SX.<br><br>PeopleVox Ref Number : '.$purchase_order->people_vox_reference_no.'<br>Receipt Date : '.date('Y-m-d', strtotime($purchase_order->receipt_date)).'<br><br>Ineligible Items  : '.implode(" ,",$ineligible_products).'<br><br>Note: Reasons could include supersedes, substitutes, or overages (if the line item was already completed in SX)');
+                        });
+
+                        $this->info('Failed to process due to ineligble items : '.implode(" ,",$ineligible_products));
+
+                        exit;
+        
                     }
+
     
+                    foreach($sx_po_line_data as $sx_po_line)
+                    {
+                        if($this->itemEligibleForReceipt($sx_po_line->shipprod,$products))
+                        {
+                            $po_meta_data = $this->getPOMetaDataForItem($sx_po_line->shipprod, $sx_po_line->qtyord,$purchase_order_number,$po_suffix);
+                            
+                            if(!empty($po_meta_data))
+                            {
+                                $line_items[$sx_po_line->lineno] = ['line_no' => $sx_po_line->lineno, 'quantity' => $po_meta_data['qty'], 'amount' => $sx_po_line->price];
+                            }
+                        }
+                        
+                    }
+
                     $purchase_order_ids[] = $purchase_order->id;
                 }
     
@@ -162,31 +196,82 @@ class ProcessPurchaseOrderReceipts extends Command
 
     }
 
-    private function getPOMetaDataForItem($item,$po_number,$po_suffix)
+    private function getPOMetaDataForItem($item,$qty,$po_number,$po_suffix)
     {
-        $meta_data = DB::connection('sx')->select("SELECT top 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
-                                                FROM pub.poeh
-                                                LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
-                                                WHERE poeh.cono = ?
-                                                AND poeh.pono = ?
-                                                AND poeh.posuf = ?
-                                                AND poel.shipprod = ?
-                                                WITH(NOLOCK)", [$this->cono,$po_number,$po_suffix,$item]);
+        if($this->line_item_totals[$item] < 1) return [];
 
-                                                return $meta_data[0];
+        //looping thru each line item quantity from the receipt
+        foreach($this->line_item_slots[$item] as $slot)
+        {
+
+            if($this->line_item_totals[$item] == $qty)
+            {
+
+                $meta_data = DB::connection('sx')->select("SELECT top 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
+                                                    FROM pub.poeh
+                                                    LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
+                                                    WHERE poeh.cono = ?
+                                                    AND poeh.pono = ?
+                                                    AND poeh.posuf = ?
+                                                    AND poel.shipprod = ?
+                                                    AND poel.qtyord = ?
+                                                    WITH(NOLOCK)", [$this->cono,$po_number,$po_suffix,$item,$qty]); 
+                $this->line_item_totals[$item] -= $qty;
+                return ['lineno' => $meta_data[0]->lineno, 'qty' => $qty];
+            }
+        }
+        
+        foreach($this->line_item_slots[$item] as $slot)
+        {
+
+            //peoplevox qty less than sx quantity
+            if($this->line_item_totals[$item] < $qty)
+            {
+                $meta_data = DB::connection('sx')->select("SELECT top 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
+                FROM pub.poeh
+                LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
+                WHERE poeh.cono = ?
+                AND poeh.pono = ?
+                AND poeh.posuf = ?
+                AND poel.shipprod = ?
+                WITH(NOLOCK)", [$this->cono,$po_number,$po_suffix,$item,$qty]);
+                $this->line_item_totals[$item] -= $slot['qty'];
+                return ['lineno' => $meta_data[0]->lineno, 'qty' => number_format($slot['qty'], 2, '.', '')];
+
+            }
+
+        }
+
+        foreach($this->line_item_slots[$item] as $slot)
+        {
+
+            if($this->line_item_totals[$item] > $qty){
+
+                $meta_data = DB::connection('sx')->select("SELECT top 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
+                                FROM pub.poeh
+                                LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
+                                WHERE poeh.cono = ?
+                                AND poeh.pono = ?
+                                AND poeh.posuf = ?
+                                AND poel.shipprod = ?
+                                WITH(NOLOCK)", [$this->cono,$po_number,$po_suffix,$item,$qty]); 
+                $this->line_item_totals[$item] -= $qty;
+                return ['lineno' => $meta_data[0]->lineno, 'qty' => $qty];
+
+            }
+        }
+    
     }
 
-    private function lineEligibleForReceipt($line_no,$receipted_products,$sx_po_line_data)
+    private function itemEligibleForReceipt($item,$receipted_products)
     {
-        foreach($sx_po_line_data as $sx_po_line)
+        foreach($receipted_products as $product)
         {
-            if(in_array($sx_po_line->shipprod,array_keys($receipted_products)))
+            if($item == $product['prod'])
             {
-                if($sx_po_line->lineno == $line_no)
-                {
-                    return true;
-                }
+                return true;
             }
+    
         }
 
         return false;
@@ -207,15 +292,25 @@ class ProcessPurchaseOrderReceipts extends Command
             $sx_products[] = $sx_po_line->shipprod;
         }
 
-        foreach($products as $item => $qty)
+        foreach($products as $product)
         {
-            if(!in_array($item,$sx_products))
+            if(!in_array($product['prod'],$sx_products))
             {
-                $in_eligible_products[] = $item;
+                $in_eligible_products[] = $product['prod'];
             }
         }
 
         return $in_eligible_products;
+    }
+
+    private function checkForItem($item, $products)
+    {
+        foreach($products as $key => $product)
+        {
+            if($product['item'] == $item) return $key;
+        }
+
+        return false;
     }
 
     private function createSXApiPayload($po_number,$po_suffix,$parsed_line_items)
