@@ -31,27 +31,26 @@
                     const data_serial = btnGroup ? btnGroup.getAttribute('data-serial') : null;
 
                     const btn = e.target.closest('button');
-                    const existingLoader = btn ? btn.querySelector('.loader') : null;
                     const originalWidth = btn.style.width || 'auto';
 
                     const showLoader = () => {
-                        if (!existingLoader) {
+
                             loaderIcon = document.createElement('i');
                             loaderIcon.className = 'fa fa-spinner fa-spin loader';
                             loaderIcon.style.display = 'none';
-                            btn.appendChild(loaderIcon);
-                        }
+                            colSpan = td.querySelector('span');
+                            if (colSpan) colSpan.remove();
 
-                        if (loaderIcon) {
-                            btn.style.width="100px"
-                            loaderIcon.style.display = 'inline-block';
-                        }
+                            btnGroup.textContent='';
+                            btnGroup.appendChild(loaderIcon);
+                            if (loaderIcon) {
+                                loaderIcon.style.display = 'inline-block';
+                            }
                     };
 
                     const hideLoader = () => {
-                        loaderIcon = btn ? btn.querySelector('.loader') : null;
+                        loaderIcon = btnGroup ? btnGroup.querySelector('.loader') : null;
                         if (loaderIcon) {
-                            btn.style.width = originalWidth;
                             loaderIcon.style.display = 'none';
                         }
                     };
