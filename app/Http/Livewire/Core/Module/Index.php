@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Core\Module;
 use App\Models\Core\Account;
 use App\Models\Core\Module;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Index extends Component
@@ -22,7 +23,7 @@ class Index extends Component
 
     public function mount()
     {
-        $this->authorize('view', Module::class);
+        $this->authorize('view', Auth::user(), Module::class);
 
         $this->modules = Module::get();
     }
