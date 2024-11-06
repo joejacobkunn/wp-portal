@@ -131,7 +131,7 @@ class ReportTable extends DataTableComponent
             Column::make('Ship To', 'shiptoname')
                 ->format(function ($value, $row) {
                     $address2 = (!empty($row->address2)) ? $row->address2.', ' : '';
-                    return $value.', '.$row->address.', '.$address2.$row->state.', '.$row->city.', '.$row->zip;
+                    return $value.', '.$row->address.', '.$address2.$row->city.', '.$row->state.', '.$row->zip;
                 })
                 ->sortable()
                 ->searchable(),
