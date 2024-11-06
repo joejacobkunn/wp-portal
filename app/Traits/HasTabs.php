@@ -6,10 +6,9 @@ trait HasTabs
 {
     public $hasTabs = true;
 
-    public function processActiveTabChange($activeTab, $tabElement, $tabId, $queryString = null)
+    public function processActiveTabChange($tabId, $activeTab, $queryString = null)
     {
-        $this->tabs[$tabElement]['active'] = $activeTab;
-        $this->dispatch($tabId . ':tab:changed', $activeTab)->self();
-        $this->dispatch($tabId . ':tabContentChanged');
+        $this->tabs[$tabId]['active'] = $activeTab;
+        $this->dispatch($tabId . ':tab:changed', $activeTab);
     }
 }

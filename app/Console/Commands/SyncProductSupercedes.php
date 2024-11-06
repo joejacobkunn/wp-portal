@@ -23,11 +23,15 @@ class SyncProductSupercedes extends Command
      */
     protected $description = 'Command to sync supersedes from SX to mysql';
 
+    public $sx_aliases = [];
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $this->sx_aliases = collect($this->fetchSxSupercedes());
+        
         Product::latest()->chunk(500, function ($products) {
             foreach ($products as $product) {
                 echo 'Checking product '.$product->prod;
@@ -55,16 +59,27 @@ class SyncProductSupercedes extends Command
 
     private function fetchSupersede($prod)
     {
-        $supersede = DB::connection('sx')->select("SELECT top 1 altprod 
-                FROM pub.icsec c
-                WHERE c.cono = 10
-                AND c.rectype = 'p'
-                AND c.prod = '".$prod."'
-                with(nolock)");
+        // $supersede = DB::connection('sx')->select("SELECT top 1 altprod 
+        //         FROM pub.icsec c
+        //         WHERE c.cono = 10
+        //         AND c.rectype = 'p'
+        //         AND c.prod = '".$prod."'
+        //         with(nolock)");
 
-        if(empty($supersede)) return false;
+        // if(empty($supersede)) return false;
 
-        return $supersede[0]->altprod;
+        // return $supersede[0]->altprod;
+
+        return $this->sx_aliases->where('prod', $prod)->first()?->altprod ?? false;
+    }
+
+    private function fetchSxSupercedes()
+    {
+        return DB::connection('sx')->select("SELECT prod, altprod 
+                        FROM pub.icsec c
+                        WHERE c.cono = 10
+                        AND c.rectype = 'p'
+                        with(nolock)");
     }
 
 }

@@ -1,5 +1,4 @@
-<div wire:init="init" >
-    @if($loaded)
+<div >
     <div class="card border-light shadow-sm mb-4">
         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew' . time()">
             <button wire:click="openGenerateKeyModal" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-plus"></i> Create API Key</button>
@@ -39,8 +38,6 @@
             </div>
         </div>
     </div>
-    @endif
-
     <x-modal :toggle="$generateKeyModal">
         <x-slot name="title">
             <div class="pre-genkey-div">Create API Key</div>
@@ -68,39 +65,42 @@
         </x-slot>
 
     </x-modal>
-
-    <script wire:ignore>
-        function copyToClipboard() {
-            document.getElementById("copy_").select();
-            document.execCommand('copy');
-        }
-
-        document.addEventListener('account:key-generated', (e) => {
-            document.querySelectorAll('.pre-genkey-div').forEach((v) => v.classList.add('d-none'))
-            document.querySelectorAll('.post-genkey-div').forEach((v) => v.classList.remove('d-none'))
-            document.querySelector('.api-key-field-div').innerHTML = '<div class="mb-3"><strong>Key:</strong><div>'+ e.detail.client_key +'<input type="hidden" value="'+ e.detail.client_key +'" class="copy-input" /> <i class="fa-regular fa-clone copy-btn ms-2" title="Copy"></i></div></div><strong>Secret:</strong><div>'+ e.detail.client_secret +'<input type="hidden" value="'+ e.detail.client_secret +'" class="copy-input" /> <i class="fa-regular fa-clone copy-btn ms-2" title="Copy"></i><div>'
-
-            setTimeout(() => {
-                @this.closeKeyPopup()
-            }, 180000)
-        });
-
-        document.addEventListener('click', function(event) {
-            if (event.target.matches('.copy-btn')) {
-                event.preventDefault();
-                console.log(event.target)
-                let copyText = event.target.parentElement.querySelector('.copy-input')
-                copyText.select()
-
-                navigator.clipboard.writeText(copyText.value);
-
-                document.dispatchEvent(new CustomEvent('show:toast', {
-                    detail: {
-                        type: "success",
-                        message: "Copied!"
-                    }
-                }))
+    @script
+    <script>
+        (function () {
+            function copyToClipboard() {
+                document.getElementById("copy_").select();
+                document.execCommand('copy');
             }
-        }, false);
+
+            document.addEventListener('account:key-generated', (e) => {
+                document.querySelectorAll('.pre-genkey-div').forEach((v) => v.classList.add('d-none'))
+                document.querySelectorAll('.post-genkey-div').forEach((v) => v.classList.remove('d-none'))
+                document.querySelector('.api-key-field-div').innerHTML = '<div class="mb-3"><strong>Key:</strong><div>'+ e.detail.client_key +'<input type="hidden" value="'+ e.detail.client_key +'" class="copy-input" /> <i class="fa-regular fa-clone copy-btn ms-2" title="Copy"></i></div></div><strong>Secret:</strong><div>'+ e.detail.client_secret +'<input type="hidden" value="'+ e.detail.client_secret +'" class="copy-input" /> <i class="fa-regular fa-clone copy-btn ms-2" title="Copy"></i><div>'
+
+                setTimeout(() => {
+                    $wire.closeKeyPopup()
+                }, 180000)
+            });
+
+            document.addEventListener('click', function(event) {
+                if (event.target.matches('.copy-btn')) {
+                    event.preventDefault();
+                    console.log(event.target)
+                    let copyText = event.target.parentElement.querySelector('.copy-input')
+                    copyText.select()
+
+                    navigator.clipboard.writeText(copyText.value);
+
+                    document.dispatchEvent(new CustomEvent('show:toast', {
+                        detail: {
+                            type: "success",
+                            message: "Copied!"
+                        }
+                    }))
+                }
+            }, false);
+        })();
     </script>
+    @endscript
 </div>

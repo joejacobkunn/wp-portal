@@ -6,7 +6,10 @@ use App\Classes\SX;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
 use App\Http\Resources\Transformers\OrderSXTransfomer;
+use App\Models\Core\Warehouse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -24,15 +27,21 @@ class OrderController extends Controller
 
     }
 
-    public function pendingPayment($request)
+    public function pendingPayment(Request $request)
     {
         $request->validate([
             'operator' => 'required',
-            'whse' => 'required'
+            'whse' => ['required', Rule::in(Warehouse::where('cono',10)->pluck('short')->toArray())]
         ]);
 
-        $order = DB::connection('sx')->select("SELECT TOP 1 h.orderno , h.stagecd , h.totinvamt , h.tendamt , h.tottendamt, h.shiptonm, h.shiptost, h.shiptozip , h.shiptoaddr , h.shiptocity
+        if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
+
+
+        $order = DB::connection('sx')->select("SELECT TOP 1 arsc.name, arsc.phoneno, arsc.email, arsc.custtype, h.orderno , h.ordersuf, h.stagecd , h.totinvamt , h.tendamt , h.tottendamt, h.shiptonm, h.shiptost, h.shiptozip , h.shiptocity, oeeh.shiptoaddr[1] AS 'address', oeeh.shiptoaddr[2] AS 'address2'
                                         FROM pub.oeeh h
+                                        LEFT JOIN pub.arsc
+                                        ON arsc.cono = h.cono
+                                        AND arsc.custno = h.custno
                                         WHERE h.cono = 10
                                         AND h.whse = '".$request->whse."'
                                         AND h.stagecd IN (1,3)
@@ -40,7 +49,42 @@ class OrderController extends Controller
                                         AND h.totinvamt - h.tendamt > 0
                                         WITH(nolock)");
 
-        return response()->json(['status' => 'success', 'data' => $order[0]], 200);
+        return response()->json(['status' => 'success', 'data' => $order[0] ?? ''], 200);
+
+    }
+
+    public function mock($function, $request)
+    {
+        $faker = \Faker\Factory::create();
+        sleep(1.5);
+        
+        if($function == 'pendingPayment')
+        {
+            $response = '';
+            if (rand(0, 1)) {
+                $response= [
+                    'name' => $faker->name(),
+                    'phoneno' => $faker->e164PhoneNumber(),
+                    'email' => $faker->email(),
+                    'custtype' => 'mun',
+                    'orderno' => $faker->randomNumber(7, true),
+                    'ordersuf' => 0,
+                    'stagecd' => 5,
+                    'totinvamt' => $faker->randomFloat(2),
+                    'tendamt' => '0.00',
+                    'tottendamt' => '0.00',
+                    'shiptonm' => $faker->name(),
+                    'address' => $faker->streetAddress(),
+                    'address2' => $faker->secondaryAddress() ,
+                    'shiptocity' => $faker->city(),
+                    'shiptost' => $faker->stateAbbr(),
+                    'shiptozip' => $faker->postcode(),
+                ];
+             }
+
+             return response()->json(['status' => 'success', 'data' => $response], 200);
+
+        }
 
     }
 }

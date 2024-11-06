@@ -6,10 +6,11 @@ use App\Http\Livewire\Component\Component;
 use App\Models\Core\Account;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Credentials extends Component
 {
-    use AuthorizesRequests, HasTabs;
+    use AuthorizesRequests, HasTabs, LivewireAlert;
 
     public Account $account;
 
@@ -63,14 +64,17 @@ class Credentials extends Component
 
         $keyDetails = $this->account->createKey($this->keyLabel);
 
-        $this->dispatchBrowserEvent('account:key-generated', $keyDetails);
+        $this->dispatch('account:key-generated', $keyDetails);
         $this->loadKeys();
+
+        $this->alert('success', 'Access Key Created!');
+        $this->generateKeyModal = false;
     }
 
     public function revokeAccess($key)
     {
         $this->account->revokeKey($key);
-        $this->sendAlert('success', 'Access Key Revoked!');
+        $this->alert('success', 'Access Key Revoked!');
         $this->loadKeys();
     }
 

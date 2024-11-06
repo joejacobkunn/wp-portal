@@ -36,6 +36,9 @@ class ReportTable extends DataTableComponent
         $this->setSearchDebounce(500);
         $this->setLoadingPlaceholderEnabled();
 
+        $this->setConfigurableAreas([
+            'toolbar-right-start' => 'livewire.equipment.warranty.warranty-import.partials.settings-table-btn',
+        ]);
 
     }
     public array $bulkActions = [
@@ -131,11 +134,11 @@ class ReportTable extends DataTableComponent
             Column::make('Ship To', 'shiptoname')
                 ->format(function ($value, $row) {
                     $address2 = (!empty($row->address2)) ? $row->address2.', ' : '';
-                    return $value.', '.$row->address.', '.$address2.$row->state.', '.$row->city.', '.$row->zip;
+                    return $value.', '.$row->address.', '.$address2.$row->city.', '.$row->state.', '.$row->zip;
                 })
                 ->sortable()
                 ->searchable(),
-                
+
                 Column::make('Order Number', 'order_no')
                 ->searchable()
                 ->excludeFromColumnSelect()
@@ -171,15 +174,19 @@ class ReportTable extends DataTableComponent
                 ->format(function ($value, $row) {
                     if($row->registration_date == '01/01/01' || $row->registration_date == '2001-01-01')
                     {
-                        return '<span class="badge bg-light-secondary">Ignored</span> <button type="button" class="btn btn-sm btn-outline-warning" wire:click="unregister(\''.$row->serial.'\', \''.$row->cust_no.'\')">Reset</button>';
+                        return '<span class="badge bg-light-secondary">Ignored</span> <div class="btn-group" role="group" aria-label="Basic example" data-cust-no="\''.$row->cust_no.'\'"  data-serial="\''.$row->serial.'\'">
+                        <button type="button" class="btn btn-sm btn-outline-warning warrantyUnregister">Reset</button></div>';
                     }
 
                     if(empty($row->registration_date))
                     {
-                        return '<div class="btn-group" role="group" aria-label="Basic example"><button type="button" class="btn btn-sm btn-outline-primary" wire:click="register(\''.$row->serial.'\', \''.$row->cust_no.'\')">Register</button><button type="button" class="btn btn-sm btn-outline-secondary" wire:click="ignore(\''.$row->serial.'\', \''.$row->cust_no.'\')">Ignore</button></div>';
+                        return '<div class="btn-group " role="group" aria-label="Basic example" data-cust-no="'.$row->cust_no.'"  data-serial="'.$row->serial.'">
+                            <button type="button" class="btn btn-sm btn-outline-primary warrantyRegister">Register</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary ignoreRegistration">Ignore</button></div>';
                     }
 
-                    return $value.' <button type="button" class="btn btn-sm btn-outline-danger" wire:click="unregister(\''.$row->serial.'\', \''.$row->cust_no.'\')">Unregister</button>';
+                    return '<span class="date-span">'.$value.'</span><div class="btn-group " role="group" aria-label="Basic example" data-cust-no="'.$row->cust_no.'"  data-serial="'.$row->serial.'">
+                        <button type="button" class="btn btn-sm btn-outline-danger warrantyUnregister">Unregister</button></div>';
 
                 })
 
@@ -263,29 +270,6 @@ class ReportTable extends DataTableComponent
          return $query;
     }
 
-    public function register($serial_no, $cust_no)
-    {
-        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
-        $record = Report::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
-        $record->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
-    }
-
-    public function unregister($serial_no, $cust_no)
-    {
-        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
-        $record = Report::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
-        $record->update(['registration_date' => '', 'registered_by' => '']);
-    }
-
-    public function ignore($serial_no, $cust_no)
-    {
-        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
-        $record = Report::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
-        $record->update(['registration_date' => '2001-01-01', 'registered_by' => auth()->user()->sx_operator_id]);
-    }
-
-
-
     public function registerBulk()
     {
         $rows = $this->getSelected();
@@ -326,6 +310,11 @@ class ReportTable extends DataTableComponent
         $this->clearSelected();
         $this->alert('success', count($rows).' products ignored!');
 
+    }
+
+    public function export()
+    {
+        $this->dispatch('exportWarrantyRecords');
     }
 
 
