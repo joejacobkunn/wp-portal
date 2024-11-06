@@ -1,5 +1,4 @@
-<div wire:init="init" >
-    @if($loaded)
+<div >
     <div class="card border-light shadow-sm mb-4">
         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew' . time()">
             <button wire:click="openGenerateKeyModal" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-plus"></i> Create API Key</button>
@@ -39,8 +38,6 @@
             </div>
         </div>
     </div>
-    @endif
-
     <x-modal :toggle="$generateKeyModal">
         <x-slot name="title">
             <div class="pre-genkey-div">Create API Key</div>
@@ -68,7 +65,7 @@
         </x-slot>
 
     </x-modal>
-
+    @script
     <script wire:ignore>
         function copyToClipboard() {
             document.getElementById("copy_").select();
@@ -103,4 +100,5 @@
             }
         }, false);
     </script>
+    @endscript
 </div>
