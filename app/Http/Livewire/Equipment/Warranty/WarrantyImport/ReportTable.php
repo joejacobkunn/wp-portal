@@ -36,6 +36,9 @@ class ReportTable extends DataTableComponent
         $this->setSearchDebounce(500);
         $this->setLoadingPlaceholderEnabled();
 
+        $this->setConfigurableAreas([
+            'toolbar-right-start' => 'livewire.equipment.warranty.warranty-import.partials.settings-table-btn',
+        ]);
 
     }
     public array $bulkActions = [
@@ -307,6 +310,11 @@ class ReportTable extends DataTableComponent
         $this->clearSelected();
         $this->alert('success', count($rows).' products ignored!');
 
+    }
+
+    public function export()
+    {
+        $this->dispatch('exportWarrantyRecords');
     }
 
 
