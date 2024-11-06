@@ -15,7 +15,7 @@ trait ReceivesEvents
             Livewire::dispatch('action.returned', $this, $event, $returned, $id);
 
             if (in_array('browser:callback', $params)) {
-                $this->dispatchBrowserEvent($event.':emit');
+                $this->dispatch($event.':emit');
             }
         });
     }

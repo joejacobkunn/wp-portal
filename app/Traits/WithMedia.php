@@ -13,7 +13,7 @@ trait WithMedia
         $media = $this->makeSureCustomPropertiesUseRightCasing($media);
         $this->$name = $media;
 
-        $this->dispatchBrowserEvent($name .':media-updated',  [
+        $this->dispatch($name .':media-updated',  [
             'collection' => $this->collection,
             'name' => $name,
             'media' => $media,

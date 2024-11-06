@@ -24,6 +24,7 @@ abstract class Component extends BaseComponent
 
         $listeners = array_merge($listeners, [
             'fieldUpdated' => 'fieldUpdated',
+            'x-tab:changed' => 'processActiveTabChange',
         ]);
 
         return $listeners;
@@ -71,7 +72,7 @@ abstract class Component extends BaseComponent
     public function sendAlert($type, $message)
     {
         session()->flash($type, $message);
-        $this->dispatchBrowserEvent('show:toast', [
+        $this->dispatch('show:toast', [
             'type' => $type,
             'message' => $message,
         ]);
