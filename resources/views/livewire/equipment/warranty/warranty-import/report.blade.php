@@ -30,6 +30,32 @@
                     const cust_no = btnGroup ? btnGroup.getAttribute('data-cust-no') : null;
                     const data_serial = btnGroup ? btnGroup.getAttribute('data-serial') : null;
 
+                    const btn = e.target.closest('button');
+                    const existingLoader = btn ? btn.querySelector('.loader') : null;
+                    const originalWidth = btn.style.width || 'auto';
+
+                    const showLoader = () => {
+                        if (!existingLoader) {
+                            loaderIcon = document.createElement('i');
+                            loaderIcon.className = 'fa fa-spinner fa-spin loader';
+                            loaderIcon.style.display = 'none';
+                            btn.appendChild(loaderIcon);
+                        }
+
+                        if (loaderIcon) {
+                            btn.style.width="100px"
+                            loaderIcon.style.display = 'inline-block';
+                        }
+                    };
+
+                    const hideLoader = () => {
+                        loaderIcon = btn ? btn.querySelector('.loader') : null;
+                        if (loaderIcon) {
+                            btn.style.width = originalWidth;
+                            loaderIcon.style.display = 'none';
+                        }
+                    };
+
                     const createButton = (className, textContent) => {
                         const button = document.createElement('button');
                         button.type = 'button';
@@ -46,7 +72,9 @@
                     };
 
                     if (e.target.matches('.warrantyRegister')) {
+                        showLoader()
                         $wire.register(data_serial, cust_no).then((result) => {
+                            hideLoader()
                             const dateSpan = document.createElement('span');
                             dateSpan.textContent = result;
 
@@ -61,7 +89,9 @@
                     }
 
                     if (e.target.matches('.warrantyUnregister')) {
+                        showLoader()
                         $wire.unregister(data_serial, cust_no).then(() => {
+                            hideLoader()
                             const dateSpan = td.querySelector('span');
                             if (dateSpan) dateSpan.remove();
                             addRegisterButtons();
@@ -70,7 +100,9 @@
                     }
 
                     if (e.target.matches('.ignoreRegistration')) {
+                        showLoader()
                         $wire.ignore(data_serial, cust_no).then(() => {
+                            hideLoader()
                             const ignoreSpan = document.createElement('span');
                             ignoreSpan.className = 'badge bg-light-secondary';
                             ignoreSpan.textContent = 'Ignored';
