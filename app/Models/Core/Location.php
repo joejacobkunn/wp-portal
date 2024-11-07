@@ -18,6 +18,7 @@ class Location extends Model
         'phone',
         'address',
         'is_active',
+        'sx_location',
         'fortis_location_id',
         'location'
     ];
