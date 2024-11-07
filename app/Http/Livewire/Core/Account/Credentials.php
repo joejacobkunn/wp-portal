@@ -63,12 +63,10 @@ class Credentials extends Component
         );
 
         $keyDetails = $this->account->createKey($this->keyLabel);
-
         $this->dispatch('account:key-generated', $keyDetails);
         $this->loadKeys();
 
         $this->alert('success', 'Access Key Created!');
-        $this->generateKeyModal = false;
     }
 
     public function revokeAccess($key)
