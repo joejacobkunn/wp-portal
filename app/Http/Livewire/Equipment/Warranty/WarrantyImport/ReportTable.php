@@ -44,7 +44,7 @@ class ReportTable extends DataTableComponent
     public array $bulkActions = [
         'registerBulk' => 'Register',
         'unregisterBulk' => 'Unregister',
-        'ignore' => 'Ignore'
+        'ignoreBulk' => 'Ignore'
     ];
 
     public function mount()
