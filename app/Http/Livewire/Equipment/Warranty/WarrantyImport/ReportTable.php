@@ -277,7 +277,8 @@ class ReportTable extends DataTableComponent
         {
             $report = Report::where('serial', $row)->first();
             $report->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
-            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($report->serial)."' and custno = '".$this->clean($report->cust_no)."'");
+
         }
         $this->clearSelected();
         $this->alert('success', count($rows).' products registered!');
@@ -291,7 +292,7 @@ class ReportTable extends DataTableComponent
         {
             $report = Report::where('serial', $row)->first();
             $report->update(['registration_date' => '', 'registered_by' => '']);
-            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($report->serial)."' and custno = '".$this->clean($report->cust_no)."'");
         }
         $this->clearSelected();
         $this->alert('success', count($rows).' products unregistered!');
@@ -305,7 +306,7 @@ class ReportTable extends DataTableComponent
         {
             $report = Report::where('serial', $row)->first();
             $report->update(['registration_date' => '2001-01-01', 'registered_by' => auth()->user()->sx_operator_id]);
-            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($report->serial)."' and custno = '".$this->clean($report->cust_no)."'");
         }
         $this->clearSelected();
         $this->alert('success', count($rows).' products ignored!');
@@ -316,6 +317,10 @@ class ReportTable extends DataTableComponent
     {
         $this->dispatch('exportWarrantyRecords');
     }
+
+    private function clean($string) {
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+     }
 
 
 

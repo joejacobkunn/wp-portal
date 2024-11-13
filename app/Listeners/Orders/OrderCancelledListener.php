@@ -7,6 +7,7 @@ use App\Enums\Order\OrderStatus;
 use App\Events\Orders\OrderCancelled;
 use App\Models\Core\User;
 use App\Models\Order\Message;
+use App\Models\SX\Order;
 use App\Notifications\Orders\OrderCancelledNotification;
 use App\Services\Kenect;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -35,6 +36,9 @@ class OrderCancelledListener
      */
     public function handle(OrderCancelled $event): void
     {
+
+        $operator = User::find($event->order->last_updated_by);
+
     
         //send email
 
@@ -89,10 +93,14 @@ class OrderCancelledListener
         if(!App::environment('local'))
         {
             $sx_client = new SX();
-            $operator = User::find($event->order->last_updated_by);
             $sx_response = $sx_client->create_order_note('Order cancelled by '.$operator->name.'('.$operator->sx_operator_id.') via Portal due to no longer available parts',$event->order->order_number);
     
         }
+
+        //add note to status comm for MITS report
+
+        Order::where('orderno', $event->order->order_number)->where('ordersuf', $event->order->order_number_suffix)->update(['user4' => 'Order cancelled via Portal on '.now()->toDayDateTimeString().' by '.$operator->sx_operator_id]);
+
     
     }
 
