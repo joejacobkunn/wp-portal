@@ -258,15 +258,16 @@
                         <div class="card-content">
                             <div class="card-body">
                                 <h4 class="card-title">Line Items</h4>
-                                <div class="alert alert-light-{{ $this->statusAlertClass }} color-primary"><i
-                                        class="fas fa-info-circle"></i> {!! $this->statusAlertMessage !!}
+                                <div
+                                    class="alert alert-light-{{ $this->statusAlertClass }} color-primary table-action">
+                                    <i class="fas fa-info-circle"></i> {!! $this->statusAlertMessage !!}
 
                                     @if ($order->status->value != \App\Enums\Order\OrderStatus::Cancelled->value)
-                                        <div class="btn-group float-end" role="group">
+                                        <div class="dropdown-tab text-center float-end" x-data="{ isOpen: false }">
+
                                             @can('order.manage')
                                                 <button id="btnGroupDrop1" type="button"
-                                                    class="btn btn-primary dropdown-toggle btn-sm" data-bs-toggle="dropdown"
-                                                    aria-expanded="false">
+                                                    class="btn btn-primary dropdown-toggle btn-sm" @click="isOpen = true">
                                                     <div wire:loading wire:target="toggleOrderStatus">
                                                         <span class="spinner-border spinner-border-sm" role="status"
                                                             aria-hidden="true"></span>
@@ -274,44 +275,50 @@
 
                                                     Review
                                                 </button>
-                                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                    @if ($order->status->value != \App\Enums\Order\OrderStatus::Ignore->value)
-                                                        <li><a class="dropdown-item" href="javascript:;"
+                                                <div x-show="isOpen" @click.away="isOpen = false"
+                                                    class="popup custom-width">
+                                                    <div class="popup-content">
+                                                        @if ($order->status->value != \App\Enums\Order\OrderStatus::Ignore->value)
+                                                            <a class="popup-item d-flex justify-content-between align-items-center"
+                                                                @click="isOpen = false"
                                                                 wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::Ignore->value }}')">Ignore</a>
-                                                        </li>
-                                                    @endif
+                                                        @endif
 
-                                                    @if ($order->status->value != \App\Enums\Order\OrderStatus::PendingReview->value)
-                                                        <li><a class="dropdown-item" href="javascript:;"
+                                                        @if ($order->status->value != \App\Enums\Order\OrderStatus::PendingReview->value)
+                                                            <a class="popup-item d-flex justify-content-between align-items-center"
+                                                                @click="isOpen = false"
                                                                 wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::PendingReview->value }}')">Pending
-                                                                Review</a></li>
-                                                    @endif
+                                                                Review</a>
+                                                        @endif
 
-                                                    <li><a class="dropdown-item" href="javascript:;"
+                                                        <a class="popup-item d-flex justify-content-between align-items-center"
+                                                            @click="isOpen = false"
                                                             wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::FollowUp->value }}')">Notify
                                                             Customer</a>
-                                                    </li>
 
 
-
-                                                    <li><a class="dropdown-item" href="javascript:;"
+                                                        <a class="popup-item d-flex justify-content-between align-items-center"
+                                                            @click="isOpen = false"
                                                             wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::ShipmentFollowUp->value }}')">Email
                                                             Shipping Dept</a>
-                                                    </li>
 
-                                                    <li><a class="dropdown-item" href="javascript:;"
+
+                                                        <a class="popup-item d-flex justify-content-between align-items-center"
+                                                            @click="isOpen = false"
                                                             wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::ReceivingFollowUp->value }}')">Email
                                                             Receiving</a>
-                                                    </li>
 
-                                                    @if ($order->status->value != \App\Enums\Order\OrderStatus::Cancelled->value)
-                                                        <li><a class="dropdown-item" href="javascript:;"
+
+                                                        @if ($order->status->value != \App\Enums\Order\OrderStatus::Cancelled->value)
+                                                            <a class="popup-item d-flex justify-content-between align-items-center"
+                                                                @click="isOpen = false"
                                                                 wire:click="toggleOrderStatus('{{ \App\Enums\Order\OrderStatus::Cancelled->value }}')"><span
                                                                     class="text-danger">Cancel
-                                                                    and Notify Customer</span></a></li>
-                                                    @endif
+                                                                    and Notify Customer</span></a>
+                                                        @endif
+                                                    </div>
 
-                                                </ul>
+                                                </div>
                                             @endcan
 
                                         </div>
