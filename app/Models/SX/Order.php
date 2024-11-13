@@ -19,6 +19,8 @@ class Order extends Model
 
     protected $primaryKey = 'orderno';
 
+    public $timestamps = false;
+
     protected static function booted(): void
     {
         parent::boot();
