@@ -8,6 +8,7 @@ use App\Models\Order\Order;
 use App\Models\SX\Order as SXOrder;
 use App\Models\SX\OrderLineItem;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 
 class SxOrderSync extends Command
@@ -17,7 +18,7 @@ class SxOrderSync extends Command
      *
      * @var string
      */
-    protected $signature = 'sx:order-sync {--months=2}';
+    protected $signature = 'sx:order-sync {--months=2} {--open}';
 
     /**
      * The console command description.
@@ -33,7 +34,14 @@ class SxOrderSync extends Command
     {
         $startDate = date('Y-m-d', strtotime('-'.$this->option('months').' months'));
         $endDate = date('Y-m-d');
-        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])->where('cono', 10)->whereBetween('enterdt', [$startDate, $endDate])->get();
+        $is_open = $this->option('open');
+        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])
+                        ->where('cono', 10)
+                        ->whereBetween('enterdt', [$startDate, $endDate])
+                        ->when($is_open,function (Builder $query, bool $is_open) {
+                            $query->openOrders();
+                        })
+                        ->get();
 
         foreach($sx_orders as $sx_order)
         {
