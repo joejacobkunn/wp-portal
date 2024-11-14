@@ -78,8 +78,9 @@ class Order extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['created_at', 'order_date', 'stage_code', 'status'])
-        ->logOnlyDirty();
+            ->dontSubmitEmptyLogs()
+            ->logOnly(['created_at', 'order_date', 'stage_code', 'status'])
+            ->logOnlyDirty();
     }
 
 
