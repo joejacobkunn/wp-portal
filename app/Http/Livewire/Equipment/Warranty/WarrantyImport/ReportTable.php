@@ -63,6 +63,11 @@ class ReportTable extends DataTableComponent
             Column::make('Serial', 'serial')
                 ->searchable()
                 ->format(function ($value, $row) {
+                    if($row->registration_date == '01/01/01' || $row->registration_date == '2001-01-01')
+                    {
+                        return (string)$value.' <span class="badge bg-light-secondary float-end"><i class="far fa-eye-slash"></i></span>';
+                    }
+
                     if(empty($row->registration_date))
                     {
                         return (string)$value.' <span class="badge bg-light-danger float-end"><i class="fas fa-exclamation-triangle"></i></span>';
@@ -209,21 +214,21 @@ class ReportTable extends DataTableComponent
                 ->hiddenFromMenus()
                 ->options([''=>'All Stores']+$this->warehouses)
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->whereRaw('LOWER(store) = ?', [strtolower($value)]);
+                    $builder->whereRaw('LOWER(store) = ?', [strtolower(trim($value))]);
                 }),
 
             SelectFilter::make('brand')
                 ->options(['All Brands'] + $this->brands)
                 ->hiddenFromMenus()
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->whereRaw('LOWER(brand) = ?', [strtolower($value)]);
+                    $builder->whereRaw('LOWER(brand) = ?', [strtolower(trim($value))]);
                 }),
 
             SelectFilter::make('lines')
                 ->options(['All'] + $this->lines)
                 ->hiddenFromMenus()
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->whereRaw('LOWER(prodline) = ?', [strtolower($value)]);
+                    $builder->whereRaw('LOWER(prodline) = ?', [strtolower(trim($value))]);
                 }),
 
             SelectFilter::make('Status', 'status')
