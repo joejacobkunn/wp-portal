@@ -95,11 +95,10 @@ class Table extends DataTableComponent
                 foreach ($filters as $key => $value) {
                     $this->setFilter($key, $value);
                 }
+            }else{
+                $this->setFilter('stage_codes', 'open');
             }
-        }else{
-            $this->setFilter('stage_codes', 'open');
         }
-
     }
 
     public function columns(): array
