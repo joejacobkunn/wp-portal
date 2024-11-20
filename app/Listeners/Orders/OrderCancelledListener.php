@@ -99,7 +99,7 @@ class OrderCancelledListener
 
         //add note to status comm for MITS report
 
-        Order::where('orderno', $event->order->order_number)->where('ordersuf', $event->order->order_number_suffix)->update(['user4' => 'Order cancelled via Portal #'.$operator->sx_operator_id.' '.now()->format('m/d')]);
+        Order::where('cono', 10)->where('orderno', $event->order->order_number)->where('ordersuf', $event->order->order_number_suffix)->update(['user4' => 'Order cancelled via Portal #'.$operator->sx_operator_id.' '.now()->format('m/d')]);
 
     
     }
