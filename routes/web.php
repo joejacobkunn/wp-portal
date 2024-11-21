@@ -104,6 +104,12 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
 
         Route::get('marketing/sms-marketing/', \App\Http\Livewire\Marketing\SMSMarketing\Index::class)->name('marketing.sms-marketing.index');
+
+        //pwa
+        Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
     });
+
+
+    Route::get('fortis/app/manifest.json', 'App\Http\Controllers\Pwa\ManifestController@manifest')->name('pwa.manifest');
 });
 
