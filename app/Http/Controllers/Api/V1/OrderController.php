@@ -37,7 +37,7 @@ class OrderController extends Controller
         if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
 
 
-        $order = DB::connection('sx')->select("SELECT TOP 1 arsc.name, arsc.phoneno, arsc.email, arsc.custtype, h.orderno , h.ordersuf, h.stagecd , h.totinvamt , h.tendamt , h.tottendamt, h.shiptonm, h.shiptost, h.shiptozip , h.shiptocity, oeeh.shiptoaddr[1] AS 'address', oeeh.shiptoaddr[2] AS 'address2'
+        $order = DB::connection('sx')->select("SELECT TOP 1 arsc.name, arsc.phoneno, arsc.email, arsc.custtype, arsc.custno, h.orderno , h.ordersuf, h.stagecd , h.totinvamt , h.tendamt , h.tottendamt, h.shiptonm, h.shiptost, h.shiptozip , h.shiptocity, oeeh.shiptoaddr[1] AS 'address', oeeh.shiptoaddr[2] AS 'address2'
                                         FROM pub.oeeh h
                                         LEFT JOIN pub.arsc
                                         ON arsc.cono = h.cono
@@ -66,13 +66,14 @@ class OrderController extends Controller
                     'name' => $faker->name(),
                     'phoneno' => $faker->e164PhoneNumber(),
                     'email' => $faker->email(),
-                    'custtype' => 'mun',
-                    'orderno' => $faker->randomNumber(7, true),
-                    'ordersuf' => 0,
-                    'stagecd' => 5,
-                    'totinvamt' => $faker->randomFloat(2),
-                    'tendamt' => '0.00',
-                    'tottendamt' => '0.00',
+                    'custtype' => 'mun', //hide
+                    'custno' => $faker->randomNumber(6, true), //non editable
+                    'orderno' => $faker->randomNumber(7, true), //non editable
+                    'ordersuf' => 0, 
+                    'stagecd' => 5, //hide
+                    'totinvamt' => $faker->randomFloat(2),  //non editable
+                    'tendamt' => '0.00',  //hide
+                    'tottendamt' => '0.00',  //hide
                     'shiptonm' => $faker->name(),
                     'address' => $faker->streetAddress(),
                     'address2' => $faker->secondaryAddress() ,
@@ -81,6 +82,8 @@ class OrderController extends Controller
                     'shiptozip' => $faker->postcode(),
                 ];
              }
+
+             //initiate transacion
 
              return response()->json(['status' => 'success', 'data' => $response], 200);
 
