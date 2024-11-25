@@ -24,6 +24,14 @@ body {
   -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
 
+.pwa-navbar {
+    background: #4c721d;
+    color: #fff;
+}
+.pwa-navbar .navbar-text {
+    color: #fff;
+}
+
 .container {
     width: auto;
     max-width: 680px;
@@ -35,4 +43,53 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.pwa-navbar .navbar-collapse {
+    margin-left: 35%;
+}
+.payment-outer-div {
+    font-size: 1.1em;
+    color: #607080 !important;
+}
+.payment-outer-div .price-value-div {
+    font-weight: 600;
+    font-size: 1.2em;
+    color: #333;
+}
+.item-selection-div div {
+    display: inline-block;
+    text-align: center;
+    border: 2px solid #f1f1f1;
+    padding: 8px 26px;
+    margin-right: 6px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.item-selection-div .active {
+    border-color: rgb(67 94 190);
+    box-shadow: -1px 5px 13px 2px rgba(51, 73, 156, 0.66);
+    -webkit-box-shadow: -1px 5px 13px 2px rgba(51, 73, 156, 0.66);
+    -moz-box-shadow: -1px 5px 13px 2px rgba(51, 73, 156, 0.66);
+    color: #435ebe;
+}
+
+.item-selection-div .disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.item-selection-div .error-alert {
+    display: block;
+    color: var(--bs-danger);
+    font-size: .8em;
+}
+
+@media (max-width: 990px) {
+    .pwa-navbar .navbar-collapse {
+        display: inline-block !important;
+        flex: auto;
+        margin-left: 26%;
+    }
 }

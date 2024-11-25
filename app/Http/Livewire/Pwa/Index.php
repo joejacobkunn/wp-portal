@@ -4,12 +4,13 @@ namespace App\Http\Livewire\Pwa;
 
 
 use App\Classes\Fortis;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Core\Location;
 use Illuminate\Support\Facades\DB;
 use App\Http\Livewire\Component\Component;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
 {
@@ -24,6 +25,8 @@ class Index extends Component
     public $selectedOrder;
 
     public $orderInProcess = false;
+
+    public $checkSum = '';
 
     public function mount()
     {
@@ -40,12 +43,28 @@ class Index extends Component
         $location = Location::where('location', auth()->user()->office_location)->first();
 
         if(!empty($location->fortis_location_id)) {
-            $fortis = new Fortis();
-
-            $this->terminals = $fortis->fetchTerminals($location->fortis_location_id);
+            $fortis = app()->make(Fortis::class);
+            $terminalData = json_decode($fortis->fetchTerminals(auth()->user()->location()->fortis_location_id), true);
+            $this->terminals = [];
+    
+            foreach ($terminalData['list'] as $index => $terminal) {
+                if ($terminal['active']) {
+                    $this->terminals[$index]['id'] = $terminal['id'];
+                    $this->terminals[$index]['title'] = $terminal['title'];
+                    $this->terminals[$index]['location_id'] = $terminal['location_id'];
+                    $this->terminals[$index]['active'] = $terminal['active'];
+                    $this->terminals[$index]['is_provisioned'] = $terminal['is_provisioned'];
+                    $this->terminals[$index]['available'] = $terminal['active'] && !$terminal['is_provisioned'];
+                }
+            }
         }
 
         $this->pageLoaded = true;
+    }
+
+    public function setTerminal($terminalId)
+    {
+        $this->selectedTerminal = $terminalId;
     }
 
     public function checkPendingPayment(Request $request)
@@ -60,6 +79,8 @@ class Index extends Component
         if (!empty($order)) {
             $this->selectedOrder = $order;
             $this->orderInProcess = true;
+        } else {
+            return $this->alert('info', 'No orders pending payment are found with '. auth()->user()->name .' at '. auth()->user()->office_location);
         }
     }
 
@@ -100,7 +121,7 @@ class Index extends Component
                     'phoneno' => $faker->e164PhoneNumber(),
                     'email' => $faker->email(),
                     'custtype' => 'mun', //hide
-                    'custno' => $faker->randomNumber(6, true), //non editable
+                    'custno' => $faker->randomNumber(8, true), //non editable
                     'orderno' => $faker->randomNumber(7, true), //non editable
                     'ordersuf' => 0, 
                     'stagecd' => 5, //hide
@@ -132,22 +153,66 @@ class Index extends Component
                 'portal_user_id' => auth()->user()->id
             ],
             'location_id' => auth()->user()->location()->fortis_location_id,
-            'transaction_amount' => $this->selectedOrder['totinvamt'] * 100,
-            'customer_id' => $this->selectedOrder['custno'],
+            'transaction_amount' => (int) ($this->selectedOrder['totinvamt'] * 100),
+            'customer_id' =>  (string) $this->selectedOrder['custno'],
             'terminal_id' => $this->selectedTerminal
         ];
 
         $fortis = app()->make(Fortis::class);
         $transaction = $fortis->terminalSale($orderData);
-        $orderData = $fortis->transactionStatus($transaction['data']['async']['code']);
 
-        if ($orderData['data']['id'] && $orderData['data']['progress'] == 100) {
+        if ($transaction['type'] == 'TransactionProcessing') {
+            $this->checkSum = sha1(Str::random(25));
+
+            return [
+                'status' => 'success',
+                'orderNo' => $this->selectedOrder['orderno'],
+                'transactionCode' => $transaction['data']['async']['code'],
+                'checkSum' => $this->checkSum,
+            ];
+        }
+
+        $this->alert('error', 'Error Code: ' . $transaction['statusCode']. ' ' . $transaction['detail']);
+
+        return [
+            'status' => 'error',
+            'statusCode' => $transaction['statusCode'],
+            'message' => $transaction['detail'],
+        ];
+    }
+
+    public function getTransactionStatus($checkSum, $orderNo, $transcationCode)
+    {
+        if ($this->selectedOrder['orderno'] != $orderNo || $this->checkSum != $checkSum) {
+            abort(403, 'Invalid request');
+        }
+
+        $fortis = app()->make(Fortis::class);
+        $orderData = $fortis->transactionStatus($transcationCode);
+
+        if (isset($orderData['data']['id']) && $orderData['data']['progress'] == 100) {
             $this->alert('success', 'Order successfully placed!');
 
             $this->reset(
                 'selectedOrder',
                 'orderInProcess',
+                'checkSum',
             );
+
+            return [
+                'status' => 'success',
+                'order_status' => $orderData['data']['progress'],
+            ];
         }
+
+        if (isset($orderData['type']) && strtolower($orderData['type']) == 'error') {
+            $this->alert('error', 'Error Code: ' . $orderData['title']. ' ' . ($orderData['detail'] ?? ''));   
+
+            return [
+                'status' => 'success',
+                'detail' =>'Error Code: ' . $orderData['title']. ' ' . ($orderData['detail'] ?? ''),
+            ];
+        }
+
     }
 }

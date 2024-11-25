@@ -27,35 +27,29 @@
       <a class="navbar-brand" href="#">
         <img class="d-block mx-auto" src="{{ accountLogo() }}" alt="" width="145">
       </a>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <span class="h4 navbar-text mb-0">
+            @yield('page_title', 'Fortis Assist')
+        </span>   
+      </div>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-
-        <span class="h4 navbar-text m-auto text-center">
-            @yield('page_title', 'Fortis App')
-        </span>   
-
-        <span class="navbar-text me-3">
-            {{ auth()->user()->name }} ({{ auth()->user()->sx_operator_id }})
-            <div><small><i class="fas fa-map-marker-alt"></i> {{ auth()->user()->office_location }}</small></div>
-        </span>
-      </div>
     </nav>
 
+    <div class="user-info">
+      <span class="navbar-text me-4 float-end  mt-2">
+          <i class="fa fa-user"></i> {{ auth()->user()->name }} ({{ auth()->user()->sx_operator_id }})
+      </span>
+      <div class="float-start mt-2 ms-4"><small><i class="fas fa-map-marker-alt"></i> {{ auth()->user()->office_location }}</small></div>
+    </div>
     <div class="container">
+
         @yield('content')
     </div>
 
-    <style>
-        .pwa-navbar {
-            background: #4c721d;
-            color: #fff;
-        }
-        .pwa-navbar .navbar-text {
-            color: #fff;
-        }
-    </style>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <x-livewire-alert::scripts />
 
     <footer class="footer">
         <div class="container">

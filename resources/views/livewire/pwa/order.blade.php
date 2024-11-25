@@ -11,7 +11,9 @@
             @endif
 
         @else
-            <i class="fas fa-spinner me-2 fa-spin"></i> Loading Terminals
+            <div class="status-div">
+                <i class="fas fa-spinner me-2 fa-spin"></i> Loading Terminals
+            </div>
         @endif
     </div>
 

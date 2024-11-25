@@ -1,4 +1,4 @@
-<div class="status-div" >
+<div class="status-div">
     @if(empty($terminals))
         <div class="alert alert-warning">
             <h5>Error!</h5>
