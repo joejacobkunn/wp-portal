@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="W&P Portal PWA" />
     <meta name="apple-mobile-web-app-status-bar-style" content="white" />
-    <link rel="manifest" href="http://testaccount.wandpconnect.localhost/fortis/app/manifest.json" />
+    <link rel="manifest" href="{{ route('pwa.manifest') }}" />
 
     <title>Fortis Assist</title>
 
