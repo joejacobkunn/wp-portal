@@ -104,7 +104,7 @@ class Index extends Component
                                         AND h.totinvamt - h.tendamt > 0
                                         WITH(nolock)");
 
-        return $order;
+        return isset($order[0]) ? collect($order[0])->toArray() : [];
     }
 
     public function mock($function, $request)
