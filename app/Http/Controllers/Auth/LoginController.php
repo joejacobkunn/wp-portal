@@ -8,10 +8,12 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function attemptLogin()
+    public function attemptLogin(Request $request)
     {
+        $intendedPath = $request->ref ? base64_decode($request->ref) : route('core.dashboard.index');
+
         if (Auth::check()) {
-            return redirect()->route('core.dashboard.index');
+            return redirect()->to($intendedPath);
         }
 
         return view('auth.login');
