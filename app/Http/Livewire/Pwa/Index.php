@@ -183,6 +183,11 @@ class Index extends Component
 
     public function getTransactionStatus($checkSum, $orderNo, $transcationCode)
     {
+        //skip if canceled order
+        if (!$this->selectedOrder) {
+            return;
+        }
+
         if ($this->selectedOrder['orderno'] != $orderNo || $this->checkSum != $checkSum) {
             abort(403, 'Invalid request');
         }
@@ -214,5 +219,22 @@ class Index extends Component
             ];
         }
 
+    }
+
+    public function cancelTransaction()
+    {
+        //@TODO
+        //check if any terminal sale cancel required
+
+        $this->reset(
+            'selectedOrder',
+            'orderInProcess',
+            'checkSum',
+        );
+
+
+        $this->alert('info', 'Last transaction canceled.');   
+
+        $this->dispatch('browser:transaction-cancelled');
     }
 }

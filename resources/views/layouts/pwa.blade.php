@@ -16,7 +16,7 @@
     <title>Fortis Assist</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/assets/css/pwa.css" rel="stylesheet">
+    <link href="/assets/css/pwa.css?ver={{ config('constants.asset_version') }}" rel="stylesheet">
     <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css" integrity="sha512-9xKTRVabjVeZmc+GUW8GgSmcREDunMM+Dt/GrzchfN8tkwHizc5RP4Ok/MXFFy5rIjJjzhndFScTceq5e6GvVQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   </head>
@@ -50,6 +50,8 @@
 
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <x-livewire-alert::scripts />
+
+    <x-confirmation></x-confirmation>
 
     <footer class="footer">
         <div class="container">

@@ -128,8 +128,17 @@
                         <div class="col-sm-3">
                             
                         </div>
-                        <div class="col-sm-9">
+                        <div class="col-sm-9 mt-3">
                             <button type="button" class="btn btn-primary btn-lg mb-4 payment-btn"><i class="fa-solid fa-cash-register me-1"></i> Initiate Transacion</button>
+                            <button type="button"
+                                class="btn btn-outline-danger btn-lg mb-4 ms-2"
+                                wire:confirm-action
+                                data-confirm-type="danger"
+                                data-confirm-title="Confirm"
+                                data-confirm-content="Are you sure to cancel the transaction?"
+                                data-confirm-button="Cancel Transaction"
+                                data-cancel-button="Close"
+                                wire:click="cancelTransaction()"><i class="fa-solid fa-times me-1"></i> Cancel Transacion</button>
                         </div>
                     </div>
                 </div>
@@ -165,13 +174,15 @@
                         }
                     })
 
+                    let statusCheckIntr;
+
                     function checkStatus(checkSum, orderNo, transcationCode) {
                         let target = document.querySelector('.container .payment-btn');
                         let statusCounter = 0; 
                         let statusCheckRunning;
                         let statusData;
 
-                        let statusCheck = setInterval(() => {
+                        let statusCheckIntr = setInterval(() => {
                             if (! statusCheckRunning) {
                                 statusCheckRunning = true;
                                 $wire.getTransactionStatus(checkSum, orderNo, transcationCode).then((statusData) => {
@@ -182,7 +193,7 @@
                                     statusCounter++;
 
                                     if (statusCounter == 20 || (statusData && statusData.status != 'in_process')) {
-                                        clearInterval(statusCheck);
+                                        clearInterval(statusCheckIntr);
 
                                         target.removeAttribute('disabled');
                                         target.innerHTML = '<i class="fa-solid fa-cash-register me-1"></i> Initiate Transacion';
@@ -192,6 +203,10 @@
 
                         }, 3000);
                     }
+
+                    document.addEventListener('browser:transaction-cancelled', function () {
+                        clearInterval(statusCheckIntr);
+                    });
 
                 }, 150)
             });
