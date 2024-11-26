@@ -181,7 +181,7 @@ class Index extends Component
         ];
     }
 
-    public function getTransactionStatus($checkSum, $orderNo, $transcationCode)
+    public function getTransactionStatus($checkSum, $orderNo, $transactionCode)
     {
         //skip if canceled order
         if (!$this->selectedOrder) {
@@ -193,7 +193,7 @@ class Index extends Component
         }
 
         $fortis = app()->make(Fortis::class);
-        $orderData = $fortis->transactionStatus($transcationCode);
+        $orderData = $fortis->transactionStatus($transactionCode);
 
         if (isset($orderData['data']['id']) && $orderData['data']['progress'] == 100) {
             $this->alert('success', 'Order successfully placed!');
