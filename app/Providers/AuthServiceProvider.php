@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
+use App\Models\SalesRepOverride\SalesRepOverride;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -38,6 +39,7 @@ class AuthServiceProvider extends ServiceProvider
         $policies += $this->getOrderPolicies();
         $policies += $this->getWarrantyPolicies();
         $policies += $this->getFloorModelPolicies();
+        $policies += $this->getSalesRepOverride();
         return $policies;
     }
 
@@ -90,4 +92,11 @@ class AuthServiceProvider extends ServiceProvider
             FloorModelInventory::class => \App\Policies\Equipment\FloorModel\FloorModelInventoryPolicy::class
         ];
     }
+    private function getSalesRepOverride()
+    {
+        return [
+            SalesRepOverride::class => \App\Policies\SalesRepOverride\SalesRepOverridePolicy::class
+        ];
+    }
+
 }
