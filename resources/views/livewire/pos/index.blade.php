@@ -1,4 +1,4 @@
-<div>
+<div wire:init="setWarehouse">
 
     <x-page :breadcrumbs="$breadcrumbs">
         <x-slot:title>Checkout</x-slot>
