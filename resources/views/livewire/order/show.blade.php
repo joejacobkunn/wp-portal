@@ -16,7 +16,10 @@
                                 <span class="badge bg-light-warning float-end">BACKORDER</span>
                             @endif
                             @if ($order->is_sro)
-                                <span class="badge bg-light-info float-end">SRO</span>
+                                <span class="badge bg-light-info float-end"><a
+                                        href="{{ config('sro.url') . 'dashboard/repair-orders/' . $sro_order->id }}"
+                                        target="_blank">SRO
+                                        #{{ $sro_order->sro_no }}</a></span>
                             @endif
                             <h3 class="h5 mb-0">Order Overview</h3>
                         </div>
