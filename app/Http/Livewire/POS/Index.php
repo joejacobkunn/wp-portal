@@ -662,7 +662,7 @@ class Index extends Component
         $this->reset('warehouseDropdown');
 
         if (!$this->productQuery) {
-            return $this->addError('productQuery', 'Enter Product Code.' );
+            return $this->addError('productQuery', 'Enter Product Code / Alias.' );
         }
 
         //if excempted product lines not fetched
@@ -671,7 +671,10 @@ class Index extends Component
         }
 
         $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id')
-            ->where('prod', $this->productQuery)
+            ->where(function ($query) {
+                $query->where('prod', $this->productQuery);
+                $query->orWhere('aliases', 'like', '%"'. $this->productQuery .'"%');
+            })
             ->first();
 
         if (is_array($this->excemptedProductLineIds) && in_array($product->product_line_id, $this->excemptedProductLineIds)) {

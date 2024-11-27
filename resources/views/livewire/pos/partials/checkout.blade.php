@@ -34,7 +34,7 @@
                                                         type="text"
                                                         class="form-control"
                                                         wire:model="productQuery"
-                                                        placeholder="Enter Product Code"
+                                                        placeholder="Enter Product Code / Alias"
                                                         wire:keydown.enter="searchProduct"
                                                     >
                                                     <div class="input-group-append">
