@@ -43,6 +43,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
 .pwa-navbar .navbar-collapse {
@@ -99,6 +100,6 @@ body {
     .pwa-navbar .navbar-collapse {
         display: inline-block !important;
         flex: auto;
-        margin-left: 26%;
+        margin-left: 22%;
     }
 }
