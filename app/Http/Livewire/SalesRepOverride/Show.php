@@ -56,7 +56,7 @@ class Show extends Component
     {
         $this->editRecord = false;
         $this->resetValidation();
-        $this->reset(['customerNumber', 'shipTo', 'prodLine', 'salesRep']);
+        //$this->reset(['customerNumber', 'shipTo', 'prodLine', 'salesRep']);
 
     }
 

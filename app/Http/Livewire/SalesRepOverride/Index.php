@@ -4,6 +4,7 @@ namespace App\Http\Livewire\SalesRepOverride;
 
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\SalesRepOverride\Traits\SalesRepTrait;
+use App\Models\Core\Customer;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
@@ -29,7 +30,7 @@ class Index extends Component
     {
         $this->addRecord = false;
         $this->resetValidation();
-        $this->reset(['customerNumber', 'shipTo', 'prodLine', 'salesRep']);
+        $this->reset(['customerNumber', 'shipTo', 'prodLine', 'salesRep', 'line', 'operator', 'address', 'customerName']);
 
     }
 
@@ -38,4 +39,5 @@ class Index extends Component
         return $this->renderView('livewire.sales-rep-override.index');
 
     }
+
 }

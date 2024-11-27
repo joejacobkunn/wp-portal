@@ -8,11 +8,11 @@
         "items": [
             {
                 "name": "customer.sales-rep-override.view",
-                "label": "sales rep override view"
+                "label": "Sales Rep Override View"
             },
             {
                 "name": "customer.sales-rep-override.manage",
-                "label": "Manage sales rep override"
+                "label": "Manage Sales Rep Override"
             }
         ]
     }

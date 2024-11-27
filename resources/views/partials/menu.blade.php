@@ -104,12 +104,12 @@
         </li>
     @endif
     @if (auth()->user()->account->hasModule('sales-rep-override'))
-    <li class="menu-item  {{ request()->is('sales-rep-override*') ? 'active' : '' }}">
-        <a href="{{ route('sales-rep-override.index') }}" wire:navigate class='menu-link'>
-            <i class="fas fa-truck"></i>
-            <span>Sales Rep Override</span>
-        </a>
-    </li>
+        <li class="menu-item  {{ request()->is('sales-rep-override*') ? 'active' : '' }}">
+            <a href="{{ route('sales-rep-override.index') }}" wire:navigate class='menu-link'>
+                <i class="fas fa-universal-access"></i>
+                <span>Sales Rep Override</span>
+            </a>
+        </li>
     @endif
 
     @if (auth()->user()->account->hasModule('marketing'))
