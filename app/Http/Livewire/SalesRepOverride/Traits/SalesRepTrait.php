@@ -56,7 +56,7 @@ trait SalesRepTrait
     public function messages()
     {
         return [
-            'prodLine.unique' => 'The Product Line already exists with the Customer Number same and Ship To.',
+            'prodLine.unique' => 'The Product Line already exists with the same Customer Number and Ship To.',
         ];
     }
 

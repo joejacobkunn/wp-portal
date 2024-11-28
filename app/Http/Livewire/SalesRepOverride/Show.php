@@ -24,6 +24,7 @@ class Show extends Component
     protected $listeners = [
         'deleteRecord' => 'delete',
         'edit' => 'edit',
+        'closeUpdate' => 'closeUpdate',
     ];
     public $actionButtons = [
         [
@@ -50,6 +51,11 @@ class Show extends Component
     public function edit()
     {
         $this->editRecord=true;
+    }
+
+    public function closeUpdate()
+    {
+        $this->editRecord=false;
     }
 
     public function cancel()
