@@ -13,7 +13,7 @@ class Table extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
-        $this->setDefaultSort('created_at', 'desc');
+        $this->setDefaultSort('sales_rep_overrides.created_at', 'desc');
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
             'class' => 'table table-bordered',
@@ -56,13 +56,19 @@ class Table extends DataTableComponent
             ->searchable()
             ->sortable()
             ->html(),
+
+            Column::make('Last Updated By', 'user.name')
+            ->excludeFromColumnSelect()
+            ->searchable()
+            ->sortable()
+            ->html(),
         ];
     }
     public function builder(): Builder
     {
         $query = SalesRepOverride::query()
         ->select([
-            'id',
+            'sales_rep_overrides.id',
             'customer_number',
             'ship_to',
             'prod_line',

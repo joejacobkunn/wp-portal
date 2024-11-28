@@ -4,6 +4,7 @@ namespace App\Models\SalesRepOverride;
 
 use App\Models\Core\Customer;
 use App\Models\Core\Operator;
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,5 +21,10 @@ class SalesRepOverride extends Model
     public function salesRep()
     {
         return $this->belongsTo(Operator::class, 'sales_rep', 'operator');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'last_updated_by', 'id');
     }
 }

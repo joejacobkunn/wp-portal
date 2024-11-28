@@ -2,6 +2,7 @@
     <div class="col-12 col-md-12">
         <form wire:submit.prevent="submit">
             <div class="row">
+                @if (!isset($editRecord))
                 <div class="col-md-12 mb-3">
                     <x-forms.input label="Customer Number" model="customerNumber" live />
                     @if ($customerName)
@@ -14,6 +15,7 @@
                         <p class="text-success"><i class="far fa-check-circle"></i> {{ $address }}</p>
                     @endif
                 </div>
+                @endif
                 <div class="col-md-12 mb-3">
                     <x-forms.input label="Product Line" model="prodLine" live />
                     @if ($line)

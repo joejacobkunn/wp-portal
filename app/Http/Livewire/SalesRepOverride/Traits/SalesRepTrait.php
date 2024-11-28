@@ -40,23 +40,23 @@ trait SalesRepTrait
     public function rules()
     {
         return [
-            'customerNumber' => [
-                'required',
-                Rule::unique('sales_rep_overrides', 'customer_number')->where(function ($query) {
-                    return $query->where('ship_to', $this->shipTo)
-                                ->where('prod_line', $this->prodLine);
-                })
-                ->ignore($this->getSalesRepOverrideId()),
-            ],
+            'customerNumber' => 'required',
             'shipTo' => 'required',
-            'prodLine' => 'required',
+            'prodLine' => [
+                'required',
+                Rule::unique('sales_rep_overrides', 'prod_line')->where(function ($query) {
+                    return $query->where('customer_number', $this->customerNumber)
+                                ->where('ship_to', $this->shipTo);
+                })
+                ->ignore($this->getSalesRepOverrideId())
+            ],
             'salesRep' => 'required',
         ];
     }
     public function messages()
     {
         return [
-            'customerNumber.unique' => 'The customer number already exists with the same Ship To and Product Line.',
+            'prodLine.unique' => 'The Product Line already exists with the Customer Number same and Ship To.',
         ];
     }
 
@@ -99,7 +99,8 @@ trait SalesRepTrait
             'customer_number' => $this->customerNumber,
             'ship_to' => strtoupper($this->shipTo),
             'prod_line' => strtoupper($this->prodLine),
-            'sales_rep' => strtoupper($this->salesRep)
+            'sales_rep' => strtoupper($this->salesRep),
+            'last_updated_by' => Auth::user()->id
         ]);
 
         if(!config('sx.mock')) DB::connection('sx')->insert("insert into pub.sastaz (cono,codeiden,primarykey,secondarykey,codeval,operinit) values(?,?,?,?,?,?)",[40, 'Sales Rep Override',$this->customerNumber.'@'.strtoupper($this->shipTo),strtoupper($this->prodLine),strtoupper($this->salesRep),strtoupper(auth()->user()->sx_operator_id)]);
@@ -114,6 +115,7 @@ trait SalesRepTrait
         $this->salesRepOverride->fill([
             'prod_line' => strtoupper($this->prodLine),
             'sales_rep' => strtoupper($this->salesRep),
+            'last_updated_by' => Auth::user()->id
         ]);
         $this->salesRepOverride->save();
 
@@ -147,7 +149,7 @@ trait SalesRepTrait
         }
         else
             $this->customerName = '';
-        
+
     }
 
     public function updatedShipTo()
@@ -180,7 +182,7 @@ trait SalesRepTrait
             $this->operator = Operator::where('cono', 40)->where('slsrep',$this->salesRep)->first()?->name;
         else
             $this->operator = '';
-        
+
     }
 
     public function notEligibleForSubmit()
