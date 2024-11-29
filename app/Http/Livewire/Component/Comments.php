@@ -29,8 +29,6 @@ class Comments extends Component
 
     public $deferLoad = false;
 
-    public $alert = '';
-
 
     /*
     |--------------------------------------------------------------------------
@@ -48,6 +46,8 @@ class Comments extends Component
      */
     public $comments = [];
 
+    public $editorId = 1;
+
     /**
      * Pagination for records
      */
@@ -58,7 +58,8 @@ class Comments extends Component
     ];
 
     protected $listeners = [
-        'load-more-comments' => 'loadMoreComments'
+        'load-more-comments' => 'loadMoreComments',
+        'commentFieldUpdated' => 'fieldUpdated',
     ];
 
     public function createComment()
@@ -67,7 +68,7 @@ class Comments extends Component
 
         $comment = $this->entity->comments()->create(
             [
-                'user_id' => auth()->user()->id,
+                'user_id' => auth()->user()->user_id,
                 'comment' => $this->comment
             ]
         );
@@ -75,6 +76,7 @@ class Comments extends Component
         $this->comment = '';
         $this->comments = [];
         $this->nextPage = 1;
+        $this->editorId = uniqid();
         $this->loadComments(true);
         $this->dispatch("newCommentCreated", $comment);
     }
@@ -100,7 +102,7 @@ class Comments extends Component
                 return $comment;
              });
             
-        $this->comments = array_merge($this->comments, $comments->items());
+        $this->comments = array_merge($this->comments, $comments->toArray()['data']);
 
         if ($comments->hasMorePages()) {
             $this->nextPage += 1;
@@ -119,5 +121,13 @@ class Comments extends Component
     public function render()
     {
         return view('livewire.component.comments');
+    }
+
+    /**
+     * Set attribute values
+     */
+    public function fieldUpdated($name, $value, $recheckValidation = true)
+    {
+        $this->comment = $value;
     }
 }
