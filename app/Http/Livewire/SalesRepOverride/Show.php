@@ -21,6 +21,15 @@ class Show extends Component
 
         ],
     ];
+    public $tabs = [
+        'sales-rep-comment-tabs' => [
+            'active' => 'comments',
+            'links' => [
+                'comments' => 'Comments',
+                'activity' => 'Activity',
+            ],
+        ],
+    ];
     protected $listeners = [
         'deleteRecord' => 'delete',
         'edit' => 'edit',
