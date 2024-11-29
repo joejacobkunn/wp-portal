@@ -6,10 +6,11 @@ use App\Http\Livewire\SalesRepOverride\Traits\SalesRepTrait;
 use App\Models\SalesRepOverride\SalesRepOverride;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Livewire\Component\Component;
+use App\Traits\HasTabs;
 
 class Show extends Component
 {
-    use AuthorizesRequests, SalesRepTrait;
+    use AuthorizesRequests, SalesRepTrait, HasTabs;
     public SalesRepOverride $salesRepOverride;
     public $editRecord =false;
     public $productLines;

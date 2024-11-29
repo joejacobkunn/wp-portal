@@ -49,11 +49,11 @@
         </div>
     </div>
         <div class="col-12 col-md-4 col-xxl-4">
-            <x-tabs :tabs="$tabs" tabId="sales-rep-comment-tabs" activeTabIndex="active">
-                <x-slot:tab_content_comments component="x-comments" :entity="$salesRepOverride" :key="'comments' . time()">
+            <x-tabs tabId="sales-rep-comment-tabs">
+                <x-slot:tab_content_comments component="x-comments" :entity="$salesRepOverride" :key="'comments' ">
                 </x-slot>
 
-                <x-slot:tab_content_activity component="x-activity-log" :entity="$salesRepOverride" recordType="sales-rep-override" :key="'activity-' . time()">
+                <x-slot:tab_content_activity component="x-activity-log" :entity="$salesRepOverride" recordType="sales-rep-override" :key="'activity-'">
                 </x-slot>
             </x-tabs>
         </div>
