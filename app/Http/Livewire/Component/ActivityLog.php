@@ -39,7 +39,7 @@ class ActivityLog extends Component
     /**
      * Default load limit
      */
-    public $perPage = 5;
+    public $perPage = 8;
 
     public $deferLoad = false;
 
@@ -58,6 +58,8 @@ class ActivityLog extends Component
      * Pagination for records
      */
     public $nextPage = 1;
+
+    public $showOnlyUserActivity = false;
 
 
     public function render()
@@ -94,24 +96,25 @@ class ActivityLog extends Component
 
         $yesterday = Carbon::now()->subDay(1)->timestamp;
         foreach ($logs as $log) {
-            $formattedLog = [
-                'event' => $log->event
-            ];
-
-            if (!isset($causersList[$log->causer_id]) && $log->causer_id) {
-                $causersList[$log->causer_id] = $log->causer()->select('user_id', 'name_full')->first()->name;
-            }
-
-            if ($log->event == 'created') {
-                $formattedLog['title'] = $causersList[$log->causer_id] ?? "" . " Created the " . $this->recordType;
-                $formattedLog['icon'] = 'fas fa-plus-circle';
-            } elseif ($log->event == 'updated') {
-                $formattedLog['title'] = $causersList[$log->causer_id] ?? "" . " Updated the " . $this->recordType;
-                $formattedLog['icon'] = 'fas fa-user-edit';
-                $updatedFields = $log->changes();
-
-                //check if old index exists ie updated or created
-                if (array_key_exists('old', $updatedFields->toArray())) {
+            if(!$this->isShowOnlyUserActivity($log))
+            {
+                $formattedLog = [
+                    'event' => $log->event
+                ];
+    
+                if (!isset($causersList[$log->causer_id]) && $log->causer_id) {
+                    $causersList[$log->causer_id] = $log->causer()->first()->name;
+                    $formattedLog['user'] = $log->causer()->first()->name;
+                }
+    
+                if ($log->event == 'created') {
+                    $formattedLog['title'] = $causersList[$log->causer_id] ?? "" . " Created the ". $this->recordType;
+                    $formattedLog['icon'] = 'fas fa-plus-circle';
+                } elseif ($log->event == 'updated') {
+                    $formattedLog['title'] = $causersList[$log->causer_id] ?? "" . " Updated the ". $this->recordType;
+                    $formattedLog['icon'] = 'fas fa-user-edit';
+                    $updatedFields = $log->changes();
+    
                     foreach ($updatedFields['old'] as $fieldName => $oldValue) {
                         if (isset($this->entity::LOG_FIELD_MAPS[$fieldName])) {
                             $formattedLog['changes'][$fieldName] = [
@@ -119,44 +122,53 @@ class ActivityLog extends Component
                                 'old_value' => $oldValue,
                                 'new_value' => $updatedFields['attributes'][$fieldName],
                             ];
-
+    
                             if (!empty($this->entity::LOG_FIELD_MAPS[$fieldName]['resolve'])) {
                                 $formattedLog['changes'][$fieldName]['old_value'] = $this->entity->resolveLogField($fieldName, $oldValue);
                                 $formattedLog['changes'][$fieldName]['new_value'] = $this->entity->resolveLogField($fieldName, $updatedFields['attributes'][$fieldName]);
                             }
                         }
                     }
-                }
-            } elseif ($log->event == 'custom') {
-                $formattedLog['title'] = ($log->causer_id ? $causersList[$log->causer_id] : "");
-                $formattedLog['description'] = $log->description ?? '';
-                $formattedLog['icon'] = $log->properties['icon'] ?? "fas fa-exclamation-circle";
-
-                $updatedFields = $log->changes();
-                //check if old index exists ie updated or created
-                if (array_key_exists('old', $updatedFields->toArray())) {
-                    foreach ($updatedFields['old'] as $fieldName => $oldValue) {
-                        if (isset($this->entity::LOG_FIELD_MAPS[$fieldName])) {
-                            $formattedLog['changes'][$fieldName] = [
-                                'label' => $this->entity::LOG_FIELD_MAPS[$fieldName]['field_label'] ?? $fieldName,
-                                'old_value' => $oldValue,
-                                'new_value' => $updatedFields['attributes'][$fieldName],
-                            ];
-
-                            if (!empty($this->entity::LOG_FIELD_MAPS[$fieldName]['resolve'])) {
-                                $formattedLog['changes'][$fieldName]['old_value'] = $this->entity->resolveLogField($fieldName, $oldValue);
-                                $formattedLog['changes'][$fieldName]['new_value'] = $this->entity->resolveLogField($fieldName, $updatedFields['attributes'][$fieldName]);
+                } elseif ($log->event == 'custom') {
+                    $formattedLog['title'] = ($log->causer_id ? $causersList[$log->causer_id] : "");
+                    $formattedLog['description'] = $log->description ?? '';
+                    $formattedLog['icon'] = $log->properties['icon'] ?? "fas fa-exclamation-circle";
+    
+                    $updatedFields = $log->changes();
+                    //check if old index exists ie updated or created
+                    if(array_key_exists('old',$updatedFields->toArray())){
+                        foreach ($updatedFields['old'] as $fieldName => $oldValue) {
+                            if (isset($this->entity::LOG_FIELD_MAPS[$fieldName])) {
+                                $formattedLog['changes'][$fieldName] = [
+                                    'label' => $this->entity::LOG_FIELD_MAPS[$fieldName]['field_label'] ?? $fieldName,
+                                    'old_value' => $oldValue,
+                                    'new_value' => $updatedFields['attributes'][$fieldName],
+                                ];
+        
+                                if (!empty($this->entity::LOG_FIELD_MAPS[$fieldName]['resolve'])) {
+                                    $formattedLog['changes'][$fieldName]['old_value'] = $this->entity->resolveLogField($fieldName, $oldValue);
+                                    $formattedLog['changes'][$fieldName]['new_value'] = $this->entity->resolveLogField($fieldName, $updatedFields['attributes'][$fieldName]);
+                                }
                             }
                         }
                     }
                 }
+                
+                $formattedLog['timestamp_string'] = $log->created_at->timestamp > $yesterday ? $log->created_at->diffForHumans() : $log->created_at->format(config('app.default_datetime_format'));
+                $formattedLog['timestamp'] = $log->created_at;
+                $formattedLogs[] = $formattedLog;
+    
             }
-
-            $formattedLog['timestamp_string'] = $log->created_at->timestamp > $yesterday ? $log->created_at->diffForHumans() : $log->created_at->format(config('app.default_datetime_format'));
-            $formattedLog['timestamp'] = $log->created_at;
-            $formattedLogs[] = $formattedLog;
         }
 
         return $formattedLogs;
+    }
+
+    public function isShowOnlyUserActivity($log)
+    {
+        if($this->showOnlyUserActivity == false) return false;
+        if($log->event != 'updated') return false;
+        if(empty($log->causer_id)) return true;
+        return false;
     }
 }
