@@ -105,6 +105,9 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         Route::get('marketing/sms-marketing/', \App\Http\Livewire\Marketing\SMSMarketing\Index::class)->name('marketing.sms-marketing.index');
 
+
+        // Scheduler Trucks
+        Route::get('trucks', \App\Http\Livewire\Scheduler\Truck\Index::class)->name('scheduler.truck.index');
         //pwa
         Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
     });

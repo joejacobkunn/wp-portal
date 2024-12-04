@@ -162,6 +162,42 @@
 
     @endif
 
+    @if (auth()->user()->account->hasModule('scheduler'))
+
+        @canany(['scheduler.truck.view'])
+            <li class="menu-item {{ request()->is('scheduler*') ? 'active' : '' }}  has-sub">
+                <a href="#" class="menu-link">
+                    <span><i class="far fa-calendar-check"></i> Scheduler</span>
+                </a>
+                <div class="submenu ">
+                    <div class="submenu-group-wrapper">
+                        <ul class="submenu-group">
+                            @canany(['scheduler.truck.view'])
+                                <li class="submenu-item  ">
+                                    <a href="{{ route('equipment.unavailable.index') }}" wire:navigate
+                                        class="submenu-link">Schedule</a>
+                                </li>
+                            @endcan
+                            @canany(['scheduler.truck.view'])
+                                <li class="submenu-item  ">
+                                    <a href="{{ route('scheduler.truck.index') }}" wire:navigate class="submenu-link">Truck</a>
+                                </li>
+                            @endcan
+                            @canany(['scheduler.truck.view'])
+                                <li class="submenu-item  ">
+                                    <a href="{{ route('equipment.floor-model-inventory.index') }}" wire:navigate
+                                        class="submenu-link">Drivers</a>
+                                </li>
+                            @endcan
+                        </ul>
+                    </div>
+                </div>
+            </li>
+
+        @endcan
+
+    @endif
+
 
 
     @endif
