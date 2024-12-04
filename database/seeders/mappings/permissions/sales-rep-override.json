@@ -1,0 +1,19 @@
+[
+    {
+        "group": "Sales Rep Override",
+        "user_groups": [
+            "super-admin",
+            "master-admin"
+        ],
+        "items": [
+            {
+                "name": "customer.sales-rep-override.view",
+                "label": "Sales Rep Override View"
+            },
+            {
+                "name": "customer.sales-rep-override.manage",
+                "label": "Manage Sales Rep Override"
+            }
+        ]
+    }
+]
