@@ -31,6 +31,9 @@ class Kernel extends ConsoleKernel
         //task to fetch sx operators
         $schedule->command('sx:fetch-operators')->wednesdays();
 
+        //task to sync drivers/techs for scheduler app
+        $schedule->command('app:sync-azure-users --title=Driver,Service Technician')->daily();
+
         //task to generate warranty regsitration
         $schedule->command('sx:generate-warranty-report')->hourly();
 

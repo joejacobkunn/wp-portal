@@ -29,49 +29,54 @@ class SyncAzureUsers extends Command
      */
     public function handle()
     {
-        $title = $this->option('title');
+        $titles = explode(",",$this->option('title'));
 
-        if(!empty($title))
+        foreach($titles as $title)
         {
-            $guzzle = new \GuzzleHttp\Client();
-            $url = 'https://login.microsoftonline.com/' . config('services.azure.tenant') . '/oauth2/v2.0/token';
-            $token = json_decode($guzzle->post($url, [
-                'form_params' => [
-                    'client_id' => config('services.azure.client_id'),
-                    'client_secret' => config('services.azure.client_secret'),
-                    'scope' => 'https://graph.microsoft.com/.default',
-                    'grant_type' => 'client_credentials',
-                ],
-            ])->getBody()->getContents());
-            $accessToken = $token->access_token;
-    
-            $graph = new Graph();
-            $graph->setAccessToken($accessToken);
-            $response = collect($graph->createRequest('GET', '/users?$filter=jobTitle eq \''.$title.'\'')->execute()->getBody());
-
-            foreach($response['value'] as $azureUser)
+            if(!empty($title))
             {
-                $user = new User();
-                $user->name = $azureUser['displayName'];
-                $user->email = $azureUser['mail'];
-                $user->office_location = $azureUser['officeLocation'];
-                $user->title = $azureUser['jobTitle'];
-                $user->is_active = 1;
-                $user->account_id = 1;
-                $user->abbreviation = $user->getAbbreviation();
-                $user->save();
+                $guzzle = new \GuzzleHttp\Client();
+                $url = 'https://login.microsoftonline.com/' . config('services.azure.tenant') . '/oauth2/v2.0/token';
+                $token = json_decode($guzzle->post($url, [
+                    'form_params' => [
+                        'client_id' => config('services.azure.client_id'),
+                        'client_secret' => config('services.azure.client_secret'),
+                        'scope' => 'https://graph.microsoft.com/.default',
+                        'grant_type' => 'client_credentials',
+                    ],
+                ])->getBody()->getContents());
+                $accessToken = $token->access_token;
+        
+                $graph = new Graph();
+                $graph->setAccessToken($accessToken);
+                $response = collect($graph->createRequest('GET', '/users?$filter=jobTitle eq \''.$title.'\'')->execute()->getBody());
     
-                $user->metadata()->create([
-                    'invited_by' => null,
-                ]);
-    
-                //Default Role Assign
-                $user->assignRole(Role::getDefaultRole());
-    
-            }
+                foreach($response['value'] as $azureUser)
+                {
 
+                    $user = User::updateOrCreate(
+                        [
+                            'email' => $azureUser['mail']
+                        ],
+                        [
+                            'name' => $azureUser['displayName'],
+                            'office_location' => $azureUser['officeLocation'],
+                            'title' => $azureUser['jobTitle'],
+                            'is_active' => 1,
+                            'account_id' => 1,
+                        ]
+                    );
+        
+                    //Default Role Assign
+                    $user->assignRole(Role::getDefaultRole());
+                    $user->abbreviation = $user->getAbbreviation();
+                    $user->save();
+        
+                }
+            }
     
         }
+
 
     }
 }
