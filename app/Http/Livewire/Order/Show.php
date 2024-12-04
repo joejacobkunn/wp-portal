@@ -762,7 +762,7 @@ class Show extends Component
 
     private function fetch_sro()
     {
-        return RepairOrders::where('sx_repair_order_no', $this->order->orderno)->first();
+        return RepairOrders::where('sx_repair_order_no', $this->order->order_number)->first();
     }
 
 
