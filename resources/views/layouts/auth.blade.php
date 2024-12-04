@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'W&P Portal')</title>
-    <link rel="stylesheet" href="assets/css/main/app.css?ver={{ config('constants.asset_version') }}">
-    <link rel="stylesheet" href="assets/css/pages/auth.css?ver={{ config('constants.asset_version') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/main/app.css') . '?ver='. config('constants.asset_version') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/pages/auth.css') . '?ver='. config('constants.asset_version') }}">
     <link rel="shortcut icon"
         href="https://wandpmanagement.com/wp-content/uploads/2017/11/cropped-WPLogoFinalFavicon512X512-32x32.png"
         type="image/x-icon">

@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'subdomain' => \App\Http\Middleware\SubdomainMiddleware::class,
         'auth.api' => \App\Http\Middleware\OauthMiddleware::class,
+        'auth.pwa' => \App\Http\Middleware\PwaAuthenticate::class,
     ];
 }
