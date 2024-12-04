@@ -40,7 +40,8 @@ class User extends Authenticatable
         'unavailable_equipments_id',
         'title',
         'office_location',
-        'is_active'
+        'is_active',
+        'account_id'
     ];
 
     /**
