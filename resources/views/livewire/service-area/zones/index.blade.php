@@ -15,7 +15,8 @@
                         'button_text' => 'Add New Zone',
                     ])
                 @else
-
+                    {{-- <livewire:service-area.zones.table lazy
+                        wire:key="{{ 'zones'}}" whseId="{{ $WarehouseId }}"> --}}
                 @endif
 
             </div>

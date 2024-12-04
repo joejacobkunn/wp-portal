@@ -13,7 +13,7 @@ class Show extends Component
     public  Zones $zone;
     public function render()
     {
-        return view('livewire.service-area.zones.show');
+        return $this->renderView('livewire.service-area.show');
     }
 
     public function submit()

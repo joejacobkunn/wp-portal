@@ -29,7 +29,7 @@
                             <x-slot:tab_content_zones component="service-area.zones.index" WarehouseId="{{$activeWarehouse}}" :key="'zones'.$this->activeWarehouse">
                             </x-slot>
 
-                            <x-slot:tab_content_warrantyReport component="equipment.warranty.warranty-import.report" wire:key="warranty_report">
+                            <x-slot:tab_content_zones component="service-area.zones.index" wire:key="zipcodes">
                             </x-slot>
                         </x-tabs>
 
