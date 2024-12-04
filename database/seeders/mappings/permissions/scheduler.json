@@ -1,0 +1,20 @@
+[
+    {
+        "group": "Scheduler",
+        "user_groups": [
+            "super-admin"
+        ],
+        "items": [
+            {
+                "name": "scheduler.truck.view",
+                "label": "View Truck Scheduler",
+                "description": "User can view truck schedules"
+            },
+            {
+                "name": "scheduler.truck.manage",
+                "label": "Manage Truck Scheduler",
+                "description": "User can manage truck schedules"
+            }
+        ]
+    }
+]
