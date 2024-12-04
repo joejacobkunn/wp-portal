@@ -50,7 +50,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::mediaLibrary();
 
         Route::get('peoplevox/{mode}/{ponumber}', function (string $mode, string $ponumber) {
-            
+
             $exitCode = Artisan::call('app:process-purchase-order-receipts', [
                 '--mode' => Route::current()->parameter('mode'), '--po' => Route::current()->parameter('ponumber')
             ]);
@@ -107,6 +107,10 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         //pwa
         Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
+
+        Route::get('service-area', \App\Http\Livewire\ServiceArea\Index::class)->name('service-area.index');
+        Route::get('service-area/zones/{zone}/show', \App\Http\Livewire\ServiceArea\Zones\Show::class)->name('service-area.zones.show');
+
     });
 
 

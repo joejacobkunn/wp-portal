@@ -162,6 +162,12 @@
 
     @endif
 
+    <li class="menu-item  {{ request()->is('service-area*') ? 'active' : '' }}">
+        <a href="{{ route('service-area.index') }}" wire:navigate class='menu-link'>
+            <i class="fas fa-map-location-dot"></i>
+            <span>Service Area</span>
+        </a>
+    </li>
 
 
     @endif

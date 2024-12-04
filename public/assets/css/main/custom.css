@@ -737,3 +737,46 @@
     font-size: 0.9rem;
     color: #6c757d;
 }
+
+
+/* Warehouse navigation styles */
+.warehouse-nav .list-group-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    padding: 0.75rem 1rem;
+}
+
+/* Hover styles */
+.warehouse-nav .list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.warehouse-nav .list-group-item:hover a {
+    color: #4e73df;
+    text-decoration: none;
+}
+
+/* Override default active styles */
+.warehouse-nav .list-group-item.active {
+    background-color: transparent !important;
+    border-color: rgba(0, 0, 0, 0.125) !important;
+}
+
+/* Active styles - only changes text color */
+.warehouse-nav .list-group-item.active a {
+    color: #4e73df !important;
+}
+
+.warehouse-nav .list-group-item div {
+    width: 100%;
+}
+
+.warehouse-nav .list-group-item a {
+    color: #5a5c69;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    padding: 0.25rem 0;
+}
