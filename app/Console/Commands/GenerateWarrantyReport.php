@@ -58,6 +58,7 @@ class GenerateWarrantyReport extends Command
                 ) AS 'order_no'
                 ,oeeh.shiptonm AS 'shiptoname'
                 ,oeeh.shiptoaddr[1] AS 'address'
+                ,oeeh.shiptoaddr[2] AS 'address2'
                 ,oeeh.shiptocity AS 'city'
                 ,oeeh.shiptost AS 'state'
                 ,oeeh.shiptozip AS 'zip'

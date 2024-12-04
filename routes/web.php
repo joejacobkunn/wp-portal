@@ -105,8 +105,16 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         Route::get('marketing/sms-marketing/', \App\Http\Livewire\Marketing\SMSMarketing\Index::class)->name('marketing.sms-marketing.index');
 
+
         Route::get('sales-rep-override', \App\Http\Livewire\SalesRepOverride\Index::class)->name('sales-rep-override.index');
         Route::get('sales-rep-override/{salesRepOverride}/show', \App\Http\Livewire\SalesRepOverride\Show::class)->name('sales-rep-override.show');
+
+        //pwa
+        Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
+
     });
+
+
+    Route::get('fortis/app/manifest.json', 'App\Http\Controllers\Pwa\ManifestController@manifest')->name('pwa.manifest');
 });
 

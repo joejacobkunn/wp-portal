@@ -10,9 +10,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Core\Customer;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-
-class OrderFollowUp
+class OrderFollowUp implements ShouldQueue
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

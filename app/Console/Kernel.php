@@ -62,6 +62,8 @@ class Kernel extends ConsoleKernel
         //cron to clean up laravel log files
         $schedule->command('logcleaner:run', ['--keeplines' => 5000, '--keepfiles' => 14])->daily()->timezone('America/New_York')->at('06:00');
 
+        $schedule->command('activitylog:clean')->daily();
+
     }
 
     /**

@@ -17,6 +17,7 @@ use App\Models\Core\User;
 use App\Models\Core\Warehouse;
 use App\Models\Order\NotificationTemplate;
 use App\Models\Order\Order;
+use App\Models\SRO\RepairOrders;
 use App\Models\SX\Operator;
 use App\Models\SX\Shipping;
 use App\Models\SX\WarehouseProduct;
@@ -77,6 +78,8 @@ class Show extends Component
     public $wt_whse;
     public $wt_transfer_number;
     public $order_notes;
+
+    public $sro_order;
 
     
     public $breadcrumbs = [
@@ -149,6 +152,7 @@ class Show extends Component
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
         $this->order_notes = $this->getOrderNotes();
+        if($this->order->is_sro) $this->sro_order = $this->fetch_sro();
         $this->authorize('view', $this->order);
     }
 
@@ -754,6 +758,11 @@ class Show extends Component
     {
         $sx_client = new SX();
         return $sx_client->get_notes(['request' => ['companyNumber' => 10, 'primaryKey' => $this->order->order_number, 'operatorInit' => 'WEB', 'notesType' => 'o', 'requiredNotesOnlyFlag' => false, 'recordLimit' => 10]]);
+    }
+
+    private function fetch_sro()
+    {
+        return RepairOrders::where('sx_repair_order_no', $this->order->order_number)->first();
     }
 
 

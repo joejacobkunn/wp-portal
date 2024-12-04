@@ -28,7 +28,7 @@ class SyncProductAliases extends Command
     public function handle()
     {
         DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
-        echo "Starting Products...\n";
+        echo "Starting Aliases...\n";
         $recordsRemaining = true;
         $lookupsCompleted = 0;
         $chunkSize = 1000;
@@ -42,13 +42,13 @@ class SyncProductAliases extends Command
 
             foreach($aliases as $alias)
             {
-                $product = Product::where('prod', trim($alias->prod))->first();
+                $product = Product::where('prod', trim($alias->altprod))->first();
 
                 if($product)
                 {
-                    $product_aliases = json_decode($product->aliases);
+                    $product_aliases = $product->aliases;
 
-                    array_push($product_aliases,$alias->altprod);
+                    array_push($product_aliases,$alias->prod);
 
                     $product->update(['aliases' => array_unique($product_aliases)]);
                 }

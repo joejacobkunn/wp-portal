@@ -44,7 +44,7 @@ class ReportTable extends DataTableComponent
     public array $bulkActions = [
         'registerBulk' => 'Register',
         'unregisterBulk' => 'Unregister',
-        'ignore' => 'Ignore'
+        'ignoreBulk' => 'Ignore'
     ];
 
     public function mount()
@@ -63,6 +63,11 @@ class ReportTable extends DataTableComponent
             Column::make('Serial', 'serial')
                 ->searchable()
                 ->format(function ($value, $row) {
+                    if($row->registration_date == '01/01/01' || $row->registration_date == '2001-01-01')
+                    {
+                        return (string)$value.' <span class="badge bg-light-secondary float-end"><i class="far fa-eye-slash"></i></span>';
+                    }
+
                     if(empty($row->registration_date))
                     {
                         return (string)$value.' <span class="badge bg-light-danger float-end"><i class="fas fa-exclamation-triangle"></i></span>';
@@ -108,6 +113,10 @@ class ReportTable extends DataTableComponent
                 ->hideIf(1)
                 ->html(),
 
+            Column::make('Address2', 'address2')
+                ->hideIf(1)
+                ->html(),
+
                 Column::make('City', 'city')
                 ->hideIf(1)
                 ->html(),
@@ -129,7 +138,8 @@ class ReportTable extends DataTableComponent
 
             Column::make('Ship To', 'shiptoname')
                 ->format(function ($value, $row) {
-                    return $value.', '.$row->address.', '.$row->state.', '.$row->city.', '.$row->zip;
+                    $address2 = (!empty($row->address2)) ? $row->address2.', ' : '';
+                    return $value.', '.$row->address.', '.$address2.$row->city.', '.$row->state.', '.$row->zip;
                 })
                 ->sortable()
                 ->searchable(),
@@ -204,21 +214,21 @@ class ReportTable extends DataTableComponent
                 ->hiddenFromMenus()
                 ->options([''=>'All Stores']+$this->warehouses)
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->whereRaw('LOWER(store) = ?', [strtolower($value)]);
+                    $builder->whereRaw('LOWER(store) = ?', [strtolower(trim($value))]);
                 }),
 
             SelectFilter::make('brand')
                 ->options(['All Brands'] + $this->brands)
                 ->hiddenFromMenus()
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->whereRaw('LOWER(brand) = ?', [strtolower($value)]);
+                    $builder->whereRaw('LOWER(brand) = ?', [strtolower(trim($value))]);
                 }),
 
             SelectFilter::make('lines')
                 ->options(['All'] + $this->lines)
                 ->hiddenFromMenus()
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->whereRaw('LOWER(prodline) = ?', [strtolower($value)]);
+                    $builder->whereRaw('LOWER(prodline) = ?', [strtolower(trim($value))]);
                 }),
 
             SelectFilter::make('Status', 'status')
@@ -272,7 +282,8 @@ class ReportTable extends DataTableComponent
         {
             $report = Report::where('serial', $row)->first();
             $report->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
-            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($report->serial)."' and custno = '".$this->clean($report->cust_no)."'");
+
         }
         $this->clearSelected();
         $this->alert('success', count($rows).' products registered!');
@@ -286,7 +297,7 @@ class ReportTable extends DataTableComponent
         {
             $report = Report::where('serial', $row)->first();
             $report->update(['registration_date' => '', 'registered_by' => '']);
-            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($report->serial)."' and custno = '".$this->clean($report->cust_no)."'");
         }
         $this->clearSelected();
         $this->alert('success', count($rows).' products unregistered!');
@@ -300,7 +311,7 @@ class ReportTable extends DataTableComponent
         {
             $report = Report::where('serial', $row)->first();
             $report->update(['registration_date' => '2001-01-01', 'registered_by' => auth()->user()->sx_operator_id]);
-            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$report->serial."' and custno = '".$report->cust_no."'");
+            DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($report->serial)."' and custno = '".$this->clean($report->cust_no)."'");
         }
         $this->clearSelected();
         $this->alert('success', count($rows).' products ignored!');
@@ -311,6 +322,10 @@ class ReportTable extends DataTableComponent
     {
         $this->dispatch('exportWarrantyRecords');
     }
+
+    private function clean($string) {
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+     }
 
 
 

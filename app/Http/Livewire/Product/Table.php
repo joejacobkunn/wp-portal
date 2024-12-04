@@ -92,6 +92,16 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
+            Column::make('Aliases', 'aliases')
+                ->searchable(function (Builder $query, $searchTerm) {
+                    $query->where('aliases', 'like', '%'. $searchTerm .'%');
+                })
+                ->secondaryHeader($this->getFilterByKey('aliases'))
+                ->format(function ($value, $row) {
+                    return implode(', ', $value);
+                })
+                ->html(),
+
             Column::make('Description', 'description')
                 ->searchable()
                 ->secondaryHeader($this->getFilterByKey('description'))
@@ -195,6 +205,17 @@ class Table extends DataTableComponent
                 ])
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('prod', 'like', '%'.$value.'%');
+                }),
+
+
+            TextFilter::make('aliases')
+                ->hiddenFromAll()
+                ->config([
+                    'placeholder' => 'Search Alias',
+                    'maxlength' => '25',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('aliases', 'like', '%'. $value .'%');
                 }),
 
             TextFilter::make('description')

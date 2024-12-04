@@ -95,9 +95,10 @@ class Table extends DataTableComponent
                 foreach ($filters as $key => $value) {
                     $this->setFilter($key, $value);
                 }
+            }else{
+                $this->setFilter('stage_codes', 'open');
             }
         }
-
     }
 
     public function columns(): array
@@ -478,6 +479,7 @@ class Table extends DataTableComponent
                 'yesterday' => 'Yesterday',
                 'this_week' => 'This Week',
                 'older_two_weeks' => 'Older than Two Weeks',
+                'never' => 'Never/Empty'
             ])
             ->filter(function (Builder $builder, $value) {
                 $builder->where(function ($query) use ($value) {
@@ -497,6 +499,10 @@ class Table extends DataTableComponent
 
                     if (in_array('older_two_weeks', $value)) {
                         $query->orWhere('last_followed_up_at', '<', Carbon::now()->subWeeks(2)->toDateString());
+                    }
+
+                    if (in_array('never', $value)) {
+                        $query->whereRaw('last_followed_up_at = "" OR last_followed_up_at IS NULL');
                     }
                 });
             }),

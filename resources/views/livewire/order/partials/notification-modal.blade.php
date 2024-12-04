@@ -91,7 +91,7 @@
                 <div class="row border border-3">
                     <div class="col-md-12 mb-3">
                         <div class="pre-genkey-div">
-                            <x-forms.input label="From" model="emailFrom" disabled />
+                            <x-forms.input label="From" model="emailFrom" />
                             <x-forms.input label="To" model="emailTo" />
                             <x-forms.input label="Email Subject" model="emailSubject" />
                             <x-forms.html-editor :key="$templateId" :value="$emailContent" label="Email Content"

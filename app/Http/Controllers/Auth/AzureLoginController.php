@@ -21,7 +21,7 @@ class AzureLoginController extends Controller
     {
         $hosturl = config('app.scheme') .'://' . config('constants.azure_auth_domain');
         if ($request->route_subdomain) {
-            return redirect()->to($hosturl.route('host.azure.redirect', ['wp_domain' => $request->route_subdomain], false));
+            return redirect()->to($hosturl.route('host.azure.redirect', array_filter(['wp_domain' => $request->route_subdomain, 'ref' => $request->ref]), false));
         }
 
         session(['azure.login.domain' => $request->wp_domain]);
@@ -54,6 +54,10 @@ class AzureLoginController extends Controller
             $queryParams['wp_title'] = base64_encode($azureData['user']->user['jobTitle']);
             $queryParams['wp_office_location'] = base64_encode($azureData['user']->user['officeLocation']);
             $queryParams['checksum'] = Hash::make($domain . $token);
+
+            if ($request->ref) {
+                $queryParams['ref'] = $request->ref;
+            }
 
             return redirect()->route('auth.azure.callback', [ 'route_subdomain' => $domain] + $queryParams);
         }
@@ -114,7 +118,9 @@ class AzureLoginController extends Controller
         //make sure to fetch latest oper id from ms graph when logging in
         $this->updateOperId($user);
 
-        return redirect()->route('core.dashboard.index');
+        $intendedPath = $request->ref ? base64_decode($request->ref) : route('core.dashboard.index');
+
+        return redirect()->to($intendedPath);
     }
 
     public function getAzureUser()

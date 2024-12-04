@@ -6,6 +6,7 @@ use App\Classes\SX;
 use App\Events\Orders\OrderFollowUp;
 use App\Models\Core\User;
 use App\Models\Order\Message;
+use App\Models\SX\Order;
 use App\Notifications\Orders\OrderFollowUpNotification;
 use App\Services\Kenect;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,6 +33,9 @@ class OrderFollowUpListener
     {
             //send email
 
+            $operator = User::find($event->order->last_updated_by);
+
+
             if($this->eligibleForEmail($event) && $event->email_enabled)
             {
                 Notification::route('mail', App::environment() == 'production' ? $event->email : "mmeister@powereqp.com")
@@ -49,11 +53,11 @@ class OrderFollowUpListener
 
                             //add custom log
 
-            activity()
-            ->causedBy(User::find($event->order->last_updated_by))
-            ->performedOn($event->order)
-            ->event('custom')
-            ->log('Sent '.$event->order->status->value.' Email "'.$event->mailSubject);
+                activity()
+                ->causedBy(User::find($event->order->last_updated_by))
+                ->performedOn($event->order)
+                ->event('custom')
+                ->log('Sent '.$event->order->status->value.' Email "'.$event->mailSubject);
 
     
             }
@@ -91,9 +95,12 @@ class OrderFollowUpListener
             if(!App::environment('local'))
             {
                 $sx_client = new SX();
-                $operator = User::find($event->order->last_updated_by);
                 $sx_response = $sx_client->create_order_note($event->order->status->value.' by '.$operator->name.'('.$operator->sx_operator_id.') via Portal on '.now()->toDayDateTimeString(),$event->order->order_number);
             }
+
+            //add note to status comm for MITS report
+
+            Order::where('cono', 10)->where('orderno', $event->order->order_number)->where('ordersuf', $event->order->order_number_suffix)->update(['user4' => $event->order->status->value.' via Portal #'.$operator->sx_operator_id.' '.now()->format('m/d')]);
     
     }
 

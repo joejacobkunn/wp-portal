@@ -44,7 +44,7 @@ class Report extends Component
 
     public function register($serial_no, $cust_no)
     {
-        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
+        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($serial_no)."' and custno = '".$this->clean($cust_no)."'");
         $record = WarrantyReport::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
         $record->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
         return $record->registration_date;
@@ -52,14 +52,14 @@ class Report extends Component
 
     public function unregister($serial_no, $cust_no)
     {
-        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
+        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($serial_no)."' and custno = '".$this->clean($cust_no)."'");
         $record = WarrantyReport::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
         $record->update(['registration_date' => '', 'registered_by' => '']);
     }
 
     public function ignore($serial_no, $cust_no)
     {
-        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$serial_no."' and custno = '".$cust_no."'");
+        DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($serial_no)."' and custno = '".$this->clean($cust_no)."'");
         $record = WarrantyReport::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
         $record->update(['registration_date' => '2001-01-01', 'registered_by' => auth()->user()->sx_operator_id]);
     }
@@ -69,4 +69,9 @@ class Report extends Component
         ExportWarrantyReport::dispatch(Auth::user());
         $this->alert('success', 'records will be mailed after export is completed!');
     }
+
+    private function clean($string) {
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+     }
+
 }
