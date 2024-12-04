@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row service-area">
     <div class="col-12 col-md-12">
         <form wire:submit.prevent="submit()">
                 <div class="row">
@@ -28,7 +28,7 @@
                                    $enabled =  $values['enabled'];
                                 @endphp
                                     <div class="d-flex align-items-center mb-2 border rounded p-2">
-                                        <div class="me-3" >
+                                        <div class="" >
                                             <x-forms.checkbox
                                                 :label="ucfirst($day)"
                                                 :name="'days.' . $day . '.enabled'"
@@ -36,16 +36,19 @@
                                                 :model="'days.' . $day . '.enabled'"
                                             />
                                         </div>
-                                        <div class="ms-auto" >
-                                            <x-forms.select
-                                                :label="''"
-                                                :model="'days.' . $day . '.schedule'"
-                                                :options="$scheduleOptions"
-                                                :defaultOption="true"
-                                                :hasAssociativeIndex="true"
-                                                :disabled="!$enabled"
-                                                :key="'days.' . $day . '.schedule'.$days[$day]['enabled']"
-                                            />
+                                        <div  class="ms-1">
+                                                <select model="days.{{ $day }}.schedule" class="form-select form-select-sm border-secondary-subtle days-select"
+                                                @if(!$values['enabled']) disabled @endif>
+
+                                                    <option value="">Select </option>
+                                                    @foreach ($scheduleOptions as $key => $option)
+                                                        <option value="{{$key}}">{{$option}}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('days.' . $day . '.schedule')
+                                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                                @enderror
+
                                         </div>
                                     </div>
                                 @endforeach

@@ -780,3 +780,11 @@
     width: 100%;
     padding: 0.25rem 0;
 }
+.service-area .days-select {
+    border: none !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    border-radius: 0 !important;
+    padding: 6px 12px;
+    width: 200px;
+    font-size: 14px;
+}
