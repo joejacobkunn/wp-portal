@@ -21,7 +21,6 @@ class Index extends Component
     public function mount()
     {
         $warehouse = Warehouse::find($this->WarehouseId);
-        $this->dispatch('setDecription', 'List of Zones in : '.$warehouse?->title);
     }
 
     public function render()

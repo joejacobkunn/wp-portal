@@ -16,8 +16,8 @@ class Index extends Component
         'service-area-tabs' => [
             'active' => 'zones',
             'links' => [
-                'zones' => 'Zones',
                 'zip-codes' => 'Zip Codes',
+                'zones' => 'Zones',
     ]]];
     protected $queryString = [
         'tabs.service-area-tabs.active' => ['except' => '', 'as' => 'tab'],
@@ -28,8 +28,8 @@ class Index extends Component
 
     public function mount()
     {
-        $this->warehouses = Warehouse::where('cono', 10)->get();
-        $this->activeWarehouse = $this->warehouses[0]->id;
+        $this->warehouses = Warehouse::where('cono', 10)->orderBy('title')->get();
+        $this->activeWarehouse = $this->warehouses->first();
     }
 
     public function render()
@@ -44,8 +44,6 @@ class Index extends Component
 
     public function changeWarehouse($whseId)
     {
-        $warehouse = Warehouse::select('id', 'title')->find($whseId);
-        $this->activeWarehouse = $warehouse?->id;
-        $this->setDecription('list of Zones in : '.$warehouse?->title);
+        $this->activeWarehouse = Warehouse::find($whseId);
     }
 }
