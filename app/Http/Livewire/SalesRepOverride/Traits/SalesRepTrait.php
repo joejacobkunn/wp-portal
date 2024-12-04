@@ -119,7 +119,7 @@ trait SalesRepTrait
         ]);
         $this->salesRepOverride->save();
 
-        if(!config('sx.mock')) DB::connection('sx')->update("update pub.sastaz set secondarykey = ?, codeval = ?, operinit = ? where cono = ? and codeiden = ? and primarykey = ?",[strtoupper($this->prodLine),strtoupper($this->salesRep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',$this->customerNumber.'@'.strtoupper($this->shipTo)]);
+        if(!config('sx.mock')) DB::connection('sx')->update("update pub.sastaz set upper(secondarykey) = ?, upper(codeval[1]) = ?, operinit = ? where cono = ? and codeiden = ? and upper(primarykey) = ?",[strtoupper($this->prodLine),strtoupper($this->salesRep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',$this->customerNumber.'@'.strtoupper($this->shipTo)]);
 
         $this->editRecord = false;
     }
@@ -128,7 +128,7 @@ trait SalesRepTrait
     {
         $this->authorize('delete', $this->salesRepOverride);
 
-        //DB::connection('sx')->update("update pub.sastaz set secondarykey = ?, codeval = ?, operinit = ? where cono = ? and codeiden = ? and primarykey = ?",[strtoupper($this->prodLine),strtoupper($this->salesRep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',$this->customerNumber.'@'.strtoupper($this->shipTo)]);
+        if(!config('sx.mock')) DB::connection('sx')->update("delete from pub.sastaz where upper(secondarykey) = ? and upper(codeval[1]) = ? and upper(operinit) = ? and cono = ? and codeiden = ? and upper(primarykey) = ?",[strtoupper($this->salesRepOverride->prod_line),strtoupper($this->salesRepOverride->sales_rep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',$this->salesRepOverride->customer_number.'@'.strtoupper($this->salesRepOverride->ship_to)]);
 
         if ( SalesRepOverride::where('id', $this->salesRepOverride->id )->delete() ) {
             $this->alert('success', 'Record deleted!');

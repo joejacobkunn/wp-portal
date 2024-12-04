@@ -48,12 +48,19 @@ class Table extends DataTableComponent
             Column::make('Prod Line', 'prod_line')
             ->excludeFromColumnSelect()
             ->searchable()
+            ->format(function ($value, $row) {
+                return strtoupper($value);
+            })
+
             ->sortable()
             ->html(),
 
             Column::make('Sales Rep', 'sales_rep')
             ->excludeFromColumnSelect()
             ->searchable()
+            ->format(function ($value, $row) {
+                return strtoupper($value);
+            })
             ->sortable()
             ->html(),
 
