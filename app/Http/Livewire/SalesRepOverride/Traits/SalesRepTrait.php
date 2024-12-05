@@ -119,7 +119,7 @@ trait SalesRepTrait
         ]);
         $this->salesRepOverride->save();
 
-        if(!config('sx.mock')) DB::connection('sx')->update("update pub.sastaz set upper(secondarykey) = ?, upper(codeval[1]) = ?, operinit = ? where cono = ? and codeiden = ? and upper(primarykey) = ?",[strtoupper($this->prodLine),strtoupper($this->salesRep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',$this->customerNumber.'@'.strtoupper($this->shipTo)]);
+        if(!config('sx.mock')) DB::connection('sx')->update("update pub.sastaz set secondarykey = ?, codeval[1] = ?, operinit = ? where cono = ? and codeiden = ? and upper(primarykey) = ?",[strtoupper($this->prodLine),strtoupper($this->salesRep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',strtoupper($this->customerNumber).'@'.strtoupper($this->shipTo)]);
 
         $this->editRecord = false;
     }
