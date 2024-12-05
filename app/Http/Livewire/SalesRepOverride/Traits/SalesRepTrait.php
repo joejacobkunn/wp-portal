@@ -89,6 +89,11 @@ trait SalesRepTrait
                 'prodLine' => $this->salesRepOverride->prod_line,
                 'salesRep' => $this->salesRepOverride->sales_rep,
             ]);
+
+            $this->operator = $this->getOperator();
+            $this->line = $this->getProdLine();
+            $this->customerName = $this->getCustomerName();
+            $this->address = $this->getShipTo(); 
         }
     }
 
@@ -143,7 +148,7 @@ trait SalesRepTrait
     {
         if(strlen($this->customerNumber) > 2 && !config('sx.mock'))
         {
-            $this->customerName = Customer::where('cono', 40)->where('custno',$this->customerNumber)->first()?->name;
+            $this->customerName = $this->getCustomerName();
             $this->address = '';
             $this->shipTo = '';
         }
@@ -152,42 +157,61 @@ trait SalesRepTrait
 
     }
 
+    public function getCustomerName()
+    {
+        return Customer::where('cono', 40)->where('custno',$this->customerNumber)->first()?->name;
+    }
+
     public function updatedShipTo()
     {
         if(strlen($this->shipTo) > 2 && !config('sx.mock'))
         {
-            $shipto = DB::connection('sx')->select("SELECT addr , city, state, zipcd FROM pub.arss WHERE cono = 40 and LOWER(shipto) = '".strtolower($this->shipTo)."' and custno = ".$this->customerNumber." with(nolock)");
-            if(isset($shipto[0])) $this->address = $shipto[0]->addr.', '.$shipto[0]->city.', '.$shipto[0]->state.', '.$shipto[0]->zipcd;
-            else $this->address = '';
+            $this->address = $this->getShipTo();
         }else{
             $this->address = '';
         }
+    }
+
+    public function getShipTo()
+    {
+        $shipto = DB::connection('sx')->select("SELECT addr , city, state, zipcd FROM pub.arss WHERE cono = 40 and LOWER(shipto) = '".strtolower($this->shipTo)."' and custno = ".$this->customerNumber." with(nolock)");
+        if(isset($shipto[0])) return $shipto[0]->addr.', '.$shipto[0]->city.', '.$shipto[0]->state.', '.$shipto[0]->zipcd;
+        else return '';
+
     }
 
     public function updatedProdLine()
     {
         if(strlen($this->prodLine) > 1 && !config('sx.mock'))
         {
-            $prodline = DB::connection('sx')->select("SELECT descrip FROM pub.icsl WHERE cono = 40 and LOWER(prodline) = '".strtolower($this->prodLine)."' with(nolock)");
-            if(isset($prodline[0])) $this->line = $prodline[0]->descrip;
-            else $this->line = '';
+            $this->line = $this->getProdLine();
         }else{
             $this->line = '';
         }
     }
 
+    public function getProdLine()
+    {
+        $prodline = DB::connection('sx')->select("SELECT descrip FROM pub.icsl WHERE cono = 40 and LOWER(prodline) = '".strtolower($this->prodLine)."' with(nolock)");
+        return (isset($prodline[0])) ? $prodline[0]->descrip : '';
+    }
+
     public function updatedSalesRep()
     {
         if(strlen($this->salesRep) > 1 && !config('sx.mock'))
-            $this->operator = Operator::where('cono', 40)->where('slsrep',$this->salesRep)->first()?->name;
+            $this->operator = $this->getOperator();
         else
             $this->operator = '';
 
     }
 
+    public function getOperator()
+    {
+        return Operator::where('cono', 40)->where('slsrep',$this->salesRep)->first()?->name;
+    }
+
     public function notEligibleForSubmit()
     {
-        if (!empty($this->salesRepOverride->id)) return false;
         if(empty($this->operator) || empty($this->line) || empty($this->address) || empty($this->customerName)) return true;
         return false;
     }
