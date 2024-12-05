@@ -164,7 +164,7 @@ trait SalesRepTrait
 
     public function updatedShipTo()
     {
-        if(strlen($this->shipTo) > 2 && !config('sx.mock'))
+        if(strlen($this->shipTo) > 2 && $this->customerNumber && !config('sx.mock'))
         {
             $this->address = $this->getShipTo();
         }else{

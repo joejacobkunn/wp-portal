@@ -2,7 +2,9 @@
     <div class="col-8 col-md-8 col-xxl-8">
         <div class="card border-light shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">
-                <livewire:component.action-button :actionButtons="$actionButtons" :key="'salesrep' . time()">
+                @can('customer.sales-rep-override.manage')
+                    <livewire:component.action-button :actionButtons="$actionButtons" :key="'salesrep' . time()">
+                    @endcan
                     <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Overview</h3>
             </div>
 
