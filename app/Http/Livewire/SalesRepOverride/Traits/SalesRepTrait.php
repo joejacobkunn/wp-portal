@@ -112,14 +112,14 @@ trait SalesRepTrait
     {
         $this->authorize('update', $this->salesRepOverride);
 
+        if(!config('sx.mock')) DB::connection('sx')->update("update pub.sastaz set secondarykey = ?, codeval = ?, operinit = ? where cono = ? and codeiden = ? and upper(primarykey) = ? and upper(codeval[1]) = ? and upper(secondarykey) = ?",[strtoupper($this->prodLine),strtoupper($this->salesRep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',strtoupper($this->customerNumber).'@'.strtoupper($this->shipTo), strtoupper($this->salesRepOverride->sales_rep), strtoupper($this->salesRepOverride->prod_line)]);
+
         $this->salesRepOverride->fill([
             'prod_line' => strtoupper($this->prodLine),
             'sales_rep' => strtoupper($this->salesRep),
             'last_updated_by' => Auth::user()->id
         ]);
         $this->salesRepOverride->save();
-
-        if(!config('sx.mock')) DB::connection('sx')->update("update pub.sastaz set secondarykey = ?, codeval[1] = ?, operinit = ? where cono = ? and codeiden = ? and upper(primarykey) = ?",[strtoupper($this->prodLine),strtoupper($this->salesRep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',strtoupper($this->customerNumber).'@'.strtoupper($this->shipTo)]);
 
         $this->editRecord = false;
     }
@@ -128,7 +128,7 @@ trait SalesRepTrait
     {
         $this->authorize('delete', $this->salesRepOverride);
 
-        if(!config('sx.mock')) DB::connection('sx')->update("delete from pub.sastaz where upper(secondarykey) = ? and upper(codeval[1]) = ? and upper(operinit) = ? and cono = ? and codeiden = ? and upper(primarykey) = ?",[strtoupper($this->salesRepOverride->prod_line),strtoupper($this->salesRepOverride->sales_rep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',$this->salesRepOverride->customer_number.'@'.strtoupper($this->salesRepOverride->ship_to)]);
+        if(!config('sx.mock')) DB::connection('sx')->update("delete from pub.sastaz where upper(secondarykey) = ? and upper(codeval[1]) = ? and upper(operinit) = ? and cono = ? and codeiden = ? and upper(primarykey) = ? and upper(codeval[1]) = ? and upper(secondarykey) = ?",[strtoupper($this->salesRepOverride->prod_line),strtoupper($this->salesRepOverride->sales_rep),strtoupper(auth()->user()->sx_operator_id),40, 'Sales Rep Override',$this->salesRepOverride->customer_number.'@'.strtoupper($this->salesRepOverride->ship_to), strtoupper($this->salesRepOverride->sales_rep), strtoupper($this->salesRepOverride->prod_line)]);
 
         if ( SalesRepOverride::where('id', $this->salesRepOverride->id )->delete() ) {
             $this->alert('success', 'Record deleted!');
