@@ -9,6 +9,8 @@ class AzureLoginController extends Controller
 {
     use AzureAuthTrait;
 
+    public $authGroup = 'azure';
+
     public $routeLogin = 'auth.login.view';
 
     public $routeGlobalCallback = 'host.azure.callback';

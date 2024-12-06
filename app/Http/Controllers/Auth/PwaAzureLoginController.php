@@ -9,6 +9,8 @@ class PwaAzureLoginController extends Controller
 {
     use AzureAuthTrait;
 
+    public $authGroup = 'azure_pwa';
+
     public $routeLogin = 'pwa.login.view';
 
     public $routeGlobalCallback = 'host.azure_pwa.callback';
