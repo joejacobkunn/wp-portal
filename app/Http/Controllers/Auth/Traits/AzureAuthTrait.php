@@ -130,7 +130,7 @@ trait AzureAuthTrait
     public function getAzureUser()
     {
         try {
-            $user = Socialite::driver('azure')->user();
+            $user = Socialite::driver($this->authGroup)->user();
 
             return [
                 'status' => true,
