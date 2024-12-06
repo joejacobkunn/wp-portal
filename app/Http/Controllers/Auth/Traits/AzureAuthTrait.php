@@ -23,12 +23,9 @@ trait AzureAuthTrait
         config(['services.azure.redirect' => route($this->routeGlobalCallback, ['route_subdomain' => $request->wp_domain], false)]);
 
         session(['azure.login.domain' => $request->wp_domain]);
-        $url = Socialite::driver('azure')->redirect();
+        $url = Socialite::driver($this->authGroup)->redirect();
         $urlParts = parse_url($url->getTargetUrl());
         parse_str($urlParts['query'], $queryParams);
-
-        //redirect url
-        $queryParams['redirect_uri'] = route($this->routeGlobalCallback);
 
         $url->setTargetUrl($urlParts['scheme'] . '://' . $urlParts['host'] . $urlParts['path'] . '?' . http_build_query($queryParams));
 
