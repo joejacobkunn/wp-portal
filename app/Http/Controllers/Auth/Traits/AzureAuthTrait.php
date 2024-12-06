@@ -23,7 +23,11 @@ trait AzureAuthTrait
         config(['services.azure.redirect' => route($this->routeGlobalCallback, ['route_subdomain' => $request->wp_domain], false)]);
 
         session(['azure.login.domain' => $request->wp_domain]);
-        $url = Socialite::driver($this->authGroup)->redirect();
+        
+        $url = Socialite::driver('azure')
+            ->setConfig($this->getConfig($this->authGroup))
+            ->redirect();
+
         $urlParts = parse_url($url->getTargetUrl());
         parse_str($urlParts['query'], $queryParams);
 
@@ -130,7 +134,9 @@ trait AzureAuthTrait
     public function getAzureUser()
     {
         try {
-            $user = Socialite::driver($this->authGroup)->user();
+            $user = Socialite::driver('azure')
+                ->setConfig($this->getConfig($this->authGroup))
+                ->user();
 
             return [
                 'status' => true,
@@ -188,6 +194,16 @@ trait AzureAuthTrait
         $request->session()->regenerateToken();
 
         return redirect()->route($this->routeLogin);
+    }
+
+    private function getConfig($name): \SocialiteProviders\Manager\Config
+    {
+        return new \SocialiteProviders\Manager\Config(
+            config('services.' . $name . '.client_id'),
+            config('services.' . $name . '.client_secret'),
+            url(config('services.' . $name . '.redirect')),
+            ['tenant' => config('services.' . $name . '.tenant')],
+        );
     }
 
 
