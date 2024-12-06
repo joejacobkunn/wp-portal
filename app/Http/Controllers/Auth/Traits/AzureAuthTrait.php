@@ -20,8 +20,6 @@ trait AzureAuthTrait
             return redirect()->to($hosturl.route($this->routeGlobalRedirect, array_filter(['wp_domain' => $request->route_subdomain, 'ref' => $request->ref]), false));
         }
 
-        config(['services.azure.redirect' => route($this->routeGlobalCallback, ['route_subdomain' => $request->wp_domain], false)]);
-
         session(['azure.login.domain' => $request->wp_domain]);
         
         $url = Socialite::driver('azure')
