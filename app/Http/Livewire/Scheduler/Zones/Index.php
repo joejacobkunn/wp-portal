@@ -11,7 +11,7 @@ class Index extends Component
     use FormRequest;
     public $addRecord =false;
     public $warehouseId;
-
+    public Warehouse $warehouse;
     public function create()
     {
         $this->addRecord= true;
@@ -20,7 +20,8 @@ class Index extends Component
 
     public function mount()
     {
-        $warehouse = Warehouse::find($this->warehouseId);
+        $this->warehouse = Warehouse::find($this->warehouseId);
+
     }
 
     public function render()

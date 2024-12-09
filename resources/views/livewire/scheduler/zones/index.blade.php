@@ -10,7 +10,7 @@
         @endif
         <div class="card-body">
             <div class="alert alert-light-primary color-primary"> View and manage zones for
-                <strong>[Warehouse]</strong>
+                <strong>{{$warehouse->title}}</strong>
                 here
             </div>
 
