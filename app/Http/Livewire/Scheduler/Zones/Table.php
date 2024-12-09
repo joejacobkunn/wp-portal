@@ -1,8 +1,8 @@
 <?php
-namespace App\Http\Livewire\ServiceArea\Zones;
+namespace App\Http\Livewire\Scheduler\Zones;
 
 use App\Http\Livewire\Component\DataTableComponent;
-use App\Models\ServiceArea\Zones;
+use App\Models\Scheduler\Zones;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Rappasoft\LaravelLivewireTables\Views\Column;

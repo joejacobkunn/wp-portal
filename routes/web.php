@@ -108,8 +108,8 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         //pwa
         Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
 
-        Route::get('service-area', \App\Http\Livewire\ServiceArea\Index::class)->name('service-area.index');
-        Route::get('service-area/zones/{zone}/show', \App\Http\Livewire\ServiceArea\Zones\Show::class)->name('service-area.zones.show');
+        Route::get('scheduler', \App\Http\Livewire\Scheduler\Index::class)->name('service-area.index');
+        Route::get('scheduler/zones/{zone}/show', \App\Http\Livewire\Scheduler\Zones\Show::class)->name('service-area.zones.show');
 
     });
 

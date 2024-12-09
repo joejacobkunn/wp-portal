@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Livewire\ServiceArea\Zones;
+namespace App\Http\Livewire\Scheduler\Zones;
 
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\ServiceArea\Zones\Traits\FormRequest;
-use App\Models\ServiceArea\Zones;
+use App\Http\Livewire\Scheduler\Zones\Traits\FormRequest;
+use App\Models\Scheduler\Zones;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -50,7 +50,7 @@ class Show extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.service-area.zones.show');
+        return $this->renderView('livewire.scheduler.zones.show');
     }
 
     public function submit()

@@ -1,8 +1,8 @@
 <?php
-namespace App\Http\Livewire\ServiceArea\Zones\Traits;
+namespace App\Http\Livewire\Scheduler\Zones\Traits;
 
 use App\Models\Core\Warehouse;
-use App\Models\ServiceArea\Zones;
+use App\Models\Scheduler\Zones;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;

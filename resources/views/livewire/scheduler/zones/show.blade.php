@@ -8,7 +8,7 @@
                 <div class="card-body">
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                @include('livewire.service-area.zones.partials.form', [
+                                @include('livewire.scheduler.zones.partials.form', [
                                     'button_text' => 'Update',
                                 ])
                         </div>
@@ -17,7 +17,7 @@
                 </div>
             </div>
             @else
-                @include('livewire.service-area.zones.partials.view')
+                @include('livewire.scheduler.zones.partials.view')
             @endif
         </x-slot>
     </x-page>

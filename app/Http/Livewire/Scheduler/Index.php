@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\ServiceArea;
+namespace App\Http\Livewire\Scheduler;
 
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Warehouse;
@@ -34,7 +34,7 @@ class Index extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.service-area.index');
+        return $this->renderView('livewire.scheduler.index');
     }
 
     public function setDecription($desc)

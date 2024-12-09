@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Livewire\ServiceArea\Zones;
+namespace App\Http\Livewire\Scheduler\Zones;
 
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\ServiceArea\Zones\Traits\FormRequest;
+use App\Http\Livewire\Scheduler\Zones\Traits\FormRequest;
 use App\Models\Core\Warehouse;
 
 class Index extends Component
@@ -25,7 +25,7 @@ class Index extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.service-area.zones.index');
+        return $this->renderView('livewire.scheduler.zones.index');
     }
 
     public function cancel()

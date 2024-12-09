@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\ServiceArea;
+namespace App\Models\Scheduler;
 
 use App\Models\Core\Comment;
 use App\Traits\LogsActivity;

@@ -26,11 +26,11 @@
                 </div>
                 <div class="col-10 col-md-10 col-xxl-10">
                     <x-tabs :tabs="$tabs" tabId="service-area-tabs" :key="'tabs' . $activeWarehouse->id">
-                        <x-slot:tab_content_zones component="service-area.zones.index"  :warehouseId="{{$activeWarehouse->id}}"
-                            :key="'zones' . $this->activeWarehouse->id">
+                        <x-slot:tab_content_zones component="scheduler.zones.index"  :warehouseId="$activeWarehouse->id"
+                            :key="'zones' . $activeWarehouse->id">
                         </x-slot>
 
-                        <x-slot:tab_content_zones component="service-area.zones.index" wire:key="zipcodes">
+                        <x-slot:tab_content_zones component="scheduler.zones.index" wire:key="zipcodes">
                         </x-slot>
                     </x-tabs>
 
