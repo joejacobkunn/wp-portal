@@ -13,19 +13,21 @@ trait FormRequest
     use LivewireAlert;
     public $name;
     public $description;
+    public $showTimeSlotSection;
+
     public $scheduleOptions = [
         'am' => 'AM',
         'pm' => 'PM',
         'all_day' => 'All Day'
     ];
     public $days = [
-        'monday' => ['enabled' => false, 'schedule' => ''],
-        'tuesday' => ['enabled' => false, 'schedule' => ''],
-        'wednesday' => ['enabled' => false, 'schedule' => ''],
-        'thursday' => ['enabled' => false, 'schedule' => ''],
-        'friday' => ['enabled' => false, 'schedule' => ''],
-        'saturday' => ['enabled' => false, 'schedule' => ''],
-        'sunday' => ['enabled' => false, 'schedule' => ''],
+        'monday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
+        'tuesday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
+        'wednesday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
+        'thursday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
+        'friday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
+        'saturday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
+        'sunday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
     ];
 
     protected $validationAttributes = [
@@ -36,13 +38,35 @@ trait FormRequest
 
     protected function rules()
     {
-        return [
+
+        $rules = [
             'name' => 'required',
             'description' => 'nullable',
             'days' => 'array'
         ];
+
+        foreach ($this->days as $day => $values) {
+            if ($values['enabled']) {
+                $rules["days.{$day}.ahm_slot"] = ['required', 'integer', 'min:0'];
+                $rules["days.{$day}.pickup_delivery_slot"] = ['required', 'integer', 'min:0'];
+                $rules["days.{$day}.schedule"] = ['required', Rule::in(['am', 'pm', 'all_day'])];
+            }
+        }
+
+        return $rules;
     }
 
+    protected function messages()
+    {
+        return [
+            'days.*.ahm_slot.required' => 'The AHM slot field is required.',
+            'days.*.pickup_delivery_slot.required' => 'The pickup/delivery slot field is required.',
+            'days.*.schedule.required' => 'The Shift field is required.',
+            'days.*.ahm_slot.integer' => 'The AHM slot must be a number.',
+            'days.*.pickup_delivery_slot.integer' => 'The pickup/delivery slot must be a number.',
+            'days.*.schedule.in' => 'The Shift must be either AM or PM or All Day.'
+        ];
+    }
 
     public function store($warehouseId)
     {
@@ -55,6 +79,45 @@ trait FormRequest
         ]);
 
         $this->alert('success','Zone Record Created');
+        return redirect()->route('service-area.index');
+    }
+
+    public function updatedDays(){
+        $this->showTimeSlotSection =  collect($this->days)->contains(fn($day) => $day['enabled'] === true);
+    }
+
+    public function formInit($zone)
+    {
+        $this->name = $zone?->name;
+        $this->description = $zone?->description;
+        $this->days = $zone?->schedule_days;
+        $this->updatedDays();
+    }
+
+    public function delete()
+    {
+
+        if ( Zones::where('id', $this->zone->id )->delete() ) {
+            $this->alert('success', 'Record deleted!');
+            return redirect()->route('service-area.index');
+        }
+
+        $this->alert('error','Record not found');
+        return redirect()->route('service-area.index');
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        $this->zone->fill([
+            'name' => $this->name,
+            'description' => $this->description,
+            'schedule_days' => $this->days,
+        ]);
+        $this->zone->save();
+
+        $this->alert('success', 'Record updated!');
         return redirect()->route('service-area.index');
     }
 

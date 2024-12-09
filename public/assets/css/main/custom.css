@@ -788,3 +788,11 @@
     width: 200px;
     font-size: 14px;
 }
+.columnRow .checkbox-container, .columnRow label{
+    color: #607080 !important;
+}
+
+.columnRow .time-slot-wrap {
+    max-height: 312px;
+    overflow-y: auto;
+}

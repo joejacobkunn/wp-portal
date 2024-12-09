@@ -29,30 +29,18 @@ class Table extends DataTableComponent
                 ->html(),
             Column::make('Zone', 'name')
                 ->sortable()->searchable()->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    return '<a  href="'.route('service-area.zones.show', $row->id).
+                        '" wire:navigate class="text-primary text-decoration-underline">'.
+                        $value.'</a>';
+                })
                 ->html(),
             Column::make('Description', 'description')
                 ->excludeFromColumnSelect()
                 ->searchable()
                 ->html(),
-            Column::make('Scheduled Days', 'schedule_days')
-                ->excludeFromColumnSelect()
-                ->searchable()
-                ->format(function ($value, $row)
-                {
 
-                    $enabledDays = array_filter($value, function ($day) {
-                        return $day['enabled'] === true;
-                    });
-                    $outString = '<span>';
-                    foreach($enabledDays as $key =>  $day) {
-                        $title = Str::title(str_replace(['-', '_'], ' ', $day['schedule']));
-                        $outString .= $key.' : ' .$title.'<br>';
-
-                    }
-
-                    return $outString. '</span>';
-                })
-                ->html(),
 
             ];
     }

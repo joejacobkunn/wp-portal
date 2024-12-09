@@ -10,7 +10,7 @@ class Index extends Component
 {
     use FormRequest;
     public $addRecord =false;
-    public $WarehouseId;
+    public $warehouseId;
 
     public function create()
     {
@@ -20,7 +20,7 @@ class Index extends Component
 
     public function mount()
     {
-        $warehouse = Warehouse::find($this->WarehouseId);
+        $warehouse = Warehouse::find($this->warehouseId);
     }
 
     public function render()
@@ -28,9 +28,16 @@ class Index extends Component
         return $this->renderView('livewire.service-area.zones.index');
     }
 
+    public function cancel()
+    {
+        $this->addRecord = false;
+        $this->resetValidation();
+        $this->reset(['name', 'description', 'days']);
+    }
+
     public function submit()
     {
-        $this->store($this->WarehouseId);
+        $this->store($this->warehouseId);
     }
 
 }
