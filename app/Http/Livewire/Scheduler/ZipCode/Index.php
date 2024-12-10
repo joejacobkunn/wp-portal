@@ -7,6 +7,7 @@ use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\ZipCode\Form\ZipCodeForm;
 use App\Models\Scheduler\Zones;
 use App\Models\ZipCode;
+
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
@@ -14,10 +15,10 @@ class Index extends Component
     use LivewireAlert;
     public ZipCodeForm $form;
     public $addRecord = false;
-    public $warehouseId;
     public $zipDescription = false;
+
+    public $warehouseId;
     public Warehouse $warehouse;
-    public $zones;
 
     public function create()
     {
@@ -28,8 +29,7 @@ class Index extends Component
     public function mount()
     {
         $this->warehouse = Warehouse::find($this->warehouseId);
-        $this->zones = Zones::where('whse_id', $this->warehouse->id)
-                        ->pluck('name', 'id');
+        $this->form->setZones($this->warehouse->id);
     }
 
     public function cancel()
@@ -46,11 +46,6 @@ class Index extends Component
         return redirect()->route('service-area.index', ['tab' => 'zip_code']);
     }
 
-    public function render()
-    {
-        return $this->renderView('livewire.scheduler.zip-code.index');
-    }
-
     public function updatedFormZipCode($value)
     {
        $zipcode =  ZipCode::where('zipcode', $value)->first();
@@ -61,4 +56,10 @@ class Index extends Component
 
        $this->zipDescription = 'Entered Zipcode not found in our database';
     }
+
+    public function render()
+    {
+        return $this->renderView('livewire.scheduler.zip-code.index');
+    }
+
 }

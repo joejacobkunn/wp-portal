@@ -37,7 +37,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),
-            Column::make('Zone', 'zone.name')
+            Column::make('Zone', 'getZone.name')
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),

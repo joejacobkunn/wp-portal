@@ -45,7 +45,7 @@
                     <div class="form-group">
                         <x-forms.select label="Zone"
                         model="form.zone"
-                        :options="$this->zones"
+                        :options="$this->form->zones"
                         :selected="$form->zone"
                         hasAssociativeIndex
                         default-option-label="- None -"
@@ -54,13 +54,19 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <x-forms.input label="Delivery Rate" model="form.delivery_rate" lazy />
+                        <x-forms.input
+                        label="Delivery Rate"
+                        model="form.delivery_rate"
+                        lazy />
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="form-group">
-                        <x-forms.input label="Pickup Rate" model="form.pickup_rate" lazy />
+                        <x-forms.input
+                            label="Pickup Rate"
+                            model="form.pickup_rate"
+                        lazy />
                     </div>
                 </div>
 
@@ -77,10 +83,14 @@
                                    role="switch"
                                    id="active"
                                    wire:key="active-{{now()}}"
-                                   wire:model="form.is_active">
+                                   wire:model="form.is_active"
+                                   @checked($form->is_active)>
                             <label class="form-check-label" for="active">
                                 Enable the switch to make this active
                             </label>
+                            @error('form.is_active')
+                                <span class="text-danger">{{$message}}</span>
+                            @enderror
                         </div>
                     </div>
                 </div>

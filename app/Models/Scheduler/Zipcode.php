@@ -58,7 +58,7 @@ class Zipcode extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function zone()
+    public function getZone()
     {
         return $this->belongsTo(Zones::class, 'zone');
     }

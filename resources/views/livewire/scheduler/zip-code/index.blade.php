@@ -1,5 +1,4 @@
 <div>
-
     <div class="card border-light shadow-sm zip-tab">
         @if (!$addRecord)
             <div class="card-header border-gray-300 p-3 mb-4">
