@@ -16,7 +16,7 @@ class Index extends Component
         'service-area-tabs' => [
             'active' => 'zones',
             'links' => [
-                'zip-codes' => 'Zip Codes',
+                'zip_code' => 'Zip Codes',
                 'zones' => 'Zones',
     ]]];
     protected $queryString = [

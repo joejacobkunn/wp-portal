@@ -32,9 +32,10 @@
                             :key="'zones' . $activeWarehouse->id">
                         </x-slot>
 
-                        <x-slot:tab_content_zip-code
-                            component="scheduler.zones.index"
-                            wire:key="zipcodes">
+                        <x-slot:tab_content_zip_code
+                            component="scheduler.zip-code.index"
+                            :warehouseId="$activeWarehouse->id"
+                            :key="'zipcode' . $activeWarehouse->id">
                         </x-slot>
                     </x-tabs>
 

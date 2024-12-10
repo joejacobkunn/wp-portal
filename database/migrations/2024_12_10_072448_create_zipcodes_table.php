@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('scheduler_zipcodes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('whse_id')->constrained('warehouses')->onDelete('cascade');
+            $table->unsignedBigInteger('whse_id');
             $table->integer('zip_code');
-            $table->string('service');
-            $table->foreignId('zone')->constrained('zones')->onDelete('cascade');
+            $table->json('service')->nullable();
+            $table->unsignedBigInteger('zone');
             $table->integer('delivery_rate');
             $table->integer('pickup_rate');
-            $table->integer('notes');
-            $table->boolean('active');
+            $table->string('notes')->nullable();
+            $table->boolean('is_active')->default(0);
             $table->timestamps();
         });
     }

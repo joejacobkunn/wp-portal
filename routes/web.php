@@ -110,6 +110,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         Route::get('scheduler', \App\Http\Livewire\Scheduler\Index::class)->name('service-area.index');
         Route::get('scheduler/zones/{zone}/show', \App\Http\Livewire\Scheduler\Zones\Show::class)->name('service-area.zones.show');
+        Route::get('scheduler/zip-codes/{zipcode}/show', \App\Http\Livewire\Scheduler\ZipCode\Show::class)->name('service-area.zipcode.show');
 
     });
 

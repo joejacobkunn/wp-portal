@@ -20,8 +20,13 @@ class Zipcode extends Model
         'delivery_rate',
         'pickup_rate',
         'notes',
-        'active'
+        'is_active'
     ];
+
+    protected $casts = [
+        'service' => 'array',
+    ];
+
     const LOG_FIELD_MAPS = [
 
         'zip_code' => [
@@ -42,7 +47,7 @@ class Zipcode extends Model
         'notes' => [
             'field_label' => 'Notes',
         ],
-        'active' => [
+        'is_active' => [
             'field_label' => 'Active',
             'resolve' => 'resolveActive'
         ],
@@ -53,8 +58,14 @@ class Zipcode extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
+    public function zone()
+    {
+        return $this->belongsTo(Zones::class, 'zone');
+    }
+
     public function resolveActive($value)
     {
         return $value ? 'Yes' : 'No';
     }
+
 }
