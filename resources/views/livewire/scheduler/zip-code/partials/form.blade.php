@@ -86,7 +86,7 @@
                                    wire:model="form.is_active"
                                    @checked($form->is_active)>
                             <label class="form-check-label" for="active">
-                                Enable the switch to make this active
+                                Enable this Zip Code
                             </label>
                             @error('form.is_active')
                                 <span class="text-danger">{{$message}}</span>

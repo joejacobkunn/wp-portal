@@ -33,8 +33,9 @@ class Zipcode extends Model
         'zip_code' => [
             'field_label' => 'Zip Code',
         ],
-        'description' => [
+        'service' => [
             'field_label' => 'Service',
+            'resolve' => 'resolveService'
         ],
         'zone' => [
             'field_label' => 'Zone',
@@ -67,6 +68,11 @@ class Zipcode extends Model
     public function resolveActive($value)
     {
         return $value ? 'Yes' : 'No';
+    }
+
+    public function resolveService($value)
+    {
+        return implode(",", $value);
     }
 
 }

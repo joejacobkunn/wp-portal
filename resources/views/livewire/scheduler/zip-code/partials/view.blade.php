@@ -5,8 +5,18 @@
                     <livewire:component.action-button :actionButtons="$actionButtons" :key="'comments' . time()">
                     <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Overview</h3>
             </div>
+            <div class="card-body" >
+                <livewire:component.alert
+                    :level="$alertConfig['level']"
+                    :message="$alertConfig['message']"
+                    :messageIcon="$alertConfig['icon']"
+                    :hasAction="'true'"
+                    :actionButtonClass="$alertConfig['btnClass']"
+                    :actionButtonName="$alertConfig['btnText']"
+                    :actionButtonAction="'updateStatus'"
+                    wire:key="{{ 'status_alert_' . $zipcode->id . '_' . $alertConfig['level'] }}"
+                   />
 
-            <div class="card-body">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>

@@ -15,22 +15,18 @@ class Show extends Component
 
     public Zipcode $zipcode;
     public ZipCodeForm $form;
-
     public $editRecord = false;
+    public $alertConfig = [];
     public $breadcrumbs = [[
         'title' => 'Service Area',
         'route_name' => 'service-area.index'],
         ['title' => 'Zipcode']];
 
-    public function mount()
-    {
-        $this->breadcrumbs = array_merge($this->breadcrumbs,[
-            ['title' => $this->zipcode->zip_code]]);
-    }
     protected $listeners = [
         'edit' => 'edit',
         'deleteRecord' => 'delete',
-    ];
+        'updateStatus' => 'updateStatus',
+        ];
     public $actionButtons = [
         [
             'icon' => 'fa-edit',
@@ -56,6 +52,13 @@ class Show extends Component
         ],
     ];
 
+    public function mount()
+    {
+        $this->breadcrumbs = array_merge($this->breadcrumbs,
+        [['title' => $this->zipcode->zip_code]]);
+        $this->setAlert();
+    }
+
     public function edit()
     {
         $this->editRecord = true;
@@ -69,6 +72,7 @@ class Show extends Component
         $this->resetValidation();
         $this->form->reset();
     }
+
 
     public function render()
     {
@@ -92,5 +96,29 @@ class Show extends Component
         $this->zipcode->delete();
         $this->alert('success', 'Record deleted !');
         return redirect()->route('service-area.index', ['tab' => 'zip_code']);
+    }
+
+    public function setAlert()
+    {
+        if($this->zipcode->is_active) {
+            $this->alertConfig['level'] = 'success';
+            $this->alertConfig['message'] = 'This zipcode is active';
+            $this->alertConfig['icon'] = 'fa-check-circle';
+            $this->alertConfig['btnClass'] = 'btn-outline-danger';
+            $this->alertConfig['btnText'] = 'Deactivate';
+        } else {
+            $this->alertConfig['level'] = 'danger';
+            $this->alertConfig['message'] = 'This zipcode is deactivated';
+            $this->alertConfig['icon'] = 'fa-times-circle';
+            $this->alertConfig['btnClass'] = 'btn-outline-primary';
+            $this->alertConfig['btnText'] = 'Activate';
+        }
+    }
+
+    public function updateStatus()
+    {
+        $this->zipcode->is_active =  !$this->zipcode->is_active;
+        $this->zipcode->save();
+        $this->setAlert();
     }
 }

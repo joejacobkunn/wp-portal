@@ -4,6 +4,8 @@ namespace App\Http\Livewire\Scheduler;
 
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Warehouse;
+use App\Models\Scheduler\Zipcode;
+use App\Models\Scheduler\Zones;
 use App\Traits\HasTabs;
 
 class Index extends Component
@@ -51,5 +53,13 @@ class Index extends Component
     public function setBreadcrumb($data)
     {
         $this->breadcrumbs = $data;
+    }
+
+    public function getZipBadgeCountProperty() {
+        return Zipcode::where(['is_active' => 1, 'whse_id' => $this->activeWarehouse->id])->count();
+    }
+
+    public function getZoneBadgeCountProperty() {
+        return Zones::where(['whse_id' => $this->activeWarehouse->id])->count();
     }
 }

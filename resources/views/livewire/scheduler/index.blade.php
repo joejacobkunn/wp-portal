@@ -26,6 +26,10 @@
                 </div>
                 <div class="col-10 col-md-10 col-xxl-10">
                     <x-tabs :tabs="$tabs" tabId="service-area-tabs" :key="'tabs' . $activeWarehouse->id">
+                        <x-slot:tab_header_zones> Zones <span class="badge badge-lg bg-primary ml-2":key='now()'>
+                            {{ $this->ZoneBadgeCount }}</span></x-slot>
+                        <x-slot:tab_header_zip_code> Zipcode <span class="badge badge-lg bg-primary ml-2":key='now()'>
+                            {{ $this->ZipBadgeCount}}</span></x-slot>
                         <x-slot:tab_content_zones
                             component="scheduler.zones.index"
                             :warehouseId="$activeWarehouse->id"
