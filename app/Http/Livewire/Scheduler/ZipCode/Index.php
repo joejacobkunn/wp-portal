@@ -48,9 +48,9 @@ class Index extends Component
 
     public function submit()
     {
-        $this->form->store($this->warehouse->id);
-        $this->alert('success', 'Record Created!');
-        return redirect()->route('service-area.index', ['tab' => 'zip_code']);
+        $zip_code = $this->form->store($this->warehouse->id);
+        $this->alert('success', 'ZIP Code Created!');
+        return redirect()->route('service-area.zipcode.show', $zip_code);
     }
 
     public function updatedFormZipCode($value)

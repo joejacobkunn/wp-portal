@@ -27,19 +27,13 @@
                 <div class="col-10 col-md-10 col-xxl-10">
                     <x-tabs :tabs="$tabs" tabId="service-area-tabs" :key="'tabs' . $activeWarehouse->id">
                         <x-slot:tab_header_zones> Zones <span class="badge badge-lg bg-primary ml-2":key='now()'>
-                            {{ $this->ZoneBadgeCount }}</span></x-slot>
-                        <x-slot:tab_header_zip_code> Zipcode <span class="badge badge-lg bg-primary ml-2":key='now()'>
-                            {{ $this->ZipBadgeCount}}</span></x-slot>
-                        <x-slot:tab_content_zones
-                            component="scheduler.zones.index"
-                            :warehouseId="$activeWarehouse->id"
-                            :key="'zones' . $activeWarehouse->id">
+                                {{ $this->ZoneBadgeCount }}</span></x-slot>
+                        <x-slot:tab_header_zip_code> ZIP Code <span class="badge badge-lg bg-primary ml-2":key='now()'>
+                                {{ $this->ZipBadgeCount }}</span></x-slot>
+                        <x-slot:tab_content_zones component="scheduler.zones.index" :warehouseId="$activeWarehouse->id" :key="'zones' . $activeWarehouse->id">
                         </x-slot>
 
-                        <x-slot:tab_content_zip_code
-                            component="scheduler.zip-code.index"
-                            :warehouseId="$activeWarehouse->id"
-                            :key="'zipcode' . $activeWarehouse->id">
+                        <x-slot:tab_content_zip_code component="scheduler.zip-code.index" :warehouseId="$activeWarehouse->id" :key="'zipcode' . $activeWarehouse->id">
                         </x-slot>
                     </x-tabs>
 

@@ -71,15 +71,15 @@ trait FormRequest
     public function store($warehouseId)
     {
         $this->validate();
-        $inventory = Zones::create([
+        $zone = Zones::create([
             'whse_id' => $warehouseId,
             'name' => $this->name,
             'description' => $this->description,
             'schedule_days' => $this->days
         ]);
 
-        $this->alert('success','Zone Record Created');
-        return redirect()->route('service-area.index');
+        $this->alert('success','Zone Created');
+        return redirect()->route('service-area.zones.show',$zone);
     }
 
     public function updatedDays(){

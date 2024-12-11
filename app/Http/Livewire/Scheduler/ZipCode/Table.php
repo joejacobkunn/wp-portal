@@ -26,14 +26,15 @@ class Table extends DataTableComponent
     {
         return [
             Column::make('Id', 'id')
+            ->hideIf(1),
+            Column::make('ZIP', 'zip_code')
             ->format(function ($value, $row)
             {
                 return '<a  href="'.route('service-area.zipcode.show', $row->id).
                     '" wire:navigate class="text-primary text-decoration-underline">'.
                     $value.'</a>';
             })
-            ->html(),
-            Column::make('Zipcode', 'zip_code')
+
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),
@@ -42,15 +43,18 @@ class Table extends DataTableComponent
             ->searchable()
             ->html(),
             Column::make('Delivery Rate', 'delivery_rate')
+            ->format(function ($value, $row){
+                return '$'.number_format($value,2);
+            })
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),
             Column::make('Pickup Rate', 'pickup_rate')
+            ->format(function ($value, $row){
+                return '$'.number_format($value,2);
+            })
             ->excludeFromColumnSelect()
             ->searchable()
-            ->html(),
-            Column::make('Note', 'notes')
-            ->excludeFromColumnSelect()
             ->html(),
             Column::make('Active', 'is_active')
             ->excludeFromColumnSelect()

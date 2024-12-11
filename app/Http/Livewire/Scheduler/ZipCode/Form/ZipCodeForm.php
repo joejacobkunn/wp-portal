@@ -19,7 +19,7 @@ class ZipCodeForm extends Form
     public $notes;
     public $delivery_rate;
     public $pickup_rate;
-    public $is_active = false;
+    public $is_active = true;
     public $zipDescription = false;
 
     public $serviceArray = [
@@ -28,11 +28,11 @@ class ZipCodeForm extends Form
     ];
 
     protected $validationAttributes = [
-        'zip_code' => 'Zip Code',
+        'zip_code' => 'ZIP Code',
         'service' => 'Service',
         'zone' => 'Zone',
         'delivery_rate' => 'Delivery Rate',
-        'pickup_rate' => 'pickup Rate',
+        'pickup_rate' => 'Pickup Rate',
         'notes' => 'Note',
         'is_active' => 'Active'
     ];
@@ -66,11 +66,11 @@ class ZipCodeForm extends Form
     {
         $zipcode =  GeneralZipcode::where('zipcode', $value)->first();
         if($zipcode) {
-         $this->zipDescription = 'This zip code belongs to '.$zipcode->city.', '.$zipcode->state.'.';
+         $this->zipDescription = '<i class="fas fa-map-marker-alt"></i> Location : '.$zipcode->city.', '.$zipcode->state;
          return;
         }
 
-        $this->zipDescription = 'Entered Zipcode not found in our database';
+        $this->zipDescription = false;
     }
 
     public function setZones($warehouseId)
