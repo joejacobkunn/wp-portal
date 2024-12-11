@@ -5,7 +5,7 @@
 
     <div class="row mb-2">
         <div class="col-sm-12">
-            <x-forms.input label="Name" model="selectedOrder.name" :hint="'SX CustNo: #' . $selectedOrder['custno']" />
+            <x-forms.input label="Name" model="selectedOrder.name" :hint="'SX CustNo #' . $selectedOrder['custno']" />
         </div>
     </div>
 
@@ -99,16 +99,14 @@
 
                         </div>
                         <div class="col-sm-9 mt-3">
-                            <button type="button" class="btn btn-primary btn-lg mb-4 payment-btn"><i class="fa-solid fa-cash-register me-1"></i> Initiate Transaction</button>
-                            <button type="button"
-                                class="btn btn-outline-danger btn-lg mb-4 ms-2"
-                                wire:confirm-action
-                                data-confirm-type="danger"
-                                data-confirm-title="Confirm"
+                            <button type="button" class="btn btn-primary btn-lg mb-4 payment-btn"><i
+                                    class="fa-solid fa-cash-register me-1"></i> Initiate Transaction</button>
+                            <button type="button" class="btn btn-outline-danger btn-lg mb-4 ms-2" wire:confirm-action
+                                data-confirm-type="danger" data-confirm-title="Confirm"
                                 data-confirm-content="Are you sure to cancel the transaction?"
-                                data-confirm-button="Cancel Transaction"
-                                data-cancel-button="Close"
-                                wire:click="cancelTransaction()"><i class="fa-solid fa-times me-1"></i> Cancel Transaction</button>
+                                data-confirm-button="Cancel Transaction" data-cancel-button="Close"
+                                wire:click="cancelTransaction()"><i class="fa-solid fa-times me-1"></i> Cancel
+                                Transaction</button>
                         </div>
                     </div>
                 </div>
@@ -136,11 +134,13 @@
                             $wire.processTransaction().then((data) => {
                                 if (data.status == 'success') {
                                     target.setAttribute('disabled', true);
-                                    target.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Processing Sale';
+                                    target.innerHTML =
+                                        '<i class="fa-solid fa-spinner fa-spin me-1"></i> Processing Sale';
                                     checkStatus(data.checkSum, data.orderNo, data.transactionCode);
                                 } else {
                                     target.removeAttribute('disabled');
-                                    target.innerHTML = '<i class="fa-solid fa-cash-register me-1"></i> Initiate Transaction';
+                                    target.innerHTML =
+                                        '<i class="fa-solid fa-cash-register me-1"></i> Initiate Transaction';
                                 }
                             });
                         }
@@ -157,7 +157,8 @@
                         let statusCheckIntr = setInterval(() => {
                             if (!statusCheckRunning) {
                                 statusCheckRunning = true;
-                                $wire.getTransactionStatus(checkSum, orderNo, transactionCode).then((statusData) => {
+                                $wire.getTransactionStatus(checkSum, orderNo, transactionCode).then((
+                                    statusData) => {
                                     statusCheckRunning = false
                                     target.setAttribute('disabled', true);
                                     target.innerHTML =
@@ -170,7 +171,8 @@
                                         clearInterval(statusCheckIntr);
 
                                         target.removeAttribute('disabled');
-                                        target.innerHTML = '<i class="fa-solid fa-cash-register me-1"></i> Initiate Transaction';
+                                        target.innerHTML =
+                                            '<i class="fa-solid fa-cash-register me-1"></i> Initiate Transaction';
                                     }
                                 });
                             }

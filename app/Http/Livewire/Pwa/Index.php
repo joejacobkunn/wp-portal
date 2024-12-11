@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Core\Location;
 use Illuminate\Support\Facades\DB;
 use App\Http\Livewire\Component\Component;
+use App\Models\Core\Warehouse;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -86,11 +87,10 @@ class Index extends Component
 
     protected function fetchPendingPayment($request)
     {
-        $whse = 'utic';
-        $operator = auth()->user()->operator_id;
+        $whse = Warehouse::where('title', auth()->user()->office_location)->first()->short;
+        $operator = auth()->user()->sx_operator_id;
 
         if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
-
 
         $order = DB::connection('sx')->select("SELECT TOP 1 arsc.name, arsc.phoneno, arsc.email, arsc.custtype, arsc.custno, h.orderno , h.ordersuf, h.stagecd , h.totinvamt , h.tendamt , h.tottendamt, h.shiptonm, h.shiptost, h.shiptozip , h.shiptocity, oeeh.shiptoaddr[1] AS 'address', oeeh.shiptoaddr[2] AS 'address2'
                                         FROM pub.oeeh h
