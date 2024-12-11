@@ -118,6 +118,14 @@
                                     <tr>
                                         <td><a href="https://weingartz.com//searchPage.action?keyWord={{ $item['product_code'] }}"
                                                 target="_blank">{{ $item['product_name'] }}</a>
+
+                                            @if(!empty($item['supersedes']))
+                                            <div class="d-flex">
+                                                @foreach($item['supersedes'] as $supersede)
+                                                <span class="badge bg-secondary me-1" wire:click="viewSupersede('{{ $supersede }}', '{{ $cartIndex }}')">{{ $supersede }}</span>
+                                                @endforeach
+                                            </div>
+                                            @endif
                                         </td>
                                         <td>{{ $item['prodline'] }}</td>
                                         <td>{{ $item['bin_location'] }}</td>
@@ -579,6 +587,44 @@
                     role="status"
                     aria-hidden="true"></span> Update
             </button>
+        </x-slot>
+
+    </x-modal>
+
+    <x-modal :toggle="$supersedeModal" closeEvent="closeMeasureUpdateModal">
+        <x-slot name="title">
+            <div class="">View Supersede</div>
+        </x-slot>
+        
+        @if(!empty($supersedeData))
+        <div>
+            <table class="table">
+                <tr>
+                    <td>Product Code</td>
+                    <td>{{ $supersedeData['product_code'] }}</td>
+                </tr>
+                <tr>
+                    <td>Product Line</td>
+                    <td>{{ $supersedeData['prodline'] }}</td>
+                </tr>
+                <tr>
+                    <td>Bin Location</td>
+                    <td>{{ $supersedeData['bin_location'] }}</td>
+                </tr>
+                <tr>
+                    <td>Net Availability</td>
+                    <td>{{ $supersedeData['stock'] }}</td>
+                </tr>
+                <tr>
+                    <td>Price</td>
+                    <td>${{ number_format($supersedeData['price'], 2) }}</td>
+                </tr>
+            </table>
+        </div>
+        @endif
+
+        <x-slot name="footer">
+            <button type="button" class="btn btn-outline-primary" @click="open = false">Close</button>
         </x-slot>
 
     </x-modal>
