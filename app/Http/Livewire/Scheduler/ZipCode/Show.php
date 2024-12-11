@@ -17,7 +17,16 @@ class Show extends Component
     public ZipCodeForm $form;
 
     public $editRecord = false;
+    public $breadcrumbs = [[
+        'title' => 'Service Area',
+        'route_name' => 'service-area.index'],
+        ['title' => 'Zipcode']];
 
+    public function mount()
+    {
+        $this->breadcrumbs = array_merge($this->breadcrumbs,[
+            ['title' => $this->zipcode->zip_code]]);
+    }
     protected $listeners = [
         'edit' => 'edit',
         'deleteRecord' => 'delete',

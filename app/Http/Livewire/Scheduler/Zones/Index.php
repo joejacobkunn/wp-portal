@@ -21,7 +21,14 @@ class Index extends Component
     public function mount()
     {
         $this->warehouse = Warehouse::find($this->warehouseId);
-
+        $data = [[
+            'title' => 'Service Area',
+            'route_name' => 'service-area.index'
+        ],
+        [
+            'title' => 'Zones',
+        ]];
+        $this->dispatch('setBreadcrumb', $data);
     }
 
     public function render()

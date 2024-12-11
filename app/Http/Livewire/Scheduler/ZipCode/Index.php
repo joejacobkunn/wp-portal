@@ -29,6 +29,14 @@ class Index extends Component
     {
         $this->warehouse = Warehouse::find($this->warehouseId);
         $this->form->setZones($this->warehouse->id);
+        $data = [[
+            'title' => 'Service Area',
+            'route_name' => 'service-area.index'
+        ],
+        [
+            'title' => 'Zipcode',
+        ]];
+        $this->dispatch('setBreadcrumb', $data);
     }
 
     public function cancel()

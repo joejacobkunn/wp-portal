@@ -23,9 +23,10 @@ class Index extends Component
         'tabs.service-area-tabs.active' => ['except' => '', 'as' => 'tab'],
     ];
     protected $listeners = [
-        'setDecription' => 'setDecription'
+        'setDecription' => 'setDecription',
+        'setBreadcrumb' => 'setBreadcrumb'
     ];
-
+    public $breadcrumbs = [];
     public function mount()
     {
         $this->warehouses = Warehouse::where('cono', 10)->orderBy('title')->get();
@@ -45,5 +46,10 @@ class Index extends Component
     public function changeWarehouse($whseId)
     {
         $this->activeWarehouse = Warehouse::find($whseId);
+    }
+
+    public function setBreadcrumb($data)
+    {
+        $this->breadcrumbs = $data;
     }
 }

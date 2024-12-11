@@ -13,6 +13,11 @@ class Show extends Component
     use AuthorizesRequests, FormRequest, HasTabs;
     public  Zones $zone;
     public $editRecord = false;
+    public $breadcrumbs = [[
+        'title' => 'Service Area',
+        'route_name' => 'service-area.index'],
+        ['title' => 'Zones']];
+
     protected $listeners = [
         'edit' => 'edit',
         'deleteRecord' => 'delete',
@@ -42,6 +47,11 @@ class Show extends Component
         ],
     ];
 
+    public function mount()
+    {
+        $this->breadcrumbs = array_merge($this->breadcrumbs,[
+            ['title' => $this->zone->name]]);
+    }
     public function edit()
     {
         $this->formInit($this->zone);
