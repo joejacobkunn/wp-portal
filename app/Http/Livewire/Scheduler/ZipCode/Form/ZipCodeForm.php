@@ -4,6 +4,7 @@
 use App\Models\Core\Warehouse;
 use App\Models\Scheduler\Zipcode;
 use App\Models\Scheduler\Zones;
+use App\Models\ZipCode as GeneralZipcode;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
 
@@ -19,6 +20,7 @@ class ZipCodeForm extends Form
     public $delivery_rate;
     public $pickup_rate;
     public $is_active = false;
+    public $zipDescription = false;
 
     public $serviceArray = [
         'at_home_maintenance' => 'At Home Maintenance',
@@ -58,6 +60,17 @@ class ZipCodeForm extends Form
     {
         $this->zipcode = $zipcode;
         $this->fill($zipcode->toArray());
+    }
+
+    public function setZipcodeDescription($value)
+    {
+        $zipcode =  GeneralZipcode::where('zipcode', $value)->first();
+        if($zipcode) {
+         $this->zipDescription = 'This zip code belongs to '.$zipcode->city.', '.$zipcode->state.'.';
+         return;
+        }
+
+        $this->zipDescription = 'Entered Zipcode not found in our database';
     }
 
     public function setZones($warehouseId)

@@ -5,7 +5,6 @@ namespace App\Http\Livewire\Scheduler\ZipCode;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\ZipCode\Form\ZipCodeForm;
 use App\Models\Scheduler\Zipcode;
-use App\Models\ZipCode as GeneralZipcode;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -16,7 +15,6 @@ class Show extends Component
 
     public Zipcode $zipcode;
     public ZipCodeForm $form;
-    public $zipDescription = false;
 
     public $editRecord = false;
 
@@ -77,13 +75,7 @@ class Show extends Component
 
     public function updatedFormZipCode($value)
     {
-       $zipcode =  GeneralZipcode::where('zipcode', $value)->first();
-       if($zipcode) {
-        $this->zipDescription = 'This zip code belongs to '.$zipcode->city.', '.$zipcode->state.'.';
-        return;
-       }
-
-       $this->zipDescription = 'Entered Zipcode not found in our database';
+        $this->form->setZipcodeDescription($value);
     }
 
     public function delete()

@@ -15,7 +15,6 @@ class Index extends Component
     use LivewireAlert;
     public ZipCodeForm $form;
     public $addRecord = false;
-    public $zipDescription = false;
 
     public $warehouseId;
     public Warehouse $warehouse;
@@ -48,13 +47,7 @@ class Index extends Component
 
     public function updatedFormZipCode($value)
     {
-       $zipcode =  ZipCode::where('zipcode', $value)->first();
-       if($zipcode) {
-        $this->zipDescription = 'This zip code belongs to '.$zipcode->city.', '.$zipcode->state.'.';
-        return;
-       }
-
-       $this->zipDescription = 'Entered Zipcode not found in our database';
+        $this->form->setZipcodeDescription($value);
     }
 
     public function render()

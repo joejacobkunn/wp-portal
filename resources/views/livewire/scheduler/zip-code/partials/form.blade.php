@@ -5,9 +5,9 @@
                 <div class="col-md-12 mb-3">
                     <div class="form-group">
                         <x-forms.input type="number" label="Zip code" model="form.zip_code" lazy key={{now()}}/>
-                        @if ($zipDescription)
+                        @if ($form->zipDescription)
                             <div class="alert alert-light-primary color-primary">
-                                {{$zipDescription}}
+                                {{$form->zipDescription}}
                             </div>
                         @endif
                     </div>
