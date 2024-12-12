@@ -14,7 +14,7 @@ trait FormRequest
     public $name;
     public $description;
     public $showTimeSlotSection;
-    public $is_active;
+    public $is_active = 1;
 
     public $scheduleOptions = [
         'am' => 'AM',

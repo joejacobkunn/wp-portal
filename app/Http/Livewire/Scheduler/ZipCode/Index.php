@@ -70,7 +70,7 @@ class Index extends Component
 
     public function setZoneHint($key, $value)
     {
-        $this->zoneHint = $this->form->getHint($value);
+       // $this->zoneHint = $this->form->getHint($value);
     }
 
 }

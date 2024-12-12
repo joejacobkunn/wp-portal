@@ -7,7 +7,7 @@
         @endif
         <div class="card-body">
             @if (!$addRecord)
-                <div class="alert alert-light-primary color-primary"> View and manage ZIP Code for
+                <div class="alert alert-light-primary color-primary"> View and manage ZIP Codes for
                     <strong>{{ $warehouse->title }}</strong>
                     here
                 </div>

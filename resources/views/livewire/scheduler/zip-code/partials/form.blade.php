@@ -41,24 +41,25 @@
                 <div class="col-md-12 mb-3">
                     <div class="form-group">
                         <x-forms.select label="Zone" model="form.zone" :options="$this->form->zones" :selected="$form->zone"
-                            :listener="'setHint'" hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()"
-                            :hint="$zoneHint" />
+                            hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()" :hint="$zoneHint" />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                          <x-forms.input type="number" prependText="$" label="Delivery Rate" model="form.delivery_rate" />
+                        <x-forms.input type="number" prependText="$" label="Delivery Rate"
+                            model="form.delivery_rate" />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                          <x-forms.input type="number" prependText="$" label="Pickup Rate" model="form.pickup_rate" lazy/>
+                        <x-forms.input type="number" prependText="$" label="Pickup Rate" model="form.pickup_rate"
+                            lazy />
                     </div>
                 </div>
 
                 <div class="col-md-12">
                     <div class="form-group">
-                        <x-forms.textarea label="Note" model="form.notes" rows="5" key="{{'notes'}}"/>
+                        <x-forms.textarea label="Note" model="form.notes" rows="5" key="{{ 'notes' }}" />
                     </div>
                 </div>
                 <div class="col-md-12">
@@ -79,7 +80,7 @@
             </div>
             <hr>
             <div class="mt-2 float-start">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-success">
                     <div wire:loading wire:target="submit">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>

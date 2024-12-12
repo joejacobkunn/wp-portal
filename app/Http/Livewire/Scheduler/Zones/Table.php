@@ -26,7 +26,7 @@ class Table extends DataTableComponent
     {
         return [
             Column::make('Id', 'id')
-                ->html(),
+                ->hideIf(1),
             Column::make('Zone', 'name')
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row)

@@ -50,8 +50,8 @@ class ZipCodeForm extends Form
             ],
             'service' => 'required',
             'zone' => 'required|exists:zones,id',
-            'delivery_rate' => 'required|integer',
-            'pickup_rate' => 'required|integer',
+            'delivery_rate' => 'required|numeric',
+            'pickup_rate' => 'required|numeric',
             'notes' => 'nullable',
             'is_active' => 'nullable',
 

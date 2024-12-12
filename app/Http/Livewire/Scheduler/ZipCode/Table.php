@@ -39,17 +39,18 @@ class Table extends DataTableComponent
             ->searchable()
             ->html(),
 
-            Column::make('Zone', 'getZone.name')
-            ->excludeFromColumnSelect()
-            ->searchable()
-            ->html(),
-
             Column::make('City', 'generalZipcode.city')
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),
 
             Column::make('State', 'generalZipcode.state')
+            ->excludeFromColumnSelect()
+            ->searchable()
+            ->html(),
+
+
+            Column::make('Zone', 'getZone.name')
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),

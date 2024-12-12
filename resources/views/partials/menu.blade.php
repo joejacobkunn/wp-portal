@@ -162,12 +162,56 @@
 
     @endif
 
-    <li class="menu-item  {{ request()->is('service-area*') ? 'active' : '' }}">
-        <a href="{{ route('service-area.index') }}" wire:navigate class='menu-link'>
-            <i class="fas fa-map-location-dot"></i>
-            <span>Service Area</span>
-        </a>
-    </li>
+    @if (auth()->user()->account->hasModule('scheduler'))
+
+        <li class="menu-item {{ request()->is('scheduler*') ? 'active' : '' }}  has-sub">
+            <a href="#" class="menu-link">
+                <span><i class="fas fa-truck"></i> Scheduler</span>
+            </a>
+            <div class="submenu ">
+                <div class="submenu-group-wrapper">
+                    <ul class="submenu-group">
+                        <li class="submenu-item">
+                            <a href="">
+                                <span>Schedule</span>
+                            </a>
+                        </li>
+
+                        @can('scheduler.serice-area.view')
+                            <li class="submenu-item  {{ request()->is('service-area*') ? 'active' : '' }}">
+                                <a href="{{ route('service-area.index') }}">
+                                    <span>Service Area</span>
+                                </a>
+                            </li>
+                        @endcan
+
+                        <li class="submenu-item">
+                            <a href="">
+                                <span>Trucks</span>
+                            </a>
+                        </li>
+
+                        <li class="submenu-item">
+                            <a href="">
+                                <span>Drivers</span>
+                            </a>
+                        </li>
+
+                        <li class="submenu-item">
+                            <a href="">
+                                <span>Surveys</span>
+                            </a>
+                        </li>
+
+
+                    </ul>
+                </div>
+            </div>
+        </li>
+
+
+
+    @endif
 
 
     @endif

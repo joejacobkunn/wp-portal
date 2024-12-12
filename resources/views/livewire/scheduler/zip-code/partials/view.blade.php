@@ -14,13 +14,8 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">ZIP Code</h3>
-                            <p class="small pe-4">{{ $zipcode->zip_code }}</p>
-                        </div>
-                    </li>
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div>
-                            <h3 class="h6 mb-1">City/State</h3>
-                            <p class="small pe-4">{{ $zipcode->generalZipcode->city }}/ {{ $zipcode->generalZipcode->state }}</p>
+                            <p class="small pe-4">{{ $zipcode->zip_code }} -
+                                {{ $zipcode->generalZipcode->city }}, {{ $zipcode->generalZipcode->state }}</p>
                         </div>
                     </li>
 
@@ -44,6 +39,7 @@
                         </div>
                     </li>
 
+
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div class="w-100">
                             <h3 class="text-sm font-semibold mb-3">Services</h3>
@@ -54,6 +50,14 @@
                             </ul>
                         </div>
                     </li>
+
+                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                        <div>
+                            <h3 class="h6 mb-1">Note</h3>
+                            <p class="small pe-4">{{ $zipcode->notes }}</p>
+                        </div>
+                    </li>
+
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                         <div>
                             <h3 class="h6 mb-1">Last Updated At</h3>
