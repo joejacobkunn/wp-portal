@@ -3,6 +3,7 @@
 namespace App\Models\Scheduler;
 
 use App\Models\Core\Comment;
+use App\Models\ZipCode as GeneralZipcode;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -75,4 +76,8 @@ class Zipcode extends Model
         return implode(",", $value);
     }
 
+    public function generalZipcode()
+    {
+        return $this->hasOne(GeneralZipcode::class, 'zipcode', 'zip_code');
+    }
 }

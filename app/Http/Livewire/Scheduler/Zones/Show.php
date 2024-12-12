@@ -15,10 +15,7 @@ class Show extends Component
     public $editRecord = false;
     public $alertConfig = [];
 
-    public $breadcrumbs = [[
-        'title' => 'Service Area',
-        'route_name' => 'service-area.index'],
-        ['title' => 'Zones']];
+    public $breadcrumbs = [];
 
     protected $listeners = [
         'edit' => 'edit',
@@ -52,7 +49,13 @@ class Show extends Component
 
     public function mount()
     {
-        $this->breadcrumbs = array_merge($this->breadcrumbs, [['title' => $this->zone->name]]);
+        $serviceRoute =  route('service-area.index').'?whseId='.$this->zone->whse_id.'&tab=zones';
+        $this->breadcrumbs =  [[
+            'title' => 'Service Area',
+            'href' => $serviceRoute,
+        ],
+        ['title' => 'Zones'],
+        ['title' => $this->zone->name]];
         $this->setAlert();
     }
     public function edit()

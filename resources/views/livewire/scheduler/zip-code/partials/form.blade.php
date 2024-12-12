@@ -41,40 +41,24 @@
                 <div class="col-md-12 mb-3">
                     <div class="form-group">
                         <x-forms.select label="Zone" model="form.zone" :options="$this->form->zones" :selected="$form->zone"
-                            hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()" />
+                            :listener="'setHint'" hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()"
+                            :hint="$zoneHint" />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Delivery Rate</label>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                              <span class="input-group-text">$</span>
-                            </div>
-                            <input type="number" class="form-control" wire:model="form.delivery_rate">
-                          </div>
-                          @error('form.delivery_rate')
-                            <span class="text-danger">{{ $message }}</span>
-                          @enderror
+                          <x-forms.input type="number" prependText="$" label="Delivery Rate" model="form.delivery_rate" />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Pickup Rate</label>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                              <span class="input-group-text">$</span>
-                            </div>
-                            <input type="number" class="form-control" wire:model="form.pickup_rate">
-                        </div>
-                        @error('form.pickup_rate')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                          <x-forms.input type="number" prependText="$" label="Pickup Rate" model="form.pickup_rate" lazy/>
                     </div>
                 </div>
+
                 <div class="col-md-12">
                     <div class="form-group">
-                        <x-forms.textarea label="Note" model="form.notes" rows="5" />
+                        <x-forms.textarea label="Note" model="form.notes" rows="5" key="{{'notes'}}"/>
                     </div>
                 </div>
                 <div class="col-md-12">

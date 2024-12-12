@@ -13,7 +13,7 @@ class Table extends DataTableComponent
     public $whseId;
     public function configure(): void
     {
-        $this->setPrimaryKey('id');
+        $this->setPrimaryKey('scheduler_zipcodes.id');
         $this->setDefaultSort('scheduler_zipcodes.created_at');
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
@@ -38,10 +38,22 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),
+
             Column::make('Zone', 'getZone.name')
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),
+
+            Column::make('City', 'generalZipcode.city')
+            ->excludeFromColumnSelect()
+            ->searchable()
+            ->html(),
+
+            Column::make('State', 'generalZipcode.state')
+            ->excludeFromColumnSelect()
+            ->searchable()
+            ->html(),
+
             Column::make('Delivery Rate', 'delivery_rate')
             ->format(function ($value, $row){
                 return '$'.number_format($value,2);
@@ -49,6 +61,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),
+
             Column::make('Pickup Rate', 'pickup_rate')
             ->format(function ($value, $row){
                 return '$'.number_format($value,2);
@@ -56,6 +69,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->searchable()
             ->html(),
+
             Column::make('Active', 'is_active')
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
@@ -71,7 +85,7 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $query = Zipcode::where('scheduler_zipcodes.whse_id', $this->whseId);
+        $query = Zipcode::with('generalZipcode')->where('scheduler_zipcodes.whse_id', $this->whseId);
         return $query;
     }
 }

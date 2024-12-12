@@ -13,6 +13,7 @@ class Index extends Component
     use HasTabs;
     public $warehouses;
     public $activeWarehouse;
+    public $whseId;
     public $Titledesc;
     public $tabs = [
         'service-area-tabs' => [
@@ -23,6 +24,7 @@ class Index extends Component
     ]]];
     protected $queryString = [
         'tabs.service-area-tabs.active' => ['except' => '', 'as' => 'tab'],
+        'whseId' => ['except' => '', 'as' => 'whseId'],
     ];
     protected $listeners = [
         'setDecription' => 'setDecription',
@@ -31,8 +33,15 @@ class Index extends Component
     public $breadcrumbs = [];
     public function mount()
     {
-        $this->warehouses = Warehouse::where('cono', 10)->orderBy('title')->get();
-        $this->activeWarehouse = $this->warehouses->first();
+        $this->warehouses = Warehouse::where('cono', 10)
+            ->orderBy('title')
+            ->get();
+        $query =  Warehouse::where('cono', 10)->orderBy('title');
+        if($this->whseId) {
+            $query->where('id', $this->whseId);
+        }
+        $this->activeWarehouse = $query->first();
+        $this->whseId = $this->activeWarehouse->id;
     }
 
     public function render()
@@ -48,6 +57,8 @@ class Index extends Component
     public function changeWarehouse($whseId)
     {
         $this->activeWarehouse = Warehouse::find($whseId);
+        $this->whseId = $this->activeWarehouse->id;
+
     }
 
     public function setBreadcrumb($data)
@@ -62,4 +73,5 @@ class Index extends Component
     public function getZoneBadgeCountProperty() {
         return Zones::where(['is_active' => 1, 'whse_id' => $this->activeWarehouse->id])->count();
     }
+
 }

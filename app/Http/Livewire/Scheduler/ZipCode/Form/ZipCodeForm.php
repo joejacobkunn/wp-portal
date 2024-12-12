@@ -7,6 +7,7 @@ use App\Models\Scheduler\Zones;
 use App\Models\ZipCode as GeneralZipcode;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
+use Illuminate\Support\Str;
 
 class ZipCodeForm extends Form
 {
@@ -17,6 +18,7 @@ class ZipCodeForm extends Form
     public $zip_code;
     public $service=[];
     public $notes;
+    public $sample;
     public $delivery_rate;
     public $pickup_rate;
     public $is_active = true;
@@ -76,7 +78,7 @@ class ZipCodeForm extends Form
 
     public function setZones($warehouseId)
     {
-        $this->zones = Zones::where('whse_id', $warehouseId)
+        $this->zones = Zones::where('whse_id', $warehouseId)->where('is_active', 1)
         ->pluck('name', 'id');
     }
 
@@ -100,4 +102,17 @@ class ZipCodeForm extends Form
     {
         return $this->zipcode?->id ?? 'null';
     }
+
+    public function getHint($value)
+    {
+        $zone = Zones::find($value);
+        $out = '';
+        foreach ($zone->schedule_days as $day => $details) {
+            if ($details['enabled']) {
+                $out .= strtoupper($day). ': ' .strtoupper(str_replace(['_'], ' ', $details['schedule'])). ', ';
+            }
+        }
+        return rtrim($out, ', ');
+    }
 }
+

@@ -44,7 +44,7 @@
                                                     <td>{{ ucfirst($key) }}</td>
                                                     <td>{{$day['ahm_slot']}}</td>
                                                     <td>{{$day['pickup_delivery_slot']}}</td>
-                                                    <td>{{Str::title(str_replace(['_'], ' ', $day['schedule']))}}</td>
+                                                    <td>{{strtoupper(str_replace(['_'], ' ', $day['schedule']))}}</td>
                                                 </tr>
                                             @endif
                                         @endforeach
