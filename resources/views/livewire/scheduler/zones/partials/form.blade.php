@@ -9,10 +9,25 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 mb-3">
+                <div class="col-md-12">
                     <div class="form-group x-input">
                         <div class="form-group">
                             <x-forms.textarea label="Description" model="description" rows="5" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="alert alert-light-primary color-primary">
+                        <div class="form-check form-switch" wire:key="{{ now() }}">
+                            <input type="checkbox" class="form-check-input" role="switch" id="active"
+                                wire:key="active-{{ now() }}" wire:model="is_active"
+                                @checked($is_active)>
+                            <label class="form-check-label" for="active">
+                                Enable this ZIP Code
+                            </label>
+                            @error('form.is_active')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -84,7 +99,7 @@
                                                             :selected="$days[$day]['schedule']"
                                                             hasAssociativeIndex
                                                             default-option-label="- None -"
-                                                            :key="'am-pm' . now()" />
+                                                            :key="'shift' . now()" />
                                                     </div>
                                                 </div>
                                             @endif

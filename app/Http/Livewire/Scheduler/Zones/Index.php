@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Scheduler\Zones;
 
 use App\Http\Livewire\Component\Component;
+use App\Http\Livewire\Scheduler\Zones\Form\ZonesForm;
 use App\Http\Livewire\Scheduler\Zones\Traits\FormRequest;
 use App\Models\Core\Warehouse;
 
@@ -12,11 +13,7 @@ class Index extends Component
     public $addRecord =false;
     public $warehouseId;
     public Warehouse $warehouse;
-    public function create()
-    {
-        $this->addRecord= true;
-        $this->dispatch('setDecription', 'Create New Zone');
-    }
+
 
     public function mount()
     {
@@ -27,8 +24,14 @@ class Index extends Component
         ],
         [
             'title' => 'Zones',
-        ]];
-        $this->dispatch('setBreadcrumb', $data);
+            ]];
+            $this->dispatch('setBreadcrumb', $data);
+        }
+
+    public function create()
+    {
+        $this->addRecord= true;
+        $this->dispatch('setDecription', 'Create New Zone');
     }
 
     public function render()
@@ -47,5 +50,4 @@ class Index extends Component
     {
         $this->store($this->warehouseId);
     }
-
 }

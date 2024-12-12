@@ -16,6 +16,7 @@ class Zones extends Model
         'name',
         'description',
         'schedule_days',
+        'is_active',
     ];
 
     protected $casts = [
@@ -34,6 +35,11 @@ class Zones extends Model
             'field_label' => 'Scheduled Days',
             'resolve' => 'resolveScheduleDay'
 
+        ],
+        'is_active' => [
+            'field_label' => 'Active',
+            'resolve' => 'resolveActive'
+
         ]
     ];
     public function comments()
@@ -41,6 +47,10 @@ class Zones extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
+    public function resolveActive($value)
+    {
+        return $value ? 'YES' : 'NO';
+    }
 
     protected function resolveScheduleDay($value)
     {

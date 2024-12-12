@@ -60,6 +60,6 @@ class Index extends Component
     }
 
     public function getZoneBadgeCountProperty() {
-        return Zones::where(['whse_id' => $this->activeWarehouse->id])->count();
+        return Zones::where(['is_active' => 1, 'whse_id' => $this->activeWarehouse->id])->count();
     }
 }

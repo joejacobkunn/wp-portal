@@ -41,7 +41,15 @@ class Table extends DataTableComponent
                 ->searchable()
                 ->html(),
 
-
+            Column::make('Active', 'is_active')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    $class = $value ? 'success' : 'danger';
+                    $value = $value ? 'Active' : 'Inactive';
+                  return '<span class="badge bg-light-'.$class.'">'.$value.'</span>';
+                })
+                ->html(),
             ];
     }
 

@@ -7,6 +7,9 @@
             </div>
 
             <div class="card-body">
+                <livewire:component.alert :level="$alertConfig['level']" :message="$alertConfig['message']" :messageIcon="$alertConfig['icon']" :hasAction="'true'"
+                    :actionButtonClass="$alertConfig['btnClass']" :actionButtonName="$alertConfig['btnText']" :actionButtonAction="'updateStatus'"
+                    wire:key="{{ 'status_alert_' . $zone->id . '_' . $alertConfig['level'] }}" />
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>

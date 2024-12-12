@@ -14,6 +14,7 @@ trait FormRequest
     public $name;
     public $description;
     public $showTimeSlotSection;
+    public $is_active;
 
     public $scheduleOptions = [
         'am' => 'AM',
@@ -42,7 +43,8 @@ trait FormRequest
         $rules = [
             'name' => 'required',
             'description' => 'nullable',
-            'days' => 'array'
+            'days' => 'array',
+            'is_active' => 'nullable'
         ];
 
         foreach ($this->days as $day => $values) {
@@ -75,7 +77,8 @@ trait FormRequest
             'whse_id' => $warehouseId,
             'name' => $this->name,
             'description' => $this->description,
-            'schedule_days' => $this->days
+            'schedule_days' => $this->days,
+            'is_active' => $this->is_active
         ]);
 
         $this->alert('success','Zone Created');
@@ -91,6 +94,7 @@ trait FormRequest
         $this->name = $zone?->name;
         $this->description = $zone?->description;
         $this->days = $zone?->schedule_days;
+        $this->is_active = $zone?->is_active;
         $this->updatedDays();
     }
 
@@ -114,11 +118,12 @@ trait FormRequest
             'name' => $this->name,
             'description' => $this->description,
             'schedule_days' => $this->days,
+            'is_active' => $this->is_active,
         ]);
         $this->zone->save();
 
-        $this->alert('success', 'Record updated!');
-        return redirect()->route('service-area.index');
+        $this->alert('success', 'Zone updated!');
+        return redirect()->route('service-area.zones.show',$this->zone);
     }
 
 }
