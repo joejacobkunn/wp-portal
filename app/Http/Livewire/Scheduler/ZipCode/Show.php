@@ -83,7 +83,7 @@ class Show extends Component
     {
         $this->form->update();
         $this->alert('success', 'Record Updated!');
-        return redirect()->route('service-area.index', ['tab' => 'zip_code']);
+        return redirect()->route('service-area.zipcode.show', $this->zipcode);
     }
 
     public function updatedFormZipCode($value)

@@ -46,16 +46,32 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <x-forms.input label="Delivery Rate" model="form.delivery_rate" lazy />
+                        <label>Delivery Rate</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" class="form-control" wire:model="form.delivery_rate">
+                          </div>
+                          @error('form.delivery_rate')
+                            <span class="text-danger">{{ $message }}</span>
+                          @enderror
                     </div>
                 </div>
-
                 <div class="col-md-6">
                     <div class="form-group">
-                        <x-forms.input label="Pickup Rate" model="form.pickup_rate" lazy />
+                        <label>Pickup Rate</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" class="form-control" wire:model="form.pickup_rate">
+                        </div>
+                        @error('form.pickup_rate')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
-
                 <div class="col-md-12">
                     <div class="form-group">
                         <x-forms.textarea label="Note" model="form.notes" rows="5" />

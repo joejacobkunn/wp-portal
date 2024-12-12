@@ -39,13 +39,13 @@ class ZipCodeForm extends Form
 
     protected function rules()
     {    return  [
-                    'zip_code' => [
-                    'required',
-                    'integer',
-                    'digits:5',
-                    'exists:zip_codes,zipcode',
-                    Rule::unique('scheduler_zipcodes', 'zip_code')->ignore($this->getZipcodeId()),
-                    ],
+            'zip_code' => [
+                'required',
+                'integer',
+                'digits:5',
+                'exists:zip_codes,zipcode',
+                Rule::unique('scheduler_zipcodes', 'zip_code')->ignore($this->getZipcodeId()),
+            ],
             'service' => 'required',
             'zone' => 'required|exists:zones,id',
             'delivery_rate' => 'required|integer',
@@ -60,6 +60,7 @@ class ZipCodeForm extends Form
     {
         $this->zipcode = $zipcode;
         $this->fill($zipcode->toArray());
+        $this->setZipcodeDescription($this->zip_code);
     }
 
     public function setZipcodeDescription($value)
