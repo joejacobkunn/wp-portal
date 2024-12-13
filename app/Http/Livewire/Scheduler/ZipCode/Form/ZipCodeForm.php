@@ -105,6 +105,7 @@ class ZipCodeForm extends Form
 
     public function getHint($value)
     {
+        $this->zone = $value;
         $zone = Zones::find($value);
         $out = '';
         foreach ($zone->schedule_days as $day => $details) {
