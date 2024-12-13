@@ -3,10 +3,12 @@
 namespace App\Http\Livewire\Scheduler;
 
 use App\Http\Livewire\Component\Component;
+use App\Models\Core\Location;
 use App\Models\Core\Warehouse;
 use App\Models\Scheduler\Zipcode;
 use App\Models\Scheduler\Zones;
 use App\Traits\HasTabs;
+use Illuminate\Support\Facades\Auth;
 
 class Index extends Component
 {
@@ -31,17 +33,14 @@ class Index extends Component
         'setBreadcrumb' => 'setBreadcrumb'
     ];
     public $breadcrumbs = [];
+
     public function mount()
     {
-        $this->warehouses = Warehouse::where('cono', 10)
-            ->orderBy('title')
-            ->get();
-        $query =  Warehouse::where('cono', 10)->orderBy('title');
-        if($this->whseId) {
-            $query->where('id', $this->whseId);
-        }
-        $this->activeWarehouse = $query->first();
-        $this->whseId = $this->activeWarehouse->id;
+        $this->warehouses = Warehouse::where('cono', 10)->orderBy('title')->get();
+
+        $this->whseId =  $this->whseId ? $this->whseId : Auth::user()->office_location;
+
+        $this->activeWarehouse = Warehouse::where('cono', 10)->where('id', $this->whseId)->first();
     }
 
     public function render()
