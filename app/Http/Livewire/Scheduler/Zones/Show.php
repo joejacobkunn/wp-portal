@@ -49,6 +49,7 @@ class Show extends Component
 
     public function mount()
     {
+        $this->authorize('view', $this->zone);
         $serviceRoute =  route('service-area.index').'?whseId='.$this->zone->whse_id.'&tab=zones';
         $this->breadcrumbs =  [[
             'title' => 'Service Area',
@@ -71,6 +72,7 @@ class Show extends Component
 
     public function submit()
     {
+        $this->authorize('update', $this->zone);
         $this->update();
     }
 
@@ -100,6 +102,7 @@ class Show extends Component
 
     public function updateStatus()
     {
+        $this->authorize('update', $this->zone);
         $this->zone->is_active =  !$this->zone->is_active;
         $this->zone->save();
         $this->setAlert();

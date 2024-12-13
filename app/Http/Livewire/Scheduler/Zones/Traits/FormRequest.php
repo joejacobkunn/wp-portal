@@ -100,7 +100,7 @@ trait FormRequest
 
     public function delete()
     {
-
+        $this->authorize('delete', $this->zone);
         if ( Zones::where('id', $this->zone->id )->delete() ) {
             $this->alert('success', 'Record deleted!');
             return redirect()->route('service-area.index');

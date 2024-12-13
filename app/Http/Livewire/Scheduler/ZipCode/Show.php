@@ -58,6 +58,7 @@ class Show extends Component
 
     public function mount()
     {
+        $this->authorize('view', $this->zipcode);
         $serviceRoute =  route('service-area.index').'?whseId='.$this->zipcode->whse_id.'&tab=zip_code';
         $this->breadcrumbs =  [[
             'title' => 'Service Area',
@@ -91,6 +92,7 @@ class Show extends Component
 
     public function submit()
     {
+        $this->authorize('update', $this->zipcode);
         $this->form->update();
         $this->alert('success', 'Record Updated!');
         return redirect()->route('service-area.zipcode.show', $this->zipcode);
@@ -103,6 +105,7 @@ class Show extends Component
 
     public function delete()
     {
+        $this->authorize('delete', $this->zipcode);
         $this->zipcode->delete();
         $this->alert('success', 'Record deleted !');
         return redirect()->route('service-area.index', ['tab' => 'zip_code']);

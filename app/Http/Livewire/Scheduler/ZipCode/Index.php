@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Scheduler\ZipCode;
 use App\Models\Core\Warehouse;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\ZipCode\Form\ZipCodeForm;
+use App\Models\Scheduler\Zipcode as SchedulerZipcode;
 use App\Models\Scheduler\Zones;
 use App\Models\ZipCode;
 
@@ -32,6 +33,7 @@ class Index extends Component
 
     public function mount()
     {
+        $this->authorize('ViewAny', SchedulerZipcode::class);
         $this->warehouse = Warehouse::find($this->warehouseId);
         $this->form->setZones($this->warehouse->id);
         $data = [[
@@ -53,6 +55,7 @@ class Index extends Component
 
     public function submit()
     {
+        $this->authorize('store', SchedulerZipcode::class);
         $zip_code = $this->form->store($this->warehouse->id);
         $this->alert('success', 'ZIP Code Created!');
         return redirect()->route('service-area.zipcode.show', $zip_code);

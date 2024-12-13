@@ -6,6 +6,7 @@ use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Zones\Form\ZonesForm;
 use App\Http\Livewire\Scheduler\Zones\Traits\FormRequest;
 use App\Models\Core\Warehouse;
+use App\Models\Scheduler\Zones;
 
 class Index extends Component
 {
@@ -17,6 +18,7 @@ class Index extends Component
 
     public function mount()
     {
+        $this->authorize('viewAny', Zones::class);
         $this->warehouse = Warehouse::find($this->warehouseId);
         $data = [[
             'title' => 'Service Area',
@@ -48,6 +50,7 @@ class Index extends Component
 
     public function submit()
     {
+        $this->authorize('store', Zones::class);
         $this->store($this->warehouseId);
     }
 }
