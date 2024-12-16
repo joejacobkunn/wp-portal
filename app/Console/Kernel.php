@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->dailyAt('21:15');
 
         //task to process peoplvox receipts
-        $schedule->command('app:process-purchase-order-receipts')->timezone('America/New_York')->dailyAt('21:30');
+        $schedule->command('app:process-purchase-order-receipts --mode=process')->timezone('America/New_York')->dailyAt('21:30');
 
         //task to update dnr orders
         $schedule->command('sx:update-dnr-backorders')->everyThreeHours();
@@ -30,6 +30,9 @@ class Kernel extends ConsoleKernel
         
         //task to fetch sx operators
         $schedule->command('sx:fetch-operators')->wednesdays();
+
+        //task to sync drivers/techs for scheduler app
+        $schedule->command("app:sync-azure-users --title='Driver,Service Technician'")->daily();
 
         //task to generate warranty regsitration
         $schedule->command('sx:generate-warranty-report')->hourly();

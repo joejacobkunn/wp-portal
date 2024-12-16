@@ -32,6 +32,8 @@ Route::get('reporting-dashboard/{dashboard}/broadcast', \App\Http\Livewire\Repor
 Route::group(['domain' => config('constants.azure_auth_domain')], function () {
     Route::get('/azure/login/redirect', [\App\Http\Controllers\Auth\AzureLoginController::class, 'attemptLogin'])->name('host.azure.redirect');
     Route::get('/azure/callback', [\App\Http\Controllers\Auth\AzureLoginController::class, 'callback'])->name('host.azure.callback');
+    Route::get('/azure/pwa-login/redirect', [\App\Http\Controllers\Auth\PwaAzureLoginController::class, 'attemptLogin'])->name('host.azure_pwa.redirect');
+    Route::get('/azure/pwa-callback', [\App\Http\Controllers\Auth\PwaAzureLoginController::class, 'callback'])->name('host.azure_pwa.callback');
 });
 
 /** Azure urls ends */
@@ -105,8 +107,9 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         Route::get('marketing/sms-marketing/', \App\Http\Livewire\Marketing\SMSMarketing\Index::class)->name('marketing.sms-marketing.index');
 
-        //pwa
-        Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
+
+        Route::get('sales-rep-override', \App\Http\Livewire\SalesRepOverride\Index::class)->name('sales-rep-override.index');
+        Route::get('sales-rep-override/{salesRepOverride}/show', \App\Http\Livewire\SalesRepOverride\Show::class)->name('sales-rep-override.show');
 
         Route::get('scheduler', \App\Http\Livewire\Scheduler\Index::class)->name('service-area.index');
         Route::get('scheduler/zones/{zone}/show', \App\Http\Livewire\Scheduler\Zones\Show::class)->name('service-area.zones.show');
@@ -114,7 +117,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
     });
 
-
-    Route::get('fortis/app/manifest.json', 'App\Http\Controllers\Pwa\ManifestController@manifest')->name('pwa.manifest');
+    //pwa
+    Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
 });
 

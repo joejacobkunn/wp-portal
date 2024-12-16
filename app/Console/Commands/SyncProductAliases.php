@@ -62,7 +62,7 @@ class SyncProductAliases extends Command
 
     private function fetchAliasQuery($limit,$offset)
     {
-        return "SELECT prod,altprod FROM pub.icsec where cono = 10 OFFSET ".$offset." ROWS 
+        return "SELECT prod,altprod FROM pub.icsec where cono = 10 and rectype = 'i' OFFSET ".$offset." ROWS 
                     FETCH NEXT ".$limit." ROWS ONLY WITH(nolock)";
     }
 }

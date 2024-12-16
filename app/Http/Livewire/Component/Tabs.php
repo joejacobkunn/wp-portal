@@ -44,8 +44,6 @@ class Tabs extends Component
     /** Active tab info (on component level) */
     public $componentActiveTab;
 
-    public $parentComponent;
-
     public function mount()
     {
         $this->componentActiveTab = $this->activeTab;
@@ -59,6 +57,6 @@ class Tabs extends Component
     public function updateTab($tabId, $activeTab, $queryString = null)
     {
         $this->componentActiveTab = $activeTab;
-        $this->dispatch('x-tab:changed', $tabId, $activeTab)->to($this->parentComponent);
+        $this->dispatch('x-tab:changed', $tabId, $activeTab);
     }
 }

@@ -96,6 +96,8 @@ class Index extends Component
     public $couponDiscount;
 
     public $couponSearchModal = false;
+    public $supersedeModal = false;
+    public $supersedeData = [];
 
     protected $listeners = [
         'closeProductSearch',
@@ -256,7 +258,7 @@ class Index extends Component
      */
     public function addToCart($prodId)
     {
-        $product = Product::select('id', 'prod', 'unit_sell', 'brand_id')->with('brand:id,name')->find($prodId);
+        $product = Product::select('id', 'prod', 'unit_sell', 'brand_id', 'supersedes')->with('brand:id,name')->find($prodId);
         $productCode = $product->prod;
         $searchResponse = $this->getproductData($productCode, $product->default_unit_sell);
 
@@ -264,6 +266,7 @@ class Index extends Component
             'product_code' => $productCode,
             'product_name' => $searchResponse['product_name'],
             'look_up_name' => $searchResponse['look_up_name'],
+            'supersedes' => $product->supersedes ? $product->supersedes : [],
             'category' => $searchResponse['category'],
             'brand_name' => strtolower((string) $product->brand?->name),
             'unit_sell' => $product->unit_sell,
@@ -670,27 +673,28 @@ class Index extends Component
             $this->excemptedProductLineIds = Line::select('id')->whereIn('name', $this->excemptedProductLines)->pluck('id')->toArray();
         }
 
-        $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id')
+        $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id', 'supersedes')
             ->where(function ($query) {
                 $query->where('prod', $this->productQuery);
                 $query->orWhere('aliases', 'like', '%"'. $this->productQuery .'"%');
             })
             ->first();
+        $productCode = $product ? $product->prod : $this->productQuery;
 
         if (is_array($this->excemptedProductLineIds) && in_array($product->product_line_id, $this->excemptedProductLineIds)) {
             return $this->addError('productQuery', 'Invalid Product Line.' );
         }
 
-        $searchResponse = $this->getproductData($this->productQuery, $product?->default_unit_sell);
+        $searchResponse = $this->getproductData($productCode, $product?->default_unit_sell);
         if (empty($searchResponse['status']) || $searchResponse['status'] == 'error') {
             return $this->addError('productQuery', 'Invalid Product Code.' );
         }
 
-        $productCode = $this->productQuery;
         $this->cart[$productCode] = [
             'product_code' => $productCode,
             'product_name' => $searchResponse['product_name'],
             'look_up_name' => $searchResponse['look_up_name'],
+            'supersedes' => $product->supersedes ? $product->supersedes : [],
             'category' => $searchResponse['category'],
             'unit_sell' => !empty($product->unit_sell) ? $product->unit_sell : ["EA"],
             'unit_of_measure' => !empty($product->unit_sell) ? $product->default_unit_sell : 'EA',
@@ -883,5 +887,29 @@ class Index extends Component
         $this->couponCode = $product->prod;
         $this->applyCoupon();
         $this->closeCouponSearch();
+    }
+
+    public function viewSupersede($productCode, $cartIndex)
+    {
+        $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id', 'supersedes')
+            ->where(function ($query) {
+                $query->where('prod', $this->productQuery);
+                $query->orWhere('aliases', 'like', '%"'. $this->productQuery .'"%');
+            })
+            ->first();
+        $searchResponse = $this->getproductData($productCode, $product?->default_unit_sell);
+
+        $this->supersedeModal = true;
+        $this->supersedeData = [
+            'product_code' => $productCode,
+            'product_name' => $searchResponse['product_name'],
+            'look_up_name' => $searchResponse['look_up_name'],
+            'unit_of_measure' => !empty($product->unit_sell) ? $product->default_unit_sell : 'EA',
+            'price' => $searchResponse['price'],
+            'stock' => $searchResponse['stock'],
+            'bin_location' => $searchResponse['bin_location'],
+            'prodline' => $searchResponse['prodline'],
+        ];
+
     }
 }

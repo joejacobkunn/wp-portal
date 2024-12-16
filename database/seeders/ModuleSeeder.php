@@ -59,6 +59,12 @@ class ModuleSeeder extends Seeder
                 'description' => 'Manage Marketing',
             ],
             [
+                'name' => 'Sales Rep Override',
+                'slug' => 'sales-rep-override',
+                'description' => 'Manage Sales Rep Override',
+            ],
+
+            [
                 'name' => 'Scheduler',
                 'slug' => 'scheduler',
                 'description' => 'Manage logistics and shipping',
