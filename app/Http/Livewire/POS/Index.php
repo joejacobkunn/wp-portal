@@ -696,6 +696,7 @@ class Index extends Component
             'look_up_name' => $searchResponse['look_up_name'],
             'supersedes' => $product->supersedes ? $product->supersedes : [],
             'category' => $searchResponse['category'],
+            'brand_name' => strtolower((string) $product->brand?->name),
             'unit_sell' => !empty($product->unit_sell) ? $product->unit_sell : ["EA"],
             'unit_of_measure' => !empty($product->unit_sell) ? $product->default_unit_sell : 'EA',
             'price' => $searchResponse['price'],
