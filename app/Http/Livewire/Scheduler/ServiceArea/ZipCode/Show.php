@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Livewire\Scheduler\ZipCode;
+namespace App\Http\Livewire\Scheduler\ServiceArea\ZipCode;
 
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Scheduler\ZipCode\Form\ZipCodeForm;
+use App\Http\Livewire\Scheduler\ServiceArea\ZipCode\Form\ZipCodeForm;
 use App\Models\Scheduler\Zipcode;
 use App\Traits\HasTabs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -87,7 +87,7 @@ class Show extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.zip-code.show');
+        return $this->renderView('livewire.scheduler.service-area.zip-code.show');
     }
 
     public function submit()

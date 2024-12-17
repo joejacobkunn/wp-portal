@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Livewire\Scheduler\ZipCode;
+namespace App\Http\Livewire\Scheduler\ServiceArea\ZipCode;
 
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Scheduler\Zipcode;

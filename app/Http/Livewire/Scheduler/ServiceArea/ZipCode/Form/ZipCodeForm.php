@@ -1,5 +1,5 @@
 <?php
- namespace App\Http\Livewire\Scheduler\ZipCode\Form;
+ namespace App\Http\Livewire\Scheduler\ServiceArea\ZipCode\Form;
 
 use App\Models\Core\Warehouse;
 use App\Models\Scheduler\Zipcode;

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Livewire\Scheduler\ZipCode;
+namespace App\Http\Livewire\Scheduler\ServiceArea\ZipCode;
 
 use App\Models\Core\Warehouse;
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Scheduler\ZipCode\Form\ZipCodeForm;
+use App\Http\Livewire\Scheduler\ServiceArea\ZipCode\Form\ZipCodeForm;
 use App\Models\Scheduler\Zipcode as SchedulerZipcode;
 use App\Models\Scheduler\Zones;
 use App\Models\ZipCode;
@@ -68,7 +68,7 @@ class Index extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.zip-code.index');
+        return $this->renderView('livewire.scheduler.service-area.zip-code.index');
     }
 
     public function setZoneHint($key, $value)

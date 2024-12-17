@@ -30,10 +30,10 @@
                                 {{ $this->ZoneBadgeCount }}</span></x-slot>
                         <x-slot:tab_header_zip_code> ZIP Codes <span class="badge badge-lg bg-primary ml-2":key='now()'>
                                 {{ $this->ZipBadgeCount }}</span></x-slot>
-                        <x-slot:tab_content_zones component="scheduler.zones.index" :warehouseId="$activeWarehouse->id" :key="'zones' . $activeWarehouse->id">
+                        <x-slot:tab_content_zones component="scheduler.service-area.zones.index" :warehouseId="$activeWarehouse->id" :key="'zones' . $activeWarehouse->id">
                         </x-slot>
 
-                        <x-slot:tab_content_zip_code component="scheduler.zip-code.index" :warehouseId="$activeWarehouse->id" :key="'zipcode' . $activeWarehouse->id">
+                        <x-slot:tab_content_zip_code component="scheduler.service-area.zip-code.index" :warehouseId="$activeWarehouse->id" :key="'zipcode' . $activeWarehouse->id">
                         </x-slot>
                     </x-tabs>
 

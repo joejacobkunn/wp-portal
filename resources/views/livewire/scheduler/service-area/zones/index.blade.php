@@ -22,11 +22,11 @@
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     @if ($addRecord)
-                        @include('livewire.scheduler.zones.partials.form', [
+                        @include('livewire.scheduler.service-area.zones.partials.form', [
                             'button_text' => 'Add New Zone',
                         ])
                     @else
-                        <livewire:scheduler.zones.table lazy wire:key="{{ 'zones' }}"
+                        <livewire:scheduler.service-area.zones.table lazy wire:key="{{ 'zones' }}"
                             whseId="{{ $warehouseId }}">
                     @endif
 

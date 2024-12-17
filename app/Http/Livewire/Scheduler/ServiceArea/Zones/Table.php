@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Livewire\Scheduler\Zones;
+namespace App\Http\Livewire\Scheduler\ServiceArea\Zones;
 
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Scheduler\Zones;

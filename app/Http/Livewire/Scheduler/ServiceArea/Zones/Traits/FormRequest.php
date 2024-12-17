@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Livewire\Scheduler\Zones\Traits;
+namespace App\Http\Livewire\Scheduler\ServiceArea\Zones\Traits;
 
 use App\Models\Core\Warehouse;
 use App\Models\Scheduler\Zones;

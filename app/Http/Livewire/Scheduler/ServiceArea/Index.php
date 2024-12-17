@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Scheduler;
+namespace App\Http\Livewire\Scheduler\ServiceArea;
 
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Location;
@@ -45,7 +45,7 @@ class Index extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.index');
+        return $this->renderView('livewire.scheduler.service-area.index');
     }
 
     public function setDecription($desc)

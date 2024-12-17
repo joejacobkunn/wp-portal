@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Livewire\Scheduler\Zones;
+namespace App\Http\Livewire\Scheduler\ServiceArea\Zones;
 
 use App\Http\Livewire\Component\Component;
+use App\Http\Livewire\Scheduler\ServiceArea\Zones\Traits\FormRequest;
 use App\Http\Livewire\Scheduler\Zones\Form\ZonesForm;
-use App\Http\Livewire\Scheduler\Zones\Traits\FormRequest;
 use App\Models\Core\Warehouse;
 use App\Models\Scheduler\Zones;
 
@@ -32,13 +32,13 @@ class Index extends Component
 
     public function create()
     {
-        $this->addRecord= true;
+        $this->addRecord = true;
         $this->dispatch('setDecription', 'Create New Zone');
     }
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.zones.index');
+        return $this->renderView('livewire.scheduler.service-area.zones.index');
     }
 
     public function cancel()
