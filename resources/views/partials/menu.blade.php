@@ -182,7 +182,7 @@
                 <div class="submenu-group-wrapper">
                     <ul class="submenu-group">
                         <li class="submenu-item">
-                            <a href="" wire:navigate>
+                            <a href="{{ route('schedule.index') }}" wire:navigate>
                                 <span>Schedule</span>
                             </a>
                         </li>

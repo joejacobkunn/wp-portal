@@ -18,7 +18,6 @@ class ZipCodeForm extends Form
     public $zip_code;
     public $service=[];
     public $notes;
-    public $sample;
     public $delivery_rate;
     public $pickup_rate;
     public $is_active = true;

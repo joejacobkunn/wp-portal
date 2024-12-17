@@ -4,6 +4,7 @@ namespace App\Models\Order;
 
 use App\Models\Core\Comment;
 use App\Enums\Order\OrderStatus;
+use App\Models\Core\Customer;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -110,7 +111,7 @@ class Order extends Model
 
 
 
-    
+
     public function isPendingReview()
     {
         return $this->status == OrderStatus::PendingReview;
@@ -150,6 +151,11 @@ class Order extends Model
     public function getWarehouseEmail()
     {
         return $this->warehouse_emails[strtolower($this->whse)];
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'sx_customer_number', 'sx_customer_number');
     }
 
 }
