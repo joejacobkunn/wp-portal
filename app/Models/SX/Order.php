@@ -168,4 +168,19 @@ class Order extends Model
 
         return (!empty($non_stock_items)) ? $non_stock_items : null;
     }
+
+    public function constructAddress($order)
+    {
+        $address = [];
+        $address['name'] = $order['shiptonm'];
+        $lines = explode(';',$order['shiptoaddr']);
+        $address['line'] = isset($lines[0]) ? $lines[0] : '';
+        $address['line2'] = isset($lines[1]) ? $lines[1] : '';
+        $address['state'] = $order['shiptost'];
+        $address['city'] = $order['shiptocity'];
+        $address['zip'] = $order['shiptozip'];
+        $address['instructions'] = $order['shipinstr'];
+        $address['shipto'] = $order['shipto'];
+        return $address;
+    }
 }

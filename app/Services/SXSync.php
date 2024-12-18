@@ -233,7 +233,7 @@ class SXSync
 
     private function orderCreated($data)
     {
-        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
+        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6', 'shiptoaddr', 'shiptonm', 'shiptost', 'shiptozip', 'shiptocity', 'shipinstr', 'shipto'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
         $line_items = $this->getSxOrderLineItemsProperty($data['order_no'],$data['order_suffix']);
         $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
         
@@ -262,7 +262,8 @@ class SXSync
                 'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
                 'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
                 'last_line_added_at' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
-                'status' => 'Pending Review'
+                'status' => 'Pending Review',
+                'shipping_info' => $sx_order->constructAddress($sx_order)
             ]
         );
         
