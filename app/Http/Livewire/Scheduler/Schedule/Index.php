@@ -33,10 +33,12 @@ class Index extends Component
         $this->getEvents();
     }
 
-    public function create()
+    public function create($type)
     {
         $this->isEdit = false;
+        $this->form->type = $type;
         $this->showModal = true;
+
     }
 
     public function closeModal()
@@ -65,9 +67,14 @@ class Index extends Component
         return redirect()->route('schedule.index');
     }
 
-    public function updatedFormSxOrdernumber($value)
+    public function updatedFormSuffix($value)
     {
         $this->form->getOrderInfo($value);
+    }
+
+    public function updatedFormSxOrdernumber($value)
+    {
+        $this->form->suffix = null;
 
     }
 
@@ -88,7 +95,7 @@ class Index extends Component
         $this->form->init($schedule);
         $this->showModal = true;
         $this->isEdit =true;
-        $this->updatedFormSxOrdernumber($schedule->sx_ordernumber);
+        $this->updatedFormSuffix($schedule->order_number_suffix);
     }
 
 }

@@ -12,6 +12,7 @@ class Schedule extends Model
     protected $fillable = [
         'type',
         'sx_ordernumber',
+        'order_number_suffix',
         'schedule_date',
         'schedule_time',
         'line_items',
