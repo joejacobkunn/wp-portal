@@ -35,7 +35,7 @@ class SxOrderSync extends Command
         $startDate = date('Y-m-d', strtotime('-'.$this->option('months').' months'));
         $endDate = date('Y-m-d');
         $is_open = $this->option('open');
-        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])
+        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6', 'shiptoaddr', 'shiptonm', 'shiptost', 'shiptozip', 'shiptocity', 'shipinstr', 'shipto'])
                         ->where('cono', 10)
                         ->whereBetween('enterdt', [$startDate, $endDate])
                         ->when($is_open,function (Builder $query, bool $is_open) {
@@ -44,7 +44,7 @@ class SxOrderSync extends Command
                         ->get();
 
         foreach($sx_orders as $sx_order)
-        {
+        {  
             $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
             $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
 
@@ -72,7 +72,8 @@ class SxOrderSync extends Command
                     'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
                     'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
                     'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
-                    'status' => $this->status($sx_order['stagecd'])
+                    'status' => $this->status($sx_order['stagecd']),
+                    'shipping_info' => $sx_order->constructAddress($sx_order)
                 ]
             );
 
