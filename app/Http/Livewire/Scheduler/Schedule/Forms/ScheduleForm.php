@@ -24,7 +24,7 @@ class ScheduleForm extends Form
     public $created_by;
 
     protected $validationAttributes = [
-        'type' => 'Schedule',
+        'type' => 'Schedule Type',
         'sx_ordernumber' => 'Order Number',
         'schedule_date' => 'Schedule Date',
         'schedule_time' => 'Schedule Time',
