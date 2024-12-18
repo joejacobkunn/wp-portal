@@ -5,9 +5,8 @@
                 <div class="row w-100">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <x-forms.select label="Schedule" model="form.type" :options="$scheduleOptions"
-                                :hasAssociativeIndex="true" default-option-label="- None -" :selected="$form->type"
-                                :key="'schedule-' . now()" />
+                            <x-forms.select label="Schedule" model="form.type" :options="$scheduleOptions" :hasAssociativeIndex="true"
+                                default-option-label="- None -" :selected="$form->type" :key="'schedule-' . now()" />
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -20,24 +19,40 @@
                             <x-forms.input type="number" label="Order Number Suffix" model="form.suffix" lazy />
                         </div>
                     </div>
-                    @if ($form->orderInfo?->line_items)
-                    <div class="col-md-12 mb-3">
-                        <div class="accordion">
-                            <div class="accordion-item mb-2">
-                                <div class="row columnRow p-3">
-                                    <h6 class="accordion-header mb-3">
-                                        Line Items
-                                    </h6>
-                                    @foreach ($form->orderInfo->line_items['line_items'] as $item)
-                                    <div class="col-12 mb-3">
-                                        <x-forms.checkbox :label="$item['descrip'].'('.$item['shipprod'].')'"
-                                            :name="'lineItems[]'" :value="$item['shipprod']" :model="'form.line_items'" />
-                                    </div>
-                                    @endforeach
-                                </div>
+                    @if ($form->orderInfo)
+                        <div class="col-md-12 mb-3">
+                            <div class="alert alert-light-primary color-primary" role="alert">
+                                <span class="badge bg-light-warning float-end"><a target="_blank" href=""><i
+                                            class="fas fa-external-link-alt"></i> CustNo
+                                        #{{ $form->orderInfo?->sx_customer_number }}</a></span>
+                                <h4 class="alert-heading">Servicable Address</h4>
+                                <p>
+                                <address class="ms-1">
+                                    <Strong>Customer Name</Strong> <br>
+                                    Line 1 Address goes here<br>
+                                    Line 2 Address goes here if exists<br>
+                                    City, State - (ZIP)<br>
+                                    Phone Number and Emails (if present)<br>
+                                </address>
+                                </p>
+                                <hr>
+                                <p class="mb-0">[Shipping Instructions] and [Shipto]</p>
                             </div>
                         </div>
-                    </div>
+                    @endif
+
+                    @if ($form->orderInfo?->line_items)
+                        <div class="col-md-12 mb-3">
+                            <ul class="list-group">
+                                <li class="list-group-item list-group-item-primary">Line Items</li>
+                                @foreach ($form->orderInfo->line_items['line_items'] as $item)
+                                    <li class="list-group-item">
+                                        <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineItems[]'" :value="$item['shipprod']"
+                                            :model="'form.line_items'" />
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
                     @endif
                     <div class="col-md-6">
                         <div class="form-group">
@@ -52,12 +67,12 @@
                     </div>
                 </div>
                 <div class="mt-2">
-                        <button class="btn btn-primary" type="submit">
-                            <div wire:loading wire:target="submit">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </div>
-                            {{ $this->isEdit ? 'Update' : 'Schedule' }}
-                        </button>
+                    <button class="btn btn-primary" type="submit">
+                        <div wire:loading wire:target="submit">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        {{ $this->isEdit ? 'Update' : 'Schedule' }}
+                    </button>
 
                 </div>
             </form>
@@ -65,71 +80,25 @@
 
     </div>
     <div class="col-4">
-        <div class="card border-light shadow-sm mb-4">
-            <div class="card-header bg-primary  border-bottom p-3">
-                <h4 class="h5 mb-0 text-white">Order Overview
-                    {{$form->orderInfo ? '#'.$form->orderInfo->order_number.'-'.$form->orderInfo->order_number_suffix:'' }}</h4>
-            </div>
-            <div class="card-body warehouse-nav">
-                <ul class="list-group list-group-flush">
-                    @if($form->orderInfo)
-                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Warehouse</h3>
-                                <p class="small pe-4">{{ $form->orderInfo->whse }}</p>
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Order Date :</h3>
-                                <p class="small pe-4">{{$form->orderInfo->order_date->format(config('app.default_datetime_format'))}}</p>
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Order Status :</h3>
-                                <p class="small pe-4">{{$form->orderInfo->status}}</p>
-                            </div>
-                        </li>
-                    @else
-                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Order not selected </h3>
-                            </div>
-                        </li>
-                    @endif
-                </ul>
-            </div>
-        </div>
-        <div class="card border-light shadow-sm mb-4">
-            <div class="card-header bg-primary  border-bottom p-3">
-                <h4 class="h5 mb-0 text-white">Customer Info</h4>
-            </div>
-            <div class="card-body warehouse-nav">
-                <ul class="list-group list-group-flush">
-                    @if($form->orderInfo)
-
-                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Customer Name</h3>
-                                <p class="small pe-4">{{ $form->orderInfo->customer?->name }}</p>
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Customer SX Number</h3>
-                                <p class="small pe-4">{{$form->orderInfo->sx_customer_number}}</p>
-                            </div>
-                        </li>
-                        @else
-                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Order not selected </h3>
-                            </div>
-                        </li>
-                    @endif
-                </ul>
-            </div>
-        </div>
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-primary">
+                <span class="badge bg-light-warning float-end"><a href=""><i
+                            class="fas fa-external-link-alt"></i>
+                        #{{ $form->orderInfo?->order_number }}-{{ $form->orderInfo?->order_number_suffix }}</a></span>
+                Order Info
+            </li>
+            @if ($form->orderInfo)
+                <li class="list-group-item"><strong>Warehouse</strong> <span
+                        class="float-end">{{ strtoupper($form->orderInfo->whse) }}</span></li>
+                <li class="list-group-item"><strong>Status</strong> <span
+                        class="float-end">{{ $form->orderInfo->status }}</span></li>
+            @else
+                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                    <div>
+                        <h3 class="h6 mb-1">Order not selected </h3>
+                    </div>
+                </li>
+            @endif
+        </ul>
     </div>
 </div>

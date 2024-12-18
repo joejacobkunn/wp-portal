@@ -36,6 +36,7 @@
         let isDropdownVisible = false;
 
         let calendar = new FullCalendar.Calendar(calendarEl, {
+            themeSystem: 'bootstrap5',
             initialView: 'dayGridMonth',
             height: 600,
             headerToolbar: {
