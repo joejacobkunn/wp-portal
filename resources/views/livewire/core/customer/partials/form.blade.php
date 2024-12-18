@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-12 mb-3" wire:ignore>
                         <x-forms.input label="Customer Address Line 1" model="customer.address" lazy />
                     </div>
                 </div>
@@ -78,4 +78,84 @@
             </form>
         </div>
     </div>
+
+    <div wire:ignore>
+        <script>
+            (function () {
+                let autocomplete;
+                let address1Field;
+                let address2Field;
+                let postalField;
+
+                function initCustomerAddressAutocomplete() {
+                    address1Field = document.querySelector("#customer.address_input-field");
+                    address2Field = document.querySelector("#customer.address2_input-field");
+                    postalField = document.querySelector("#customer.zip_input-field");
+                    
+                    autocomplete = new google.maps.places.Autocomplete(address1Field, {
+                        componentRestrictions: { country: ["us", "ca"] },
+                        fields: ["address_components", "geometry"],
+                        types: ["address"],
+                    });
+                    address1Field.focus();
+                    
+                    autocomplete.addListener("place_changed", fillInAddress);
+                }
+
+                function fillInAddress() {
+                    
+                    const place = autocomplete.getPlace();
+                    let address1 = "";
+                    let postcode = "";
+
+                    for (const component of place.address_components) {
+                        const componentType = component.types[0];
+
+                        switch (componentType) {
+                        case "street_number": {
+                            address1 = `${component.long_name} ${address1}`;
+                            break;
+                        }
+
+                        case "route": {
+                            address1 += component.short_name;
+                            break;
+                        }
+
+                        case "postal_code": {
+                            postcode = `${component.long_name}${postcode}`;
+                            break;
+                        }
+
+                        case "postal_code_suffix": {
+                            postcode = `${postcode}-${component.long_name}`;
+                            break;
+                        }
+
+                        case "locality":
+                            document.querySelector("#customer.city_input-field").value = component.long_name;
+                            break;
+
+                        case "administrative_area_level_1": {
+                            document.querySelector("#customer.state_input-field").value = component.short_name;
+                            break;
+                        }
+                    }
+
+                    address1Field.value = address1;
+                    postalField.value = postcode;
+                    
+                    address2Field.focus();
+                }
+
+                window.initCustomerAddressAutocomplete = initCustomerAddressAutocomplete;
+            })();
+        </script> 
+    </div>
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_places.api_key') }}&callback=initCustomerAddressAutocomplete&libraries=places&v=weekly"
+      defer
+    ></script>
+
 </div>
