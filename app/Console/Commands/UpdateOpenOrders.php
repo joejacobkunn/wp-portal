@@ -43,7 +43,7 @@ class UpdateOpenOrders extends Command
         foreach($open_orders as $open_order)
         {
             //fetch sx order
-            $sx_order = SXOrder::select('user1','stagecd','shipviaty','totqtyshp','totqtyord','promisedt','whse')->where('cono',$open_order->cono)->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
+            $sx_order = SXOrder::select('user1','stagecd','shipviaty','totqtyshp','totqtyord','promisedt','whse','shiptoaddr', 'shiptonm', 'shiptost', 'shiptozip', 'shiptocity', 'shipinstr', 'shipto')->where('cono',$open_order->cono)->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
             $status = $open_order->status;
             $line_items = $this->getSxOrderLineItemsProperty($open_order->order_number,$open_order->order_number_suffix);
             $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
@@ -64,7 +64,8 @@ class UpdateOpenOrders extends Command
                 'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'promise_date' => Carbon::parse($sx_order['promisedt'])->format('Y-m-d'),
-                'last_line_added_at' => $this->getLatestEnteredLineDate($line_items,$open_order->enterdt)
+                'last_line_added_at' => $this->getLatestEnteredLineDate($line_items,$open_order->enterdt),
+                'shipping_info' => $sx_order->constructAddress($sx_order)
             ]);
 
         }

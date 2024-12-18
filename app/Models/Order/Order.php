@@ -44,7 +44,8 @@ class Order extends Model
         'partial_warehouse_transfer_available',
         'wt_transfers',
         'golf_parts',
-        'last_line_added_at'
+        'last_line_added_at',
+        'shipping_info'
     ];
 
     protected $casts = [
@@ -57,7 +58,12 @@ class Order extends Model
         'line_items' => 'array',
         'wt_transfers' => 'array',
         'golf_parts' => 'array',
-        'non_stock_line_items' => 'array'
+        'non_stock_line_items' => 'array',
+        'shipping_info' => 'array'
+    ];
+
+    protected $attributes = [
+        'shipping_info' => '[]',
     ];
 
     const LOG_FIELD_MAPS = [
