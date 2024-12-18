@@ -9,6 +9,7 @@ enum ScheduleEnum: string
     case at_home_maintenance =  'At Home Maintenance';
     case delivery = 'Delivery';
     case pickup = 'Pickup';
+    case plow_installation = 'Plow Installation';
 
     public function label(): string
     {
