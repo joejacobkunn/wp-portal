@@ -20,9 +20,27 @@ class Index extends Component
     public $name;
     public $schedules;
     public $isEdit;
+    public $showView;
     public $scheduleOptions;
     protected $listeners = [
-        'closeModal' => 'closeModal'
+        'closeModal' => 'closeModal',
+        'edit' => 'edit',
+        'deleteRecord' => 'delete'
+    ];
+
+    public $actionButtons = [
+        [
+            'icon' => 'fa-edit',
+            'color' => 'primary',
+            'listener' => 'edit',
+        ],
+        [
+            'icon' => 'fa-trash',
+            'color' => 'danger',
+            'confirm' => true,
+            'confirm_header' => 'Confirm Delete',
+            'listener' => 'deleteRecord',
+        ],
     ];
 
     public function mount()
@@ -44,8 +62,9 @@ class Index extends Component
     public function closeModal()
     {
         $this->showModal = false;
-        $this->form->reset();
+        $this->showView = false;
         $this->resetValidation();
+        $this->form->reset();
     }
 
     public function render()
@@ -90,11 +109,25 @@ class Index extends Component
         });
     }
 
+    public function edit()
+    {
+        $this->showView = false;
+    }
+
+    public function delete()
+    {
+        $this->form->delete();
+        $this->alert('success', 'Record Deleted!');
+        return redirect()->route('schedule.index');
+
+    }
+
     public function handleEventClick(Schedule $schedule)
     {
         $this->form->init($schedule);
         $this->showModal = true;
-        $this->isEdit =true;
+        $this->isEdit = true;
+        $this->showView = true;
         $this->updatedFormSuffix($schedule->order_number_suffix);
     }
 

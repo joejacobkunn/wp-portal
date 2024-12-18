@@ -22,6 +22,7 @@ enum ScheduleEnum: string
             self::at_home_maintenance => 'At Home Maintenance',
             self::delivery => 'Delivery',
             self::pickup => 'Pickup',
+            self::plow_installation => 'Plow Installation',
             default => '-'
         };
     }

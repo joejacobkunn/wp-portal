@@ -39,6 +39,10 @@ class ScheduleForm extends Form
             'sx_ordernumber' => [
                 'required',
                 Rule::unique('schedules', 'sx_ordernumber')->ignore($this->getScheduledId()),
+                Rule::exists('orders', 'order_number')
+                ->where(function ($query) {
+                    $query->where('order_number_suffix', $this->suffix);
+                }),
             ],
             'suffix' => 'required',
             'line_items' => 'required|array',
@@ -71,7 +75,7 @@ class ScheduleForm extends Form
         $validatedData = $this->validate();
         $validatedData['status'] = 'Scheduled';
         $validatedData['created_by'] = Auth::user()->id;
-        $validatedData['order_suffix_number'] = $this->suffix;
+        $validatedData['order_number_suffix'] = $this->suffix;
         $schedule = Schedule::create($validatedData);
         return $schedule;
     }
@@ -91,6 +95,11 @@ class ScheduleForm extends Form
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
+    }
+
+    public function delete()
+    {
+        $this->schedule->delete();
     }
 
     public function getScheduledId()
