@@ -38,7 +38,7 @@ class Index extends Component
     {
         $this->warehouses = Warehouse::where('cono', 10)->orderBy('title')->get();
 
-        $this->whseId =  $this->whseId ? $this->whseId : Auth::user()->office_location;
+        $this->whseId =  $this->whseId ? $this->whseId : Warehouse::where('title', Auth::user()->office_location)->first()->id;
 
         $this->activeWarehouse = Warehouse::where('cono', 10)->where('id', $this->whseId)->first();
     }

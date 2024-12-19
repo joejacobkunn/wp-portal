@@ -66,7 +66,7 @@ class ScheduleForm extends Form
         }
 
         $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
-            ->whereIn('stage_code', [1,2])->first();
+            ->first();
         if(!$this->orderInfo) {
             $this->addError('sx_ordernumber', 'order not found');
             return;
@@ -76,6 +76,12 @@ class ScheduleForm extends Form
             $this->addError('sx_ordernumber', 'Line items not found in this order');
             return;
         }
+
+        if(is_null($this->orderInfo->shipping_info)) {
+            $this->addError('sx_ordernumber', 'Shipping info missing');
+            return;
+        }
+
 
         $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
     }
