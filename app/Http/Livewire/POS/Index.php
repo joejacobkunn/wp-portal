@@ -98,6 +98,7 @@ class Index extends Component
     public $couponSearchModal = false;
     public $supersedeModal = false;
     public $supersedeData = [];
+    public $productRefsupercede;
 
     protected $listeners = [
         'closeProductSearch',
@@ -890,7 +891,7 @@ class Index extends Component
         $this->closeCouponSearch();
     }
 
-    public function viewSupersede($productCode, $cartIndex)
+    public function viewSupersede($productCode, $existingProductCode)
     {
         $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id', 'supersedes')
             ->where(function ($query) {
@@ -900,6 +901,7 @@ class Index extends Component
             ->first();
         $searchResponse = $this->getproductData($productCode, $product?->default_unit_sell);
 
+        $this->productRefsupercede = $existingProductCode;
         $this->supersedeModal = true;
         $this->supersedeData = [
             'product_code' => $productCode,
@@ -912,5 +914,28 @@ class Index extends Component
             'prodline' => $searchResponse['prodline'],
         ];
 
+    }
+
+    public function substituteSupersede($productCode) 
+    {
+        if (isset($this->productRefsupercede)) {
+            unset($this->cart[$this->productRefsupercede]);
+        }
+
+        $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id', 'supersedes')
+            ->where(function ($query) use ($productCode) {
+                $query->where('prod', $productCode);
+                $query->orWhere('aliases', 'like', '%"'. $productCode .'"%');
+            })
+            ->first();
+
+        if (!$product) {
+            $this->alert('error', 'Product not found!');
+            return;
+        }
+        
+        if ($this->addToCart($product->id)) {
+            $this->alert('info', 'Substituted with supersede!');
+        }
     }
 }

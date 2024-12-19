@@ -122,7 +122,7 @@
                                             @if(!empty($item['supersedes']))
                                             <div class="d-flex">
                                                 @foreach($item['supersedes'] as $supersede)
-                                                <span class="badge bg-secondary me-1" wire:click="viewSupersede('{{ $supersede }}', '{{ $cartIndex }}')">{{ $supersede }}</span>
+                                                <span class="badge text-primary media-library-text-link me-1" wire:click="viewSupersede('{{ $supersede }}', '{{ $item['product_code'] }}')"><i class="far fa-clone me-1"></i> {{ $supersede }}</span>
                                                 @endforeach
                                             </div>
                                             @endif
@@ -624,7 +624,13 @@
         @endif
 
         <x-slot name="footer">
-            <button type="button" class="btn btn-outline-primary" @click="open = false">Close</button>
+            <div class="m-auto">
+                @if(!empty($supersedeData))
+                <button type="button" class="btn btn-primary mb-3 px-4 py-2 mt-1" wire:click="substituteSupersede('{{ $supersedeData['product_code'] }}')">
+                    <i class="fas fa-sync-alt me-2" wire:loading.class="fa-spin"></i> Substitute supersede
+                </button>
+                @endif
+            </div>
         </x-slot>
 
     </x-modal>
