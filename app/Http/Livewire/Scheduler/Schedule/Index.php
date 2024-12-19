@@ -63,6 +63,7 @@ class Index extends Component
     {
         $this->showModal = false;
         $this->showView = false;
+        $this->isEdit = false;
         $this->resetValidation();
         $this->form->reset();
     }
@@ -94,7 +95,7 @@ class Index extends Component
     public function updatedFormSxOrdernumber($value)
     {
         $this->form->suffix = null;
-
+        $this->form->getOrderInfo( $this->form->suffix );
     }
 
     public function getEvents()

@@ -3,6 +3,7 @@
 
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\Zipcode;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,7 @@ class ScheduleForm extends Form
     public $line_items = [];
     public $status;
     public $orderInfo;
+    public $zipcodeInfo;
     public $created_by;
 
     protected $validationAttributes = [
@@ -31,7 +33,10 @@ class ScheduleForm extends Form
         'line_items' => 'Line Items',
         'suffix' => 'Order Suffix',
     ];
-
+    public $serviceArray = [
+        'at_home_maintenance' => 'At Home Maintenance',
+        'delivery_pickup' => 'Delivery/Pickup',
+    ];
     protected function rules()
     {
         return [
@@ -68,6 +73,8 @@ class ScheduleForm extends Form
         if(empty($this->orderInfo->line_items)) {
             $this->addError('sx_ordernumber', 'Line items not found in this order');
         }
+
+        $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo->shipping_info['zip'])->first();
     }
 
     public function store()

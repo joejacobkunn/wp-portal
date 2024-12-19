@@ -1,4 +1,15 @@
 <div class="row">
+    <div class="col-12 ">
+        <div class="alert alert-light-primary color-primary" role="alert">
+            Your selected shipping zone is <strong>{{$form->zipcodeInfo?->getZone->name}}</strong>.
+             The services available in <strong>{{$form->zipcodeInfo?->getZone->name}}</strong> are:
+             <ul class="">
+                @foreach ($form->zipcodeInfo?->service as $item)
+                <li class=""> {{ $form->serviceArray[$item] }}</li>
+                @endforeach
+             </ul>
+        </div>
+    </div>
     <div class="col-8 ">
         <div class="border rounded p-4">
             <form wire:submit.prevent="submit()">
@@ -38,7 +49,8 @@
                                 </address>
                                 </p>
                                 <hr>
-                                <p class="mb-0">[Shipping Instructions] and [Shipto]</p>
+                                <p class="mb-0">Ship to : {{$form->orderInfo->shipping_info['shipto']}} </p>
+                                <p class="mb-0">Shipping Instructions : {{$form->orderInfo->shipping_info['instructions']}}</p>
                             </div>
                         </div>
                     @endif
@@ -82,7 +94,7 @@
 
     </div>
     <div class="col-4">
-        <ul class="list-group">
+        <ul class="list-group mb-3">
             <li class="list-group-item list-group-item-primary">
                 <span class="badge bg-light-warning float-end"><a href=""><i
                             class="fas fa-external-link-alt"></i>
@@ -102,5 +114,56 @@
                 </li>
             @endif
         </ul>
+        <ul class="list-group mb-3">
+            <li class="list-group-item list-group-item-primary">
+                <span class="badge bg-light-warning float-end"><a href=""><i
+                            class="fas fa-external-link-alt"></i>
+                        #{{ $form->zipcodeInfo?->getZone->name }}</a></span>
+                Zone Info
+            </li>
+            @if ($form->orderInfo)
+                <li class="list-group-item"><strong>Zipcode</strong> <span
+                        class="float-end">{{ $form->orderInfo->shipping_info['zip'] }}</span></li>
+                <li class="list-group-item"><strong>Delivery Rate</strong> <span
+                        class="float-end">${{ $form->zipcodeInfo?->delivery_rate }}</span></li>
+                <li class="list-group-item"><strong>Pickup Rate</strong> <span
+                        class="float-end">${{ $form->zipcodeInfo?->pickup_rate }}</span></li>
+            @else
+                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                    <div>
+                        <h3 class="h6 mb-1">Order not selected </h3>
+                    </div>
+                </li>
+            @endif
+        </ul>
+
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr class="bg-light-primary">
+                        <th colspan="4" class="text-center color-primary ">Slot Info</th>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Day</th>
+                        <th class="bg-light">AHM Slot</th>
+                        <th class="bg-light">Delivery/Pickup Slot</th>
+                        <th class="bg-light">Shift</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach ($form->zipcodeInfo?->getZone?->schedule_days as $key => $day)
+                        @if ($day['enabled'])
+                            <tr>
+                                <td>{{ ucfirst($key) }}</td>
+                                <td>{{$day['ahm_slot']}}</td>
+                                <td>{{$day['pickup_delivery_slot']}}</td>
+                                <td>{{strtoupper(str_replace(['_'], ' ', $day['schedule']))}}</td>
+                            </tr>
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

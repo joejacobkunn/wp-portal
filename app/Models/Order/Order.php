@@ -58,7 +58,8 @@ class Order extends Model
         'line_items' => 'array',
         'wt_transfers' => 'array',
         'golf_parts' => 'array',
-        'non_stock_line_items' => 'array'
+        'non_stock_line_items' => 'array',
+        'shipping_info' => 'array'
     ];
 
     const LOG_FIELD_MAPS = [

@@ -17,15 +17,18 @@
                 </div>
             </div>
         </div>
-        <x-modal :toggle="$showModal" size="xl" :closeEvent="'closeModal'">
-            <x-slot name="title">Schedule
-                {{ Illuminate\Support\Str::of($form->type)->replace('_', ' ')->title() }}</x-slot>
-            @if (!$this->showView)
-                @include('livewire.scheduler.schedule.partial.form', ['button_text' => 'Update'])
-            @else
-                @include('livewire.scheduler.schedule.partial.view', ['button_text' => 'Update'])
-            @endif
-        </x-modal>
+        @if ($showModal || $isEdit)
+            <x-modal :toggle="$showModal" size="xl" :closeEvent="'closeModal'">
+                <x-slot name="title">Schedule
+                    {{ Illuminate\Support\Str::of($form->type)->replace('_', ' ')->title() }}</x-slot>
+                @if (!$this->showView)
+                    @include('livewire.scheduler.schedule.partial.form', ['button_text' => 'Update'])
+                @else
+                    @include('livewire.scheduler.schedule.partial.view', ['button_text' => 'Update'])
+                @endif
+            </x-modal>
+        @endif
+
     </x-slot>
 </x-page>
 
