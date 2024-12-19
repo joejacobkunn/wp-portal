@@ -28,11 +28,13 @@
                                 <h4 class="alert-heading">Servicable Address</h4>
                                 <p>
                                 <address class="ms-1">
-                                    <Strong>Customer Name</Strong> <br>
-                                    Line 1 Address goes here<br>
-                                    Line 2 Address goes here if exists<br>
-                                    City, State - (ZIP)<br>
-                                    Phone Number and Emails (if present)<br>
+                                    <Strong>{{$form->orderInfo?->customer->name }}</Strong> <br>
+                                    {{$form->orderInfo?->customer->address}}<br>
+                                    {{$form->orderInfo?->customer->address2}}<br>
+                                    {{$form->orderInfo?->customer->city}}, {{$form->orderInfo?->customer->state}} - ({{$form->orderInfo?->customer->zip}})<br>
+                                    <i class="fa-solid fa-phone"></i> {{$form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone:'NA'}}<br>
+                                    <i class="fa-solid fa-envelope"></i> {{$form->orderInfo?->customer->email ? $form->orderInfo?->customer->email:'NA'}}<br>
+
                                 </address>
                                 </p>
                                 <hr>

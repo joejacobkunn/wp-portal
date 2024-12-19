@@ -34,9 +34,7 @@
                             <h3 class="h6 mb-1">Status</h3>
                             <p class="small mb-0">{{ $form->schedule->status }}</p>
                         </div>
-                        {{-- @can('equipment.floor-model-inventory.manage')
-                            <button class="btn btn-sm btn-outline-primary" wire:click="showModel">Update</button>
-                        @endcan --}}
+
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
@@ -96,9 +94,7 @@
                             <h3 class="h6 mb-1">Order Status</h3>
                             <p class="small mb-0">{{ $form->orderInfo->status }}</p>
                         </div>
-                        {{-- @can('equipment.floor-model-inventory.manage')
-                            <button class="btn btn-sm btn-outline-primary" wire:click="showModel">Update</button>
-                        @endcan --}}
+
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
