@@ -120,37 +120,37 @@ class Table extends DataTableComponent
                 ->html(),
 
 
-            Column::make('Brand', 'brand.name')
-                ->secondaryHeader($this->getFilterByKey('brand'))
-                ->searchable(),
-
-
-            Column::make('Vendor', 'vendor.name')
-            ->secondaryHeader($this->getFilterByKey('vendor'))
-
-                ->format(function ($value, $row) {
-                    $attribute = 'vendor.vendor_number';
-                    return $value.'('.$row->$attribute.')';
-                })
-                ->searchable(),
-
-            Column::make('Vendor', 'vendor.vendor_number')
-                ->hideIf(1)
-                ->searchable(),
-
-
-            Column::make('Category', 'category.name')
-                ->secondaryHeader($this->getFilterByKey('category'))
-                ->format(function ($value, $row) {
-                    return strtoupper($value);
-                })
-                ->html(),
-
-            Column::make('Product Line', 'line.name')
-            ->secondaryHeader($this->getFilterByKey('line'))
-                ->searchable()
-                ->excludeFromColumnSelect()
-                ->html(),
+                Column::make('Brand', 'brand_id')
+                    ->secondaryHeader($this->getFilterByKey('brand'))
+                    ->format(function ($value, $row) {
+                        return $row->brand?->name;
+                    })
+                    ->searchable(),
+    
+    
+                Column::make('Vendor', 'vendor_id')
+                    ->secondaryHeader($this->getFilterByKey('vendor'))
+                    ->format(function ($value, $row) {
+                        return $row->vendor?->name .'('.$row->vendor?->vendor_number.')';
+                    })
+                    ->searchable(),
+    
+    
+                Column::make('Category', 'category_id')
+                    ->secondaryHeader($this->getFilterByKey('category'))
+                    ->format(function ($value, $row) {
+                        return strtoupper($row->category?->name);
+                    })
+                    ->html(),
+    
+                Column::make('Product Line', 'product_line_id')
+                    ->secondaryHeader($this->getFilterByKey('line'))
+                    ->format(function ($value, $row) {
+                        return $row->line?->name;
+                    })
+                    ->searchable()
+                    ->excludeFromColumnSelect()
+                    ->html(),
 
             Column::make('Entered Date', 'entered_date')
                 ->searchable()
@@ -269,11 +269,11 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $productQuery = Product::where('account_id', $this->account->id)
-            ->with('vendor:name')
-            ->with('brand:name')
-            ->with('category:name')
-            ->with('line:name')
+        $productQuery = Product::where('account_id', $this->account['id'])
+            ->with('vendor:id,name,vendor_number')
+            ->with('brand:id,name')
+            ->with('category:id,name')
+            ->with('line:id,name')
             ->without('account')
             ->orderBy('last_sold_date', 'DESC');
 

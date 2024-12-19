@@ -19,7 +19,7 @@
                         </div>
 
                         <div class="card-body">
-                            <livewire:product.table :account="$account" key="{{ now() }}" lazy />
+                            <livewire:product.table :account="$account" lazy />
                         </div>
 
                     </div>
