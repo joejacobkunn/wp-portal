@@ -935,6 +935,7 @@ class Index extends Component
         }
         
         if ($this->addToCart($product->id)) {
+            $this->supersedeModal = false;
             $this->alert('info', 'Substituted with supersede!');
         }
     }
