@@ -95,7 +95,7 @@ class Index extends Component
     public function updatedFormSxOrdernumber($value)
     {
         $this->form->suffix = null;
-        $this->form->getOrderInfo( $this->form->suffix );
+       // $this->form->getOrderInfo( $this->form->suffix );
     }
 
     public function getEvents()

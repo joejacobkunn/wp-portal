@@ -61,20 +61,23 @@ class ScheduleForm extends Form
     {
         $this->resetValidation(['sx_ordernumber', 'order_number_suffix']);
         if(!$this->sx_ordernumber) {
-            $this->addError('order_number_suffix', 'order number is required');
+            $this->addError('sx_ordernumber', 'order number is required');
             return;
         }
+
         $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
             ->whereIn('stage_code', [1,2])->first();
         if(!$this->orderInfo) {
             $this->addError('sx_ordernumber', 'order not found');
+            return;
         }
 
         if(empty($this->orderInfo->line_items)) {
             $this->addError('sx_ordernumber', 'Line items not found in this order');
+            return;
         }
 
-        $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo->shipping_info['zip'])->first();
+        $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
     }
 
     public function store()

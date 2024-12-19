@@ -4,9 +4,11 @@
             Your selected shipping zone is <strong>{{$form->zipcodeInfo?->getZone->name}}</strong>.
              The services available in <strong>{{$form->zipcodeInfo?->getZone->name}}</strong> are:
              <ul class="">
-                @foreach ($form->zipcodeInfo?->service as $item)
-                <li class=""> {{ $form->serviceArray[$item] }}</li>
-                @endforeach
+                @if($form->zipcodeInfo)
+                    @foreach ($form->zipcodeInfo?->service as $item)
+                    <li class=""> {{ $form->serviceArray[$item] }}</li>
+                    @endforeach
+                @endif
              </ul>
         </div>
     </div>
@@ -136,6 +138,7 @@
                 </li>
             @endif
         </ul>
+        @if($form->zipcodeInfo)
 
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -151,19 +154,20 @@
                     </tr>
                 </thead>
                 <tbody>
-
-                    @foreach ($form->zipcodeInfo?->getZone?->schedule_days as $key => $day)
-                        @if ($day['enabled'])
-                            <tr>
-                                <td>{{ ucfirst($key) }}</td>
-                                <td>{{$day['ahm_slot']}}</td>
-                                <td>{{$day['pickup_delivery_slot']}}</td>
-                                <td>{{strtoupper(str_replace(['_'], ' ', $day['schedule']))}}</td>
-                            </tr>
-                        @endif
-                    @endforeach
+                        @foreach ($form->zipcodeInfo?->getZone?->schedule_days as $key => $day)
+                            @if ($day['enabled'])
+                                <tr>
+                                    <td>{{ ucfirst($key) }}</td>
+                                    <td>{{$day['ahm_slot']}}</td>
+                                    <td>{{$day['pickup_delivery_slot']}}</td>
+                                    <td>{{strtoupper(str_replace(['_'], ' ', $day['schedule']))}}</td>
+                                </tr>
+                            @endif
+                        @endforeach
                 </tbody>
             </table>
         </div>
+        @endif
+
     </div>
 </div>
