@@ -6,7 +6,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <x-forms.select label="Schedule" model="form.type" :options="$scheduleOptions" :hasAssociativeIndex="true"
-                                default-option-label="- None -" :selected="$form->type" :key="'schedule-' . now()" />
+                                :listener="'typeCheck'" default-option-label="- None -" :selected="$form->type" :key="'schedule-' . now()" />
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -19,15 +19,23 @@
                             <x-forms.input type="number" label="Order Number Suffix" model="form.suffix" lazy />
                         </div>
                     </div>
+                    @if($form->alertConfig['status'])
                     <div class="col-md-12 mb-1">
-                        <p class="text-success"><i class="far fa-check-circle"></i> This ZIP Code is eligible
-                            for
-                            <strong>{{ Illuminate\Support\Str::of($form->type)->replace('_', ' ')->title() }}</strong>
+                        <p class="text-{{$form->alertConfig['class']}}"><i class="far {{$form->alertConfig['icon']}}"></i> {!! $form->alertConfig['message'] !!}
+                            @if($form->alertConfig['show_url'])
+                            <a target="_blank" href="{{route($form->alertConfig['url'])}}?{{$form->alertConfig['params']}}" target="_blank"> {{$form->alertConfig['urlText']}}<i
+                                class="fas fa-external-link-alt"></i></a>
+                            @endif
                         </p>
+                    </div>
+                    @endif
+                    <div wire:loading wire:target="form.suffix" class="mb-3">
+                        <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+                        <span>Please wait, processing order...</span>
                     </div>
 
                     @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-12 mb-3" wire:loading.remove wire:target="form.suffix">
                             <div class="alert alert-light-primary color-primary" role="alert">
                                 <span class="badge bg-light-warning float-end"><a target="_blank" href=""><i
                                             class="fas fa-external-link-alt"></i> CustNo
@@ -74,13 +82,13 @@
                     @endif
                     <div class="col-md-6">
                         <div class="form-group">
-                            <x-forms.datepicker type="date" label="Schedule Date" model="form.schedule_date" lazy />
+                            <x-forms.datepicker type="date" label="Schedule Date" model="form.schedule_date" :disabled="$form->scheduleDateDisable" lazy />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <x-forms.input type="time" prependIcon="fas fa-clock" label="Schedule Time"
-                                model="form.schedule_time" lazy />
+                            :disabled="$form->scheduleDateDisable" model="form.schedule_time" lazy />
                         </div>
                     </div>
                 </div>
@@ -106,13 +114,16 @@
                 Order Info
             </li>
             @if ($form->orderInfo)
-                <li class="list-group-item"><strong>Stage</strong> <span class="float-end"></span></li>
+
+                <li class="list-group-item"><strong>Stage</strong> <span class="float-end">{{$form->orderInfo->getStageCode()}}</span></li>
                 <li class="list-group-item"><strong>Warehouse</strong> <span
                         class="float-end">{{ strtoupper($form->orderInfo->whse) }}</span></li>
-                <li class="list-group-item"><strong>Placed</strong> <span class="float-end"></span></li>
-                <li class="list-group-item"><strong>Stage</strong> <span class="float-end"></span></li>
-                <li class="list-group-item"><strong>Taken By</strong> <span class="float-end"></span></li>
-                <li class="list-group-item"><strong>Amount</strong> <span class="float-end"></span></li>
+                <li class="list-group-item"><strong>Placed</strong> <span
+                    class="float-end"> {{$form->orderInfo->order_date?->format(config('app.default_datetime_format'))}}</span></li>
+                <li class="list-group-item"><strong>Taken By</strong> <span
+                    class="float-end">{{$form->orderInfo->taken_by}}</span></li>
+                {{-- <li class="list-group-item"><strong>Amount</strong> <span
+                    class="float-end">${{ number_format($form->orderInfo->sx_order->totordamt, 2) }}</span></li> --}}
                 <li class="list-group-item"><strong>Status</strong> <span
                         class="float-end">{{ $form->orderInfo->status }}</span></li>
             @else
@@ -125,14 +136,23 @@
         </ul>
         <ul class="list-group mb-3">
             <li class="list-group-item list-group-item-primary">
-                <span class="badge bg-light-warning float-end"><a href=""><i
+                <span class="badge bg-light-warning float-end">
+                    @if ($form->zipcodeInfo)
+                        <a href="{{route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo->id])}}"><i
                             class="fas fa-external-link-alt"></i>
-                        #{{ $form->zipcodeInfo?->getZone->name }}</a></span>
-                Zone Info
+                        #{{ $form->zipcodeInfo?->getZone->name }}</a>
+                    @else
+                        <a href="{{route('service-area.index')}}?tab=zip_code"><i
+                            class="fas fa-external-link-alt"></i>
+                        create new</a>
+                    @endif
+
+                </span>
+                Zipcode Info
             </li>
-            @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
+            @if ($form->zipcodeInfo)
                 <li class="list-group-item"><strong>ZIP Code</strong> <span
-                        class="float-end">{{ $form->orderInfo->shipping_info['zip'] }}</span></li>
+                        class="float-end">{{ $form->orderInfo?->shipping_info['zip'] }}</span></li>
                 <li class="list-group-item"><strong>Delivery Rate</strong> <span
                         class="float-end">${{ $form->zipcodeInfo?->delivery_rate }}</span></li>
                 <li class="list-group-item"><strong>Pickup Rate</strong> <span
@@ -140,7 +160,7 @@
             @else
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
-                        <p class="text-muted ms-1">No order entered</p>
+                        <p class="text-muted ms-1">Need valid zipcode</p>
                     </div>
                 </li>
             @endif

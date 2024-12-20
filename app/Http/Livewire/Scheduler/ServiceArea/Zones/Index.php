@@ -27,7 +27,8 @@ class Index extends Component
         [
             'title' => 'Zones',
             ]];
-            $this->dispatch('setBreadcrumb', $data);
+
+        $this->dispatch('setBreadcrumb', $data);
         }
 
     public function create()

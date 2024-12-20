@@ -25,7 +25,8 @@ class Index extends Component
     protected $listeners = [
         'closeModal' => 'closeModal',
         'edit' => 'edit',
-        'deleteRecord' => 'delete'
+        'deleteRecord' => 'delete',
+        'typeCheck' => 'typeCheck'
     ];
 
     public $actionButtons = [
@@ -95,7 +96,13 @@ class Index extends Component
     public function updatedFormSxOrdernumber($value)
     {
         $this->form->suffix = null;
-       // $this->form->getOrderInfo( $this->form->suffix );
+
+    }
+
+    public function typeCheck($field, $value)
+    {
+        $this->form->type = $value;
+        $this->form->checkServiceAVailability($value);
     }
 
     public function getEvents()

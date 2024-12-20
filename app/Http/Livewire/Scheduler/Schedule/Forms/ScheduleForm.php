@@ -7,6 +7,7 @@ use App\Models\Scheduler\Zipcode;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Livewire\Form;
 
 class ScheduleForm extends Form
@@ -23,7 +24,19 @@ class ScheduleForm extends Form
     public $status;
     public $orderInfo;
     public $zipcodeInfo;
+    public $scheduleDateDisable = true;
     public $created_by;
+    public $alertConfig = [
+        'status' => false,
+        'message' => '',
+        'icon' => '',
+        'class' => '',
+        'show_url' => false,
+        'url' => '',
+        'params' => '',
+        'urlText' => '',
+    ];
+
 
     protected $validationAttributes = [
         'type' => 'Schedule Type',
@@ -59,18 +72,22 @@ class ScheduleForm extends Form
 
     public function getOrderInfo($suffix)
     {
-        $this->resetValidation(['sx_ordernumber', 'order_number_suffix']);
+        $this->resetValidation(['sx_ordernumber', 'suffix']);
+        $this->alertConfig['status'] = false;
         if(!$this->sx_ordernumber) {
             $this->addError('sx_ordernumber', 'order number is required');
             return;
         }
 
+
         $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
             ->first();
-        if(!$this->orderInfo) {
+        if(is_null($this->orderInfo)) {
             $this->addError('sx_ordernumber', 'order not found');
+            $this->reset(['zipcodeInfo', 'scheduleDateDisable', 'schedule_date', 'schedule_time']);
             return;
         }
+
 
         if(empty($this->orderInfo->line_items)) {
             $this->addError('sx_ordernumber', 'Line items not found in this order');
@@ -84,6 +101,45 @@ class ScheduleForm extends Form
 
 
         $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
+        $this->reset('alertConfig');
+        $this->alertConfig['status'] = true;
+        if(!$this->zipcodeInfo) {
+            $this->alertConfig['message'] = 'Zipcode not configured';
+            $this->alertConfig['icon'] = 'fa-times-circle';
+            $this->alertConfig['class'] = 'danger';
+            $this->alertConfig['show_url'] = true;
+            $this->alertConfig['urlText'] = 'create new';
+            $this->alertConfig['url'] = 'service-area.index';
+            $this->alertConfig['params'] = 'tab=zip_code';
+            return;
+        }
+
+        if(!$this->checkServiceAVailability($this->type)) {
+            return;
+        }
+
+    }
+
+    public function checkServiceAVailability($value)
+    {
+        if(!$this->orderInfo ||  !$this->zipcodeInfo) {
+            return false;
+        }
+        $this->alertConfig['status'] = true;
+        if(!in_array($value, $this->zipcodeInfo?->service)) {
+            $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
+            $this->alertConfig['icon'] = 'fa-times-circle';
+            $this->alertConfig['class'] = 'danger';
+            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time']);
+            return false;
+        }
+
+        $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
+        $this->alertConfig['icon'] = 'fa-check-circle';
+        $this->alertConfig['class'] = 'success';
+
+        $this->scheduleDateDisable = false;
+        return true;
     }
 
     public function store()
