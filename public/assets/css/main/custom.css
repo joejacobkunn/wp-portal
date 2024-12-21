@@ -737,3 +737,6 @@
     font-size: 0.9rem;
     color: #6c757d;
 }
+.pac-container {
+    z-index: 10000 !important;
+}
