@@ -1,9 +1,14 @@
 <?php
  namespace App\Http\Livewire\Scheduler\Schedule\Forms;
 
+use App\Classes\SX;
+use App\Contracts\DistanceInterface;
+use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Zipcode;
+use App\Rules\ValidateScheduleDate;
+use App\Rules\ValidateScheduleTime;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -26,6 +31,8 @@ class ScheduleForm extends Form
     public $zipcodeInfo;
     public $scheduleDateDisable = true;
     public $created_by;
+    public $shipping;
+    public $orderTotal;
     public $alertConfig = [
         'status' => false,
         'message' => '',
@@ -36,6 +43,7 @@ class ScheduleForm extends Form
         'params' => '',
         'urlText' => '',
     ];
+
 
 
     protected $validationAttributes = [
@@ -49,6 +57,9 @@ class ScheduleForm extends Form
     public $serviceArray = [
         'at_home_maintenance' => 'At Home Maintenance',
         'delivery_pickup' => 'Delivery/Pickup',
+        'morning' => '8:00AM - 12:00PM',
+        'noon' => '12:00PM - 4:00PM',
+        'afternoon' => '4:00PM - 7:00PM',
     ];
     protected function rules()
     {
@@ -64,21 +75,30 @@ class ScheduleForm extends Form
             ],
             'suffix' => 'required',
             'line_items' => 'required|array',
-            'schedule_date' => 'required|after_or_equal:today',
-            'schedule_time' => 'required|date_format:H:i',
+            'schedule_date' => [
+                'required',
+                'after_or_equal:today',
+                new ValidateScheduleDate($this->getActiveDays())
+            ],
+            'schedule_time' => [
+                'required',
+                'date_format:H:i',
+                new ValidateScheduleTime($this->getActiveDays(), $this->type, $this->schedule_date)
+            ],
         ];
 
     }
 
     public function getOrderInfo($suffix)
     {
+        $google = app(DistanceInterface::class);
+
         $this->resetValidation(['sx_ordernumber', 'suffix']);
         $this->alertConfig['status'] = false;
         if(!$this->sx_ordernumber) {
             $this->addError('sx_ordernumber', 'order number is required');
             return;
         }
-
 
         $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
             ->first();
@@ -88,6 +108,16 @@ class ScheduleForm extends Form
             return;
         }
 
+        $warehouse = Warehouse::where('short' , $this->orderInfo->whse)->first();
+        $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
+        .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
+        $distance = $google->findDistance($warehouse->address, $shipto);
+
+        if ($distance['status'] === 'OK') {
+            $elements = $distance['rows'][0]['elements'][0] ?? null;
+            $this->shipping['distance'] = $elements['distance']['text'] ?? null;
+            $this->shipping['duration'] =   $elements['duration']['text'] ?? null;
+        }
 
         if(empty($this->orderInfo->line_items)) {
             $this->addError('sx_ordernumber', 'Line items not found in this order');
@@ -99,6 +129,7 @@ class ScheduleForm extends Form
             return;
         }
 
+        $this->orderTotal = $this->getTotalInvoiceData($this->orderInfo->line_items, $this->orderInfo->sx_customer_number, $this->orderInfo->whse);
 
         $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
         $this->reset('alertConfig');
@@ -177,5 +208,26 @@ class ScheduleForm extends Form
     public function getScheduledId()
     {
         return $this->schedule?->id ?? null;
+    }
+
+    public function getTotalInvoiceData($items, $sx_customer_number, $whse )
+    {
+        $invoice_request = [
+            'sx_operator_id' => auth()->user()->sx_operator_id,
+            'sx_customer_number' => $sx_customer_number ?? 1,
+            'warehouse' => $whse,
+            'cart' => $items,
+        ];
+
+        $sx = new SX();
+        return $sx->get_total_invoice_data($invoice_request);
+    }
+
+    public function getActiveDays()
+    {
+        $days = $this->zipcodeInfo?->getZone?->schedule_days;
+        return  collect($days)
+        ->filter(fn($day) => $day['enabled'])
+        ->toArray();
     }
 }

@@ -49,17 +49,24 @@
                                     {{ $form->orderInfo?->customer->city }}, {{ $form->orderInfo?->customer->state }}
                                     {{ $form->orderInfo?->customer->zip }}<br>
                                     <i class="fa-solid fa-phone"></i>
-                                    {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'NA' }}
+                                    {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
                                     <i class="fa-solid fa-envelope"></i>
-                                    {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'NA' }}<br>
+                                    {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
 
                                 </address>
                                 </p>
                                 <hr>
-                                <p class="mb-0">Ship To : {{ $form->orderInfo->shipping_info['shipto'] ?: 'n/a' }}
+
+                                <p class="mb-0"><Strong>Ship To</Strong>
                                 </p>
+                                <p class="mb-0"> {{ $form->orderInfo->shipping_info['line'].', ' .$form->orderInfo->shipping_info['line2'].', '
+                                .$form->orderInfo->shipping_info['city'].', '.$form->orderInfo->shipping_info['state'].', '.$form->orderInfo->shipping_info['zip'] }}
+                                </p>
+
                                 <p class="mb-0">Shipping Instructions :
-                                    {{ $form->orderInfo->shipping_info['instructions'] ?: 'n/a' }}</p>
+                                    {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
+                                <p class="mb-0"> Distance : {{$form->shipping['distance']}}</p>
+                                <p class="mb-0"> Duration : {{$form->shipping['duration']}}</p>
                             </div>
                         </div>
                     @endif
@@ -122,8 +129,8 @@
                     class="float-end"> {{$form->orderInfo->order_date?->format(config('app.default_datetime_format'))}}</span></li>
                 <li class="list-group-item"><strong>Taken By</strong> <span
                     class="float-end">{{$form->orderInfo->taken_by}}</span></li>
-                {{-- <li class="list-group-item"><strong>Amount</strong> <span
-                    class="float-end">${{ number_format($form->orderInfo->sx_order->totordamt, 2) }}</span></li> --}}
+                <li class="list-group-item"><strong>Amount</strong> <span
+                    class="float-end">${{ number_format($this->form->orderTotal['total_invoice_amount']) }}</span></li>
                 <li class="list-group-item"><strong>Status</strong> <span
                         class="float-end">{{ $form->orderInfo->status }}</span></li>
             @else
@@ -175,9 +182,14 @@
                         </tr>
                         <tr>
                             <th class="bg-light">Day</th>
+                            @if ($form->type=='at_home_maintenance')
                             <th class="bg-light">AHM Slot</th>
-                            <th class="bg-light">Delivery/Pickup Slot</th>
                             <th class="bg-light">Shift</th>
+                            @endif
+                            @if ($form->type=='delivery' || $form->type=='pickup')
+                            <th class="bg-light"> Delivery/Pickup Slot</th>
+                            <th class="bg-light">Shift</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -185,9 +197,14 @@
                             @if ($day['enabled'])
                                 <tr>
                                     <td>{{ ucfirst($key) }}</td>
+                                    @if ($form->type=='at_home_maintenance')
                                     <td>{{ $day['ahm_slot'] }}</td>
+                                    <td>{{ strtoupper(str_replace(['_'], ' ', $day['ahm_shift'])) }}</td>
+                                    @endif
+                                    @if ($form->type=='delivery' || $form->type=='pickup')
                                     <td>{{ $day['pickup_delivery_slot'] }}</td>
-                                    <td>{{ strtoupper(str_replace(['_'], ' ', $day['schedule'])) }}</td>
+                                    <td>{{  $form->serviceArray[$day['delivery_pickup_shift']] }}</td>
+                                    @endif
                                 </tr>
                             @endif
                         @endforeach
