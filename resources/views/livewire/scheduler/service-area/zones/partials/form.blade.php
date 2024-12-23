@@ -64,14 +64,24 @@
                                             @if ($values['enabled'])
                                                 <div class="border p-3 rounded mb-2">
                                                     <h5 class="mb-3">{{ ucfirst($day) }}</h5>
+
                                                     <div class="row">
-                                                        <!-- Two Integer Fields -->
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <x-forms.input type="number" label="AHM Slot"
-                                                                    model="days.{{ $day }}.ahm_slot" lazy />
+                                                                <x-forms.input type="number"
+                                                                    label="AHM Slots"
+                                                                    model="days.{{ $day }}.ahm_slot"
+                                                                    lazy />
                                                             </div>
                                                         </div>
+                                                        <div class="col-md-6">
+                                                                <x-forms.select label="AHM Shift"
+                                                                    model="days.{{ $day }}.ahm_shift" :options="$scheduleOptions['ahm']"
+                                                                    :selected="$days[$day]['ahm_shift']" hasAssociativeIndex
+                                                                    default-option-label="- None -" :key="'ahmshift' . now()" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="form-group">
                                                                 <x-forms.input type="number"
@@ -80,14 +90,14 @@
                                                                     lazy />
                                                             </div>
                                                         </div>
+                                                        <div class="col-md-6">
+                                                                <x-forms.select label="Pickup/Delivery Shift"
+                                                                    model="days.{{ $day }}.delivery_pickup_shift" :options="$scheduleOptions['pickup_delivery_shift']"
+                                                                    :selected="$days[$day]['delivery_pickup_shift']" hasAssociativeIndex
+                                                                    default-option-label="- None -" :key="'pdshift' . now()" />
+                                                        </div>
                                                     </div>
-                                                    <!-- Select Field -->
-                                                    <div class="form-group mt-3">
-                                                        <x-forms.select label="Shift"
-                                                            model="days.{{ $day }}.schedule" :options="$scheduleOptions"
-                                                            :selected="$days[$day]['schedule']" hasAssociativeIndex
-                                                            default-option-label="- None -" :key="'shift' . now()" />
-                                                    </div>
+
                                                 </div>
                                             @endif
                                         @endforeach

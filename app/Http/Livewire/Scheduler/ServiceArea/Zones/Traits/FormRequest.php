@@ -17,18 +17,26 @@ trait FormRequest
     public $is_active = 1;
 
     public $scheduleOptions = [
-        'am' => 'AM',
-        'pm' => 'PM',
-        'all_day' => 'All Day'
+        'ahm' => [
+            'am' => 'AM',
+            'pm' => 'PM',
+            'all_day' => 'All Day'
+        ],
+        'pickup_delivery_shift' => [
+             'morning' => '8:00am -12:00pm',
+             'noon' => '12:00pm -4:00pm',
+             'afternoon' => '4:00pm-7:00pm',
+             'all_day' => 'All Day'
+        ]
     ];
     public $days = [
-        'monday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
-        'tuesday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
-        'wednesday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
-        'thursday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
-        'friday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
-        'saturday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
-        'sunday' => ['enabled' => false, 'schedule' => '', 'ahm_slot' => '', 'pickup_delivery_slot' => '' ],
+        'monday' => ['enabled' => false, 'ahm_shift' => '', 'delivery_pickup_shift' => '', 'pickup_delivery_slot' => '' ],
+        'tuesday' => ['enabled' => false, 'ahm_shift' => '', 'delivery_pickup_shift' => '', 'pickup_delivery_slot' => '' ],
+        'wednesday' => ['enabled' => false, 'ahm_shift' => '', 'delivery_pickup_shift' => '', 'pickup_delivery_slot' => '' ],
+        'thursday' => ['enabled' => false, 'ahm_shift' => '', 'delivery_pickup_shift' => '', 'pickup_delivery_slot' => '' ],
+        'friday' => ['enabled' => false, 'ahm_shift' => '', 'delivery_pickup_shift' => '', 'pickup_delivery_slot' => '' ],
+        'saturday' => ['enabled' => false, 'ahm_shift' => '', 'delivery_pickup_shift' => '', 'pickup_delivery_slot' => '' ],
+        'sunday' => ['enabled' => false, 'ahm_shift' => '', 'delivery_pickup_shift' => '', 'pickup_delivery_slot' => '' ],
     ];
 
     protected $validationAttributes = [
@@ -51,7 +59,8 @@ trait FormRequest
             if ($values['enabled']) {
                 $rules["days.{$day}.ahm_slot"] = ['required', 'integer', 'min:0'];
                 $rules["days.{$day}.pickup_delivery_slot"] = ['required', 'integer', 'min:0'];
-                $rules["days.{$day}.schedule"] = ['required', Rule::in(['am', 'pm', 'all_day'])];
+                $rules["days.{$day}.ahm_shift"] = ['required', Rule::in(['am', 'pm', 'all_day'])];
+                $rules["days.{$day}.delivery_pickup_shift"] = ['required', Rule::in(['morning', 'noon', 'afternoon', 'all_day'])];
             }
         }
 
@@ -63,10 +72,12 @@ trait FormRequest
         return [
             'days.*.ahm_slot.required' => 'The AHM slot field is required.',
             'days.*.pickup_delivery_slot.required' => 'The pickup/delivery slot field is required.',
-            'days.*.schedule.required' => 'The Shift field is required.',
+            'days.*.ahm_shift.required' => 'The AHM Shift field is required.',
+            'days.*.delivery_pickup_shift.required' => 'The Delivery Pickup Shift field is required.',
             'days.*.ahm_slot.integer' => 'The AHM slot must be a number.',
             'days.*.pickup_delivery_slot.integer' => 'The pickup/delivery slot must be a number.',
-            'days.*.schedule.in' => 'The Shift must be either AM or PM or All Day.'
+            'days.*.ahm_shift.in' => 'The Shift must be either AM or PM or All Day.',
+            'days.*.delivery_pickup_shift.in' => 'Selected shift is invalid.'
         ];
     }
 
