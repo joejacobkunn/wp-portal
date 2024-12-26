@@ -21,12 +21,14 @@ class Index extends Component
     public $schedules;
     public $isEdit;
     public $showView;
+    public $addressModal;
     public $scheduleOptions;
     protected $listeners = [
         'closeModal' => 'closeModal',
         'edit' => 'edit',
         'deleteRecord' => 'delete',
-        'typeCheck' => 'typeCheck'
+        'typeCheck' => 'typeCheck',
+        'closeAddress' => 'closeAddress'
     ];
 
     public $actionButtons = [
@@ -137,6 +139,16 @@ class Index extends Component
         $this->isEdit = true;
         $this->showView = true;
         $this->updatedFormSuffix($schedule->order_number_suffix);
+    }
+
+    public function showAdrress()
+    {
+        $this->addressModal = true;
+    }
+
+    public function closeAddress()
+    {
+        $this->addressModal = false;
     }
 
 }

@@ -55,6 +55,10 @@
 
                                 </address>
                                 </p>
+
+                                <a href="#" wire:click.prevent="showAdrress()" class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
+                                    Use recommended address
+                                </a>
                                 <hr>
 
                                 <p class="mb-0"><Strong>Ship To</Strong>
@@ -214,6 +218,50 @@
                 </table>
             </div>
         @endif
+        @if($addressModal)
+            <x-modal :toggle="$addressModal" size="md" :closeEvent="'closeAddress'">
+                <x-slot name="title">Recommended Address </x-slot>
+                <div class="mb-4">
+                    <h6 class="text-primary">Current Address</h6>
+                    <p>
+                        <address class="ms-1">
+                            <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
+                            {{ $form->orderInfo?->customer->address }}<br>
+                            {{ $form->orderInfo?->customer->address2 }}<br>
+                            {{ $form->orderInfo?->customer->city }}, {{ $form->orderInfo?->customer->state }}
+                            {{ $form->orderInfo?->customer->zip }}<br>
+                            <i class="fa-solid fa-phone"></i>
+                            {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
+                            <i class="fa-solid fa-envelope"></i>
+                            {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
 
+                        </address>
+                        </p>
+                </div>
+                <hr>
+                <div>
+                    <h6 class="text-success">Recommended Address</h6>
+                    <p>
+                        <address class="ms-1">
+                            <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
+                            {{ $form->recommendedAddress['formattedAddress'] }}<br>
+                            <i class="fa-solid fa-phone"></i>
+                            {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
+                            <i class="fa-solid fa-envelope"></i>
+                            {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
+
+                        </address>
+                    </p>
+                </div>
+                <div class="mt-2 float-start">
+                    <button type="submit" class="btn btn-primary">
+                        <div wire:loading wire:target="submit">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Use Recommended Address
+                    </button>
+                </div>
+            </x-modal>
+        @endif
     </div>
 </div>

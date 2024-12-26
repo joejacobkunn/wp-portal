@@ -19,8 +19,20 @@ class LocationSearchService implements DistanceInterface{
 
             $response = Http::acceptJson()
             ->get(config('google.distance_matrix_endpoint'), $payload);
-
-            $data = $response->json();
             return $response;
+    }
+
+    public function addressValidation($address)
+    {
+        $payload = [
+            'address' => [
+                'regionCode' => $address['regionCode'] ?? 'US',
+                'addressLines' => $address['addressLines'],
+                'postalCode' => $address['zip'],
+            ]];
+
+        $response = Http::post(config('google.validation_url'), $payload);
+
+        return $response;
     }
 }

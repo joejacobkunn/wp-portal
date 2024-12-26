@@ -22,13 +22,12 @@
                 <x-slot name="title">Schedule
                     {{ Illuminate\Support\Str::of($form->type)->replace('_', ' ')->title() }}</x-slot>
                 @if (!$this->showView)
-                    @include('livewire.scheduler.schedule.partial.form', ['button_text' => 'Update'])
+                    @include('livewire.scheduler.schedule.partial.form')
                 @else
-                    @include('livewire.scheduler.schedule.partial.view', ['button_text' => 'Update'])
+                    @include('livewire.scheduler.schedule.partial.view')
                 @endif
             </x-modal>
         @endif
-
     </x-slot>
 </x-page>
 

@@ -33,6 +33,7 @@ class ScheduleForm extends Form
     public $created_by;
     public $shipping;
     public $orderTotal;
+    public $recommendedAddress;
     public $alertConfig = [
         'status' => false,
         'message' => '',
@@ -122,6 +123,16 @@ class ScheduleForm extends Form
 
         $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
         .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
+        $address=[
+            'regionCode' => 'US',
+            'addressLines' => $shipto,
+            'zip' => $this->orderInfo->shipping_info['zip']
+        ];
+
+        $recom =  $google->addressValidation($address);
+        if($recom->status() == 200) {
+              $this->recommendedAddress = $recom['result']['address'];
+        }
 
         $distance = $google->findDistance($warehouse->address, $shipto);
 
@@ -149,9 +160,19 @@ class ScheduleForm extends Form
             return;
         }
 
-        if(!$this->checkServiceAVailability($this->type)) {
+        $ServiceStatus = $this->checkServiceAVailability($this->type);
+        if(!$ServiceStatus) {
+            $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
+            $this->alertConfig['icon'] = 'fa-times-circle';
+            $this->alertConfig['class'] = 'danger';
+            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time']);
             return;
         }
+        $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
+        $this->alertConfig['icon'] = 'fa-check-circle';
+        $this->alertConfig['class'] = 'success';
+
+        $this->scheduleDateDisable = false;
 
     }
 
@@ -160,21 +181,16 @@ class ScheduleForm extends Form
         if(!$this->orderInfo ||  !$this->zipcodeInfo) {
             return false;
         }
-        $this->alertConfig['status'] = true;
-        if(!in_array($value, $this->zipcodeInfo?->service)) {
-            $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
-            $this->alertConfig['icon'] = 'fa-times-circle';
-            $this->alertConfig['class'] = 'danger';
-            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time']);
-            return false;
+
+        if(in_array($value, $this->zipcodeInfo?->service)) {
+            return true;
         }
 
-        $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
-        $this->alertConfig['icon'] = 'fa-check-circle';
-        $this->alertConfig['class'] = 'success';
+        if(in_array('delivery_pickup', $this->zipcodeInfo?->service) && ($value =='delivery' || $value == 'pickup')) {
+            return true;
+        }
 
-        $this->scheduleDateDisable = false;
-        return true;
+        return false;
     }
 
     public function store()

@@ -108,9 +108,9 @@ class ZipCodeForm extends Form
         $zone = Zones::find($value);
         $out = '';
         foreach ($zone->schedule_days as $day => $details) {
-            if ($details['enabled']) {
-                $out .= strtoupper($day). ': ' .strtoupper(str_replace(['_'], ' ', $details['schedule'])). ', ';
-            }
+            // if ($details['enabled']) {
+            //     $out .= strtoupper($day). ': ' .strtoupper(str_replace(['_'], ' ', $details['schedule'])). ', ';
+            // }
         }
         return rtrim($out, ', ');
     }
