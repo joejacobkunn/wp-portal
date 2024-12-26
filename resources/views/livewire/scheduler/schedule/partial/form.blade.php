@@ -129,8 +129,10 @@
                     class="float-end"> {{$form->orderInfo->order_date?->format(config('app.default_datetime_format'))}}</span></li>
                 <li class="list-group-item"><strong>Taken By</strong> <span
                     class="float-end">{{$form->orderInfo->taken_by}}</span></li>
-                <li class="list-group-item"><strong>Amount</strong> <span
-                    class="float-end">${{ number_format($this->form->orderTotal['total_invoice_amount']) }}</span></li>
+                @if(isset($this->form->orderTotal['total_invoice_amount']))
+                    <li class="list-group-item"><strong>Amount</strong> <span
+                        class="float-end">${{ number_format($this->form->orderTotal['total_invoice_amount']) }}</span></li>
+                @endif
                 <li class="list-group-item"><strong>Status</strong> <span
                         class="float-end">{{ $form->orderInfo->status }}</span></li>
             @else

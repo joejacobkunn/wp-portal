@@ -108,17 +108,6 @@ class ScheduleForm extends Form
             return;
         }
 
-        $warehouse = Warehouse::where('short' , $this->orderInfo->whse)->first();
-        $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
-        .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
-        $distance = $google->findDistance($warehouse->address, $shipto);
-
-        if ($distance['status'] === 'OK') {
-            $elements = $distance['rows'][0]['elements'][0] ?? null;
-            $this->shipping['distance'] = $elements['distance']['text'] ?? null;
-            $this->shipping['duration'] =   $elements['duration']['text'] ?? null;
-        }
-
         if(empty($this->orderInfo->line_items)) {
             $this->addError('sx_ordernumber', 'Line items not found in this order');
             return;
@@ -128,6 +117,21 @@ class ScheduleForm extends Form
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
         }
+
+        $warehouse = Warehouse::where('short' , $this->orderInfo->whse)->first();
+
+        $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
+        .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
+
+        $distance = $google->findDistance($warehouse->address, $shipto);
+
+        if ($distance['status'] === 'OK') {
+            $elements = $distance['rows'][0]['elements'][0] ?? null;
+            $this->shipping['distance'] = $elements['distance']['text'] ?? null;
+            $this->shipping['duration'] =   $elements['duration']['text'] ?? null;
+        }
+
+
 
         $this->orderTotal = $this->getTotalInvoiceData($this->orderInfo->line_items, $this->orderInfo->sx_customer_number, $this->orderInfo->whse);
 
