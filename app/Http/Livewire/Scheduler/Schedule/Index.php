@@ -151,4 +151,10 @@ class Index extends Component
         $this->addressModal = false;
     }
 
+    public function setAddress()
+    {
+        $this->form->setAddress();
+        $this->closeAddress();
+    }
+
 }

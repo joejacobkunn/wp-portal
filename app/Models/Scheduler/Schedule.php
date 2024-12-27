@@ -20,11 +20,13 @@ class Schedule extends Model
         'schedule_time',
         'line_items',
         'status',
+        'recommended_address',
         'created_by'
     ];
 
     protected $casts = [
         'line_items' => 'array',
+        'recommended_address' => 'array',
     ];
 
     public function user()

@@ -32,6 +32,7 @@ class ScheduleForm extends Form
     public $scheduleDateDisable = true;
     public $created_by;
     public $shipping;
+    public $saveRecommented = false;
     public $orderTotal;
     public $recommendedAddress;
     public $alertConfig = [
@@ -133,7 +134,6 @@ class ScheduleForm extends Form
         if($recom->status() == 200) {
               $this->recommendedAddress = $recom['result']['address'];
         }
-
         $distance = $google->findDistance($warehouse->address, $shipto);
 
         if ($distance['status'] === 'OK') {
@@ -199,6 +199,9 @@ class ScheduleForm extends Form
         $validatedData['status'] = 'Scheduled';
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['order_number_suffix'] = $this->suffix;
+        if($this->saveRecommented) {
+            $validatedData['recommended_address'] = $this->recommendedAddress['postalAddress'];
+        }
         $schedule = Schedule::create($validatedData);
         return $schedule;
     }
@@ -215,6 +218,9 @@ class ScheduleForm extends Form
     {
         $validatedData = $this->validate();
         $validatedData['order_suffix_number'] = $this->suffix;
+        if($this->saveRecommented) {
+            $validatedData['recommended_address'] = $this->recommendedAddress['postalAddress'];
+        }
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
@@ -249,5 +255,10 @@ class ScheduleForm extends Form
         return  collect($days)
         ->filter(fn($day) => $day['enabled'])
         ->toArray();
+    }
+
+    public function setAddress()
+    {
+        $this->saveRecommented = true;
     }
 }

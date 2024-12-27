@@ -254,8 +254,8 @@
                     </p>
                 </div>
                 <div class="mt-2 float-start">
-                    <button type="submit" class="btn btn-primary">
-                        <div wire:loading wire:target="submit">
+                    <button type="submit" class="btn btn-primary" wire:click="setAddress">
+                        <div wire:loading wire:target="setAddress">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
                         Use Recommended Address
