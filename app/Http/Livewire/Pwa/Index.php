@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Pwa;
 
 
 use App\Classes\Fortis;
+use App\Enums\Order\FortisStatus;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Core\Location;
@@ -28,6 +29,14 @@ class Index extends Component
     public $orderInProcess = false;
 
     public $checkSum = '';
+
+    public $lastTransactionDetails = [];
+
+    public $orderStatusModal = false;
+
+    protected $listeners = [
+        'closeOrderStatusModal' => 'closeOrderStatusModal',
+    ];
 
     public function mount()
     {
@@ -75,6 +84,7 @@ class Index extends Component
         $this->reset(
             'selectedOrder',
             'orderInProcess',
+            'lastTransactionDetails',
         );
 
         if (!empty($order)) {
@@ -144,6 +154,8 @@ class Index extends Component
 
     public function processTransaction()
     {
+        $transactionAmount = $this->selectedOrder['totinvamt'];
+
         $orderData = [
             'checkin_date' => date('Y-m-d'),
             'checkout_date' => date('Y-m-d'),
@@ -153,13 +165,18 @@ class Index extends Component
                 'portal_user_id' => auth()->user()->id
             ],
             'location_id' => auth()->user()->location()->fortis_location_id,
-            'transaction_amount' => (int) ($this->selectedOrder['totinvamt'] * 100),
+            'transaction_amount' => (int) (abs($transactionAmount) * 100),
             'customer_id' =>  (string) $this->selectedOrder['custno'],
             'terminal_id' => $this->selectedTerminal
         ];
 
         $fortis = app()->make(Fortis::class);
-        $transaction = $fortis->terminalSale($orderData);
+
+        if ($transactionAmount > 0) {
+            $transaction = $fortis->terminalSale($orderData);
+        } else {
+            $transaction = $fortis->terminalRefund($orderData);
+        }
 
         if ($transaction['type'] == 'TransactionProcessing') {
             $this->checkSum = sha1(Str::random(25));
@@ -195,8 +212,25 @@ class Index extends Component
         $fortis = app()->make(Fortis::class);
         $orderData = $fortis->transactionStatus($transactionCode);
 
+
         if (isset($orderData['data']['id']) && $orderData['data']['progress'] == 100) {
-            $this->alert('success', 'Order successfully placed!');
+
+            $transactionData = $fortis->getTransaction($orderData['data']['id']);
+
+            $this->lastTransactionDetails = [
+                "id" => $transactionData['data']['id'],
+                "payment_method" =>$transactionData['data']['payment_method'],
+                "last_four" => $transactionData['data']['last_four'],
+                "account_holder_name" => $transactionData['data']['account_holder_name'],
+                "transaction_amount" => $transactionData['data']['transaction_amount'],
+                "description" => $transactionData['data']['description'],
+                "order_number" => $transactionData['data']['order_number'],
+                "status_code" => $transactionData['data']['status_code'],
+                "status" => FortisStatus::tryFrom($transactionData['data']['status_code'])->label(),
+                "status_class" => FortisStatus::tryFrom($transactionData['data']['status_code'])->class(),
+                "status_icon" => FortisStatus::tryFrom($transactionData['data']['status_code'])->icon(),
+            ];
+            $this->orderStatusModal = true;
 
             $this->reset(
                 'selectedOrder',
@@ -230,11 +264,19 @@ class Index extends Component
             'selectedOrder',
             'orderInProcess',
             'checkSum',
+            'lastTransactionDetails',
         );
 
 
         $this->alert('info', 'Last transaction canceled.');   
 
         $this->dispatch('browser:transaction-cancelled');
+    }
+
+    public function closeOrderStatusModal()
+    {
+        $this->reset(
+            'orderStatusModal',
+        );
     }
 }

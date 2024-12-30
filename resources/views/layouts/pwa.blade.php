@@ -39,7 +39,7 @@
 
     <div class="user-info">
       <span class="navbar-text me-4 float-end  mt-2">
-          <i class="fa fa-user"></i> {{ auth()->user()->name }} ({{ auth()->user()->sx_operator_id }})
+          <i class="fa fa-user"></i> {{ auth()->user()->name }} ({{ auth()->user()->sx_operator_id }}) <a href="{{ route('pwa.login.logout') }}" class="text-danger">Logout</a>
       </span>
       <div class="float-start mt-2 ms-4"><small><i class="fas fa-map-marker-alt"></i> {{ auth()->user()->office_location }}</small></div>
     </div>
