@@ -44,9 +44,9 @@
                                                 <tr>
                                                     <td>{{ ucfirst($key) }}</td>
                                                     <td>{{$day['ahm_slot']}}</td>
-                                                    <td>{{strtoupper(str_replace(['_'], ' ', $day['ahm_shift']))}}</td>
+                                                    <td>{{ $scheduleOptions['ahm'][$day['ahm_shift']] }}</td>
                                                     <td>{{$day['pickup_delivery_slot']}}</td>
-                                                    <td>{{strtoupper(str_replace(['_'], ' ',$scheduleOptions['pickup_delivery_shift'][$day['delivery_pickup_shift']]))}}</td>
+                                                    <td>{{strtoupper(str_replace(['_'], ' ', $scheduleOptions['pickup_delivery_shift'][$day['delivery_pickup_shift']]))}}</td>
                                                 </tr>
                                             @endif
                                         @endforeach

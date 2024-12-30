@@ -27,6 +27,19 @@ class ZipCodeForm extends Form
         'at_home_maintenance' => 'At Home Maintenance',
         'delivery_pickup' => 'Delivery/Pickup',
     ];
+    public $shiftOptions = [
+        'ahm' => [
+            'am' => '9 AM - 1 PM',
+            'pm' => '1 PM - 6 PM',
+            'all_day' => 'All Day'
+        ],
+        'pickup_delivery_shift' => [
+             'morning' => '8:00 AM -12:00 PM',
+             'noon' => '12:00 PM -4:00 PM',
+             'afternoon' => '4:00 AM-7:00 PM',
+             'all_day' => 'All Day'
+        ]
+    ];
 
     protected $validationAttributes = [
         'zip_code' => 'ZIP Code',
@@ -108,9 +121,11 @@ class ZipCodeForm extends Form
         $zone = Zones::find($value);
         $out = '';
         foreach ($zone->schedule_days as $day => $details) {
-            // if ($details['enabled']) {
-            //     $out .= strtoupper($day). ': ' .strtoupper(str_replace(['_'], ' ', $details['schedule'])). ', ';
-            // }
+            if ($details['enabled']) {
+                $ahmShift = $details['ahm_shift'];
+                $pickupDeliveryShift = $details['delivery_pickup_shift'];
+
+                $out .= strtoupper($day) . ' : (AHM SHIFT: ' . $this->shiftOptions['ahm'][$ahmShift] . ') (PICKUP/DELIVERY SHIFT: ' . $this->shiftOptions['pickup_delivery_shift'][$pickupDeliveryShift] . '), ';            }
         }
         return rtrim($out, ', ');
     }

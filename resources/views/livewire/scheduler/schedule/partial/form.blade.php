@@ -35,7 +35,7 @@
                     </div>
 
                     @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
-                        <div class="col-md-12 mb-3" wire:loading.remove wire:target="form.suffix">
+                        <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
                             <div class="alert alert-light-primary color-primary" role="alert">
                                 <span class="badge bg-light-warning float-end"><a target="_blank" href=""><i
                                             class="fas fa-external-link-alt"></i> CustNo
@@ -69,9 +69,12 @@
 
                                 <p class="mb-0">Shipping Instructions :
                                     {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
-                                <p class="mb-0"> Distance : {{$form->shipping['distance']}}</p>
-                                <p class="mb-0"> Duration : {{$form->shipping['duration']}}</p>
                             </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <p class="text-success"><i class="fas fa-truck"></i>
+                                Per google, the driving distance is {{$form->shipping['distance']}} and takes roughly {{$form->shipping['duration']}}
+                            </p>
                         </div>
                     @endif
 

@@ -18,14 +18,14 @@ trait FormRequest
 
     public $scheduleOptions = [
         'ahm' => [
-            'am' => 'AM',
-            'pm' => 'PM',
+            'am' => '9 AM - 1 PM',
+            'pm' => '1 PM - 6 PM',
             'all_day' => 'All Day'
         ],
         'pickup_delivery_shift' => [
-             'morning' => '8:00am -12:00pm',
-             'noon' => '12:00pm -4:00pm',
-             'afternoon' => '4:00pm-7:00pm',
+             'morning' => '8:00 AM -12:00 PM',
+             'noon' => '12:00 PM - 4:00 PM',
+             'afternoon' => '4:00 PM-7:00 PM',
              'all_day' => 'All Day'
         ]
     ];
