@@ -57,6 +57,8 @@ class ScheduleForm extends Form
         'suffix' => 'Order Suffix',
     ];
     public $serviceArray = [
+        'am' => '9 AM - 1 PM',
+        'pm' => '1 PM - 6 PM',
         'at_home_maintenance' => 'At Home Maintenance',
         'delivery_pickup' => 'Delivery/Pickup',
         'morning' => '8:00AM - 12:00PM',

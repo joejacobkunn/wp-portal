@@ -79,27 +79,27 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Warehouse</h3>
-                            <p class="small pe-4">{{ $form->orderInfo->whse }}</p>
+                            <p class="small pe-4">{{ $form->orderInfo?->whse }}</p>
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Order Date</h3>
-                            <p class="small pe-4">{{ $form->orderInfo->order_date?->format(config('app.default_datetime_format')) }}</p>
+                            <p class="small pe-4">{{ $form->orderInfo?->order_date?->format(config('app.default_datetime_format')) }}</p>
                         </div>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Order Status</h3>
-                            <p class="small mb-0">{{ $form->orderInfo->status }}</p>
+                            <p class="small mb-0">{{ $form->orderInfo?->status }}</p>
                         </div>
 
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">CUstomer Name</h3>
-                            <p class="small pe-4">{{ $form->orderInfo->customer->name ?? '---' }}</p>
+                            <p class="small pe-4">{{ $form->orderInfo?->customer->name ?? '---' }}</p>
                         </div>
                     </li>
 
@@ -107,7 +107,7 @@
                         <div>
                             <h3 class="h6 mb-1">Customer SX number</h3>
                             <p class="small pe-4">
-                                {{ $form->orderInfo->sx_customer_number }}</p>
+                                {{ $form->orderInfo?->sx_customer_number }}</p>
                         </div>
                     </li>
                 </ul>

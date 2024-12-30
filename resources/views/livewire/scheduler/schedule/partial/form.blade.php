@@ -208,7 +208,7 @@
                                     <td>{{ ucfirst($key) }}</td>
                                     @if ($form->type=='at_home_maintenance')
                                     <td>{{ $day['ahm_slot'] }}</td>
-                                    <td>{{ strtoupper(str_replace(['_'], ' ', $day['ahm_shift'])) }}</td>
+                                    <td>{{ $form->serviceArray[$day['ahm_shift']] }}</td>
                                     @endif
                                     @if ($form->type=='delivery' || $form->type=='pickup')
                                     <td>{{ $day['pickup_delivery_slot'] }}</td>
