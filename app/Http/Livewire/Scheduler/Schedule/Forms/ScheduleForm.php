@@ -122,32 +122,8 @@ class ScheduleForm extends Form
             return;
         }
 
-        $warehouse = Warehouse::where('short' , $this->orderInfo->whse)->first();
-
-        $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
-        .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
-        $address=[
-            'regionCode' => 'US',
-            'addressLines' => $shipto,
-            'zip' => $this->orderInfo->shipping_info['zip']
-        ];
-
-        $recom =  $google->addressValidation($address);
-        if($recom->status() == 200) {
-              $this->recommendedAddress = $recom['result']['address'];
-        }
-        $distance = $google->findDistance($warehouse->address, $shipto);
-
-        if ($distance['status'] === 'OK') {
-            $elements = $distance['rows'][0]['elements'][0] ?? null;
-            $this->shipping['distance'] = $elements['distance']['text'] ?? null;
-            $this->shipping['duration'] =   $elements['duration']['text'] ?? null;
-        }
-
-
-
         $this->orderTotal = $this->getTotalInvoiceData($this->orderInfo->line_items, $this->orderInfo->sx_customer_number, $this->orderInfo->whse);
-
+        $this->getDistance();
         $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
         $this->reset('alertConfig');
         $this->alertConfig['status'] = true;
@@ -162,19 +138,7 @@ class ScheduleForm extends Form
             return;
         }
 
-        $ServiceStatus = $this->checkServiceAVailability($this->type);
-        if(!$ServiceStatus) {
-            $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
-            $this->alertConfig['icon'] = 'fa-times-circle';
-            $this->alertConfig['class'] = 'danger';
-            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time']);
-            return;
-        }
-        $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
-        $this->alertConfig['icon'] = 'fa-check-circle';
-        $this->alertConfig['class'] = 'success';
-
-        $this->scheduleDateDisable = false;
+        $this->checkServiceValidity();
 
     }
 
@@ -262,5 +226,56 @@ class ScheduleForm extends Form
     public function setAddress()
     {
         $this->saveRecommented = true;
+    }
+
+    public function getDistance()
+    {
+        $google = app(DistanceInterface::class);
+        $warehouse = Warehouse::where('short' , $this->orderInfo->whse)->first();
+        $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
+        .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
+
+        $distance = $google->findDistance($warehouse->address, $shipto);
+
+        if ($distance['status'] === 'OK') {
+            $elements = $distance['rows'][0]['elements'][0] ?? null;
+            $this->shipping['distance'] = $elements['distance']['text'] ?? null;
+            $this->shipping['duration'] =   $elements['duration']['text'] ?? null;
+        }
+    }
+
+    public function getRecomAddress()
+    {
+        $google = app(DistanceInterface::class);
+
+        $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
+        .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
+        $address=[
+            'regionCode' => 'US',
+            'addressLines' => $shipto,
+            'zip' => $this->orderInfo->shipping_info['zip']
+        ];
+
+        $recom =  $google->addressValidation($address);
+        if($recom->status() == 200) {
+              $this->recommendedAddress = $recom['result']['address'];
+        }
+    }
+
+    public function checkServiceValidity()
+    {
+        $ServiceStatus = $this->checkServiceAVailability($this->type);
+        if(!$ServiceStatus) {
+            $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
+            $this->alertConfig['icon'] = 'fa-times-circle';
+            $this->alertConfig['class'] = 'danger';
+            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time']);
+            return;
+        }
+        $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
+        $this->alertConfig['icon'] = 'fa-check-circle';
+        $this->alertConfig['class'] = 'success';
+
+        $this->scheduleDateDisable = false;
     }
 }

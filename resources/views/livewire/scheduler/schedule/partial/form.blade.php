@@ -71,13 +71,20 @@
                                     {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
                             </div>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-12 mb-1">
                             <p class="text-success"><i class="fas fa-truck"></i>
                                 Per google, the driving distance is {{$form->shipping['distance']}} and takes roughly {{$form->shipping['duration']}}
                             </p>
                         </div>
-                    @endif
 
+                    @endif
+                    @if ($this->form->saveRecommented)
+                        <div class="col-md-12 mb-3">
+                            <p class="text-success"><i class="fas fa-check-circle"></i>
+                                Using recommended address from google
+                            </p>
+                        </div>
+                    @endif
                     @if ($form->orderInfo?->line_items)
                         <div class="col-md-12 mb-3">
                             <ul class="list-group">

@@ -104,7 +104,7 @@ class Index extends Component
     public function typeCheck($field, $value)
     {
         $this->form->type = $value;
-        $this->form->checkServiceAVailability($value);
+        $this->form->checkServiceValidity($value);
     }
 
     public function getEvents()
@@ -143,6 +143,7 @@ class Index extends Component
 
     public function showAdrress()
     {
+        $this->form->getRecomAddress();
         $this->addressModal = true;
     }
 
