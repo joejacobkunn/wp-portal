@@ -17,7 +17,7 @@
                 </tr>
                 <tr>
                     <td>Transaction Amount</td>
-                    <td>{{ number_format($lastTransactionDetails['transaction_amount'], 2) }}</td>
+                    <td>${{ number_format(($lastTransactionDetails['transaction_amount'] / 100), 2) }}</td>
                 </tr>
                 <tr>
                     <td>Description</td>
