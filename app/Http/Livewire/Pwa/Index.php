@@ -11,6 +11,7 @@ use App\Models\Core\Location;
 use Illuminate\Support\Facades\DB;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Warehouse;
+use App\Models\Order\TerminalSale;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -178,6 +179,16 @@ class Index extends Component
             $transaction = $fortis->terminalRefund($orderData);
         }
 
+        //generate txn log
+        TerminalSale::create([
+            'transaction_amount' => $orderData['transaction_amount'] / 100,
+            'location_id' => $orderData['location_id'],
+            'customer_id' => $orderData['customer_id'],
+            'terminal_id' => $orderData['terminal_id'],
+            'payload' => json_encode($orderData),
+            'txn_code' => $transaction['data']['async']['code'] ?? 'NA-' . time(),
+        ]);
+
         if ($transaction['type'] == 'TransactionProcessing') {
             $this->checkSum = sha1(Str::random(25));
 
@@ -231,6 +242,19 @@ class Index extends Component
                 "status_icon" => FortisStatus::tryFrom($transactionData['data']['status_code'])->icon(),
             ];
             $this->orderStatusModal = true;
+
+            //update log
+            TerminalSale::updateOrCreate([
+                'txn_code' => $transactionCode
+            ], [
+                'order_id' => $transactionData['data']['id'],
+                'product_transaction_id' => $transactionData['data']['product_transaction_id'],
+                'emv_receipt_data' => json_encode(!empty($transactionData['data']['emv_receipt_data']) ? $transactionData['data']['emv_receipt_data'] : []),
+                'status_code' => $transactionData['data']['status_code'],
+                'status' => FortisStatus::tryFrom($transactionData['data']['status_code'])->label(),
+                'created_ts' => $transactionData['data']['created_ts'],
+                'response_text' => json_encode($transactionData),
+            ]);
 
             $this->reset(
                 'selectedOrder',
