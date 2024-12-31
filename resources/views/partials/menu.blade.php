@@ -181,12 +181,13 @@
             <div class="submenu ">
                 <div class="submenu-group-wrapper">
                     <ul class="submenu-group">
-                        <li class="submenu-item">
-                            <a href="{{ route('schedule.index') }}" wire:navigate>
-                                <span>Schedule</span>
-                            </a>
-                        </li>
-
+                        @can('scheduler.schedule.view')
+                            <li class="submenu-item">
+                                <a href="{{ route('schedule.index') }}" wire:navigate>
+                                    <span>Schedule</span>
+                                </a>
+                            </li>
+                        @endcan
                         @can('scheduler.serice-area.view')
                             <li class="submenu-item  {{ request()->is('service-area*') ? 'active' : '' }}">
                                 <a href="{{ route('service-area.index') }}" wire:navigate>

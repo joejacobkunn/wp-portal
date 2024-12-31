@@ -48,6 +48,7 @@ class Index extends Component
 
     public function mount()
     {
+        $this->authorize('viewAny', Schedule::class);
         $this->scheduleOptions = collect(ScheduleEnum::cases())
             ->mapWithKeys(fn($case) => [$case->name => $case->value])
             ->toArray();
@@ -56,6 +57,7 @@ class Index extends Component
 
     public function create($type)
     {
+        $this->authorize('store', Schedule::class);
         $this->isEdit = false;
         $this->form->type = $type;
         $this->showModal = true;
@@ -79,10 +81,13 @@ class Index extends Component
     public function submit()
     {
         if( $this->isEdit ) {
+
+            $this->authorize('update', $this->form->schedule);
             $this->form->update();
             $this->alert('success', 'Schedule Updated');
 
         } else {
+            $this->authorize('store', Schedule::class);
             $this->form->store();
             $this->alert('success', 'New Shipping Scheduled!');
         }
@@ -126,6 +131,7 @@ class Index extends Component
 
     public function delete()
     {
+        $this->authorize('delete', $this->form->schedule);
         $this->form->delete();
         $this->alert('success', 'Record Deleted!');
         return redirect()->route('schedule.index');

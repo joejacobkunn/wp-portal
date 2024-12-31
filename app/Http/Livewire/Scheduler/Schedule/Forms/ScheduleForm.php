@@ -81,7 +81,6 @@ class ScheduleForm extends Form
             'line_items' => 'required|array',
             'schedule_date' => [
                 'required',
-                'after_or_equal:today',
                 new ValidateScheduleDate($this->getActiveDays())
             ],
             'schedule_time' => [
