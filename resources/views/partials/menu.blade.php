@@ -203,11 +203,10 @@
                         </li>
 
                         <li class="submenu-item">
-                            <a href="" wire:navigate>
+                            <a href="{{ route('schedule.driver.index') }}" wire:navigate>
                                 <span>Drivers</span>
                             </a>
-                        </li>
-
+                         </li>
                         <li class="submenu-item">
                             <a href="" wire:navigate>
                                 <span>Surveys</span>
