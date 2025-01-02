@@ -25,7 +25,7 @@ body {
 /* Not required for template or sticky footer method. */
 
 .pwa-navbar {
-    background: #4c721d;
+    background: #60a737;
     color: #fff;
 }
 .pwa-navbar .navbar-text {
@@ -47,7 +47,7 @@ body {
 }
 
 .pwa-navbar .navbar-collapse {
-    margin-left: 35%;
+    margin-left: 40%;
 }
 .payment-outer-div {
     font-size: 1.1em;
@@ -100,6 +100,6 @@ body {
     .pwa-navbar .navbar-collapse {
         display: inline-block !important;
         flex: auto;
-        margin-left: 22%;
+        margin-left: 12%;
     }
 }

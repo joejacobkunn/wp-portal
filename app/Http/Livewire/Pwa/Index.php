@@ -4,14 +4,15 @@ namespace App\Http\Livewire\Pwa;
 
 
 use App\Classes\Fortis;
-use App\Enums\Order\FortisStatus;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Core\Location;
-use Illuminate\Support\Facades\DB;
-use App\Http\Livewire\Component\Component;
 use App\Models\Core\Warehouse;
+use App\Enums\Order\FortisStatus;
 use App\Models\Order\TerminalSale;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use App\Http\Livewire\Component\Component;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -70,12 +71,17 @@ class Index extends Component
             }
         }
 
+        if (Cache::has('pwa.selected_terminal')) {
+            $this->selectedTerminal = Cache::get('pwa.selected_terminal');
+        }
+
         $this->pageLoaded = true;
     }
 
     public function setTerminal($terminalId)
     {
         $this->selectedTerminal = $terminalId;
+        Cache::put('pwa.selected_terminal', $terminalId);
     }
 
     public function checkPendingPayment(Request $request)
@@ -98,7 +104,7 @@ class Index extends Component
 
     protected function fetchPendingPayment($request)
     {
-        $whse = Warehouse::where('title', auth()->user()->office_location)->first()->short;
+       $whse = Warehouse::where('title', auth()->user()->office_location)->first()->short;
         $operator = auth()->user()->sx_operator_id;
 
         if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
