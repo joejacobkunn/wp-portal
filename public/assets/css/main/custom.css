@@ -827,3 +827,8 @@
     border-bottom: 0;
     border-left: 0.3em solid transparent;
 }
+
+.scheduler-driver-img-thumbnail {
+    height: 100px;
+    width: 100px;
+}

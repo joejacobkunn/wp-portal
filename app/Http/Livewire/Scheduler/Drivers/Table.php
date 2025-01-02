@@ -36,7 +36,7 @@ class Table extends DataTableComponent
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
-                    return '<a  href="'.route('core.user.show', $row->user_id).
+                    return '<a  href="'.route('schedule.driver.show', $row->id).
                         '" wire:navigate class="text-primary text-decoration-underline">'.
                         $value.'</a>';
                 })
