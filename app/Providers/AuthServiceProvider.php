@@ -7,6 +7,9 @@ namespace App\Providers;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Models\SalesRepOverride\SalesRepOverride;
+use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\Zipcode;
+use App\Models\Scheduler\Zones;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -40,6 +43,8 @@ class AuthServiceProvider extends ServiceProvider
         $policies += $this->getWarrantyPolicies();
         $policies += $this->getFloorModelPolicies();
         $policies += $this->getSalesRepOverride();
+        $policies += $this->getServiceAreaPolicies();
+        $policies += $this->getSchedulesPolicies();
         return $policies;
     }
 
@@ -99,4 +104,19 @@ class AuthServiceProvider extends ServiceProvider
         ];
     }
 
+
+    private function getServiceAreaPolicies()
+    {
+        return [
+            Zones::class => \App\Policies\Scheduler\ServiceArea\ZonesPolicy::class,
+            Zipcode::class => \App\Policies\Scheduler\ServiceArea\ZipcodePolicy::class
+        ];
+    }
+
+    public function getSchedulesPolicies()
+    {
+        return [
+            Schedule::class => \App\Policies\Scheduler\Schedule\SchedulesPolicy::class
+        ];
+    }
 }

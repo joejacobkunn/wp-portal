@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Contracts\DistanceInterface;
 use App\Services\Environment\Host;
+use App\Services\LocationSearchService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(DistanceInterface::class, LocationSearchService::class);
     }
 
     /**
