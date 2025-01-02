@@ -113,7 +113,8 @@ class Index extends Component
         'pos:processAddToCart' => 'addToCart', //process prod selection adn add to cart
         'pos:addedToCart' => '$refresh',
         'unit_of_measure:updated' => 'updatedUnitOfMeasure',
-        'product:coupon:selected' => 'ackCouponSelected', //ack prod selection from table
+        'product:coupon:selected' => 'ackCouponSelected', //ack prod selection from table,
+        'closeSupersedeModal',
     ];
 
     public function mount()
@@ -914,10 +915,20 @@ class Index extends Component
             'prodline' => $searchResponse['prodline'],
         ];
 
+        if ($searchResponse['stock'] < $this->cart[$existingProductCode]['quantity']) {
+            $this->supersedeData['stock_error'] = true;
+        }
+
     }
 
     public function substituteSupersede($productCode) 
     {
+        if (!empty($this->supersedeData['stock_error'])) {
+            $this->alert('error', 'Stock is insufficient for the selected quantity.');
+            return;
+        }
+
+        $selectedQuantity = $this->cart[$this->productRefsupercede]['quantity'];
         if (isset($this->productRefsupercede)) {
             unset($this->cart[$this->productRefsupercede]);
         }
@@ -933,10 +944,23 @@ class Index extends Component
             $this->alert('error', 'Product not found!');
             return;
         }
-        
-        if ($this->addToCart($product->id)) {
-            $this->supersedeModal = false;
-            $this->alert('info', 'Substituted with supersede!');
+
+        //preserve quanity
+        if ($selectedQuantity > 1) {
+            $this->cart[$product->prod]['quantity'] = $selectedQuantity-1;
         }
+        
+        $this->addToCart($product->id);
+        $this->supersedeModal = false;
+        $this->alert('info', 'Substituted with supersede!');
+    }
+
+    public function closeSupersedeModal()
+    {
+        $this->supersedeModal = false;
+        $this->reset(
+            'supersedeData',
+            'productRefsupercede',
+        );
     }
 }

@@ -98,7 +98,11 @@ class Table extends DataTableComponent
                 })
                 ->secondaryHeader($this->getFilterByKey('aliases'))
                 ->format(function ($value, $row) {
-                    return implode(', ', $value);
+                    if (is_array($value)) {
+                        return implode(', ', $value);
+                    } else {
+                        return $value;
+                    }
                 })
                 ->html(),
 

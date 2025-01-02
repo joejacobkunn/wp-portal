@@ -111,6 +111,14 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('sales-rep-override', \App\Http\Livewire\SalesRepOverride\Index::class)->name('sales-rep-override.index');
         Route::get('sales-rep-override/{salesRepOverride}/show', \App\Http\Livewire\SalesRepOverride\Show::class)->name('sales-rep-override.show');
 
+        Route::get('scheduler', \App\Http\Livewire\Scheduler\ServiceArea\Index::class)->name('service-area.index');
+        Route::get('scheduler/zones/{zone}/show', \App\Http\Livewire\Scheduler\ServiceArea\Zones\Show::class)->name('service-area.zones.show');
+        Route::get('scheduler/zip-codes/{zipcode}/show', \App\Http\Livewire\Scheduler\ServiceArea\ZipCode\Show::class)->name('service-area.zipcode.show');
+
+        Route::get('scheduler/schedule', \App\Http\Livewire\Scheduler\Schedule\Index::class)->name('schedule.index');
+
+        Route::get('scheduler/drivers', \App\Http\Livewire\Scheduler\Drivers\Index::class)->name('schedule.driver.index');
+        Route::get('scheduler/drivers/{staffInfo}/show', \App\Http\Livewire\Scheduler\Drivers\Show::class)->name('schedule.driver.show');
 
     });
 

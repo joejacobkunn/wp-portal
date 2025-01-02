@@ -64,6 +64,12 @@ class ModuleSeeder extends Seeder
                 'description' => 'Manage Sales Rep Override',
             ],
 
+            [
+                'name' => 'Scheduler',
+                'slug' => 'scheduler',
+                'description' => 'Manage logistics and shipping',
+            ],
+
         ];
 
         foreach ($modules as $module) {

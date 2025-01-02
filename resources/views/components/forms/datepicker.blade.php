@@ -1,7 +1,9 @@
 <div class="x-datepicker">
     @php
         $id = str_replace('.', '_', ($id ?? "") . $model . "_datepicker");
-        $format = (!empty($format) ? $format : (!empty($enableTime) ? 'Y-m-d H:i' : 'Y-m-d'))
+        $format = (!empty($format) ? $format : (!empty($enableTime) ? 'Y-m-d H:i' : 'Y-m-d'));
+        $isDisabled = !empty($disabled) && $disabled;
+
     @endphp
 
     <label>{{ $label ?? '' }}</label>
@@ -10,13 +12,14 @@
         <span class="input-group-text {{ !empty($hideIcon) ? 'd-none' : '' }}">
             <i class="fas {{ $icon ?? 'fa-calendar-day' }}"></i>
         </span>
-        <input 
+        <input
             type="{{ $type ?? 'text' }}"
             id="{{ $id }}"
-            class="form-control {{ $errors->has($model) ? 'is-invalid' : '' }} {{ $class ?? '' }}" 
+            class="form-control {{ $errors->has($model) ? 'is-invalid' : '' }} {{ $class ?? '' }}"
             placeholder="{{ $placeholder ?? '' }}"
             value="{{ $value ?? '' }}"
             wire:model.{{ !empty($lazy) ? 'lazy' : 'debounce.500ms' }}="{{ $model ?? '' }}"
+            {{  $isDisabled ? "disabled" : "" }}
             autocomplete="off"
         >
     </div>

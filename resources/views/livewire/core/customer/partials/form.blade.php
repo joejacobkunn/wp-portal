@@ -92,12 +92,9 @@
                 let postalField;
 
                 function waitForMapJs(callback) {
-                    console.log('called')
 
                     var checkGoogleMaps = setInterval(function() {
-                    console.log('checking')
                         if (google && google.maps) {
-                    console.log('loaded')
                             clearInterval(checkGoogleMaps);
                             callback();
                         }
@@ -114,7 +111,6 @@
                         fields: ["address_components", "geometry"],
                         types: ["address"],
                     });
-                    address1Field.focus();
                     
                     autocomplete.addListener("place_changed", fillInAddress);
                 });
@@ -151,12 +147,12 @@
 
                             case "locality":
                                 document.getElementById("customer.city_input-field").value = component.long_name;
-                                $wire.set('customer.city_input-field', component.long_name);
+                                $wire.set('customer.city', component.long_name);
                                 break;
 
                             case "administrative_area_level_1": {
                                 document.getElementById("customer.state_input-field").value = component.short_name;
-                                $wire.set('customer.state_input-field', component.short_name);
+                                $wire.set('customer.state', component.short_name);
                                 break;
                             }
                         }
@@ -164,8 +160,8 @@
 
                     address1Field.value = address1;
                     postalField.value = postcode;
-                    $wire.set('customer.address_input-field', address1);
-                    $wire.set('customer.zip_input-field', postcode);
+                    $wire.set('customer.address', address1);
+                    $wire.set('customer.zip', postcode);
                     
                     address2Field.focus();
                 }

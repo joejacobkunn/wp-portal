@@ -132,15 +132,6 @@ trait FormRequest
     {
     }
 
-
-    public function updatedCustomerZip()
-    {
-        //find state and city using zip
-        $zip_data = ZipCode::where('zipcode', $this->customer->zip)->first();
-        $this->customer->city = $zip_data->city;
-        $this->customer->state = $zip_data->state;
-    }
-
     public function createSXCustomer()
     {
         $data = [
