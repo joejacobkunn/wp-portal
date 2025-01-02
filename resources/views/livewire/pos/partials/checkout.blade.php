@@ -122,7 +122,10 @@
                                             @if(!empty($item['supersedes']))
                                             <div class="d-flex">
                                                 @foreach($item['supersedes'] as $supersede)
-                                                <span class="badge bg-secondary me-1" wire:click="viewSupersede('{{ $supersede }}', '{{ $cartIndex }}')">{{ $supersede }}</span>
+                                                    <span class="badge text-primary media-library-text-link me-1" wire:click="viewSupersede('{{ $supersede }}', '{{ $item['product_code'] }}')">
+                                                        <i class="far fa-clone me-1"></i> {{ $supersede }}
+                                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" wire:loading wire:target="viewSupersede('{{ $supersede }}', '{{ $item['product_code'] }}')"></span>
+                                                    </span>
                                                 @endforeach
                                             </div>
                                             @endif
@@ -591,7 +594,7 @@
 
     </x-modal>
 
-    <x-modal :toggle="$supersedeModal" closeEvent="closeMeasureUpdateModal">
+    <x-modal :toggle="$supersedeModal" closeEvent="closeSupersedeModal">
         <x-slot name="title">
             <div class="">View Supersede</div>
         </x-slot>
@@ -620,11 +623,26 @@
                     <td>${{ number_format($supersedeData['price'], 2) }}</td>
                 </tr>
             </table>
+
+            @if(!empty($supersedeData['stock_error']))
+            <div class="alert alert-warning">
+                <p class="mb-0">Not enough stock for the selected quantity!</p>
+            </div>
+            @endif
         </div>
         @endif
 
         <x-slot name="footer">
-            <button type="button" class="btn btn-outline-primary" @click="open = false">Close</button>
+            <div class="m-auto">
+                @if(!empty($supersedeData))
+                <button type="button"
+                    class="btn btn-primary mb-3 px-4 py-2 mt-1"
+                    wire:click="substituteSupersede('{{ $supersedeData['product_code'] }}')"
+                    {{ !empty($supersedeData['stock_error']) ? 'disabled' : '' }}>
+                    <i class="fas fa-sync-alt me-2" wire:loading.class="fa-spin"></i> Substitute supersede
+                </button>
+                @endif
+            </div>
         </x-slot>
 
     </x-modal>

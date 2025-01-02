@@ -46,4 +46,9 @@ return [
         'tenant' => env('AZURE_TENANT_ID'),
         'proxy' => env('PROXY'),  // optionally
     ],
+
+    //google places for address search
+    'google_places' => [
+        'api_key' => env('GOOGLE_PLACES_API_KEY', null),
+    ]
 ];

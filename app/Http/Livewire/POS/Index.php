@@ -98,6 +98,7 @@ class Index extends Component
     public $couponSearchModal = false;
     public $supersedeModal = false;
     public $supersedeData = [];
+    public $productRefsupercede;
 
     protected $listeners = [
         'closeProductSearch',
@@ -112,7 +113,8 @@ class Index extends Component
         'pos:processAddToCart' => 'addToCart', //process prod selection adn add to cart
         'pos:addedToCart' => '$refresh',
         'unit_of_measure:updated' => 'updatedUnitOfMeasure',
-        'product:coupon:selected' => 'ackCouponSelected', //ack prod selection from table
+        'product:coupon:selected' => 'ackCouponSelected', //ack prod selection from table,
+        'closeSupersedeModal',
     ];
 
     public function mount()
@@ -696,6 +698,7 @@ class Index extends Component
             'look_up_name' => $searchResponse['look_up_name'],
             'supersedes' => $product->supersedes ? $product->supersedes : [],
             'category' => $searchResponse['category'],
+            'brand_name' => strtolower((string) $product->brand?->name),
             'unit_sell' => !empty($product->unit_sell) ? $product->unit_sell : ["EA"],
             'unit_of_measure' => !empty($product->unit_sell) ? $product->default_unit_sell : 'EA',
             'price' => $searchResponse['price'],
@@ -889,7 +892,7 @@ class Index extends Component
         $this->closeCouponSearch();
     }
 
-    public function viewSupersede($productCode, $cartIndex)
+    public function viewSupersede($productCode, $existingProductCode)
     {
         $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id', 'supersedes')
             ->where(function ($query) {
@@ -899,6 +902,7 @@ class Index extends Component
             ->first();
         $searchResponse = $this->getproductData($productCode, $product?->default_unit_sell);
 
+        $this->productRefsupercede = $existingProductCode;
         $this->supersedeModal = true;
         $this->supersedeData = [
             'product_code' => $productCode,
@@ -911,5 +915,52 @@ class Index extends Component
             'prodline' => $searchResponse['prodline'],
         ];
 
+        if ($searchResponse['stock'] < $this->cart[$existingProductCode]['quantity']) {
+            $this->supersedeData['stock_error'] = true;
+        }
+
+    }
+
+    public function substituteSupersede($productCode) 
+    {
+        if (!empty($this->supersedeData['stock_error'])) {
+            $this->alert('error', 'Stock is insufficient for the selected quantity.');
+            return;
+        }
+
+        $selectedQuantity = $this->cart[$this->productRefsupercede]['quantity'];
+        if (isset($this->productRefsupercede)) {
+            unset($this->cart[$this->productRefsupercede]);
+        }
+
+        $product = Product::select('id', 'prod', 'unit_sell', 'product_line_id', 'supersedes')
+            ->where(function ($query) use ($productCode) {
+                $query->where('prod', $productCode);
+                $query->orWhere('aliases', 'like', '%"'. $productCode .'"%');
+            })
+            ->first();
+
+        if (!$product) {
+            $this->alert('error', 'Product not found!');
+            return;
+        }
+
+        //preserve quanity
+        if ($selectedQuantity > 1) {
+            $this->cart[$product->prod]['quantity'] = $selectedQuantity-1;
+        }
+        
+        $this->addToCart($product->id);
+        $this->supersedeModal = false;
+        $this->alert('info', 'Substituted with supersede!');
+    }
+
+    public function closeSupersedeModal()
+    {
+        $this->supersedeModal = false;
+        $this->reset(
+            'supersedeData',
+            'productRefsupercede',
+        );
     }
 }

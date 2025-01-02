@@ -739,6 +739,7 @@
 }
 
 
+
 /* Warehouse navigation styles */
 .warehouse-nav .list-group-item {
     transition: all 0.3s ease;
@@ -832,3 +833,8 @@
     height: 100px;
     width: 100px;
 }
+
+.pac-container {
+    z-index: 10000 !important;
+}
+
