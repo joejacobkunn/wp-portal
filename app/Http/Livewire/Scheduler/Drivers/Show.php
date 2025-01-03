@@ -3,7 +3,6 @@
 namespace App\Http\Livewire\Scheduler\Drivers;
 
 use App\Http\Livewire\Scheduler\Drivers\Form\DriversForm;
-use App\Models\Scheduler\StaffInfo;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Http\Livewire\Component\Component;

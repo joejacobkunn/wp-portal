@@ -5,7 +5,6 @@ namespace App\Http\Livewire\Scheduler\Drivers;
 
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\User;
-use App\Models\Scheduler\StaffInfo;
 use App\Models\Scheduler\Zones;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;

@@ -2,10 +2,8 @@
  namespace App\Http\Livewire\Scheduler\Drivers\Form;
 
 use App\Models\Core\User;
-use App\Models\Scheduler\StaffInfo;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
-use Illuminate\Support\Str;
 
 class DriversForm extends Form
 {
@@ -36,11 +34,11 @@ class DriversForm extends Form
         unset($validatedData['user_image']);
         if ($this->user_image && !is_string($this->user_image)) {
             // Clear old media first (optional)
-            $this->user->clearMediaCollection(StaffInfo::DOCUMENT_COLLECTION);
+            $this->user->clearMediaCollection(User::DOCUMENT_COLLECTION);
 
             $this->user
                 ->syncFromMediaLibraryRequest($this->user_image)
-                ->toMediaCollection(StaffInfo::DOCUMENT_COLLECTION);
+                ->toMediaCollection(User::DOCUMENT_COLLECTION);
 
         }
 
