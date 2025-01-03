@@ -11,11 +11,11 @@
                         <div class="d-flex align-items-center w-100">
                             <div class="flex-grow-1">
                                 <h3 class="h6 mb-1">Name</h3>
-                                <p class="small pe-4">{{ $staffInfo->user->name }}</p>                            </div>
+                                <p class="small pe-4">{{ $user->name }}</p>                            </div>
 
                             <div>
-                                @if ($staffInfo->getFirstMediaUrl(\App\Models\Scheduler\StaffInfo::DOCUMENT_COLLECTION))
-                                <img src="{{ $staffInfo->getFirstMediaUrl(\App\Models\Scheduler\StaffInfo::DOCUMENT_COLLECTION) }}"
+                                @if ($user->getFirstMediaUrl(\App\Models\Core\User::DOCUMENT_COLLECTION))
+                                <img src="{{ $user->getFirstMediaUrl(\App\Models\Core\User::DOCUMENT_COLLECTION) }}"
                                          alt="User Image"
                                          class="img-fluid rounded img-thumbnail scheduler-driver-img-thumbnail ">
                                 @else
@@ -27,14 +27,13 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Title</h3>
-                            <p class="small pe-4">{{ $staffInfo->user->title }}</p>
+                            <p class="small pe-4">{{ $user->title }}</p>
                         </div>
                     </li>
-
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
-                            <h3 class="h6 mb-1">Description</h3>
-                            <p class="small pe-4">{{ $staffInfo->description }}</p>
+                            <h3 class="h6 mb-1">Email</h3>
+                            <p class="small pe-4">{{ $user->email }}</p>
                         </div>
                     </li>
 
@@ -42,7 +41,7 @@
                         <div>
                             <h3 class="h6 mb-1">Last Updated At</h3>
                             <p class="small pe-4">
-                                {{ $staffInfo->updated_at?->format(config('app.default_datetime_format')) }}</p>
+                                {{ $user->updated_at?->format(config('app.default_datetime_format')) }}</p>
                         </div>
                     </li>
                 </ul>

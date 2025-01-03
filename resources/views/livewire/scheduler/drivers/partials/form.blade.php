@@ -9,18 +9,14 @@
                         <x-forms.media
                         field-id="user_image"
                         model="form.user_image"
-                        :entity="$form->staffInfo"
+                        :entity="$form->user"
                         collection="user_image"
                         editable
-                        rules="mimes:jpeg,png"
+                        rules="mimes:jpeg,png,webp"
                         />
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <x-forms.textarea label="Description" model="form.description" rows="5" key="{{ 'description' }}" />
-                    </div>
-                </div>
+
             </div>
             <hr>
             <div class="mt-2 float-start">

@@ -7,12 +7,13 @@ use App\Models\Scheduler\StaffInfo;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Http\Livewire\Component\Component;
+use App\Models\Core\User;
 
 class Show extends Component
 {
     use AuthorizesRequests, LivewireAlert;
 
-    public StaffInfo $staffInfo;
+    public User $user;
     public DriversForm $form;
     public $editRecord  =false;
     public $breadcrumbs = [
@@ -29,13 +30,6 @@ class Show extends Component
             'color' => 'primary',
             'listener' => 'edit',
         ],
-        [
-            'icon' => 'fa-trash',
-            'color' => 'danger',
-            'confirm' => true,
-            'confirm_header' => 'Confirm Delete',
-            'listener' => 'deleteRecord',
-        ],
     ];
     public function mount()
     {
@@ -46,14 +40,14 @@ class Show extends Component
             'route' => 'schedule.driver.index',
             ],
             [
-            'title' => $this->staffInfo->user->name,
+            'title' => $this->user->name,
         ]];
     }
 
     public function edit()
     {
         $this->editRecord = true;
-        $this->form->init($this->staffInfo);
+        $this->form->init($this->user);
     }
 
     public function render()
@@ -71,12 +65,12 @@ class Show extends Component
     {
         $this->form->update();
         $this->alert('success', 'record updated');
-
+        return redirect()->route('schedule.driver.index');
     }
 
     public function delete()
     {
-        $this->staffInfo->delete();
+        $this->user->delete();
         $this->alert('success', 'record deleted');
         return redirect()->route('schedule.driver.index');
 

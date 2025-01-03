@@ -118,7 +118,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('scheduler/schedule', \App\Http\Livewire\Scheduler\Schedule\Index::class)->name('schedule.index');
 
         Route::get('scheduler/drivers', \App\Http\Livewire\Scheduler\Drivers\Index::class)->name('schedule.driver.index');
-        Route::get('scheduler/drivers/{staffInfo}/show', \App\Http\Livewire\Scheduler\Drivers\Show::class)->name('schedule.driver.show');
+        Route::get('scheduler/drivers/{user}/show', \App\Http\Livewire\Scheduler\Drivers\Show::class)->name('schedule.driver.show');
 
     });
 

@@ -17,7 +17,7 @@ class Table extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
-        $this->setDefaultSort('scheduler_staff_info.created_at');
+        $this->setDefaultSort('users.created_at');
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
             'class' => 'table table-bordered',
@@ -30,9 +30,7 @@ class Table extends DataTableComponent
         return [
             Column::make('Id', 'id')
                 ->hideIf(1),
-            Column::make('User ID', 'user_id')
-            ->hideIf(1),
-            Column::make('Name', 'user.name')
+            Column::make('Name', 'name')
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
@@ -42,24 +40,21 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
-            Column::make('Description', 'description')
-                ->excludeFromColumnSelect()
-                ->html(),
-            Column::make('Email', 'user.email')
+            Column::make('Email', 'email')
                 ->excludeFromColumnSelect()
                 ->searchable()
                 ->html(),
-            Column::make('Title', 'user.title')
+            Column::make('Title', 'title')
                 ->excludeFromColumnSelect()
                 ->searchable()
                 ->html(),
 
-            Column::make('Office Location', 'user.office_location')
+            Column::make('Office Location', 'office_location')
                 ->excludeFromColumnSelect()
                 ->searchable()
                 ->html(),
 
-            Column::make('Active', 'user.is_active')
+            Column::make('Active', 'is_active')
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
@@ -73,9 +68,6 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return StaffInfo::query()->with('user')
-        ->whereHas('user', function ($query) {
-            $query->whereIn('title', ['Driver', 'Service Technician']);
-        });
+        return User::query()->whereIn('title', ['Driver', 'Service Technician']);
     }
 }
