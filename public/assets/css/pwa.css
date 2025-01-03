@@ -39,7 +39,7 @@ body {
 }
 
 .status-div {
-    min-height: 45rem;
+    min-height: 40rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -94,6 +94,12 @@ body {
 .modal.show,
 .modal-backdrop.show {
     display: block;
+}
+.order-status-div .table td:first-child {
+    width: 35%;
+}
+.order-status-div .emv-table {
+    font-size: .9em;
 }
 
 @media (max-width: 990px) {

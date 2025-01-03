@@ -104,7 +104,7 @@ class Index extends Component
 
     protected function fetchPendingPayment($request)
     {
-       $whse = Warehouse::where('title', auth()->user()->office_location)->first()->short;
+        $whse = Warehouse::where('title', auth()->user()->office_location)->first()->short;
         $operator = auth()->user()->sx_operator_id;
 
         if(config('sx.mock')) return $this->mock(__FUNCTION__, $request);
@@ -246,6 +246,7 @@ class Index extends Component
                 "status" => FortisStatus::tryFrom($transactionData['data']['status_code'])->label(),
                 "status_class" => FortisStatus::tryFrom($transactionData['data']['status_code'])->class(),
                 "status_icon" => FortisStatus::tryFrom($transactionData['data']['status_code'])->icon(),
+                "emv_receipt_data" => $transactionData['data']['emv_receipt_data'] ?? '',
             ];
             $this->orderStatusModal = true;
 
