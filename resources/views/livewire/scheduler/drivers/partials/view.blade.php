@@ -39,11 +39,13 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div class="w-100">
                             <h3 class="text-sm font-semibold mb-3">Skills</h3>
+                            @if ($user->skills)
                             <ul>
-                                @foreach (explode(",", $user->skills->skills) as $item)
+                                @foreach (explode(",", $user->skills?->skills) as $item)
                                     <li>{{ $item }}</li>
                                 @endforeach
                             </ul>
+                            @endif
                         </div>
                     </li>
 

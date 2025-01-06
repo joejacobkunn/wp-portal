@@ -841,3 +841,35 @@
 .drivers .skill-close-btn {
     font-size: 0.65em;
 }
+
+
+.drivers .tags-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0.5rem;
+    gap: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.drivers .tags-input-container .tags-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    min-width: 100px;
+}
+
+.drivers .tags-input-container .badge {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 20px;
+}
+
+.drivers .tags-input-container .btn-close {
+    margin-left: 5px;
+    font-size: 0.75rem;
+    color: white;
+    cursor: pointer;
+}

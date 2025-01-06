@@ -28,7 +28,7 @@ class DriversForm extends Form
     public function init(User $user)
     {
         $this->user = $user;
-        $tags = $this->user->skills->skills;
+        $tags = $this->user->skills?->skills;
         if($tags) {
             $this->tags = explode(",", $tags);
         }

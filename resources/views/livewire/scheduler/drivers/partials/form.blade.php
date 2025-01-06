@@ -21,27 +21,25 @@
                 <div class="col-md-12 mb-3">
                     <div class="form-group">
                         <h3 class="h5 mb-3">Skills</h3>
-                        <div>
-                            <div class="mb-2">
-                                @foreach ($this->form->tags as $key => $tags)
-                                    <span class="badge bg-primary me-2 p-2">
-                                        <span>{{$tags}}</span>
-                                        <button type="button" class="btn-close btn-close-white ms-2 skill-close-btn"  wire:click="removeTag({{$key}})"></button>
-                                    </span>
-                                @endforeach
-                            </div>
-
+                        <div class="tags-input-container form-control">
+                            @foreach ($this->form->tags as $key => $tags)
+                                <span class="badge bg-primary me-1">
+                                    <span>{{$tags}}</span>
+                                    <button type="button" class="btn-close btn-close-white ms-2 skill-close-btn" wire:click="removeTag({{$key}})"></button>
+                                </span>
+                            @endforeach
                             <input
                                 type="text"
                                 wire:model="form.skills"
                                 wire:keydown.enter.prevent="addTag"
                                 wire:keydown.comma.prevent="addTag"
-                                placeholder="Add skills "
-                                class="form-control"
+                                placeholder="Add skills"
+                                class="tags-input"
                             >
                         </div>
                     </div>
                 </div>
+
 
             </div>
             <hr>
