@@ -163,4 +163,9 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasOne(OrderFilterCache::class, 'user_id');
     }
+
+    public function skills()
+    {
+        return $this->hasOne(UserSkills::class, 'user_id');
+    }
 }

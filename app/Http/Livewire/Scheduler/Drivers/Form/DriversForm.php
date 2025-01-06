@@ -10,6 +10,8 @@ class DriversForm extends Form
     public ?User $user;
 
     public $user_image;
+    public $skills;
+    public $tags = [];
 
     protected $validationAttributes = [
 
@@ -26,11 +28,21 @@ class DriversForm extends Form
     public function init(User $user)
     {
         $this->user = $user;
+        $tags = $this->user->skills->skills;
+        if($tags) {
+            $this->tags = explode(",", $tags);
+        }
     }
 
     public function update()
     {
         $validatedData = $this->validate();
+        $skills = implode(",", $this->tags);
+        $this->user->skills()->updateOrCreate(
+            ['user_id' => $this->user->id],
+            ['skills' => $skills]
+        );
+
         unset($validatedData['user_image']);
         if ($this->user_image && !is_string($this->user_image)) {
             // Clear old media first (optional)
@@ -42,7 +54,7 @@ class DriversForm extends Form
 
         }
 
-
     }
+
 }
 

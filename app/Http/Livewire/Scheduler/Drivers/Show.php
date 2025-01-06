@@ -74,5 +74,19 @@ class Show extends Component
         return redirect()->route('schedule.driver.index');
 
     }
+    public function addTag()
+    {
+        if (trim($this->form->skills) !== '') {
+            if (!in_array($this->form->skills, $this->form->tags)) {
+                array_push($this->form->tags, trim($this->form->skills));
+            }
+            $this->form->skills = '';
+        }
+    }
 
+    public function removeTag($index)
+    {
+        unset($this->form->tags[$index]);
+        $this->form->tags = array_values($this->form->tags);
+    }
 }

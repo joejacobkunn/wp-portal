@@ -36,6 +36,16 @@
                             <p class="small pe-4">{{ $user->email }}</p>
                         </div>
                     </li>
+                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                        <div class="w-100">
+                            <h3 class="text-sm font-semibold mb-3">Skills</h3>
+                            <ul>
+                                @foreach (explode(",", $user->skills->skills) as $item)
+                                    <li>{{ $item }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </li>
 
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                         <div>

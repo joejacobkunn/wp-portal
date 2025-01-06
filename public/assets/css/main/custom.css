@@ -838,3 +838,6 @@
     z-index: 10000 !important;
 }
 
+.drivers .skill-close-btn {
+    font-size: 0.65em;
+}
