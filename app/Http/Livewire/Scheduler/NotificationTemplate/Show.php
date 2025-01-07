@@ -18,7 +18,7 @@ class Show extends Component
             'title' => 'Scheduler',
         ],
         [
-            'title' => 'Email Templates',
+            'title' => 'Notification Templates',
             'route_name' => 'schedule.email-template.index',
         ]
     ];

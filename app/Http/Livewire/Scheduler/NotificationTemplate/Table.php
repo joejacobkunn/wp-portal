@@ -41,7 +41,7 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
-                Column::make('Type', 'type')
+                Column::make('Subject', 'email_subject')
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
                     return $value;

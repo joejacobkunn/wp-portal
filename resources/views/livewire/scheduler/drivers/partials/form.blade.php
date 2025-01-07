@@ -34,8 +34,7 @@
                                 wire:keydown.enter.prevent="addTag"
                                 wire:keydown.comma.prevent="addTag"
                                 placeholder="Add skills"
-                                class="tags-input"
-                            >
+                                class="tags-input">
                         </div>
                         @error('form.tags')
                             <span class="text-danger">{{$message}}</span>
