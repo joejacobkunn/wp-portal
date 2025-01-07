@@ -37,6 +37,9 @@
                                 class="tags-input"
                             >
                         </div>
+                        @error('form.tags')
+                            <span class="text-danger">{{$message}}</span>
+                        @enderror
                     </div>
                 </div>
 

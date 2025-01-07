@@ -120,6 +120,9 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('scheduler/drivers', \App\Http\Livewire\Scheduler\Drivers\Index::class)->name('schedule.driver.index');
         Route::get('scheduler/drivers/{user}/show', \App\Http\Livewire\Scheduler\Drivers\Show::class)->name('schedule.driver.show');
 
+        Route::get('scheduler/template', \App\Http\Livewire\Scheduler\NotificationTemplate\Index::class)->name('schedule.email-template.index');
+        Route::get('scheduler/template/{template}/show', \App\Http\Livewire\Scheduler\NotificationTemplate\Show::class)->name('schedule.email-template.show');
+
     });
 
     //pwa

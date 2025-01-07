@@ -22,6 +22,7 @@ class DriversForm extends Form
     {    return  [
 
             'user_image' => 'nullable',
+            'tags' => 'required|array'
         ];
     }
 
