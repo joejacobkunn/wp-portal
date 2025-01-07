@@ -9,15 +9,6 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="form-group">
-                            <x-forms.select label="Template Type" model="form.type" :options="$form->templateTypes"
-                                :selected="$template->type ?? null" default-selectable default-option-label="- None -" />
-                        </div>
-                    </div>
-                </div>
-
 
                 <div class="row">
                     <div class="col-md-12 mb-3">

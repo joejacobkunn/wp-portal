@@ -13,15 +13,12 @@ class SchedulerEmailTemplateSeeder extends Seeder
     public $data = [
         0 => [
             'name' => 'Scheduled',
-            'type' => 'Shipment Follow Up',
         ],
         1 => [
             'name' => 'Delivered',
-            'type' => 'Shipment Follow Up',
         ],
         2 => [
             'name' => 'Default 200',
-            'type' => 'Shipment Follow Up',
         ],
     ];
 
@@ -38,7 +35,6 @@ class SchedulerEmailTemplateSeeder extends Seeder
                 'name' => $item['name'],
                 'account_id' => $user->account_id,
                 'created_by' => $user->id,
-                'type' => $item['type'],
             ]);
         }
     }

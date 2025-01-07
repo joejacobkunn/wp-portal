@@ -12,22 +12,13 @@ class NotificationForm extends Form
     public $emailContent;
     public $emailSubject;
     public $smsContent;
-    public $type;
     public $is_active = true;
 
-    public $templateTypes = [
-        'Follow Up' => 'Customer Follow Up',
-        'Shipment Follow Up' => 'Shipment Follow Up',
-        'Cancelled' => 'Cancelled',
-        'Receiving Follow Up' => 'Receiving Follow Up'
-
-    ];
 
     protected $validationAttributes = [
         'name' => 'Name',
         'emailContent' => 'Email Content',
         'smsContent' => 'SMS Content',
-        'type' => 'Template Type'
     ];
 
     protected function rules()
@@ -37,7 +28,6 @@ class NotificationForm extends Form
             'emailSubject' => 'required',
             'emailContent' => 'required',
             'smsContent' => 'nullable',
-            'type' => 'required',
             'is_active' => 'nullable',
         ];
     }
