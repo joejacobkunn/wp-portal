@@ -7,20 +7,9 @@
 
         <div class="card-body">
 
-            @if ($template->is_active)
-                <div class="alert alert-light-success color-success" role="alert">
-                    <i class="far fa-check-circle"></i> This template is active
-                    <button wire:click='toggleStatus'
-                        class="btn btn-sm btn-outline-danger float-end mt-n1">Deactivate</button>
-                </div>
-            @else
-                <div class="alert alert-light-danger color-danger" role="alert">
-                    <i class="far fa-times-circle"></i> This template is deactivated
-                    <button wire:click='toggleStatus'
-                        class="btn btn-sm btn-outline-success float-end mt-n1">Activate</button>
-                </div>
-            @endif
-
+            <div class="alert alert-light-info color-info" role="alert">
+                <i class="fas fa-info-circle"></i> {{ $template->description }}
+            </div>
 
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">

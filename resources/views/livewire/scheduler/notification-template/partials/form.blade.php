@@ -5,13 +5,6 @@
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.input label="Name" model="form.name" />
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="col-md-12 mb-3">
                         <x-forms.input label="Email Subject" model="form.emailSubject" />
                     </div>
                 </div>
@@ -36,7 +29,7 @@
                             <span class="list-group-item"><mark>[CustomerName]</mark> =>Customer Name</span>
                             <span class="list-group-item"><mark>[Warehouse]</mark> => Warehouse</span>
                             <span class="list-group-item"><mark>[OrderNumber]</mark> => Order Number</span>
-                            <span class="list-group-item"><mark>[LineItems]</mark> =>  Line Items</span>
+                            <span class="list-group-item"><mark>[LineItems]</mark> => Line Items</span>
                         </div>
                     </div>
                 </div>

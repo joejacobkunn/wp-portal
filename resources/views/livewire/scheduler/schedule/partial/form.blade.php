@@ -19,15 +19,18 @@
                             <x-forms.input type="number" label="Order Number Suffix" model="form.suffix" lazy />
                         </div>
                     </div>
-                    @if($form->alertConfig['status'])
-                    <div class="col-md-12 mb-1">
-                        <p class="text-{{$form->alertConfig['class']}}"><i class="far {{$form->alertConfig['icon']}}"></i> {!! $form->alertConfig['message'] !!}
-                            @if($form->alertConfig['show_url'])
-                            <a target="_blank" href="{{route($form->alertConfig['url'])}}?{{$form->alertConfig['params']}}" target="_blank"> {{$form->alertConfig['urlText']}}<i
-                                class="fas fa-external-link-alt"></i></a>
-                            @endif
-                        </p>
-                    </div>
+                    @if ($form->alertConfig['status'])
+                        <div class="col-md-12 mb-1">
+                            <p class="text-{{ $form->alertConfig['class'] }}"><i
+                                    class="far {{ $form->alertConfig['icon'] }}"></i> {!! $form->alertConfig['message'] !!}
+                                @if ($form->alertConfig['show_url'])
+                                    <a class="float-end" target="_blank"
+                                        href="{{ route($form->alertConfig['url']) }}?{{ $form->alertConfig['params'] }}"
+                                        target="_blank"> {{ $form->alertConfig['urlText'] }} <i
+                                            class="fas fa-external-link-alt"></i></a>
+                                @endif
+                            </p>
+                        </div>
                     @endif
                     <div wire:loading wire:target="form.suffix" class="mb-3">
                         <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
@@ -56,15 +59,24 @@
                                 </address>
                                 </p>
 
-                                <a href="#" wire:click.prevent="showAdrress()" class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
+                                <a href="#" wire:click.prevent="showAdrress()"
+                                    class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
                                     Use recommended address
                                 </a>
                                 <hr>
 
                                 <p class="mb-0"><Strong>Ship To</Strong>
                                 </p>
-                                <p class="mb-0"> {{ $form->orderInfo->shipping_info['line'].', ' .$form->orderInfo->shipping_info['line2'].', '
-                                .$form->orderInfo->shipping_info['city'].', '.$form->orderInfo->shipping_info['state'].', '.$form->orderInfo->shipping_info['zip'] }}
+                                <p class="mb-0">
+                                    {{ $form->orderInfo->shipping_info['line'] .
+                                        ', ' .
+                                        $form->orderInfo->shipping_info['line2'] .
+                                        ', ' .
+                                        $form->orderInfo->shipping_info['city'] .
+                                        ', ' .
+                                        $form->orderInfo->shipping_info['state'] .
+                                        ', ' .
+                                        $form->orderInfo->shipping_info['zip'] }}
                                 </p>
 
                                 <p class="mb-0">Shipping Instructions :
@@ -73,10 +85,10 @@
                         </div>
                         <div class="col-md-12 mb-1">
                             <p class="text-success"><i class="fas fa-truck"></i>
-                                Per google, the driving distance is {{$form->shipping['distance']}} and takes roughly {{$form->shipping['duration']}}
+                                Per google, the driving distance is {{ $form->shipping['distance'] }} and takes roughly
+                                {{ $form->shipping['duration'] }}
                             </p>
                         </div>
-
                     @endif
                     @if ($this->form->saveRecommented)
                         <div class="col-md-12 mb-3">
@@ -103,13 +115,14 @@
                     @endif
                     <div class="col-md-6">
                         <div class="form-group">
-                            <x-forms.datepicker type="date" label="Schedule Date" model="form.schedule_date" :disabled="$form->scheduleDateDisable" lazy />
+                            <x-forms.datepicker type="date" label="Schedule Date" model="form.schedule_date"
+                                :disabled="$form->scheduleDateDisable" lazy />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <x-forms.input type="time" prependIcon="fas fa-clock" label="Schedule Time"
-                            :disabled="$form->scheduleDateDisable" model="form.schedule_time" lazy />
+                                :disabled="$form->scheduleDateDisable" model="form.schedule_time" lazy />
                         </div>
                     </div>
                 </div>
@@ -136,16 +149,18 @@
             </li>
             @if ($form->orderInfo)
 
-                <li class="list-group-item"><strong>Stage</strong> <span class="float-end">{{$form->orderInfo->getStageCode()}}</span></li>
+                <li class="list-group-item"><strong>Stage</strong> <span
+                        class="float-end">{{ $form->orderInfo->getStageCode() }}</span></li>
                 <li class="list-group-item"><strong>Warehouse</strong> <span
                         class="float-end">{{ strtoupper($form->orderInfo->whse) }}</span></li>
-                <li class="list-group-item"><strong>Placed</strong> <span
-                    class="float-end"> {{$form->orderInfo->order_date?->format(config('app.default_datetime_format'))}}</span></li>
+                <li class="list-group-item"><strong>Placed</strong> <span class="float-end">
+                        {{ $form->orderInfo->order_date?->format(config('app.default_datetime_format')) }}</span></li>
                 <li class="list-group-item"><strong>Taken By</strong> <span
-                    class="float-end">{{$form->orderInfo->taken_by}}</span></li>
-                @if(isset($this->form->orderTotal['total_invoice_amount']))
+                        class="float-end">{{ $form->orderInfo->taken_by }}</span></li>
+                @if (isset($this->form->orderTotal['total_invoice_amount']))
                     <li class="list-group-item"><strong>Amount</strong> <span
-                        class="float-end">${{ number_format($this->form->orderTotal['total_invoice_amount']) }}</span></li>
+                            class="float-end">${{ number_format($this->form->orderTotal['total_invoice_amount']) }}</span>
+                    </li>
                 @endif
                 <li class="list-group-item"><strong>Status</strong> <span
                         class="float-end">{{ $form->orderInfo->status }}</span></li>
@@ -161,17 +176,17 @@
             <li class="list-group-item list-group-item-primary">
                 <span class="badge bg-light-warning float-end">
                     @if ($form->zipcodeInfo)
-                        <a href="{{route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo->id])}}"><i
-                            class="fas fa-external-link-alt"></i>
-                        #{{ $form->zipcodeInfo?->getZone->name }}</a>
+                        <a href="{{ route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo->id]) }}"><i
+                                class="fas fa-external-link-alt"></i>
+                            #{{ $form->zipcodeInfo?->getZone->name }}</a>
                     @else
-                        <a href="{{route('service-area.index')}}?tab=zip_code"><i
-                            class="fas fa-external-link-alt"></i>
-                        create new</a>
+                        <a href="{{ route('service-area.index') }}?tab=zip_code"><i
+                                class="fas fa-external-link-alt"></i>
+                            create new</a>
                     @endif
 
                 </span>
-                Zipcode Info
+                ZIP Code Info
             </li>
             @if ($form->zipcodeInfo)
                 <li class="list-group-item"><strong>ZIP Code</strong> <span
@@ -198,13 +213,13 @@
                         </tr>
                         <tr>
                             <th class="bg-light">Day</th>
-                            @if ($form->type=='at_home_maintenance')
-                            <th class="bg-light">AHM Slot</th>
-                            <th class="bg-light">Shift</th>
+                            @if ($form->type == 'at_home_maintenance')
+                                <th class="bg-light">AHM Slot</th>
+                                <th class="bg-light">Shift</th>
                             @endif
-                            @if ($form->type=='delivery' || $form->type=='pickup')
-                            <th class="bg-light"> Delivery/Pickup Slot</th>
-                            <th class="bg-light">Shift</th>
+                            @if ($form->type == 'delivery' || $form->type == 'pickup')
+                                <th class="bg-light"> Delivery/Pickup Slot</th>
+                                <th class="bg-light">Shift</th>
                             @endif
                         </tr>
                     </thead>
@@ -213,13 +228,13 @@
                             @if ($day['enabled'])
                                 <tr>
                                     <td>{{ ucfirst($key) }}</td>
-                                    @if ($form->type=='at_home_maintenance')
-                                    <td>{{ $day['ahm_slot'] }}</td>
-                                    <td>{{ $form->serviceArray[$day['ahm_shift']] }}</td>
+                                    @if ($form->type == 'at_home_maintenance')
+                                        <td>{{ $day['ahm_slot'] }}</td>
+                                        <td>{{ $form->serviceArray[$day['ahm_shift']] }}</td>
                                     @endif
-                                    @if ($form->type=='delivery' || $form->type=='pickup')
-                                    <td>{{ $day['pickup_delivery_slot'] }}</td>
-                                    <td>{{  $form->serviceArray[$day['delivery_pickup_shift']] }}</td>
+                                    @if ($form->type == 'delivery' || $form->type == 'pickup')
+                                        <td>{{ $day['pickup_delivery_slot'] }}</td>
+                                        <td>{{ $form->serviceArray[$day['delivery_pickup_shift']] }}</td>
                                     @endif
                                 </tr>
                             @endif
@@ -228,39 +243,39 @@
                 </table>
             </div>
         @endif
-        @if($addressModal)
+        @if ($addressModal)
             <x-modal :toggle="$addressModal" size="md" :closeEvent="'closeAddress'">
                 <x-slot name="title">Recommended Address </x-slot>
                 <div class="mb-4">
                     <h6 class="text-primary">Current Address</h6>
                     <p>
-                        <address class="ms-1">
-                            <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
-                            {{ $form->orderInfo?->customer->address }}<br>
-                            {{ $form->orderInfo?->customer->address2 }}<br>
-                            {{ $form->orderInfo?->customer->city }}, {{ $form->orderInfo?->customer->state }}
-                            {{ $form->orderInfo?->customer->zip }}<br>
-                            <i class="fa-solid fa-phone"></i>
-                            {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
-                            <i class="fa-solid fa-envelope"></i>
-                            {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
+                    <address class="ms-1">
+                        <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
+                        {{ $form->orderInfo?->customer->address }}<br>
+                        {{ $form->orderInfo?->customer->address2 }}<br>
+                        {{ $form->orderInfo?->customer->city }}, {{ $form->orderInfo?->customer->state }}
+                        {{ $form->orderInfo?->customer->zip }}<br>
+                        <i class="fa-solid fa-phone"></i>
+                        {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
+                        <i class="fa-solid fa-envelope"></i>
+                        {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
 
-                        </address>
-                        </p>
+                    </address>
+                    </p>
                 </div>
                 <hr>
                 <div>
                     <h6 class="text-success">Recommended Address</h6>
                     <p>
-                        <address class="ms-1">
-                            <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
-                            {{ $form->recommendedAddress['formattedAddress'] }}<br>
-                            <i class="fa-solid fa-phone"></i>
-                            {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
-                            <i class="fa-solid fa-envelope"></i>
-                            {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
+                    <address class="ms-1">
+                        <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
+                        {{ $form->recommendedAddress['formattedAddress'] }}<br>
+                        <i class="fa-solid fa-phone"></i>
+                        {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
+                        <i class="fa-solid fa-envelope"></i>
+                        {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
 
-                        </address>
+                    </address>
                     </p>
                 </div>
                 <div class="mt-2 float-start">

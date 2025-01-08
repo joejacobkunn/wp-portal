@@ -53,7 +53,7 @@ class Show extends Component
     public function submit()
     {
         $this->form->update();
-        $this->alert('success', 'Record updated');
+        $this->alert('success', 'Template updated');
         return redirect()->route('schedule.email-template.index');
 
     }

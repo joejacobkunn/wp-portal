@@ -24,11 +24,9 @@ class NotificationForm extends Form
     protected function rules()
     {
         return [
-            'name' => 'required|min:3',
             'emailSubject' => 'required',
             'emailContent' => 'required',
             'smsContent' => 'nullable',
-            'is_active' => 'nullable',
         ];
     }
 
