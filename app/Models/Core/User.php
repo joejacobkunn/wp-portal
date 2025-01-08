@@ -9,6 +9,7 @@ use App\Traits\LogsActivity;
 use Laravel\Sanctum\HasApiTokens;
 use App\Enums\User\UserStatusEnum;
 use App\Models\Order\OrderFilterCache;
+use App\Traits\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,8 +17,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
+use Spatie\MediaLibrary\HasMedia;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     use HasApiTokens,
         HasFactory,
@@ -25,6 +27,7 @@ class User extends Authenticatable
         HasRoles,
         SoftDeletes,
         AuthenticationLoggable,
+        InteractsWithMedia,
         LogsActivity;
 
     /**
@@ -43,7 +46,7 @@ class User extends Authenticatable
         'is_active',
         'account_id'
     ];
-
+    const DOCUMENT_COLLECTION = 'user_image';
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -159,5 +162,10 @@ class User extends Authenticatable
     public function orderFilterCache()
     {
         return $this->hasOne(OrderFilterCache::class, 'user_id');
+    }
+
+    public function skills()
+    {
+        return $this->hasOne(UserSkills::class, 'user_id');
     }
 }

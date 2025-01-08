@@ -212,6 +212,11 @@
                                 <span>Surveys</span>
                             </a>
                         </li>
+                        <li class="submenu-item">
+                            <a href="{{ route('schedule.email-template.index') }}" wire:navigate>
+                                <span>Templates</span>
+                            </a>
+                        </li>
 
 
                     </ul>

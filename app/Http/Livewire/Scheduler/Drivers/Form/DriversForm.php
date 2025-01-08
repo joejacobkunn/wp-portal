@@ -1,58 +1,61 @@
 <?php
  namespace App\Http\Livewire\Scheduler\Drivers\Form;
 
-use App\Models\Scheduler\StaffInfo;
+use App\Models\Core\User;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
-use Illuminate\Support\Str;
 
 class DriversForm extends Form
 {
-    public ?StaffInfo $staffInfo;
+    public ?User $user;
 
-    public $description;
-    public $user_id;
-    public $title;
     public $user_image;
+    public $skills;
+    public $tags = [];
 
     protected $validationAttributes = [
-        'description' => 'Description',
-        'user_id' => 'User',
-        'title' => 'TItle',
+
         'user_image' => 'Image'
     ];
 
     protected function rules()
     {    return  [
 
-            'description' => 'nullable',
             'user_image' => 'nullable',
+            'tags' => 'required|array'
         ];
     }
 
-    public function init(StaffInfo $staffInfo)
+    public function init(User $user)
     {
-        $this->staffInfo = $staffInfo;
-        $this->fill($staffInfo->toArray());
+        $this->user = $user;
+        $tags = $this->user->skills?->skills;
+        if($tags) {
+            $this->tags = explode(",", $tags);
+        }
     }
 
     public function update()
     {
         $validatedData = $this->validate();
-        unset($validatedData['user_image']);
-        $staffInfo = $this->staffInfo->update($validatedData);
+        $skills = implode(",", $this->tags);
+        $this->user->skills()->updateOrCreate(
+            ['user_id' => $this->user->id],
+            ['skills' => $skills]
+        );
 
+        unset($validatedData['user_image']);
         if ($this->user_image && !is_string($this->user_image)) {
             // Clear old media first (optional)
-            $this->staffInfo->clearMediaCollection(StaffInfo::DOCUMENT_COLLECTION);
+            $this->user->clearMediaCollection(User::DOCUMENT_COLLECTION);
 
-            $this->staffInfo
+            $this->user
                 ->syncFromMediaLibraryRequest($this->user_image)
-                ->toMediaCollection(StaffInfo::DOCUMENT_COLLECTION);
+                ->toMediaCollection(User::DOCUMENT_COLLECTION);
 
         }
 
-
     }
+
 }
 
