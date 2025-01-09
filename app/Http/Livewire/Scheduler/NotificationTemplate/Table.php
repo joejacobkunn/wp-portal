@@ -41,14 +41,6 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
-                Column::make('Subject', 'email_subject')
-                ->excludeFromColumnSelect()
-                ->format(function ($value, $row) {
-                    return $value;
-                })
-                ->html(),
-
-            BooleanColumn::make('Active', 'is_active')->sortable(),
         ];
     }
 
