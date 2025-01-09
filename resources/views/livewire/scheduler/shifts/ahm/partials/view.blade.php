@@ -28,7 +28,7 @@ $months = [
                                 @foreach ($data as $item)
                                     <tr>
                                         @if($first)
-                                            <td rowspan="{{ count($data) }}">{{ $day }}</td>
+                                            <td rowspan="{{ count($data) }}">{{ ucfirst($day) }}</td>
                                             @php $first = false; @endphp
                                         @endif
                                         <td>{{ $item['shift'] }}</td>

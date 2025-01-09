@@ -28,11 +28,10 @@
                     <x-tabs :tabs="$tabs" tabId="shift-tabs" :key="'tabs' . $activeWarehouse->id">
                         <x-slot:tab_header_ahm> AHM </x-slot>
                         <x-slot:tab_header_delivery> Delivery/Pickup </x-slot>
-                        <x-slot:tab_content_ahm component="scheduler.shifts.a-h-m.index" :warehouseId="$activeWarehouse->id" :key="'ahm' . $activeWarehouse->id">
+                        <x-slot:tab_content_ahm component="scheduler.shifts.a-h-m.index" :warehouseId="$activeWarehouse->id" :type="'ahm'" :shiftList="$ahmShift" :key="'ahm' . $activeWarehouse->id">
                         </x-slot>
-
-                        {{-- <x-slot:tab_content_zip_code component="scheduler.service-area.zip-code.index" :warehouseId="$activeWarehouse->id" :key="'zipcode' . $activeWarehouse->id">
-                        </x-slot> --}}
+                        <x-slot:tab_content_delivery_pickup component="scheduler.shifts.a-h-m.index" :warehouseId="$activeWarehouse->id" :type="'delivery_pickup'" :shiftList="$deliveryShift"  :key="'delivery' . $activeWarehouse->id">
+                        </x-slot>
                     </x-tabs>
 
 

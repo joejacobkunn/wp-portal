@@ -13,7 +13,6 @@
                                 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday',
                                 'sunday'
                             ];
-                            $shiftList = ['9AM - 1PM', '1PM - 5PM', '9AM - 4PM', '9AM - 5PM'];
                         @endphp
 
                         <div class="row columnRow">

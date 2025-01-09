@@ -5,6 +5,8 @@ namespace App\Http\Livewire\Scheduler\Shifts\AHM;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Warehouse;
 use App\Models\Scheduler\Shifts;
+use Illuminate\Support\Str;
+
 use Carbon\Carbon;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
@@ -13,6 +15,8 @@ class Index extends Component
     use LivewireAlert;
     public $warehouseId;
     public $shifts;
+    public $type;
+    public $shiftList;
     public $editRecord = false;
     public Warehouse $warehouse;
     public $months = [];
@@ -62,12 +66,13 @@ class Index extends Component
             'route_name' => 'schedule.shift.index'
         ],
         [
-            'title' => 'AHM',
-        ]];
+            'title' => Str::headline($this->type),
+        ]
+        ];
         $this->dispatch('setBreadcrumb', $data);
 
 
-        $this->shifts = Shifts::where(['whse' => $this->warehouseId, 'type' => 'ahm'])->first();
+        $this->shifts = Shifts::where(['whse' => $this->warehouseId, 'type' => $this->type])->first();
         if(!$this->shifts) {
             return;
         }
@@ -92,9 +97,9 @@ class Index extends Component
     public function submit()
     {
         $this->validate();
-        Shifts::updateOrCreate(['whse' => $this->warehouseId, 'type' => 'ahm'], ['shift' => $this->shiftData]);
+        Shifts::updateOrCreate(['whse' => $this->warehouseId, 'type' => $this->type], ['shift' => $this->shiftData]);
         $this->alert('success', 'shift updated');
-        return redirect()->route('schedule.shift.index', ['whseId' =>  $this->warehouseId]);
+        return redirect()->route('schedule.shift.index', ['whseId' =>  $this->warehouseId,'tab' =>$this->type]);
 
     }
 

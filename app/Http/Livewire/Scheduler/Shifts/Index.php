@@ -19,7 +19,7 @@ class Index extends Component
             'active' => 'ahm',
             'links' => [
                 'ahm' => 'AHM',
-                'delivery' => 'Delivery/Pickup',
+                'delivery_pickup' => 'Delivery/Pickup',
     ]]];
     protected $queryString = [
         'tabs.shift-tabs.active' => ['except' => '', 'as' => 'tab'],
@@ -29,6 +29,19 @@ class Index extends Component
         'setDecription' => 'setDecription',
         'setBreadcrumb' => 'setBreadcrumb'
     ];
+    public $deliveryShift = [
+        '8AM - 12PM',
+        '12PM - 4PM',
+        '4PM - 7PM',
+        '8AM - 7PM',
+    ];
+    public $ahmShift = [
+        '9AM - 1PM',
+        '1PM - 5PM',
+        '9AM - 4PM',
+        '9AM - 5PM'
+    ];
+
     public $breadcrumbs = [];
 
     public function mount()
