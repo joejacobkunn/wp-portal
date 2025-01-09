@@ -8,13 +8,10 @@ $months = [
 
 <ul class="list-group">
 @foreach ($months as $month)
-    <li class="list-group-item" data-bs-toggle="collapse" data-bs-target="#{{ Str::slug($month) }}-collapse" aria-expanded="false" aria-controls="{{ Str::slug($month) }}-collapse" style="cursor: pointer;">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">{{ $month }}</h5>
-            <i class="bi bi-chevron-down chevron-icon"></i>
-        </div>
-        <div class="collapse mt-3" id="{{ Str::slug($month) }}-collapse">
-            @if ($shifts)
+    <li class="list-group-item">
+            <h5 class="mb-0">{{ ucfirst($month) }}</h5>
+        <div class="">
+            @if ( isset($shifts->shift[$month]))
 
                 <table class="table table-bordered">
                     <thead>
