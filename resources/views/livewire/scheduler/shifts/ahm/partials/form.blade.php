@@ -3,7 +3,6 @@
         <form wire:submit.prevent="submit()">
             <div class="row">
                 <div class="col-md-12 mb-3">
-                    <ul class="list-group">
                         @php
                             // List of all months
                             $monthList = [
@@ -18,7 +17,12 @@
                         @endphp
 
                         <div class="row columnRow">
-                            <div class="col-md-6">
+                            @error('shiftData')
+                            <div class="alert alert-danger">
+                                {{ $message }}
+                            </div>
+                            @enderror
+                            <div class="col-md-12">
                                 @foreach ($monthList as $monthItem)
 
                                 <div class="accordion">
@@ -35,11 +39,77 @@
                                             <div class="accordion-body">
                                                 <div class="row">
                                                     @foreach ($daysList as $day)
-                                                        <div class="col-12 mb-3">
+                                                        <div class="col-3 mb-3">
                                                             <x-forms.checkbox :label="ucfirst($day)" :name="'months.' .$monthItem. '.days.' .$day. '.status'" :value="true"
                                                                 :model="'months.' .$monthItem. '.days.' .$day. '.status'" />
                                                         </div>
                                                     @endforeach
+                                                    <hr>
+                                                </div>
+                                                <div class="row">
+                                                    @if (isset($months[$monthItem]))
+                                                    @foreach ($months[$monthItem] as $key => $month)
+
+                                                        @foreach ($month as $j =>  $day)
+                                                            <div class="border p-3 rounded mb-2">
+                                                                <h5 class="mb-3">{{ ucfirst($monthItem).' - '. ucfirst($j).' Shifts'}}</h5>
+
+                                                                <div class="row">
+                                                                    @if(isset($shiftData[$monthItem][$j]))
+                                                                    @foreach ($shiftData[$monthItem][$j] as $m => $shifts)
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group">
+                                                                            <label>Shift</label>
+                                                                            <select class="form-control" wire:model="{{'shiftData.' .$monthItem .'.'.$j. '.' . $m.'.shift'}}">
+                                                                                <option value="">Select Shift</option>
+                                                                                @foreach ($shiftList as $option)
+
+                                                                                 <option value="{{$option}}" @if(isset($shiftData[$monthItem][$j]['shift']))@selected($shiftData[$monthItem][$j][$m]['shift'] == $option) @endif>{{$option}}</option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                            @error('shiftData.' .$monthItem .'.'.$j. '.' . $m.'.shift')
+                                                                                <span class="text-danger">{{$message}}</span>
+                                                                            @enderror
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <x-forms.input type="number"
+                                                                        label="Slot"
+                                                                        model="{{'shiftData.' .$monthItem .'.'.$j. '.' . $m.'.slots'}}"
+                                                                        lazy />
+                                                                    </div>
+                                                                    @endforeach
+                                                                    @elseif(isset($months[$monthItem]['days'][$j]))
+
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group">
+                                                                            <label>Shift</label>
+                                                                            <select class="form-control" wire:model="{{'shiftData.' .$monthItem .'.'.$j. '.0.shift'}}">
+                                                                                <option value="">Select Shift</option>
+                                                                                @foreach ($shiftList as $option)
+
+                                                                                    <option value="{{$option}}" @if(isset($shiftData[$monthItem][$j])) @selected($shiftData[$monthItem][$j][0]['shift'] == $option) @endif>{{$option}}</option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <x-forms.input type="number"
+                                                                        label="Slot"
+                                                                        model="{{'shiftData.' .$monthItem .'.'.$j. '.0.slots'}}"
+                                                                        lazy />
+                                                                    </div>
+                                                                    @else
+                                                                    @endif
+                                                                    <div class="col-12">
+                                                                        <button type="button" wire:click="addShift('{{$monthItem}}', '{{$j}}')" class="btn btn-light-success">Add More Shift</button>
+                                                                        <button type="button" wire:click="RemoveShift('{{$monthItem}}', '{{$j}}')" class="btn btn-light-danger">Remove Last Shift</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    @endforeach
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -47,81 +117,7 @@
                                 </div>
                                 @endforeach
                             </div>
-
-                                <div class="col-md-6">
-                                    <div class="accordion">
-                                        <div class="accordion-item mb-2">
-                                            <h2 class="accordion-header" id="headingArrangeColumns">
-                                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                                    data-bs-target="#collapse-arrange-columns" aria-expanded="true"
-                                                    aria-controls="collapse-arrange-columns">
-                                                    Shift Details
-                                                </button>
-                                            </h2>
-                                            <div id="collapse-arrange-columns" class="accordion-collapse collapse show"
-                                                aria-labelledby="headingArrangeColumns">
-                                                <div class="accordion-body ">
-                                                    @foreach ($months as $key => $month)
-                                                        @foreach ($month['days'] as $j =>  $day)
-                                                        <div class="border p-3 rounded mb-2">
-                                                            <h5 class="mb-3">{{ $key.' - '. $j}}</h5>
-
-                                                            <div class="row">
-
-                                                                @if(isset($shiftData[$key][$j]))
-                                                                @foreach ($shiftData[$key][$j] as $m => $shifts)
-                                                                <div class="col-md-6">
-                                                                    <div class="form-group">
-                                                                        <label>Shift</label>
-                                                                        <select class="form-control" wire:model="{{'shiftData.' .$key .'.'.$j. '.' . $m.'.shift'}}">
-                                                                            <option value="">Select Shift</option>
-                                                                            @foreach ($shiftList as $option)
-                                                                             <option value="{{$option}}" @if(isset($shiftData[$key][$j]))@selected($shiftData[$key][$j][$m]['shift'] == $option) @endif>{{$option}}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <x-forms.input type="number"
-                                                                    label="Slot"
-                                                                    model="{{'shiftData.' .$key .'.'.$j. '.' . $m.'.slots'}}"
-                                                                    lazy />
-                                                                </div>
-                                                                @endforeach
-                                                                @else
-                                                                <div class="col-md-6">
-                                                                    <div class="form-group">
-                                                                        <label>Shift</label>
-                                                                        <select class="form-control" wire:model="{{'shiftData.' .$key .'.'.$j. '.0.shift'}}">
-                                                                            <option value="">Select Shift</option>
-                                                                            @foreach ($shiftList as $option)
-                                                                                <option value="{{$option}}" @if(isset($shiftData[$key][$j])) @selected($shiftData[$key][$j][0]['shift'] == $option) @endif>{{$option}}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <x-forms.input type="number"
-                                                                    label="Slot"
-                                                                    model="{{'shiftData.' .$key .'.'.$j. '.0.slots'}}"
-                                                                    lazy />
-                                                                </div>
-                                                                @endif
-                                                                <div class="col-12">
-                                                                    <button type="button" wire:click="addShift('{{$key}}', '{{$j}}')" class="btn btn-light-success">Add More Shift</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        @endforeach
-                                                    @endforeach
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                         </div>
-                      </ul>
                 </div>
             </div>
             <hr>
