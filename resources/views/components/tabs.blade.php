@@ -1,4 +1,4 @@
-<div class="x-tabs">
+<div class="x-tabs {{ $class ?? '' }}">
     @php
         $tabs = $this->tabs;
         $tabList = $tabs[$tabId]['links'];
@@ -46,7 +46,6 @@
         :activeTab="$tabs[$tabId]['active']"
         :tabs="$tabs[$tabId]['links']"
         :commonContent="$commonContent"
-        parentComponent="{{ $parentComponent ?? $this::class }}"
         wire:key="tab-{{ $tabs[$tabId]['active'] . ($key ?? '') }}"
         lazy="{{ $lazy }}"
     >

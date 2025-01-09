@@ -118,6 +118,17 @@
                                     <tr>
                                         <td><a href="https://weingartz.com//searchPage.action?keyWord={{ $item['product_code'] }}"
                                                 target="_blank">{{ $item['product_name'] }}</a>
+
+                                            @if(!empty($item['supersedes']))
+                                            <div class="d-flex">
+                                                @foreach($item['supersedes'] as $supersede)
+                                                    <span class="badge text-primary media-library-text-link me-1" wire:click="viewSupersede('{{ $supersede }}', '{{ $item['product_code'] }}')">
+                                                        <i class="far fa-clone me-1"></i> {{ $supersede }}
+                                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" wire:loading wire:target="viewSupersede('{{ $supersede }}', '{{ $item['product_code'] }}')"></span>
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                            @endif
                                         </td>
                                         <td>{{ $item['prodline'] }}</td>
                                         <td>{{ $item['bin_location'] }}</td>
@@ -579,6 +590,59 @@
                     role="status"
                     aria-hidden="true"></span> Update
             </button>
+        </x-slot>
+
+    </x-modal>
+
+    <x-modal :toggle="$supersedeModal" closeEvent="closeSupersedeModal">
+        <x-slot name="title">
+            <div class="">View Supersede</div>
+        </x-slot>
+        
+        @if(!empty($supersedeData))
+        <div>
+            <table class="table">
+                <tr>
+                    <td>Product Code</td>
+                    <td>{{ $supersedeData['product_code'] }}</td>
+                </tr>
+                <tr>
+                    <td>Product Line</td>
+                    <td>{{ $supersedeData['prodline'] }}</td>
+                </tr>
+                <tr>
+                    <td>Bin Location</td>
+                    <td>{{ $supersedeData['bin_location'] }}</td>
+                </tr>
+                <tr>
+                    <td>Net Availability</td>
+                    <td>{{ $supersedeData['stock'] }}</td>
+                </tr>
+                <tr>
+                    <td>Price</td>
+                    <td>${{ number_format($supersedeData['price'], 2) }}</td>
+                </tr>
+            </table>
+
+            @if(!empty($supersedeData['stock_error']))
+            <div class="alert alert-warning">
+                <p class="mb-0">Not enough stock for the selected quantity!</p>
+            </div>
+            @endif
+        </div>
+        @endif
+
+        <x-slot name="footer">
+            <div class="m-auto">
+                @if(!empty($supersedeData))
+                <button type="button"
+                    class="btn btn-primary mb-3 px-4 py-2 mt-1"
+                    wire:click="substituteSupersede('{{ $supersedeData['product_code'] }}')"
+                    {{ !empty($supersedeData['stock_error']) ? 'disabled' : '' }}>
+                    <i class="fas fa-sync-alt me-2" wire:loading.class="fa-spin"></i> Substitute supersede
+                </button>
+                @endif
+            </div>
         </x-slot>
 
     </x-modal>

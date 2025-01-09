@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.1",
         "accentinteractive/laravel-logcleaner": "^1.2",
+        "awcodes/postal-codes": "^0.0.3",
         "calebporzio/sushi": "^2.4",
         "dbt/odbc-driver": "^2.1",
         "firebase/php-jwt": "^6.4",

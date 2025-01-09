@@ -103,6 +103,16 @@
             </div>
         </li>
     @endif
+    @if (auth()->user()->account->hasModule('sales-rep-override'))
+        @can('customer.sales-rep-override.view')
+            <li class="menu-item  {{ request()->is('sales-rep-override*') ? 'active' : '' }}">
+                <a href="{{ route('sales-rep-override.index') }}" wire:navigate class='menu-link'>
+                    <i class="fas fa-universal-access"></i>
+                    <span>Sales Rep Override</span>
+                </a>
+            </li>
+        @endcan
+    @endif
 
     @if (auth()->user()->account->hasModule('marketing'))
         <li class="menu-item {{ request()->is('marketing*') ? 'active' : '' }}  has-sub">
@@ -178,6 +188,13 @@
                                         class="submenu-link">Schedule</a>
                                 </li>
                             @endcan
+                            @can('scheduler.serice-area.view')
+                                <li class="submenu-item  {{ request()->is('service-area*') ? 'active' : '' }}">
+                                    <a href="{{ route('service-area.index') }}" wire:navigate>
+                                        <span>Service Area</span>
+                                    </a>
+                                </li>
+                            @endcan
                             @canany(['scheduler.truck.view'])
                                 <li class="submenu-item  ">
                                     <a href="{{ route('scheduler.truck.index') }}" wire:navigate class="submenu-link">Truck</a>
@@ -189,6 +206,17 @@
                                         class="submenu-link">Drivers</a>
                                 </li>
                             @endcan
+                            
+                            <li class="submenu-item">
+                                <a href="" wire:navigate>
+                                    <span>Surveys</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('schedule.email-template.index') }}" wire:navigate>
+                                    <span>Templates</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

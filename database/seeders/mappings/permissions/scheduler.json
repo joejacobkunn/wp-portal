@@ -14,6 +14,26 @@
                 "name": "scheduler.truck.manage",
                 "label": "Manage Truck Scheduler",
                 "description": "User can manage truck schedules"
+            },
+            {
+                "name": "scheduler.serice-area.view",
+                "label": "View Service Area",
+                "description": "User can view service area"
+            },
+            {
+                "name": "scheduler.serice-area.manage",
+                "label": "Manage Service Area",
+                "description": "User can manage service areas"
+            },
+            {
+                "name": "scheduler.schedule.view",
+                "label": "View Schedule",
+                "description": "User can view schedule"
+            },
+            {
+                "name": "scheduler.schedule.manage",
+                "label": "Manage Schedule",
+                "description": "User can manage schedules"
             }
         ]
     }

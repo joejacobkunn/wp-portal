@@ -16,6 +16,6 @@ class LoginController extends Controller
             return redirect()->to($intendedPath);
         }
 
-        return view('auth.login');
+        return view('auth.login', ['login_link' => route('auth.azure.login', array_filter(['ref' => $request->ref ]))]);
     }
 }

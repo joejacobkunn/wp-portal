@@ -39,7 +39,7 @@ body {
 }
 
 .status-div {
-    min-height: 45rem;
+    min-height: 40rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -47,7 +47,7 @@ body {
 }
 
 .pwa-navbar .navbar-collapse {
-    margin-left: 35%;
+    margin-left: 1%;
 }
 .payment-outer-div {
     font-size: 1.1em;
@@ -95,11 +95,17 @@ body {
 .modal-backdrop.show {
     display: block;
 }
+.order-status-div .table td:first-child {
+    width: 35%;
+}
+.order-status-div .emv-table {
+    font-size: .9em;
+}
 
 @media (max-width: 990px) {
     .pwa-navbar .navbar-collapse {
         display: inline-block !important;
         flex: auto;
-        margin-left: 22%;
+        margin-left: 1%;
     }
 }

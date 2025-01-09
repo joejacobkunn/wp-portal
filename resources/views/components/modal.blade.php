@@ -4,7 +4,6 @@
     'modal_body_class' => false,
     'modal_close_class' => false,
     'width' => null,
-    'closeEvent' => 'closeModal',
     'toggle' => false,
     'size' => '',
 ])

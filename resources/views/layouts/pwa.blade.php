@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="">
     <link rel="icon" href="/favicon.ico">
-    <meta name="description" content="W&P Portal PWA" />
+    <meta name="description" content="Fortis Assist" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3f3f3" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="W&P Portal PWA" />
+    <meta name="apple-mobile-web-app-title" content="Fortis Assist" />
     <meta name="apple-mobile-web-app-status-bar-style" content="white" />
     <link rel="manifest" href="{{ route('pwa.manifest') }}" />
 
@@ -25,7 +25,7 @@
     
     <nav class="navbar navbar-expand-lg px-3 pwa-navbar">
       <a class="navbar-brand" href="#">
-        <img class="d-block mx-auto" src="{{ accountLogo() }}" alt="" width="145">
+        <img class="d-block mx-auto" src="{{ accountLogo() }}" alt="" width="70">
       </a>
       <div class="collapse navbar-collapse" id="navbarNav">
         <span class="h4 navbar-text mb-0">
@@ -39,7 +39,7 @@
 
     <div class="user-info">
       <span class="navbar-text me-4 float-end  mt-2">
-          <i class="fa fa-user"></i> {{ auth()->user()->name }} ({{ auth()->user()->sx_operator_id }})
+          <i class="fa fa-user"></i> {{ auth()->user()->name }} ({{ auth()->user()->sx_operator_id }}) <a href="{{ route('pwa.login.logout') }}" class="text-danger">Logout</a>
       </span>
       <div class="float-start mt-2 ms-4"><small><i class="fas fa-map-marker-alt"></i> {{ auth()->user()->office_location }}</small></div>
     </div>
