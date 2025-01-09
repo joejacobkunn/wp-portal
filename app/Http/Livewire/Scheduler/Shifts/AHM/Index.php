@@ -57,6 +57,7 @@ class Index extends Component
 
     public function mount()
     {
+        $this->authorize('viewAny', Shifts::class);
         $this->warehouse = Warehouse::find($this->warehouseId);
         $data = [[
             'title' => 'Scheduler',
@@ -86,6 +87,7 @@ class Index extends Component
 
     public function edit()
     {
+        $this->authorize('view', $this->shifts);
         $this->editRecord = true;
     }
 
@@ -96,6 +98,7 @@ class Index extends Component
 
     public function submit()
     {
+        $this->authorize('update', $this->shifts);
         $this->validate();
         Shifts::updateOrCreate(['whse' => $this->warehouseId, 'type' => $this->type], ['shift' => $this->shiftData]);
         $this->alert('success', 'shift updated');

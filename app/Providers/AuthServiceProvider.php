@@ -7,7 +7,9 @@ namespace App\Providers;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
 use App\Models\SalesRepOverride\SalesRepOverride;
+use App\Models\Scheduler\NotificationTemplate;
 use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\Zipcode;
 use App\Models\Scheduler\Zones;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -116,7 +118,9 @@ class AuthServiceProvider extends ServiceProvider
     public function getSchedulesPolicies()
     {
         return [
-            Schedule::class => \App\Policies\Scheduler\Schedule\SchedulesPolicy::class
+            Schedule::class => \App\Policies\Scheduler\Schedule\SchedulesPolicy::class,
+            Shifts::class => \App\Policies\Scheduler\ShiftPolicy::class,
+            NotificationTemplate::class => \App\Policies\Scheduler\TemplatePolicy::class
         ];
     }
 }

@@ -24,6 +24,11 @@ class Index extends Component
         ],
     ];
 
+    public function mount()
+    {
+        $this->authorize('viewAny', NotificationTemplate::class);
+    }
+
     public function render()
     {
         return $this->renderView('livewire.scheduler.notification-template.index');

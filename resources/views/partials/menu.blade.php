@@ -212,16 +212,20 @@
                                     <span>Surveys</span>
                                 </a>
                             </li>
+                            @canany(['scheduler.template.view'])
                             <li class="submenu-item">
                                 <a href="{{ route('schedule.email-template.index') }}" wire:navigate>
                                     <span>Templates</span>
                                 </a>
                             </li>
+                            @endcan
+                            @canany(['scheduler.shift.view'])
                             <li class="submenu-item">
                                 <a href="{{ route('schedule.shift.index') }}" wire:navigate>
                                     <span>Shifts</span>
                                 </a>
                             </li>
+                            @endcan
                         </ul>
                     </div>
                 </div>

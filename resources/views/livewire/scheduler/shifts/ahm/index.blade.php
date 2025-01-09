@@ -6,7 +6,7 @@
             @if (!$editRecord)
             <div class="alert alert-light-primary color-primary d-flex justify-content-between align-items-center">
                 <p class="mb-0">
-                    View and manage AHM Shifts for
+                    View and manage <strong>{{strtoupper(Str::headline($this->type))}} Shifts</strong> for
                     <strong>{{ $warehouse->title }}</strong>
                     here
                 </p>

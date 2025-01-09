@@ -34,6 +34,26 @@
                 "name": "scheduler.schedule.manage",
                 "label": "Manage Schedule",
                 "description": "User can manage schedules"
+            },
+            {
+                "name": "scheduler.template.view",
+                "label": "View Schedule Email Templates",
+                "description": "User can view schedule Email Templates"
+            },
+            {
+                "name": "scheduler.template.manage",
+                "label": "Manage Schedule Email Template",
+                "description": "User can manage schedule Email Template"
+            },
+            {
+                "name": "scheduler.shift.view",
+                "label": "View Schedule Shifts",
+                "description": "User can view schedule Shifts"
+            },
+            {
+                "name": "scheduler.shift.manage",
+                "label": "Manage Schedule Shifts",
+                "description": "User can manage schedule Shifts"
             }
         ]
     }
