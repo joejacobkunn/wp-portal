@@ -122,6 +122,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         Route::get('scheduler/template', \App\Http\Livewire\Scheduler\NotificationTemplate\Index::class)->name('schedule.email-template.index');
         Route::get('scheduler/template/{template}/show', \App\Http\Livewire\Scheduler\NotificationTemplate\Show::class)->name('schedule.email-template.show');
+        Route::get('scheduler/shift', \App\Http\Livewire\Scheduler\Shifts\Index::class)->name('schedule.shift.index');
 
     });
 

@@ -217,6 +217,11 @@
                                 <span>Templates</span>
                             </a>
                         </li>
+                        <li class="submenu-item">
+                            <a href="{{ route('schedule.shift.index') }}" wire:navigate>
+                                <span>Shifts</span>
+                            </a>
+                        </li>
 
 
                     </ul>
