@@ -50,7 +50,7 @@ class Index extends Component
     {
         $this->authorize('viewAny', Schedule::class);
         $this->scheduleOptions = collect(ScheduleEnum::cases())
-            ->mapWithKeys(fn($case) => [$case->name => $case->value])
+            ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->value])
             ->toArray();
         $this->getEvents();
     }

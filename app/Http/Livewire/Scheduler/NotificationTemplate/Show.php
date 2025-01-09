@@ -36,6 +36,8 @@ class Show extends Component
 
     public function edit()
     {
+        $this->authorize('view', $this->template);
+
         $this->editRecord = true;
         $this->form->init($this->template);
     }
@@ -52,8 +54,9 @@ class Show extends Component
 
     public function submit()
     {
+        $this->authorize('update', $this->template);
         $this->form->update();
-        $this->alert('success', 'Record updated');
+        $this->alert('success', 'Template updated');
         return redirect()->route('schedule.email-template.index');
 
     }

@@ -7,6 +7,7 @@ use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Zipcode;
+use App\Models\SX\Order as SXOrder;
 use App\Rules\ValidateScheduleDate;
 use App\Rules\ValidateScheduleTime;
 use Carbon\Carbon;
@@ -28,6 +29,7 @@ class ScheduleForm extends Form
     public $line_items = [];
     public $status;
     public $orderInfo;
+    public $SXOrderInfo;
     public $zipcodeInfo;
     public $scheduleDateDisable = true;
     public $created_by;
@@ -105,6 +107,9 @@ class ScheduleForm extends Form
 
         $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
             ->first();
+
+        $this->SXOrderInfo = (config('sx.mock')) ? [] : SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
+
         if(is_null($this->orderInfo)) {
             $this->addError('sx_ordernumber', 'order not found');
             $this->reset(['zipcodeInfo', 'scheduleDateDisable', 'schedule_date', 'schedule_time']);
@@ -121,17 +126,17 @@ class ScheduleForm extends Form
             return;
         }
 
-        $this->orderTotal = $this->getTotalInvoiceData($this->orderInfo->line_items, $this->orderInfo->sx_customer_number, $this->orderInfo->whse);
+        $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
         $this->getDistance();
         $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
         $this->reset('alertConfig');
         $this->alertConfig['status'] = true;
         if(!$this->zipcodeInfo) {
-            $this->alertConfig['message'] = 'Zipcode not configured';
+            $this->alertConfig['message'] = 'ZIP Code not configured';
             $this->alertConfig['icon'] = 'fa-times-circle';
             $this->alertConfig['class'] = 'danger';
             $this->alertConfig['show_url'] = true;
-            $this->alertConfig['urlText'] = 'create new';
+            $this->alertConfig['urlText'] = 'Configure ZIP';
             $this->alertConfig['url'] = 'service-area.index';
             $this->alertConfig['params'] = 'tab=zip_code';
             return;

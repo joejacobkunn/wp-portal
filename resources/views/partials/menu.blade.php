@@ -175,17 +175,15 @@
     @if (auth()->user()->account->hasModule('scheduler'))
 
         <li class="menu-item {{ request()->is('scheduler*') ? 'active' : '' }}  has-sub">
-            <a href="#" class="menu-link" wire:navigate>
-                <span><i class="fas fa-truck"></i> Scheduler</span>
+            <a href="#" class="menu-link">
+                <span><i class="far fa-calendar-check"></i> Scheduler</span>
             </a>
             <div class="submenu ">
                 <div class="submenu-group-wrapper">
                     <ul class="submenu-group">
-                        @can('scheduler.schedule.view')
-                            <li class="submenu-item">
-                                <a href="{{ route('schedule.index') }}" wire:navigate>
-                                    <span>Schedule</span>
-                                </a>
+                        @canany(['scheduler.schedule.view'])
+                            <li class="submenu-item  ">
+                                <a href="{{ route('schedule.index') }}" wire:navigate class="submenu-link">Schedule</a>
                             </li>
                         @endcan
                         @can('scheduler.serice-area.view')
@@ -195,38 +193,45 @@
                                 </a>
                             </li>
                         @endcan
+                        @canany(['scheduler.truck.view'])
+                            <li class="submenu-item  ">
+                                <a href="{{ route('scheduler.truck.index') }}" wire:navigate class="submenu-link">Truck</a>
+                            </li>
+                        @endcan
+                        @canany(['scheduler.schedule.view'])
+                            <li class="submenu-item  ">
+                                <a href="{{ route('equipment.floor-model-inventory.index') }}" wire:navigate
+                                    class="submenu-link">Drivers</a>
+                            </li>
+                        @endcan
 
-                        <li class="submenu-item">
-                            <a href="" wire:navigate>
-                                <span>Trucks</span>
-                            </a>
-                        </li>
-
-                        <li class="submenu-item">
-                            <a href="{{ route('schedule.driver.index') }}" wire:navigate>
-                                <span>Drivers</span>
-                            </a>
-                         </li>
                         <li class="submenu-item">
                             <a href="" wire:navigate>
                                 <span>Surveys</span>
                             </a>
                         </li>
-                        <li class="submenu-item">
-                            <a href="{{ route('schedule.email-template.index') }}" wire:navigate>
-                                <span>Templates</span>
-                            </a>
-                        </li>
-
-
+                        @canany(['scheduler.template.view'])
+                            <li class="submenu-item">
+                                <a href="{{ route('schedule.email-template.index') }}" wire:navigate>
+                                    <span>Templates</span>
+                                </a>
+                            </li>
+                        @endcan
+                        @canany(['scheduler.shift.view'])
+                            <li class="submenu-item">
+                                <a href="{{ route('schedule.shift.index') }}" wire:navigate>
+                                    <span>Shifts</span>
+                                </a>
+                            </li>
+                        @endcan
                     </ul>
                 </div>
             </div>
         </li>
 
 
-
     @endif
+
 
 
     @endif

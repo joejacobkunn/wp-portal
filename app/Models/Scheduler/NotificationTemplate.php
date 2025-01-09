@@ -13,13 +13,11 @@ class NotificationTemplate extends Model
     protected $table = 'scheduler_notification_templates';
 
     protected $fillable = [
-        'account_id',
-        'name',
         'email_subject',
         'email_content',
         'sms_content',
-        'created_by',
-        'type',
-        'is_active',
+        'name',
+        'slug',
+        'description'
     ];
 }
