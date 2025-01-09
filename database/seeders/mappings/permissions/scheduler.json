@@ -6,6 +6,16 @@
         ],
         "items": [
             {
+                "name": "scheduler.truck.view",
+                "label": "View Truck Scheduler",
+                "description": "User can view truck schedules"
+            },
+            {
+                "name": "scheduler.truck.manage",
+                "label": "Manage Truck Scheduler",
+                "description": "User can manage truck schedules"
+            },
+            {
                 "name": "scheduler.serice-area.view",
                 "label": "View Service Area",
                 "description": "User can view service area"

@@ -108,6 +108,8 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('marketing/sms-marketing/', \App\Http\Livewire\Marketing\SMSMarketing\Index::class)->name('marketing.sms-marketing.index');
 
 
+        //pwa
+        Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
         Route::get('sales-rep-override', \App\Http\Livewire\SalesRepOverride\Index::class)->name('sales-rep-override.index');
         Route::get('sales-rep-override/{salesRepOverride}/show', \App\Http\Livewire\SalesRepOverride\Show::class)->name('sales-rep-override.show');
 
@@ -124,6 +126,8 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('scheduler/template/{template}/show', \App\Http\Livewire\Scheduler\NotificationTemplate\Show::class)->name('schedule.email-template.show');
         Route::get('scheduler/shift', \App\Http\Livewire\Scheduler\Shifts\Index::class)->name('schedule.shift.index');
 
+        // Scheduler Trucks
+        Route::get('scheduler/trucks', \App\Http\Livewire\Scheduler\Truck\Index::class)->name('scheduler.truck.index');
     });
 
     //pwa
