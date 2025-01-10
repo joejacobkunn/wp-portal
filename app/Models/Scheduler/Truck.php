@@ -17,7 +17,6 @@ class Truck extends Model
 
     protected $fillable = [
         'truck_name',
-        'location_id',
         'vin_number',
         'model_and_make',
         'year',
@@ -28,10 +27,6 @@ class Truck extends Model
         'cubic_storage_space',
     ];
 
-    public function location()
-    {
-        return $this->belongsTo(Location::class, 'location_id');
-    }
 
     public function warehouse()
     {

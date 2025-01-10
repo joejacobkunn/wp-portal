@@ -51,13 +51,6 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
-            Column::make('Location', 'location.name')
-                ->excludeFromColumnSelect()
-                ->format(function ($value, $row) {
-                    return $value;
-                })
-                ->html(),
-
             Column::make('VIN#', 'vin_number')
                 ->sortable()
                 ->searchable()

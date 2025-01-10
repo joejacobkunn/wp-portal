@@ -10,11 +10,9 @@ use App\Models\Core\Location;
 trait FormRequest
 {
     use LivewireAlert;
-    public $locations = [];
 
     protected $validationAttributes = [
         'truck.truck_name' => 'Truck Name',
-        'truck.location_id' => 'Location ID',
         'truck.vin_number' => 'VIN Number',
         'truck.model_and_make' => 'Model and Make',
         'truck.year' => 'Year',
@@ -33,7 +31,6 @@ trait FormRequest
     {
         return [
             'truck.truck_name' => 'required|string|max:255',
-            'truck.location_id' => 'required|numeric|exists:locations,id',
             'truck.driver' => 'required|numeric|exists:users,id',
             'truck.cubic_storage_space' => 'required|string|max:255',
             'truck.vin_number' => 'required|string|max:255|unique:trucks,vin_number',
@@ -49,12 +46,10 @@ trait FormRequest
      */
     public function formInit()
     {
-        $this->locations = Location::select('name', 'id')->get()->toArray();
 
         if (empty($this->truck->id)) {
             $this->truck = new Truck();
             $this->truck->truck_name = null;
-            $this->truck->location_id = null;
             $this->truck->vin_number = null;
             $this->truck->model_and_make = null;
             $this->truck->year = null;
@@ -99,11 +94,7 @@ trait FormRequest
      */
     public function update()
     {
-        $this->authorize('update', $this->warranty);
-
-        $this->truck->fill([
-            'location_id' => $this->location_id,
-        ]);
+        $this->authorize('update', $this->truck);
         $this->truck->save();
 
         $this->editRecord = false;
