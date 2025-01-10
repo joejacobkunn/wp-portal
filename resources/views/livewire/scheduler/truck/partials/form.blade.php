@@ -10,20 +10,19 @@
                     </div>
                 </div>
 
-                <!-- Location -->
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <x-forms.select label="Location" model="truck.location_id" 
-                            :options="$locations" :selected="$truck->location_id ?? null" 
-                            default-selectable default-option-label="- Select Location -" 
-                            label-index="name" value-index="id" />
-                    </div>
-                </div>
-
                 <!-- VIN Number -->
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <x-forms.input label="VIN Number" model="truck.vin_number" lazy />
+                    </div>
+                </div>
+                <!-- Driver -->
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <x-forms.select label="Driver" model="truck.driver"
+                            :options="$drivers" :selected="$truck->driver ?? null"
+                            default-selectable default-option-label="- Select Warehouse -"
+                            label-index="name" value-index="id" />
                     </div>
                 </div>
 
@@ -38,6 +37,12 @@
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <x-forms.input label="Year" model="truck.year" type="number" lazy />
+                    </div>
+                </div>
+                <!-- Storage Space -->
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <x-forms.input label="Cubic Storage Space" model="truck.cubic_storage_space" type="text" lazy />
                     </div>
                 </div>
 

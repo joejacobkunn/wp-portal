@@ -33,13 +33,12 @@ class Index extends Component
         '8AM - 12PM',
         '12PM - 4PM',
         '4PM - 7PM',
-        '8AM - 7PM',
+        '9AM - 4PM',
     ];
     public $ahmShift = [
         '9AM - 1PM',
-        '1PM - 5PM',
+        '1PM - 6PM',
         '9AM - 4PM',
-        '9AM - 5PM'
     ];
 
     public $breadcrumbs = [];

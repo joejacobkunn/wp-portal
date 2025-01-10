@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Scheduler\Shifts\AHM;
+namespace App\Http\Livewire\Scheduler\Shifts\Shift;
 
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\Warehouse;
@@ -93,7 +93,7 @@ class Index extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.shifts.ahm.index');
+        return $this->renderView('livewire.scheduler.shifts.shift.index');
     }
 
     public function submit()
