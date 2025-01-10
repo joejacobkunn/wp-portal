@@ -5,10 +5,13 @@ namespace App\Models\Scheduler;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Core\Location;
+use App\Models\Core\User;
+use App\Models\Core\Warehouse;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Truck extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'trucks';
 
@@ -20,11 +23,24 @@ class Truck extends Model
         'year',
         'color',
         'notes',
+        'whse',
+        'driver',
+        'cubic_storage_space',
     ];
 
     public function location()
     {
         return $this->belongsTo(Location::class, 'location_id');
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'whse');
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(User::class, 'driver');
     }
 
 }

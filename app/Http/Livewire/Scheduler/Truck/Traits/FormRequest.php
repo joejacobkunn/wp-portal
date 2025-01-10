@@ -20,8 +20,10 @@ trait FormRequest
         'truck.year' => 'Year',
         'truck.color' => 'Color',
         'truck.notes' => 'Notes',
+        'truck.driver' => 'Driver',
+        'truck.cubic_storage_space' => 'Storage Space',
     ];
-    
+
     protected $messages = [
         'vin_number.unique' => 'The VIN number must be unique.',
         'year.numeric' => 'The year must be a valid number.',
@@ -32,6 +34,8 @@ trait FormRequest
         return [
             'truck.truck_name' => 'required|string|max:255',
             'truck.location_id' => 'required|numeric|exists:locations,id',
+            'truck.driver' => 'required|numeric|exists:users,id',
+            'truck.cubic_storage_space' => 'required|string|max:255',
             'truck.vin_number' => 'required|string|max:255|unique:trucks,vin_number',
             'truck.model_and_make' => 'required|string|max:255',
             'truck.year' => 'required|numeric|digits:4',
@@ -56,6 +60,8 @@ trait FormRequest
             $this->truck->year = null;
             $this->truck->color = null;
             $this->truck->notes = null;
+            $this->truck->driver = null;
+            $this->truck->cubic_storage_space = null;
         }
     }
 
@@ -80,9 +86,12 @@ trait FormRequest
     {
         // $this->authorize('store', Truck::class);
 
+        $this->truck->fill([
+            'whse' => $this->whseId,
+        ]);
         $this->truck->save();
         $this->alert('success', 'Truck created successfully!');
-        return redirect()->route('scheduler.truck.index');
+        return redirect()->route('scheduler.truck.index', ['whseId' => $this->whseId]);
     }
 
     /**
@@ -99,7 +108,7 @@ trait FormRequest
 
         $this->editRecord = false;
         $this->alert('success', 'Record updated!');
-        return redirect()->route('equipment.warranty.index');
+        return redirect()->route('scheduler.truck.index', ['whseId' => $this->whseId]);
     }
 
 }
