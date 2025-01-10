@@ -12,7 +12,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 class Table extends DataTableComponent
 {
     use AuthorizesRequests;
-
+    public $whseId;
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -51,13 +51,6 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->html(),
 
-            Column::make('Location', 'location.name')
-                ->excludeFromColumnSelect()
-                ->format(function ($value, $row) {
-                    return $value;
-                })
-                ->html(),
-
             Column::make('VIN#', 'vin_number')
                 ->sortable()
                 ->searchable()
@@ -73,6 +66,20 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect(),
 
             Column::make('Year')
+                ->sortable()
+                ->searchable()
+                ->format(function ($value, $row) {
+                    return $value;
+                })
+                ->excludeFromColumnSelect(),
+            Column::make('Driver', 'driver.name')
+                ->sortable()
+                ->searchable()
+                ->format(function ($value, $row) {
+                    return $value;
+                })
+                ->excludeFromColumnSelect(),
+            Column::make('Cubic Storage Space')
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
@@ -104,7 +111,7 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Truck::query();
+        return Truck::query()->where('whse', $this->whseId);
     }
 
     public function fetchIcon($type)

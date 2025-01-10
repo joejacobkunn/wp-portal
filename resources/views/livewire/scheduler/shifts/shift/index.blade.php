@@ -16,11 +16,11 @@
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     @if ($editRecord)
-                        @include('livewire.scheduler.shifts.ahm.partials.form', [
+                        @include('livewire.scheduler.shifts.shift.partials.form', [
                             'button_text' => 'Update Shifts',
                         ])
                     @else
-                        @include('livewire.scheduler.shifts.ahm.partials.view')
+                        @include('livewire.scheduler.shifts.shift.partials.view')
                     @endif
                 </div>
             </div>

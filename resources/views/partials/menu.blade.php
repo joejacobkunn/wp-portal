@@ -200,8 +200,7 @@
                         @endcan
                         @canany(['scheduler.schedule.view'])
                             <li class="submenu-item  ">
-                                <a href="{{ route('equipment.floor-model-inventory.index') }}" wire:navigate
-                                    class="submenu-link">Drivers</a>
+                                <a href="{{ route('schedule.driver.index') }}" wire:navigate class="submenu-link">Drivers</a>
                             </li>
                         @endcan
 
