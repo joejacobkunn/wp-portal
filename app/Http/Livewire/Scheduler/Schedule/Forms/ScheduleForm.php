@@ -26,7 +26,6 @@ class ScheduleForm extends Form
     public $schedule_date;
     public $schedule_time;
     public $allItems = [];
-    public $line_items = [];
     public $status;
     public $orderInfo;
     public $SXOrderInfo;
@@ -55,7 +54,6 @@ class ScheduleForm extends Form
         'sx_ordernumber' => 'Order Number',
         'schedule_date' => 'Schedule Date',
         'schedule_time' => 'Schedule Time',
-        'line_items' => 'Line Items',
         'suffix' => 'Order Suffix',
     ];
     public $serviceArray = [
@@ -73,22 +71,21 @@ class ScheduleForm extends Form
             'type' => 'required',
             'sx_ordernumber' => [
                 'required',
-                Rule::unique('schedules', 'sx_ordernumber')->ignore($this->getScheduledId()),
+                Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at')->ignore($this->getScheduledId()),
                 Rule::exists('orders', 'order_number')
                 ->where(function ($query) {
                     $query->where('order_number_suffix', $this->suffix);
                 }),
             ],
             'suffix' => 'required',
-            'line_items' => 'required|array',
             'schedule_date' => [
                 'required',
-                new ValidateScheduleDate($this->getActiveDays())
+                //new ValidateScheduleDate($this->getActiveDays())
             ],
             'schedule_time' => [
                 'required',
                 'date_format:H:i',
-                new ValidateScheduleTime($this->getActiveDays(), $this->type, $this->schedule_date)
+                //new ValidateScheduleTime($this->getActiveDays(), $this->type, $this->schedule_date)
             ],
         ];
 
@@ -97,7 +94,7 @@ class ScheduleForm extends Form
     public function getOrderInfo($suffix)
     {
         $google = app(DistanceInterface::class);
-
+        $this->saveRecommented = false;
         $this->resetValidation(['sx_ordernumber', 'suffix']);
         $this->alertConfig['status'] = false;
         if(!$this->sx_ordernumber) {

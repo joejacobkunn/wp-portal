@@ -17,7 +17,6 @@ class Index extends Component
     public ZipCodeForm $form;
     public $addRecord = false;
 
-    public $zoneHint;
     public $warehouseId;
     public Warehouse $warehouse;
 
@@ -27,9 +26,7 @@ class Index extends Component
         $this->dispatch('setDecription', 'Create New Zip Code');
     }
 
-    protected $listeners = [
-        'setHint' => 'setZoneHint'
-    ];
+
 
     public function mount()
     {
@@ -69,11 +66,6 @@ class Index extends Component
     public function render()
     {
         return $this->renderView('livewire.scheduler.service-area.zip-code.index');
-    }
-
-    public function setZoneHint($key, $value)
-    {
-        $this->zoneHint = $this->form->getHint($value);
     }
 
 }
