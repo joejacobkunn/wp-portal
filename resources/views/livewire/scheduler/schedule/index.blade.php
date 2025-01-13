@@ -3,9 +3,9 @@
     <x-slot:description>{{ $showModal ? 'Schedule Shipping' : 'Shipping Schedule list' }}</x-slot>
     <x-slot:content>
         <div class="card border-light shadow-sm schedule-tab">
-            <div class="card-body" wire:ignore>
+            <div class="card-body" >
                 <div class="row">
-                    <div class="col-10">
+                    <div class="col-8" wire:ignore>
                         <div id="calendar" class="w-100"></div>
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             @foreach ($scheduleOptions as $key => $value)
@@ -14,8 +14,26 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="col-2">
-                        <div class="card">
+                    <div class="col-4">
+                        <div class="card" wire:key="order-info-panel-{{$orderInfoStrng}}" >
+                            @if (isset($form->schedule))
+                            <div class="card-body" >
+                                <h5 class="card-title">Order Information</h5>
+
+                                <div class="list-group">
+                                    <button type="button" class="list-group-item list-group-item-primary">{{ $form->schedule->sx_ordernumber.'-'. $form->schedule->order_number_suffix}}</button>
+                                    <button type="button" class="list-group-item list-group-item-action">Order Number<span
+                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->sx_ordernumber.'-'. $form->schedule->order_number_suffix}}</span></button>
+                                    <button type="button" class="list-group-item list-group-item-action">P/D : 1pm -
+                                        6pm<span
+                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">2/5</span></button>
+                                    <button type="button" class="list-group-item list-group-item-action">S/I : 1pm -
+                                        6pm<span
+                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">4/8</span></button>
+
+                                </div>
+                            </div>
+                            @endif
                             <div class="card-body">
                                 <h5 class="card-title">Zone Information</h5>
                                 <div class="alert alert-light-primary color-primary" role="alert">
@@ -60,7 +78,16 @@
         let calendarEl = document.getElementById('calendar');
         let dropdownMenu = document.getElementById('calendar-dropdown-menu');
         let isDropdownVisible = false;
-
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .highlighted-date {
+                background-color: #f3ebbc !important; /* Highlight color */
+                border: 1px solid #fffadf !important; /* Optional border color */
+            }
+            .fc-event {
+                cursor: pointer; /* Pointer cursor on hover */
+            }`;
+        document.head.appendChild(style);
         let calendar = new FullCalendar.Calendar(calendarEl, {
             themeSystem: 'bootstrap5',
             initialView: 'dayGridMonth',
@@ -98,6 +125,18 @@
             },
             events: @json($schedules),
             eventClick: function(info) {
+            // Remove previous highlights
+            document.querySelectorAll('.highlighted-date').forEach(cell => {
+                console.log(cell)
+                cell.classList.remove('highlighted-date');
+            });
+
+            // Find and highlight the corresponding date cell
+            const eventDate = info.event.startStr; // ISO string of the event date
+            const cell = document.querySelector(`[data-date="${eventDate}"]`);
+            if (cell) {
+                cell.classList.add('highlighted-date');
+            }
                 $wire.handleEventClick(info.event.id);
             },
         });

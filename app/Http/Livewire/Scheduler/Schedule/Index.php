@@ -22,6 +22,7 @@ class Index extends Component
     public $isEdit;
     public $showView;
     public $addressModal;
+    public $orderInfoStrng;
     public $scheduleOptions;
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -49,6 +50,7 @@ class Index extends Component
     public function mount()
     {
         $this->authorize('viewAny', Schedule::class);
+        $this->orderInfoStrng = uniqid();
         $this->scheduleOptions = collect(ScheduleEnum::cases())
             ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->value])
             ->toArray();
@@ -141,10 +143,11 @@ class Index extends Component
     public function handleEventClick(Schedule $schedule)
     {
         $this->form->init($schedule);
-        $this->showModal = true;
-        $this->isEdit = true;
-        $this->showView = true;
-        $this->updatedFormSuffix($schedule->order_number_suffix);
+        $this->orderInfoStrng = uniqid();
+        //$this->showModal = true;
+        //$this->isEdit = true;
+        //$this->showView = true;
+        //$this->updatedFormSuffix($schedule->order_number_suffix);
     }
 
     public function showAdrress()
