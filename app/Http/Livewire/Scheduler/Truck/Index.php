@@ -40,7 +40,7 @@ class Index extends Component
         $this->whseId =  $this->whseId ? $this->whseId : Warehouse::where('title', Auth::user()->office_location)->first()->id;
 
         $this->activeWarehouse = Warehouse::where('cono', 10)->where('id', $this->whseId)->first();
-        $this->drivers = User::where('title', 'driver')->get();
+        $this->drivers = User::where('title', 'driver')->where('office_location', $this->activeWarehouse->title)->get();
     }
 
     public function render()
