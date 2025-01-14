@@ -41,8 +41,8 @@
                 <div class="col-md-12 mb-3">
                     <div class="form-group">
                         <x-forms.select label="Zone" model="form.zone" :options="$this->form->zones" :selected="$form->zone"
-                            hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()" :listener="'setHint'"
-                            :hint="$zoneHint" />
+                            :multiple="true" hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()"
+                            />
                     </div>
                 </div>
                 <div class="col-md-6">
