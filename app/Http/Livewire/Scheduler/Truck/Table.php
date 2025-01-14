@@ -36,8 +36,7 @@ class Table extends DataTableComponent
             Column::make('Id', 'id')
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return $value;
-                    // return '<a href="'.route('vehicle.show', $row->id).'" class="text-primary text-decoration-underline">'.$value.'</a>';
+                    return '<a href="'.route('scheduler.truck.show', ['truck' => $row->id]).'" class="text-primary text-decoration-underline">' . $value . '</a>';
                 })
                 ->html(),
 
@@ -45,8 +44,7 @@ class Table extends DataTableComponent
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return $value;
-                    // return '<a href="'.route('vehicle.show', ['vehicle' => $row->id, $row]).'" class="text-primary text-decoration-underline">'.$value.'</a>';
+                    return '<a href="'.route('scheduler.truck.show', ['truck' => $row->id]).'" class="text-primary text-decoration-underline">' . $value . '</a>';
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
