@@ -25,6 +25,8 @@ class Truck extends Model
         'whse',
         'driver',
         'cubic_storage_space',
+        'baseline_date',
+        'service_type',
     ];
 
 
@@ -38,4 +40,8 @@ class Truck extends Model
         return $this->belongsTo(User::class, 'driver');
     }
 
+    public function rotations()
+    {
+        return $this->hasMany(Rotation::class, 'truck_id');
+    }
 }

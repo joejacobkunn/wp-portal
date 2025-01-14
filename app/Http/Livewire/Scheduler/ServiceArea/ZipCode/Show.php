@@ -16,7 +16,6 @@ class Show extends Component
     public Zipcode $zipcode;
     public ZipCodeForm $form;
     public $editRecord = false;
-    public $zoneHint;
     public $alertConfig = [];
     public $breadcrumbs = [[
         'title' => 'Service Area',
@@ -27,8 +26,6 @@ class Show extends Component
         'edit' => 'edit',
         'deleteRecord' => 'delete',
         'updateStatus' => 'updateStatus',
-        'setHint' => 'setZoneHint'
-
         ];
 
     public $actionButtons = [
@@ -67,14 +64,14 @@ class Show extends Component
         ['title' => 'Zipcodes'],
         ['title' => $this->zipcode->zip_code]];
         $this->setAlert();
+        $this->form->setZones($this->zipcode->whse_id);
+
     }
 
     public function edit()
     {
         $this->editRecord = true;
         $this->form->init($this->zipcode);
-        $this->form->setZones($this->zipcode->whse_id);
-        $this->setZoneHint('zones', $this->zipcode->zone);
     }
 
     public function cancel()
@@ -135,8 +132,5 @@ class Show extends Component
         $this->setAlert();
     }
 
-    public function setZoneHint($key, $value)
-    {
-        $this->zoneHint = $this->form->getHint($value);
-    }
+
 }

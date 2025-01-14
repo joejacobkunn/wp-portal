@@ -5,6 +5,7 @@ namespace App\Models\Order;
 use App\Models\Core\Comment;
 use App\Enums\Order\OrderStatus;
 use App\Models\Core\Customer;
+use App\Models\Core\Warehouse;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -165,4 +166,8 @@ class Order extends Model
         return $this->belongsTo(Customer::class, 'sx_customer_number', 'sx_customer_number');
     }
 
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'whse', 'short');
+    }
 }
