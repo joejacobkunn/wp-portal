@@ -35,6 +35,7 @@ class ComponentServiceProvider extends ServiceProvider
         Livewire::component('x-activity-log', \App\Http\Livewire\Component\ActivityLog::class);
         Livewire::component('x-comments', \App\Http\Livewire\Component\Comments::class);
         Livewire::component('x-forms-htmleditor', \App\Http\Livewire\Component\HtmlEditor::class);
+        Livewire::component('x-forms-datepicker', \App\Http\Livewire\Component\DatePicker::class);
 
         return $this;
     }

@@ -106,8 +106,7 @@
                                 </li>
                                 @foreach ($form->orderInfo->line_items['line_items'] as $item)
                                     <li class="list-group-item">
-                                        <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineItems[]'" :value="$item['shipprod']"
-                                            :model="'form.line_items'" />
+                                       <p>{{$item['descrip'] . '(' . $item['shipprod'] . ')' }}</p>
                                     </li>
                                 @endforeach
                             </ul>
@@ -203,7 +202,7 @@
                 </li>
             @endif
         </ul>
-        @if ($form->zipcodeInfo)
+        {{-- @if ($form->zipcodeInfo)
 
             <div class="table-responsive">
                 <table class="table table-bordered">
@@ -242,7 +241,7 @@
                     </tbody>
                 </table>
             </div>
-        @endif
+        @endif --}}
         @if ($addressModal)
             <x-modal :toggle="$addressModal" size="md" :closeEvent="'closeAddress'">
                 <x-slot name="title">Recommended Address </x-slot>

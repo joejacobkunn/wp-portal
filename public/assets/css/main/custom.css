@@ -75,7 +75,11 @@
 .ss-main .ss-single-selected .placeholder .ss-disabled {
     color: #5e5e5e;
 }
-
+.ss-main .ss-single-selected .placeholder, .ss-main .ss-single-selected .placeholder * {
+    color: #607080 !important;
+    font-weight: 500;
+    opacity: 1;
+}
 /** SLIM Select Ends */
 
 .btn-fab {
@@ -828,6 +832,24 @@
     border-bottom: 0;
     border-left: 0.3em solid transparent;
 }
+.schedule-tab .fc-warehouseBtn-button::after {
+    content: '';
+    display: inline-block;
+    margin-left: 0.5em;
+    vertical-align: 0.2em;
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+}
+.schedule-tab .highlighted-date {
+    background-color: #f3ebbc !important;
+    border: 1px solid #fffadf !important;
+}
+
+.schedule-tab .fc-event {
+    cursor: pointer;
+}
 
 .scheduler-driver-img-thumbnail {
     height: 100px;
@@ -873,3 +895,29 @@
     color: white;
     cursor: pointer;
 }
+
+
+.modal-backdrop {
+    display: none;
+}
+.modal.show,
+.modal-backdrop.show {
+    display: block;
+}
+
+/** Rotations */
+.rotation-form-div .rotation-ind-div {
+    padding: 1em 2em;
+    border: 1px solid #e3e3e3;
+    margin-bottom: .5em;
+    display: flex;
+    justify-content: space-between;
+}
+.rotation-form-div .rotation-ind-div .select-div {
+    width: 100%;
+} 
+.rotation-form-div .rotation-ind-div .select-div .form-group {
+    margin-bottom: 0;
+    margin-left: 1em;
+}
+/** End Rotations */

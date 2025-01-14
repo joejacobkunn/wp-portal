@@ -21,8 +21,11 @@
 
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
-                            <h3 class="h6 mb-1">Zone</h3>
-                            <p class="small pe-4">{{ $zipcode->getZone->name }}</p>
+                            <h3 class="h6 mb-1">Zones</h3>
+
+                            @foreach ($zipcode->zone as $zone)
+                                <span class="">{{ $form->zones[$zone] }}</span><br>
+                            @endforeach
                         </div>
                     </li>
 

@@ -19,10 +19,9 @@
                 <!-- Driver -->
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.select label="Driver" model="truck.driver"
-                            :options="$drivers" :selected="$truck->driver ?? null"
-                            default-selectable default-option-label="- Select Warehouse -"
-                            label-index="name" value-index="id" />
+                        <x-forms.select label="Driver" model="truck.driver" :options="$drivers" :selected="$truck->driver ?? null"
+                            default-selectable default-option-label="- Select Driver -" label-index="name"
+                            value-index="id" />
                     </div>
                 </div>
 
@@ -42,7 +41,8 @@
                 <!-- Storage Space -->
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.input label="Cubic Storage Space" model="truck.cubic_storage_space" type="text" lazy />
+                        <x-forms.input label="Cubic Storage Space" model="truck.cubic_storage_space" type="text"
+                            lazy />
                     </div>
                 </div>
 

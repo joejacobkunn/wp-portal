@@ -120,7 +120,8 @@ class AuthServiceProvider extends ServiceProvider
         return [
             Schedule::class => \App\Policies\Scheduler\Schedule\SchedulesPolicy::class,
             Shifts::class => \App\Policies\Scheduler\ShiftPolicy::class,
-            NotificationTemplate::class => \App\Policies\Scheduler\TemplatePolicy::class
+            NotificationTemplate::class => \App\Policies\Scheduler\TemplatePolicy::class,
+            \App\Models\Scheduler\Truck::class => \App\Policies\Scheduler\TruckPolicy::class,
         ];
     }
 }

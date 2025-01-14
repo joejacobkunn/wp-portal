@@ -19,6 +19,9 @@
 
         </div>
     </div>
+
+    <x-confirmation></x-confirmation>
+    
     @include('partials.footer')
 
     @include('partials.scripts')

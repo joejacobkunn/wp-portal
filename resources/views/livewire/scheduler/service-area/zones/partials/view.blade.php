@@ -24,37 +24,6 @@
                         </div>
                     </li>
 
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div class="w-100">
-                            <h3 class="text-sm font-semibold mb-3">Scheduled Days</h3>
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th class="bg-light">Day</th>
-                                            <th class="bg-light">AHM Slot</th>
-                                            <th class="bg-light">AHM Shift</th>
-                                            <th class="bg-light">Delivery/Pickup Slot</th>
-                                            <th class="bg-light">Delivery/Pickup Shift</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($zone->schedule_days as $key => $day)
-                                            @if ($day['enabled'])
-                                                <tr>
-                                                    <td>{{ ucfirst($key) }}</td>
-                                                    <td>{{$day['ahm_slot']}}</td>
-                                                    <td>{{ $scheduleOptions['ahm'][$day['ahm_shift']] }}</td>
-                                                    <td>{{$day['pickup_delivery_slot']}}</td>
-                                                    <td>{{strtoupper(str_replace(['_'], ' ', $scheduleOptions['pickup_delivery_shift'][$day['delivery_pickup_shift']]))}}</td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                         <div>
                             <h3 class="h6 mb-1">Last Updated At</h3>

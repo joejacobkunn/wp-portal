@@ -27,6 +27,7 @@ class Zipcode extends Model
 
     protected $casts = [
         'service' => 'array',
+        'zone' => 'array',
     ];
 
     const LOG_FIELD_MAPS = [
