@@ -5,9 +5,12 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
+use App\Models\Core\CalendarHoliday;
+use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
@@ -24,6 +27,9 @@ class Index extends Component
     public $addressModal;
     public $orderInfoStrng;
     public $scheduleOptions;
+    public $warehouses;
+    public $holidays;
+    public $activeWarehouse;
     protected $listeners = [
         'closeModal' => 'closeModal',
         'edit' => 'edit',
@@ -54,13 +60,30 @@ class Index extends Component
         $this->scheduleOptions = collect(ScheduleEnum::cases())
             ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->value])
             ->toArray();
+
+        $this->warehouses = Warehouse::select(['id', 'short', 'title'])->get();
+        if(Auth::user()->office_location) {
+            $this->activeWarehouse = $this->warehouses->where('title', Auth::user()->office_location)->first();
+        }
+        $holidays = CalendarHoliday::listAll();
         $this->getEvents();
+
+        $this->holidays = collect($holidays)->map(function ($holiday) {
+            return [
+                'title' => $holiday['label'],
+                'start' => $holiday['date'],
+                'color' => '#ff9f89',
+                'className' => 'holiday-event',
+                'description' => 'holiday',
+            ];
+        })->toArray();
     }
 
     public function create($type)
     {
         $this->authorize('store', Schedule::class);
         $this->isEdit = false;
+        $this->form->reset();
         $this->form->type = $type;
         $this->showModal = true;
 
@@ -116,14 +139,23 @@ class Index extends Component
 
     public function getEvents()
     {
-        $this->schedules = Schedule::all()->map(function($schedule) {
+        $whse = $this->activeWarehouse?->short;
+
+        $this->schedules = Schedule::with('order')
+        ->whereHas('order', function ($query) use ($whse) {
+            $query->where('whse', strtolower($whse));
+        })
+
+        ->get()
+        ->map(function ($schedule) {
             return [
                 'id' => $schedule->id,
                 'title' => 'Order #' . $schedule->sx_ordernumber,
                 'start' => $schedule->schedule_date,
-                'description' => $schedule->type,
+                'description' => 'schedule',
             ];
         });
+
     }
 
     public function edit()
@@ -144,10 +176,6 @@ class Index extends Component
     {
         $this->form->init($schedule);
         $this->orderInfoStrng = uniqid();
-        //$this->showModal = true;
-        //$this->isEdit = true;
-        //$this->showView = true;
-        //$this->updatedFormSuffix($schedule->order_number_suffix);
     }
 
     public function showAdrress()
@@ -165,6 +193,14 @@ class Index extends Component
     {
         $this->form->setAddress();
         $this->closeAddress();
+    }
+
+    public function changeWarehouse($wsheID)
+    {
+        $this->activeWarehouse = $this->warehouses->find($wsheID);
+        $this->getEvents();
+        $this->dispatch('calendar-needs-update',  $this->activeWarehouse->title);
+
     }
 
 }

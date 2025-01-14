@@ -3,9 +3,11 @@
 
 use App\Classes\SX;
 use App\Contracts\DistanceInterface;
+use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\Zipcode;
 use App\Models\SX\Order as SXOrder;
 use App\Rules\ValidateScheduleDate;
@@ -35,6 +37,7 @@ class ScheduleForm extends Form
     public $shipping;
     public $saveRecommented = false;
     public $orderTotal;
+
     public $recommendedAddress;
     public $alertConfig = [
         'status' => false,
@@ -80,12 +83,12 @@ class ScheduleForm extends Form
             'suffix' => 'required',
             'schedule_date' => [
                 'required',
-                //new ValidateScheduleDate($this->getActiveDays())
+                new ValidateScheduleDate($this->getActiveDays())
             ],
             'schedule_time' => [
                 'required',
                 'date_format:H:i',
-                //new ValidateScheduleTime($this->getActiveDays(), $this->type, $this->schedule_date)
+                new ValidateScheduleTime($this->getActiveDays(), $this->schedule_date, $this->type)
             ],
         ];
 
@@ -179,6 +182,7 @@ class ScheduleForm extends Form
         $this->fill($schedule->toArray());
         $this->schedule_time = Carbon::parse($schedule->schedule_time)->format('H:i');
         $this->suffix = $schedule->order_number_suffix;
+
     }
 
     public function update()
@@ -218,10 +222,13 @@ class ScheduleForm extends Form
 
     public function getActiveDays()
     {
-        $days = $this->zipcodeInfo?->getZone?->schedule_days;
-        return  collect($days)
-        ->filter(fn($day) => $day['enabled'])
-        ->toArray();
+        $type = $this->type;
+        if($this->type == 'delivery' || $this->type == 'pickup') {
+            $type = 'delivery_pickup';
+        }
+        $shift = Shifts::where(['type' => $type, 'whse' => $this->orderInfo->warehouse?->id])->first();
+        $holidays = CalendarHoliday::listAll();
+        return ['holidays' => $holidays, 'shift' => $shift];
     }
 
     public function setAddress()
