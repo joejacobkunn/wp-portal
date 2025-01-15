@@ -68,9 +68,12 @@ class Index extends Component
             ->toArray();
 
         $this->warehouses = Warehouse::select(['id', 'short', 'title'])->where('cono', 10)->orderBy('title', 'asc')->get();
+        $query = $this->warehouses;
+
         if(Auth::user()->office_location) {
-            $this->activeWarehouse = $this->warehouses->where('title', Auth::user()->office_location)->first();
+            $query->where('title', Auth::user()->office_location);
         }
+        $this->activeWarehouse = $query->first();
         $holidays = CalendarHoliday::listAll();
 
         $this->holidays = collect($holidays)->map(function ($holiday) {
