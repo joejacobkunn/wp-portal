@@ -189,6 +189,19 @@
                     }
                     return { domNodes: [eventEl] };
                 },
+                datesSet: function(info) {
+
+                    $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {
+                        calendar.removeAllEvents();
+                        calendar.addEventSource($wire.schedules);
+                        calendar.addEventSource($wire.holidays);
+                    });
+                    if (info.view.type === 'listDay') {
+                        $wire.handleDateClick(info.startStr);
+
+                    }
+
+                },
                 dateClick: function(info) {
 
                     const todayCell = document.querySelector('.fc-day-today');
@@ -205,7 +218,6 @@
                         clickedDateCell.classList.add('highlighted-date');
                     }
 
-                    // Call Livewire component function
                     $wire.handleDateClick(info.dateStr);
                 },
                 eventClick: function(info) {
