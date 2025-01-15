@@ -13,6 +13,7 @@ use App\Models\Scheduler\Shifts;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Illuminate\Support\Str;
 
 class Index extends Component
 {
@@ -153,16 +154,7 @@ class Index extends Component
 
         ->get()
         ->map(function ($schedule) {
-            $type ='';
-            if($schedule->type == 'at_home_maintenance') {
-                $type = 'At Home Maintenance';
-            }
-            if($schedule->type == 'delivery') {
-                $type = 'Delivery';
-            }
-            if($schedule->type == 'pickup') {
-                $type = 'Pickup';
-            }
+            $type = Str::title(str_replace('_', ' ', $schedule->type));
 
             $enumInstance = ScheduleEnum::tryFrom($type);
             $icon = $enumInstance ? $enumInstance->icon() : null;
