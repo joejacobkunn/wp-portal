@@ -5,7 +5,7 @@
         <div class="card border-light shadow-sm schedule-tab">
             <div class="card-body" >
                 <div class="row">
-                    <div class="{{isset($form->schedule) ? 'col-9' : 'col-12'}}" >
+                    <div class="col-9" >
                         <div id="calendar" class="w-100" wire:ignore></div>
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
@@ -22,35 +22,49 @@
                             </div>
                         </div>
                     </div>
-                    <div class="{{isset($form->schedule) ? 'col-3' : ''}}">
+                    <div class="col-3">
                         <div class="card" wire:key="order-info-panel-{{$orderInfoStrng}}" >
-                            @if (isset($form->schedule))
+                            @if (isset($shifts))
                             <div class="card-body" >
-                                <h5 class="card-title">Schedule Information</h5>
+                                <h5 class="card-title">Shift Information</h5>
 
                                 <div class="list-group">
-                                    <button type="button" class="list-group-item list-group-item-action">Order Number<span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->sx_ordernumber.'-'. $form->schedule->order_number_suffix}}</span></button>
-                                    <button type="button" class="list-group-item list-group-item-action">Type<span
+                                    <button type="button" class="list-group-item list-group-item-primary">Shifts and
+                                        Slots</button>
+                                        @php
+                                            $selectedDay = strtolower($dateSelected->format('l'));
+                                            $month = strtolower($dateSelected->format('F'));
+                                            $status = true;
+                                        @endphp
+                                        @foreach ($shifts as $shift)
+                                            @if (isset($shift->shift[$month]) && isset($shift->shift[$month][$selectedDay]))
+                                                @php $status = false; @endphp
+                                            @foreach ($shift->shift[$month][$selectedDay] as $key => $data)
+                                                <button type="button" class="list-group-item list-group-item-action">
+                                                    @if ($shift->type == 'ahm')
+                                                        AHM :
+                                                    @elseif ($shift->type == 'delivery_pickup')
+                                                        P/D :
+                                                    @endif
+                                                        {{$data['shift']}}
+                                                        <span
+                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$data['slots']}}</span></button>
+                                            @endforeach
+                                            @endif
+                                        @endforeach
+                                        @if($status)
+                                            <button type="button" class="list-group-item list-group-item-action"> No shifts available this day</button>
+                                        @endif
+
+                                    {{-- <button type="button" class="list-group-item list-group-item-action">Type<span
                                             class="badge bg-secondary badge-pill badge-round ms-1 float-end">{!! $scheduleOptions[$form->schedule->type] !!}</span></button>
                                     <button type="button" class="list-group-item list-group-item-action">Status<span
                                             class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->status }}</span></button>
                                     <button type="button" class="list-group-item list-group-item-action">Schedule Date<span
                                             class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->schedule_date }}</span></button>
                                     <button type="button" class="list-group-item list-group-item-action">Schedule Time<span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->schedule_time }}</span></button>
+                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->schedule_time }}</span></button> --}}
 
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                {{-- <div class="alert alert-light-primary color-primary" role="alert">
-                                    <i class="fas fa-map-marker-alt"></i> Allocated Zone : <strong>U1.A</strong>
-                                </div> --}}
-                                <div class="list-group">
-                                    <button type="button" class="list-group-item list-group-item-primary">Customer Info</button>
-                                    <button type="button" class="list-group-item list-group-item-action"><strong>Name : </strong>{{$form->schedule->order->customer?->name}}</button>
-                                    <button type="button" class="list-group-item list-group-item-action"><strong>Email : </strong>{{$form->schedule->order->customer?->email}}</button>
-                                    <button type="button" class="list-group-item list-group-item-action"><strong>Phone : </strong>{{$form->schedule->order->customer?->phone}}</button>
                                 </div>
                             </div>
                             @endif
@@ -77,23 +91,11 @@
 @script
     <script>
     (function() {
-        // Declare initializeCalendar in the global scope
         window.initializeCalendar = function() {
             let calendarEl = document.getElementById('calendar');
             let dropdownMenu = document.getElementById('calendar-dropdown-menu');
             let isDropdownVisible = false;
             let schedulesData = @json($schedules);
-            // const style = document.createElement('style');
-            // style.innerHTML = `
-            //     .highlighted-date {
-            //         background-color: #f3ebbc !important;
-            //         border: 1px solid #fffadf !important;
-            //     }
-            //     .fc-event {
-            //         cursor: pointer;
-            //     }`;
-            // document.head.appendChild(style);
-
             let calendar = new FullCalendar.Calendar(calendarEl, {
                 themeSystem: 'bootstrap5',
                 initialView: 'dayGridMonth',
@@ -101,7 +103,7 @@
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,listMonth dropdownButton,warehouseBtn'
+                    right: 'warehouseBtn dayGridMonth,listMonth dropdownButton'
                 },
                 customButtons: {
                     dropdownButton: {
@@ -170,20 +172,46 @@
 
                     }
                 ],
-                eventClick: function(info) {
-
-                    if(info.event.extendedProps.description == 'holiday') {
-                        return;
+                eventContent: function(arg) {
+                    let eventEl = document.createElement('div');
+                    if(arg.event.extendedProps.description == 'holiday') {
+                        eventEl.innerHTML = `
+                        <div>
+                            <strong> ${arg.event.title}</strong><br>
+                        </div>
+                    `;
+                    } else {
+                        eventEl.innerHTML = `
+                            <div>
+                                <strong>${arg.event.extendedProps.icon} ${arg.event.title}</strong><br>
+                            </div>
+                        `;
                     }
-                    // Remove previous highlights
+                    return { domNodes: [eventEl] };
+                },
+                dateClick: function(info) {
+
+                    const todayCell = document.querySelector('.fc-day-today');
+                    if (todayCell) {
+                        todayCell.classList.remove('fc-day-today');
+                    }
+                    // Highlight clicked date
                     document.querySelectorAll('.highlighted-date').forEach(cell => {
                         cell.classList.remove('highlighted-date');
                     });
 
-                    const eventDate = info.event.startStr;
-                    const cell = document.querySelector(`[data-date="${eventDate}"]`);
-                    if (cell) {
-                        cell.classList.add('highlighted-date');
+                    const clickedDateCell = document.querySelector(`[data-date="${info.dateStr}"]`);
+                    if (clickedDateCell) {
+                        clickedDateCell.classList.add('highlighted-date');
+                    }
+
+                    // Call Livewire component function
+                    $wire.handleDateClick(info.dateStr);
+                },
+                eventClick: function(info) {
+
+                    if(info.event.extendedProps.description == 'holiday') {
+                        return;
                     }
                     $wire.handleEventClick(info.event.id).then(() => {
                     });

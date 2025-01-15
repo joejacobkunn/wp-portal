@@ -9,6 +9,7 @@ use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\Shifts;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -28,7 +29,9 @@ class Index extends Component
     public $orderInfoStrng;
     public $scheduleOptions;
     public $warehouses;
+    public $dateSelected;
     public $holidays;
+    public $shifts;
     public $activeWarehouse;
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -61,7 +64,7 @@ class Index extends Component
             ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->value])
             ->toArray();
 
-        $this->warehouses = Warehouse::select(['id', 'short', 'title'])->get();
+        $this->warehouses = Warehouse::select(['id', 'short', 'title'])->where('cono', 10)->orderBy('title', 'asc')->get();
         if(Auth::user()->office_location) {
             $this->activeWarehouse = $this->warehouses->where('title', Auth::user()->office_location)->first();
         }
@@ -77,6 +80,8 @@ class Index extends Component
                 'description' => 'holiday',
             ];
         })->toArray();
+       $this->handleDateClick(Carbon::now());
+
     }
 
     public function create($type)
@@ -148,11 +153,25 @@ class Index extends Component
 
         ->get()
         ->map(function ($schedule) {
+            $type ='';
+            if($schedule->type == 'at_home_maintenance') {
+                $type = 'At Home Maintenance';
+            }
+            if($schedule->type == 'delivery') {
+                $type = 'Delivery';
+            }
+            if($schedule->type == 'pickup') {
+                $type = 'Pickup';
+            }
+
+            $enumInstance = ScheduleEnum::tryFrom($type);
+            $icon = $enumInstance ? $enumInstance->icon() : null;
             return [
                 'id' => $schedule->id,
                 'title' => 'Order #' . $schedule->sx_ordernumber,
                 'start' => $schedule->schedule_date,
                 'description' => 'schedule',
+                'icon' => $icon,
             ];
         });
 
@@ -176,6 +195,10 @@ class Index extends Component
     {
         $this->form->init($schedule);
         $this->orderInfoStrng = uniqid();
+        $this->showModal = true;
+        $this->isEdit = true;
+        $this->showView = true;
+        $this->updatedFormSuffix($schedule->order_number_suffix);
     }
 
     public function showAdrress()
@@ -199,8 +222,15 @@ class Index extends Component
     {
         $this->activeWarehouse = $this->warehouses->find($wsheID);
         $this->getEvents();
+        $this->handleDateClick(Carbon::now());
         $this->dispatch('calendar-needs-update',  $this->activeWarehouse->title);
+    }
 
+    public function handleDateClick($date)
+    {
+        $date = Carbon::parse($date);
+        $this->dateSelected = $date;
+        $this->shifts = Shifts::where('whse', $this->activeWarehouse->id)->get();
     }
 
 }

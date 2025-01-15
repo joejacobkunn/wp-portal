@@ -818,16 +818,57 @@
     background-color: #e9ecef;
 }
 
+.schedule-tab .fc-dropdownButton-button {
+    background-color: #3788d8 !important;
+    border-color: #3788d8 !important;
+    color: white !important;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+    transition: background-color 0.3s ease;
+}
+
+.schedule-tab .fc-dropdownButton-button:hover {
+    background-color: #3072b4 !important;
+    border-color: #3072b4 !important;
+}
+
+.schedule-tab .fc-dropdownButton-button:active,
+.schedule-tab .fc-dropdownButton-button:focus {
+    background-color: #3788d8 !important;
+    border-color: #3788d8 !important;
+}
+
 .schedule-tab .fc-dropdownButton-button::after {
     content: '';
     display: inline-block;
     margin-left: 0.5em;
     vertical-align: 0.2em;
-    border-top: 0.3em solid;
+    border-top: 0.3em solid white;
     border-right: 0.3em solid transparent;
     border-bottom: 0;
     border-left: 0.3em solid transparent;
 }
+.schedule-tab .fc-warehouseBtn-button,
+.schedule-tab .fc-warehouseBtn-button:active,
+.schedule-tab .fc-warehouseBtn-button:focus,
+.schedule-tab .fc-warehouseBtn-button:visited {
+    background-color: #43aa48 !important;
+    border-color: #43aa48 !important;
+    color: white !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: background-color 0.3s ease;
+}
+
+.schedule-tab .fc-warehouseBtn-button:hover {
+    background-color: #45a049 !important;
+    border-color: #45a049 !important;
+}
+
 .schedule-tab .fc-warehouseBtn-button::after {
     content: '';
     display: inline-block;
