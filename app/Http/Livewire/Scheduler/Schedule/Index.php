@@ -35,6 +35,7 @@ class Index extends Component
     public $shifts;
     public $eventStart;
     public $eventEnd;
+    public $activeType;
     public $activeWarehouse;
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -71,9 +72,11 @@ class Index extends Component
         $query = $this->warehouses;
 
         if(Auth::user()->office_location) {
-            $query->where('title', Auth::user()->office_location);
+           $query = $query->where('title', Auth::user()->office_location);
         }
+
         $this->activeWarehouse = $query->first();
+        $this->activeType = '';
         $holidays = CalendarHoliday::listAll();
 
         $this->holidays = collect($holidays)->map(function ($holiday) {
@@ -150,14 +153,16 @@ class Index extends Component
     public function getEvents()
     {
         $whse = $this->activeWarehouse?->short;
-
-        $this->schedules = Schedule::with('order')
-        ->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
+        $query = Schedule::with('order');
+        if($this->activeType && $this->activeType != '') {
+            $query->where('type', $this->activeType);
+        }
+        $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
         ->whereHas('order', function ($query) use ($whse) {
             $query->where('whse', strtolower($whse));
-        })
+        });
 
-        ->get()
+        $this->schedules =  $query->get()
         ->map(function ($schedule) {
             $type = Str::title(str_replace('_', ' ', $schedule->type));
             $enumInstance = ScheduleEnum::tryFrom($type);
@@ -233,6 +238,14 @@ class Index extends Component
         $this->eventStart = Carbon::parse($start);
         $this->eventEnd = Carbon::parse($end);
         $this->getEvents();
+    }
+
+    public function changeScheduleType($type)
+    {
+        $this->activeType = $type;
+        $this->getEvents();
+        $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Schedules' );
+
     }
 
 }

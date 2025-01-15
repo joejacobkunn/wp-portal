@@ -20,6 +20,14 @@
                                             wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}</a>
                                     @endforeach
                             </div>
+                            <div id="type-wrap">
+                                <a class="dropdown-item border-bottom" href="#"
+                                    wire:click.prevent="changeScheduleType('')">All Schedules</a>
+                                @foreach ($scheduleOptions as $key => $value)
+                                <a class="dropdown-item border-bottom" href="#"
+                                    wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                     <div class="col-3">
@@ -55,16 +63,6 @@
                                         @if($status)
                                             <button type="button" class="list-group-item list-group-item-action"> No shifts available this day</button>
                                         @endif
-
-                                    {{-- <button type="button" class="list-group-item list-group-item-action">Type<span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{!! $scheduleOptions[$form->schedule->type] !!}</span></button>
-                                    <button type="button" class="list-group-item list-group-item-action">Status<span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->status }}</span></button>
-                                    <button type="button" class="list-group-item list-group-item-action">Schedule Date<span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->schedule_date }}</span></button>
-                                    <button type="button" class="list-group-item list-group-item-action">Schedule Time<span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $form->schedule->schedule_time }}</span></button> --}}
-
                                 </div>
                             </div>
                             @endif
@@ -101,7 +99,7 @@
                 initialView: 'dayGridMonth',
                 height: 'auto',
                 headerToolbar: {
-                    left: 'prev,next today',
+                    left: 'prev,next today scheduleBtn',
                     center: 'title',
                     right: 'warehouseBtn dayGridMonth,listDay dropdownButton'
                 },
@@ -128,6 +126,8 @@
                                 isDropdownVisible = true;
                                 document.getElementById('schedule-options').style.display = 'block';
                                 document.getElementById('warehouse-wrap').style.display = 'none';
+                                document.getElementById('type-wrap').style.display = 'none';
+
                             }
                             e.stopPropagation();
                         }
@@ -153,7 +153,35 @@
                                 dropdownMenu.style.display = 'block';
                                 isDropdownVisible = true;
                                 document.getElementById('warehouse-wrap').style.display = 'block';
+                                document.getElementById('type-wrap').style.display = 'none';
                                 document.getElementById('schedule-options').style.display = 'none';
+                            }
+                            e.stopPropagation();
+                        }
+                    },
+                    scheduleBtn: {
+                        text: 'All Schedules',
+                        click: function(e) {
+                            const button = e.currentTarget;
+                            const buttonRect = button.getBoundingClientRect();
+                            const calendarRect = calendarEl.getBoundingClientRect();
+
+                            if (isDropdownVisible) {
+                                dropdownMenu.style.display = 'none';
+                                isDropdownVisible = false;
+                            } else {
+                                const dropdownWidth = 160;
+                                dropdownMenu.style.top = (buttonRect.bottom + 5) + 'px';
+                                const leftPosition = Math.min(
+                                    buttonRect.left,
+                                    calendarRect.right - dropdownWidth - 10
+                                );
+                                dropdownMenu.style.left = leftPosition + 'px';
+                                dropdownMenu.style.display = 'block';
+                                isDropdownVisible = true;
+                                document.getElementById('warehouse-wrap').style.display = 'none';
+                                document.getElementById('schedule-options').style.display = 'none';
+                                document.getElementById('type-wrap').style.display = 'block';
                             }
                             e.stopPropagation();
                         }
@@ -178,8 +206,7 @@
                         eventEl.innerHTML = `
                         <div>
                             <strong> ${arg.event.title}</strong><br>
-                        </div>
-                    `;
+                        </div>`;
                     } else {
                         eventEl.innerHTML = `
                             <div>
@@ -238,6 +265,13 @@
                 const button = document.querySelector('.fc-warehouseBtn-button');
                 button.textContent = activeWarehouse;
             });
+            Livewire.on('calendar-type-update', (title) => {
+                calendar.removeAllEvents();
+                calendar.addEventSource($wire.schedules);
+                calendar.addEventSource($wire.holidays);
+                const button = document.querySelector('.fc-scheduleBtn-button');
+                button.innerHTML = title;
+            });
 
             // Add click outside listener to close dropdown
             document.addEventListener('click', function(e) {
@@ -271,6 +305,9 @@
                 if (document.getElementById('warehouse-wrap').style.display === 'block') {
                     buttonClass = '.fc-warehouseBtn-button';
                 }
+                if (document.getElementById('type-wrap').style.display === 'block') {
+                    buttonClass = '.fc-scheduleBtn-button';
+                }
 
                 const button = document.querySelector(buttonClass);
                 if (button) {
@@ -297,7 +334,9 @@
                 if (document.getElementById('warehouse-wrap').style.display === 'block') {
                     buttonClass = '.fc-warehouseBtn-button';
                 }
-
+                if (document.getElementById('type-wrap').style.display === 'block') {
+                    buttonClass = '.fc-scheduleBtn-button';
+                }
                 const button = document.querySelector(buttonClass);
                 if (button) {
                     const buttonRect = button.getBoundingClientRect();
