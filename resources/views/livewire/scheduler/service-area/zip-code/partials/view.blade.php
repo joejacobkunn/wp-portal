@@ -42,18 +42,6 @@
                         </div>
                     </li>
 
-
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div class="w-100">
-                            <h3 class="text-sm font-semibold mb-3">Services</h3>
-                            <ul>
-                                @foreach ($zipcode->service as $item)
-                                    <li>{{ $form->serviceArray[$item] }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </li>
-
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Note</h3>

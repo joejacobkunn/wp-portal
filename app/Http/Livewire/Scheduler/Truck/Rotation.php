@@ -20,7 +20,7 @@ class Rotation extends Component
 
     public $serviceTypes = [
         'ahm' => 'AHM',
-        'pickup_drop' => 'Pickup / Drop'
+        'delivery-pickup' => 'Delivery / Pickup'
     ];
 
     public $serviceType;

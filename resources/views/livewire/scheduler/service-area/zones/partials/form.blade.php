@@ -12,6 +12,17 @@
                 <div class="col-md-12">
                     <div class="form-group x-input">
                         <div class="form-group">
+                            <x-forms.select label="Service" model="service" :options="['' => 'Please Select', 'ahm' => 'AHM', 'pickup-delivery' => 'Pickup/Delivery']" :selected="$service"
+                                :defaultOption=false :key="'service-' . now()" />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group x-input">
+                        <div class="form-group">
                             <x-forms.textarea label="Description" model="description" rows="5" />
                         </div>
                     </div>

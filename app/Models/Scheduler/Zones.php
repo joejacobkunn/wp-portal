@@ -17,6 +17,7 @@ class Zones extends Model
         'description',
         'schedule_days',
         'is_active',
+        'service'
     ];
 
     protected $casts = [
@@ -40,6 +41,9 @@ class Zones extends Model
             'field_label' => 'Active',
             'resolve' => 'resolveActive'
 
+        ],
+        'service' => [
+            'field_label' => 'Service'
         ]
     ];
     public function comments()

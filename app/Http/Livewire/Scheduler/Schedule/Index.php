@@ -244,7 +244,7 @@ class Index extends Component
     {
         $this->activeType = $type;
         $this->getEvents();
-        $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Schedules' );
+        $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Services' );
 
     }
 

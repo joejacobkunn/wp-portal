@@ -80,7 +80,7 @@ class Show extends Component
     {
         $this->editRecord = false;
         $this->resetValidation();
-        $this->reset(['name', 'description', 'days']);
+        $this->reset(['name', 'description', 'service']);
     }
 
     public function setAlert()

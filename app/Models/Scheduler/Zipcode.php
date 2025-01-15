@@ -17,7 +17,6 @@ class Zipcode extends Model
     protected $fillable = [
         'whse_id',
         'zip_code',
-        'service',
         'zone',
         'delivery_rate',
         'pickup_rate',
@@ -26,7 +25,6 @@ class Zipcode extends Model
     ];
 
     protected $casts = [
-        'service' => 'array',
         'zone' => 'array',
     ];
 
