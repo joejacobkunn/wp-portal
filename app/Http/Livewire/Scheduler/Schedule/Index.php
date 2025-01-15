@@ -33,6 +33,8 @@ class Index extends Component
     public $dateSelected;
     public $holidays;
     public $shifts;
+    public $eventStart;
+    public $eventEnd;
     public $activeWarehouse;
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -70,7 +72,6 @@ class Index extends Component
             $this->activeWarehouse = $this->warehouses->where('title', Auth::user()->office_location)->first();
         }
         $holidays = CalendarHoliday::listAll();
-        $this->getEvents();
 
         $this->holidays = collect($holidays)->map(function ($holiday) {
             return [
@@ -148,6 +149,7 @@ class Index extends Component
         $whse = $this->activeWarehouse?->short;
 
         $this->schedules = Schedule::with('order')
+        ->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
         ->whereHas('order', function ($query) use ($whse) {
             $query->where('whse', strtolower($whse));
         })
@@ -165,7 +167,6 @@ class Index extends Component
                 'icon' => $icon,
             ];
         });
-
     }
 
     public function edit()
@@ -222,6 +223,13 @@ class Index extends Component
         $date = Carbon::parse($date);
         $this->dateSelected = $date;
         $this->shifts = Shifts::where('whse', $this->activeWarehouse->id)->get();
+    }
+
+    public function onDateRangeChanges($start, $end)
+    {
+        $this->eventStart = Carbon::parse($start);
+        $this->eventEnd = Carbon::parse($end);
+        $this->getEvents();
     }
 
 }
