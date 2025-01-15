@@ -40,8 +40,14 @@
 
                         e.preventDefault()
                         e.stopPropagation()
+
+                        let el;
+                        if (e.target.tagName.toLowerCase() == 'button') {
+                            el = e.target;
+                        } else {
+                            el = e.target.closest('button');
+                        }
                         
-                        let el = e.target;
                         let title = el.dataset.confirmTitle ? el.dataset.confirmTitle : 'Confirm';
                         let content = el.dataset.confirmContent ? el.dataset.confirmContent : 'Are you sure?';
                         let buttonContent = el.dataset.confirmButton ? el.dataset.confirmButton : 'Confirm';
@@ -66,7 +72,7 @@
                             document.querySelector('.g-confirmation-popup-div .modal-footer .submit-btn').setAttribute('disabled', true);
                             document.querySelector('.g-confirmation-popup-div .modal-footer .wire-loading').removeAttribute('wire:loading')
                             
-                            let componentFunctionName = e.target.getAttribute('wire:click')
+                            let componentFunctionName = el.getAttribute('wire:click')
                             let functionName = componentFunctionName.split('(')[0];
                             let argsString = componentFunctionName.match(/\((.*)\)/)[1];
                             let args = argsString.split(',').map(arg => arg.trim().replace(/^'|'$/g, ''));
