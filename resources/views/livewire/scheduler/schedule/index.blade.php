@@ -103,7 +103,7 @@
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'warehouseBtn dayGridMonth,listMonth dropdownButton'
+                    right: 'warehouseBtn dayGridMonth,listDay dropdownButton'
                 },
                 customButtons: {
                     dropdownButton: {

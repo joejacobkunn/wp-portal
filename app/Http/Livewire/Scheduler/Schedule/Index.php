@@ -155,7 +155,6 @@ class Index extends Component
         ->get()
         ->map(function ($schedule) {
             $type = Str::title(str_replace('_', ' ', $schedule->type));
-
             $enumInstance = ScheduleEnum::tryFrom($type);
             $icon = $enumInstance ? $enumInstance->icon() : null;
             return [
