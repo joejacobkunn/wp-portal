@@ -17,32 +17,12 @@
                         @endif
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <div class="accordion">
-                        <div class="accordion-item mb-2">
-                            <div class="row columnRow p-3">
-                                <h6 class="accordion-header mb-3">
-                                    Service Available
-                                </h6>
-                                <div class="col-6 mb-3">
-                                    <x-forms.checkbox :label="'At Home Maintenance (AHM)'" :name="'service[]'" :value="'at_home_maintenance'"
-                                        :model="'form.service'" />
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <x-forms.checkbox :label="'Delivery/Pickup'" :name="'service[]'" :value="'delivery_pickup'"
-                                        :model="'form.service'" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="row mt-3">
                 <div class="col-md-12 mb-3">
                     <div class="form-group">
-                        <x-forms.select label="Zone" model="form.zone" :options="$this->form->zones" :selected="$form->zone"
-                            :multiple="true" hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()"
-                            />
+                        <x-forms.select label="Zone" model="form.zone" :options="$this->form->zonesList" :selected="$form->zone"
+                            :multiple="true" hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()" />
                     </div>
                 </div>
                 <div class="col-md-6">

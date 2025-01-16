@@ -31,7 +31,6 @@ class TruckPolicy
 
     public function view(User $user, Truck $truck)
     {
-        dd($truck);
         return account()->hasModule('scheduler') &&
                 $user->can('scheduler.truck.view');
     }

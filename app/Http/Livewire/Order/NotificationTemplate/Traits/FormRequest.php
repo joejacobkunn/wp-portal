@@ -83,6 +83,7 @@ trait FormRequest
             'type' => $this->templateType,
             'sms_content' => $this->smsContent,
             'is_active' => $this->is_active,
+            'created_by' => auth()->user()->id
         ];
 
         $this->template = new NotificationTemplate();

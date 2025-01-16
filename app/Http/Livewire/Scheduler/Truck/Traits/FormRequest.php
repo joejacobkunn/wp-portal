@@ -84,9 +84,9 @@ trait FormRequest
         $this->truck->fill([
             'whse' => $this->whseId,
         ]);
-        $this->truck->save();
+        $truck = $this->truck->save();
         $this->alert('success', 'Truck created successfully!');
-        return redirect()->route('scheduler.truck.index', ['whseId' => $this->whseId]);
+        return redirect()->route('scheduler.truck.show', $truck);
     }
 
     /**
@@ -95,11 +95,11 @@ trait FormRequest
     public function update()
     {
         $this->authorize('update', $this->truck);
-        $this->truck->save();
+        $truck = $this->truck->save();
 
         $this->editRecord = false;
         $this->alert('success', 'Record updated!');
-        return redirect()->route('scheduler.truck.index', ['whseId' => $this->whseId]);
+        return redirect()->route('scheduler.truck.show', $truck);
     }
 
 }

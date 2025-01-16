@@ -151,13 +151,16 @@ class ScheduleForm extends Form
         if(!$this->orderInfo ||  !$this->zipcodeInfo) {
             return false;
         }
-
-        if(in_array($value, $this->zipcodeInfo?->service)) {
-            return true;
-        }
-
-        if(in_array('delivery_pickup', $this->zipcodeInfo?->service) && ($value =='delivery' || $value == 'pickup')) {
-            return true;
+        foreach($this->zipcodeInfo?->zones as $zone)
+        {
+            if($zone->service == 'AHM' && $value == 'at_home_maintenance' ) {
+                return true;
+            }
+            if($zone->service == 'Pickup/Delivery' ) {
+                if($value == 'pickup' || $value == 'delivery') {
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -222,12 +225,17 @@ class ScheduleForm extends Form
 
     public function getActiveDays()
     {
+
         $type = $this->type;
         if($this->type == 'delivery' || $this->type == 'pickup') {
             $type = 'delivery_pickup';
         }
-        $shift = Shifts::where(['type' => $type, 'whse' => $this->orderInfo->warehouse?->id])->first();
+        if($this->type == 'at_home_maintenance') {
+            $type = 'ahm';
+        }
         $holidays = CalendarHoliday::listAll();
+
+        $shift = Shifts::where(['type' => $type, 'whse' => $this->orderInfo?->warehouse?->id])->first();
         return ['holidays' => $holidays, 'shift' => $shift];
     }
 

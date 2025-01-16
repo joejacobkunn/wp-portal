@@ -177,7 +177,7 @@
                     @if ($form->zipcodeInfo)
                         <a href="{{ route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo->id]) }}"><i
                                 class="fas fa-external-link-alt"></i>
-                            #{{ $form->zipcodeInfo?->getZone->name }}</a>
+                            #{{ $form->zipcodeInfo?->zip_code }}</a>
                     @else
                         <a href="{{ route('service-area.index') }}?tab=zip_code"><i
                                 class="fas fa-external-link-alt"></i>
