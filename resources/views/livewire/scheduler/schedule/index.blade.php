@@ -263,6 +263,15 @@
                 });
 
                 calendar.render();
+                const scheduleButton = document.querySelector('.fc-dropdownButton-button');
+                if (scheduleButton) {
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-plus';
+                    icon.style.marginLeft = '4px';
+                    const text = scheduleButton.textContent;
+                    scheduleButton.textContent = text;
+                    scheduleButton.appendChild(icon);
+                }
                 Livewire.on('calendar-needs-update', (activeWarehouse) => {
                     calendar.removeAllEvents();
                     calendar.addEventSource($wire.schedules);
