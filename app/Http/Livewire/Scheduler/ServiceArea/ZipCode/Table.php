@@ -49,6 +49,14 @@ class Table extends DataTableComponent
             ->searchable()
             ->html(),
 
+            Column::make('Zones', 'id')
+            ->format(function ($value, $row){
+                return $row->zones->implode('name', ', ');
+            })
+            ->excludeFromColumnSelect()
+            ->searchable()
+            ->html(),
+
             Column::make('Delivery Rate', 'delivery_rate')
             ->format(function ($value, $row){
                 return '$'.number_format($value,2);
