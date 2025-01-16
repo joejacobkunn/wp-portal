@@ -102,9 +102,9 @@
                     initialView: 'dayGridMonth',
                     height: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today scheduleBtn',
+                        left: 'prev,next today dayGridMonth,listDay',
                         center: 'title',
-                        right: 'warehouseBtn dayGridMonth,listDay dropdownButton'
+                        right: 'warehouseBtn scheduleBtn dropdownButton'
                     },
 
                     customButtons: {
@@ -266,12 +266,23 @@
                 const scheduleButton = document.querySelector('.fc-dropdownButton-button');
                 if (scheduleButton) {
                     const icon = document.createElement('i');
-                    icon.className = 'fas fa-plus';
-                    icon.style.marginLeft = '4px';
+                    icon.className = 'far fa-calendar-plus';
+                    icon.style.marginRight = '4px';
                     const text = scheduleButton.textContent;
                     scheduleButton.textContent = text;
-                    scheduleButton.appendChild(icon);
+                    scheduleButton.prepend(icon);
                 }
+
+                const warehouseButton = document.querySelector('.fc-warehouseBtn-button');
+                if (warehouseButton) {
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-map-marker-alt';
+                    icon.style.marginRight = '4px';
+                    const text = warehouseButton.textContent;
+                    warehouseButton.textContent = text;
+                    warehouseButton.prepend(icon);
+                }
+
                 Livewire.on('calendar-needs-update', (activeWarehouse) => {
                     calendar.removeAllEvents();
                     calendar.addEventSource($wire.schedules);
@@ -288,8 +299,8 @@
                     button.innerHTML = title;
                     setZoneInDayCells()
                 });
-                function setZoneInDayCells()
-                {
+
+                function setZoneInDayCells() {
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
                         span.remove();
                     });
@@ -299,14 +310,15 @@
                         let cellDateObj = new Date(cellDate);
                         truckinfo.forEach(truckData => {
                             let truckDateObj = new Date(truckData.scheduled_date);
-                            if (cellDateObj.toISOString().split('T')[0] === truckDateObj.toISOString().split('T')[0]) {
+                            if (cellDateObj.toISOString().split('T')[0] === truckDateObj
+                                .toISOString().split('T')[0]) {
                                 let span = document.createElement('span');
                                 span.classList.add('badge', 'bg-light-info', 'zoneinfo-span');
                                 span.style.fontSize = 'x-small';
                                 span.innerHTML = `
                                     <i class="fas fa-globe"></i> ${truckData.spanText}
                                 `;
-                                    dayCell.insertBefore(span, dayCell.firstChild);
+                                dayCell.insertBefore(span, dayCell.firstChild);
                             }
                         });
                     });
