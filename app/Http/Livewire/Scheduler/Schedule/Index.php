@@ -9,7 +9,9 @@ use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\ShiftRotation;
 use App\Models\Scheduler\Shifts;
+use App\Models\Scheduler\Truck;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -36,6 +38,7 @@ class Index extends Component
     public $eventStart;
     public $eventEnd;
     public $activeType;
+    public $truckInfo = [];
     public $activeWarehouse;
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -64,18 +67,18 @@ class Index extends Component
     {
         $this->authorize('viewAny', Schedule::class);
         $this->orderInfoStrng = uniqid();
+
         $this->scheduleOptions = collect(ScheduleEnum::cases())
             ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->value])
             ->toArray();
-
         $this->warehouses = Warehouse::select(['id', 'short', 'title'])->where('cono', 10)->orderBy('title', 'asc')->get();
-        $query = $this->warehouses;
 
+        $query = $this->warehouses;
         if(Auth::user()->office_location) {
            $query = $query->where('title', Auth::user()->office_location);
         }
-
         $this->activeWarehouse = $query->first();
+
         $this->activeType = '';
         $holidays = CalendarHoliday::listAll();
 
@@ -88,8 +91,9 @@ class Index extends Component
                 'description' => 'holiday',
             ];
         })->toArray();
-       $this->handleDateClick(Carbon::now());
 
+        //to get shift data
+       $this->handleDateClick(Carbon::now());
     }
 
     public function create($type)
@@ -223,6 +227,7 @@ class Index extends Component
         $this->activeWarehouse = $this->warehouses->find($wsheID);
         $this->getEvents();
         $this->handleDateClick(Carbon::now());
+        $this->getTruckData();
         $this->dispatch('calendar-needs-update',  $this->activeWarehouse->title);
     }
 
@@ -238,6 +243,7 @@ class Index extends Component
         $this->eventStart = Carbon::parse($start);
         $this->eventEnd = Carbon::parse($end);
         $this->getEvents();
+        $this->getTruckData();
     }
 
     public function changeScheduleType($type)
@@ -245,6 +251,59 @@ class Index extends Component
         $this->activeType = $type;
         $this->getEvents();
         $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Services' );
+
+    }
+
+    public function getTruckData()
+    {
+        $type = $this->activeType;
+        $start = $this->eventStart;
+        $end = $this->eventEnd;
+        $spanText = '';
+        $query = ShiftRotation::whereBetween('scheduled_date', [$this->eventStart, $this->eventEnd])
+        ->whereHas('shift', function($query) use ($start, $end, $type) {
+            $query->where('whse', $this->activeWarehouse->id);
+        });
+
+        if($type == 'at_home_maintenance') {
+            $query = $query->whereHas('shift', function($query) use ($start, $end, $type) {
+                $query->where('type', 'ahm');
+            });
+            $spanText  = 'AHM';
+        }
+
+        if($type == 'delivery' || $type == 'pickup') {
+            $query = $query->whereHas('shift', function($query) use ($start, $end, $type) {
+                $query->where('type', 'delivery_pickup');
+            });
+            $spanText = 'P/D';
+        }
+        if($type == 'setup_install') {
+            $query = $query->whereHas('shift', function($query) use ($start, $end, $type) {
+                $query->where('type', 'setup_install');
+            });
+            $spanText = 'S/I';
+        }
+
+        $this->truckInfo  = $query->get()
+
+         ->map(function ($truck) {
+             $spanText  = '';
+           if( $truck->shift->type == 'ahm') {
+                $spanText  = 'AHM';
+           }
+           if( $truck->shift->type == 'delivery_pickup') {
+                $spanText  = 'P/D';
+           }
+            return [
+                'id' => $truck->id,
+                'scheduled_date' => $truck->scheduled_date,
+                'service_type' => $truck->shift->type,
+                'truck_name' => $truck->truck->truck_name,
+                'spanText' => $spanText. ' '.$truck->zone->name,
+                'whse' => $truck->shift->whse,
+            ];
+        })->toArray();
 
     }
 

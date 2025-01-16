@@ -106,10 +106,7 @@
                         center: 'title',
                         right: 'warehouseBtn dayGridMonth,listDay dropdownButton'
                     },
-                    dayCellDidMount: function(arg) {
-                        arg.el.innerHTML =
-                            '<span class="badge bg-light-info" style="font-size: x-small"><i class="fas fa-globe"></i> AHM Utica 1.a</span>';
-                    },
+
                     customButtons: {
                         dropdownButton: {
                             text: 'Schedule',
@@ -230,6 +227,7 @@
                             calendar.removeAllEvents();
                             calendar.addEventSource($wire.schedules);
                             calendar.addEventSource($wire.holidays);
+                            setZoneInDayCells();
                         });
                         if (info.view.type === 'listDay') {
                             $wire.handleDateClick(info.startStr);
@@ -271,6 +269,7 @@
                     calendar.addEventSource($wire.holidays);
                     const button = document.querySelector('.fc-warehouseBtn-button');
                     button.textContent = activeWarehouse;
+                    setZoneInDayCells()
                 });
                 Livewire.on('calendar-type-update', (title) => {
                     calendar.removeAllEvents();
@@ -278,8 +277,31 @@
                     calendar.addEventSource($wire.holidays);
                     const button = document.querySelector('.fc-scheduleBtn-button');
                     button.innerHTML = title;
+                    setZoneInDayCells()
                 });
-
+                function setZoneInDayCells()
+                {
+                    document.querySelectorAll('.zoneinfo-span').forEach(span => {
+                        span.remove();
+                    });
+                    document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
+                        let truckinfo = $wire.truckInfo
+                        let cellDate = dayCell.getAttribute('data-date');
+                        let cellDateObj = new Date(cellDate);
+                        truckinfo.forEach(truckData => {
+                            let truckDateObj = new Date(truckData.scheduled_date);
+                            if (cellDateObj.toISOString().split('T')[0] === truckDateObj.toISOString().split('T')[0]) {
+                                let span = document.createElement('span');
+                                span.classList.add('badge', 'bg-light-info', 'zoneinfo-span');
+                                span.style.fontSize = 'x-small';
+                                span.innerHTML = `
+                                    <i class="fas fa-globe"></i> ${truckData.spanText}
+                                `;
+                                    dayCell.insertBefore(span, dayCell.firstChild);
+                            }
+                        });
+                    });
+                }
                 // Add click outside listener to close dropdown
                 document.addEventListener('click', function(e) {
                     if (!e.target.closest('.fc-dropdownButton-button') &&
@@ -363,11 +385,6 @@
             };
 
             initializeCalendar();
-
-
-
-
-
         })();
     </script>
 @endscript

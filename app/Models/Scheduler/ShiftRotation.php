@@ -27,11 +27,11 @@ class ShiftRotation extends Model
 
     public function zone()
     {
-        return $this->belongsTo(Zones::class, 'id', 'zone_id');
+        return $this->belongsTo(Zones::class, 'zone_id');
     }
 
     public function shift()
     {
-        return $this->belongsTo(Shifts::class, 'id', 'shift_id');
+        return $this->belongsTo(Shifts::class, 'shift_id', 'id');
     }
 }
