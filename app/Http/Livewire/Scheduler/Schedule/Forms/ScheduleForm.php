@@ -151,7 +151,6 @@ class ScheduleForm extends Form
         if(!$this->orderInfo ||  !$this->zipcodeInfo) {
             return false;
         }
-
         if(in_array($value, $this->zipcodeInfo?->service)) {
             return true;
         }

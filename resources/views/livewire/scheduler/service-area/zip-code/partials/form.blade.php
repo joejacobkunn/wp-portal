@@ -21,7 +21,7 @@
             <div class="row mt-3">
                 <div class="col-md-12 mb-3">
                     <div class="form-group">
-                        <x-forms.select label="Zone" model="form.zone" :options="$this->form->zones" :selected="$form->zone"
+                        <x-forms.select label="Zone" model="form.zone" :options="$this->form->zonesList" :selected="$form->zone"
                             :multiple="true" hasAssociativeIndex default-option-label="- None -" :key="'zone' . now()" />
                     </div>
                 </div>

@@ -15,7 +15,6 @@ class Zones extends Model
         'whse_id',
         'name',
         'description',
-        'schedule_days',
         'is_active',
         'service'
     ];
@@ -31,11 +30,6 @@ class Zones extends Model
         ],
         'description' => [
             'field_label' => 'Description',
-        ],
-        'schedule_days' => [
-            'field_label' => 'Scheduled Days',
-            'resolve' => 'resolveScheduleDay'
-
         ],
         'is_active' => [
             'field_label' => 'Active',
@@ -56,52 +50,8 @@ class Zones extends Model
         return $value ? 'YES' : 'NO';
     }
 
-    protected function resolveScheduleDay($value)
+    public function zipcodes()
     {
-        if (empty($value)) {
-            return 'No schedule days set';
-        }
-
-        $changes = [];
-        $days = [
-            'monday', 'tuesday', 'wednesday', 'thursday',
-            'friday', 'saturday', 'sunday'
-        ];
-
-        foreach ($days as $day) {
-            if (isset($value[$day])) {
-                $dayData = $value[$day];
-
-                // Only include days that are enabled or have data
-                if ($dayData['enabled'] ||
-                    !empty($dayData['schedule']) ||
-                    !empty($dayData['ahm_slot']) ||
-                    !empty($dayData['pickup_delivery_slot'])) {
-
-                    $dayChanges = [];
-
-                    if ($dayData['enabled']) {
-                        $dayChanges[] = 'Enabled';
-                    }
-                    if (!empty($dayData['schedule'])) {
-                        $dayChanges[] = 'Schedule: ' . $dayData['schedule'];
-                    }
-                    if (!empty($dayData['ahm_slot'])) {
-                        $dayChanges[] = 'AHM Slot: ' . $dayData['ahm_slot'];
-                    }
-                    if (!empty($dayData['pickup_delivery_slot'])) {
-                        $dayChanges[] = 'Pickup/Delivery Slot: ' . $dayData['pickup_delivery_slot'];
-                    }
-
-                    if (!empty($dayChanges)) {
-                        $changes[] = ucfirst($day) . ': ' . implode(', ', $dayChanges);
-                    }
-                }
-            }
-        }
-
-        return empty($changes) ? 'No active schedule days' : implode(' | ', $changes);
+        return $this->belongsToMany(Zipcode::class, 'zipcode_zone', 'zone_id', 'scheduler_zipcode_id');
     }
-
-
 }
