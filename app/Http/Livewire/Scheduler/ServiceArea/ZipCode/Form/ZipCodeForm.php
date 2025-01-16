@@ -48,7 +48,6 @@ class ZipCodeForm extends Form
                 'exists:zip_codes,zipcode',
                 Rule::unique('scheduler_zipcodes', 'zip_code')->ignore($this->getZipcodeId()),
             ],
-            'service' => 'required',
             'zone' => 'required|array',
             'delivery_rate' => 'required|numeric',
             'pickup_rate' => 'required|numeric',

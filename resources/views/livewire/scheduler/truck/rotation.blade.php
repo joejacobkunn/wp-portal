@@ -44,7 +44,7 @@
                             </div>
                         </div>
 
-                        <h3 class="h6 mb-1">Selected Zones</h3>
+                        <h3 class="h6 mb-1">Zone Rotation Order</h3>
                         <ul>
                             @foreach ($rotations as $rotation)
                                 <li class="mt-2"><strong>{{ $rotation['zone']['name'] ?? '' }}</strong></li>
@@ -66,6 +66,7 @@
                             <hr />
 
                             <div class="rotation-form-div">
+                                <h3 class="h6 mb-1">Zone Rotation Order</h3>
                                 @foreach ($rotationData as $index => $rotaionRecord)
                                     <div class="rotation-ind-div" data-index="{{ $index }}">
                                         <span class="drag-icon me-3 mt-2">
