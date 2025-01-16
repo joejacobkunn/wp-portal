@@ -37,4 +37,11 @@ class CalendarHoliday extends Model
 
         return $holidayList;
     }
+
+    public static function listDates($year = null, $month = null)
+    {
+        $holidays = self::listAll($year, $month);
+
+        return collect($holidays)->pluck('date')->toArray();
+    }
 }

@@ -62,5 +62,6 @@ class Index extends Component
     {
         $this->activeWarehouse = Warehouse::find($whseId);
         $this->whseId = $this->activeWarehouse->id;
+        $this->drivers = User::where('title', 'driver')->where('office_location', $this->activeWarehouse->title)->get();
     }
 }

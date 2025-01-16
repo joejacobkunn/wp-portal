@@ -38,7 +38,7 @@ class Table extends DataTableComponent
                 ->format(function ($value, $row) {
                     return '<a href="'.route('scheduler.truck.show', ['truck' => $row->id]).'" class="text-primary text-decoration-underline">' . $value . '</a>';
                 })
-                ->html(),
+                ->hideIf(1),
 
             Column::make('Name', 'truck_name')
                 ->sortable()

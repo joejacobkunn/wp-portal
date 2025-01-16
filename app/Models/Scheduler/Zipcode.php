@@ -17,17 +17,10 @@ class Zipcode extends Model
     protected $fillable = [
         'whse_id',
         'zip_code',
-        'service',
-        'zone',
         'delivery_rate',
         'pickup_rate',
         'notes',
         'is_active'
-    ];
-
-    protected $casts = [
-        'service' => 'array',
-        'zone' => 'array',
     ];
 
     const LOG_FIELD_MAPS = [
@@ -38,9 +31,6 @@ class Zipcode extends Model
         'service' => [
             'field_label' => 'Service',
             'resolve' => 'resolveService'
-        ],
-        'zone' => [
-            'field_label' => 'Zone',
         ],
         'delivery_rate' => [
             'field_label' => 'Delivery Rate',
@@ -62,11 +52,6 @@ class Zipcode extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function getZone()
-    {
-        return $this->belongsTo(Zones::class, 'zone');
-    }
-
     public function resolveActive($value)
     {
         return $value ? 'Yes' : 'No';
@@ -80,5 +65,10 @@ class Zipcode extends Model
     public function generalZipcode()
     {
         return $this->hasOne(GeneralZipcode::class, 'zipcode', 'zip_code');
+    }
+
+    public function zones()
+    {
+        return $this->belongsToMany(Zones::class, 'zipcode_zone', 'scheduler_zipcode_id', 'zone_id');
     }
 }

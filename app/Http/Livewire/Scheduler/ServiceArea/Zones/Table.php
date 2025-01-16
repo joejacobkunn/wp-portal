@@ -36,6 +36,14 @@ class Table extends DataTableComponent
                         $value.'</a>';
                 })
                 ->html(),
+                Column::make('Service', 'service')
+                ->sortable()->searchable()->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    return strtoupper($value);
+                })
+                ->html(),
+
             Column::make('Description', 'description')
                 ->excludeFromColumnSelect()
                 ->searchable()

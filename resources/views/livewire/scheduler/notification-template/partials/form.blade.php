@@ -27,9 +27,13 @@
                     <div class="card card-body">
                         <div class="list-group">
                             <span class="list-group-item"><mark>[CustomerName]</mark> =>Customer Name</span>
+                            <span class="list-group-item"><mark>[CustomerAddress]</mark> =>Customer Address</span>
                             <span class="list-group-item"><mark>[Warehouse]</mark> => Warehouse</span>
                             <span class="list-group-item"><mark>[OrderNumber]</mark> => Order Number</span>
                             <span class="list-group-item"><mark>[LineItems]</mark> => Line Items</span>
+                            <span class="list-group-item"><mark>[ScheduledDate]</mark> => Scheduled Date</span>
+                            <span class="list-group-item"><mark>[ServiceEquipment]</mark> => Service Equipment</span>
+
                         </div>
                     </div>
                 </div>

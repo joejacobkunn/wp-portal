@@ -14,11 +14,13 @@ trait FormRequest
     public $name;
     public $description;
     public $showTimeSlotSection;
+    public $service;
     public $is_active = 1;
 
     protected $validationAttributes = [
         'name' => 'Zone Name',
         'description' => 'Description',
+        'service' => 'Service'
     ];
 
     protected function rules()
@@ -27,7 +29,8 @@ trait FormRequest
         $rules = [
             'name' => 'required',
             'description' => 'nullable',
-            'is_active' => 'nullable'
+            'is_active' => 'nullable',
+            'service' => 'required'
         ];
         return $rules;
     }
@@ -39,6 +42,7 @@ trait FormRequest
             'whse_id' => $warehouseId,
             'name' => $this->name,
             'description' => $this->description,
+            'service' => $this->service,
             'is_active' => $this->is_active
         ]);
 
@@ -50,6 +54,7 @@ trait FormRequest
     {
         $this->name = $zone?->name;
         $this->description = $zone?->description;
+        $this->service = $zone?->service;
         $this->is_active = $zone?->is_active;
     }
 
@@ -72,8 +77,10 @@ trait FormRequest
         $this->zone->fill([
             'name' => $this->name,
             'description' => $this->description,
+            'service' => $this->service,
             'is_active' => $this->is_active,
         ]);
+        
         $this->zone->save();
 
         $this->alert('success', 'Zone updated!');

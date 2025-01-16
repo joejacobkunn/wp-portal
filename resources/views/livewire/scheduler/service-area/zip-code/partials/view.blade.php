@@ -22,9 +22,9 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Zones</h3>
+                            @foreach ($zipcode->zones as $zone)
 
-                            @foreach ($zipcode->zone as $zone)
-                                <span class="">{{ $form->zones[$zone] }}</span><br>
+                                <span class="">{{ $zone->name }}</span><br>
                             @endforeach
                         </div>
                     </li>
@@ -39,18 +39,6 @@
                         <div>
                             <h3 class="h6 mb-1">Pickup Rate</h3>
                             <p class="small pe-4">${{ number_format($zipcode->pickup_rate, 2) }}</p>
-                        </div>
-                    </li>
-
-
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div class="w-100">
-                            <h3 class="text-sm font-semibold mb-3">Services</h3>
-                            <ul>
-                                @foreach ($zipcode->service as $item)
-                                    <li>{{ $form->serviceArray[$item] }}</li>
-                                @endforeach
-                            </ul>
                         </div>
                     </li>
 

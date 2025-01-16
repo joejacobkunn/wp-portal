@@ -14,7 +14,7 @@ class ZipCodeForm extends Form
     public ?Zipcode $zipcode;
 
     public $zone =[];
-    public $zones;
+    public $zonesList;
     public $zip_code;
     public $service=[];
     public $notes;
@@ -48,7 +48,6 @@ class ZipCodeForm extends Form
                 'exists:zip_codes,zipcode',
                 Rule::unique('scheduler_zipcodes', 'zip_code')->ignore($this->getZipcodeId()),
             ],
-            'service' => 'required',
             'zone' => 'required|array',
             'delivery_rate' => 'required|numeric',
             'pickup_rate' => 'required|numeric',
@@ -63,6 +62,7 @@ class ZipCodeForm extends Form
         $this->zipcode = $zipcode;
         $this->fill($zipcode->toArray());
         $this->setZipcodeDescription($this->zip_code);
+        $this->zone = $this->zipcode->zones->pluck('id')->toArray();
     }
 
     public function setZipcodeDescription($value)
@@ -78,8 +78,9 @@ class ZipCodeForm extends Form
 
     public function setZones($warehouseId)
     {
-        $this->zones = Zones::where('whse_id', $warehouseId)->where('is_active', 1)
+        $this->zonesList = Zones::where('whse_id', $warehouseId)->where('is_active', 1)
         ->pluck('name', 'id');
+
     }
 
     public function store($whseId)
@@ -87,6 +88,8 @@ class ZipCodeForm extends Form
         $validatedData = $this->validate();
         $validatedData['whse_id'] = $whseId;
         $zipcode = Zipcode::create($validatedData);
+        $zipcode->zones()->sync($this->zone);
+
         return $zipcode;
     }
 
@@ -95,7 +98,7 @@ class ZipCodeForm extends Form
     {
         $validatedData = $this->validate();
         $zipcode = $this->zipcode->update($validatedData);
-        return $zipcode;
+        $this->zipcode->zones()->sync($this->zone);
     }
 
     public function getZipcodeId()
