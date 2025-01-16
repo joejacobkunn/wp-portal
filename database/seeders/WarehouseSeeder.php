@@ -53,10 +53,10 @@ class WarehouseSeeder extends Seeder
         ],
         6 => [
             'short' => 'wate',
-            'title' => 'Waterford',
+            'title' => 'Clarkston',
             'cono' => 10,
             'phone' => '2486205258',
-            'address' => '4760 Hatchery Rd, Waterford Twp, MI 48329'
+            'address' => '6585 Dixie Hwy, Clarkston, MI 48346'
         ],
         7 => [
             'short' => 'mcdo',
@@ -64,8 +64,7 @@ class WarehouseSeeder extends Seeder
             'cono' => 40,
             'phone' => '8006242932',
             'address' => '500 Jerry Steele Ln, McDonough, GA 30253'
-        ]
-
+        ],
     ];
 
     /**
