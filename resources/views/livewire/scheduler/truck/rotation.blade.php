@@ -54,8 +54,12 @@
                         <div>
                             <div class="row mb-4">
                                 <div class="col-sm-6">
-                                    <x-forms.select label="Service Type" model="serviceType" :selected="$serviceType"
-                                        :options="$serviceTypes" />
+                                    <x-forms.select label="Service Type"
+                                        model="serviceType"
+                                        :selected="$serviceType"
+                                        :options="$serviceTypes"
+                                        has-associative-index
+                                        />
                                 </div>
                                 <div class="col-sm-6">
                                     <x-forms.datepicker label="Baseline Date" type="date" model="baselineDate"

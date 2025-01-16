@@ -2,11 +2,13 @@
 
 namespace App\Http\Livewire\Scheduler\Truck;
 
-use App\Models\Scheduler\Truck;
-use App\Http\Livewire\Component\Component;
-use App\Models\Scheduler\Zones;
 use Carbon\Carbon;
+use App\Models\Scheduler\Truck;
+use App\Models\Scheduler\Zones;
+use App\Http\Livewire\Component\Component;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Jobs\Scheduler\GenerateShiftRotationJob;
+use App\Models\Scheduler\ShiftRotation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Rotation extends Component
@@ -32,6 +34,8 @@ class Rotation extends Component
     public $selectedZone;
 
     public $editRotation = false;
+
+    public $rotationDataUpdated = false;
 
     public function mount()
     {
@@ -81,11 +85,13 @@ class Rotation extends Component
     public function addRotationItem()
     {
         $this->rotationData[uniqid()] = '';
+        $this->rotationDataUpdated = true;
         $this->dispatch($this->id() . ':zones-updated');
     }
     
     public function removeRotationItem($index)
     {
+        $this->rotationDataUpdated = true;
         unset($this->rotationData[$index]);
     }
 
@@ -128,8 +134,11 @@ class Rotation extends Component
             $sortOrder++;
         }
 
-        if ($baselineUpdated) {
-            //@TODO regenerate rotations
+        if ($baselineUpdated || $this->rotationDataUpdated) {
+            //Delete all upcoming schedule info
+            ShiftRotation::where('truck_id', $this->truck->id)
+                ->where('scheduled_date', '>=', Carbon::now()->toDateString())
+                ->delete();
         }
 
         $this->rotations = $this->truck
@@ -140,6 +149,14 @@ class Rotation extends Component
             ->get()
             ->toArray();
         $this->editRotation = false;
+
+        if ($this->rotationDataUpdated) {
+            //generate rotation shifts
+            GenerateShiftRotationJob::dispatch(
+                $this->baselineDate,
+                Carbon::parse($this->baselineDate)->endOfYear()->toDateString(),
+                $this->truck->id);
+        }
 
         $this->alert('success', 'Updated rotation info.');
     }
