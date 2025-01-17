@@ -37,6 +37,8 @@ class ScheduleForm extends Form
     public $shipping;
     public $saveRecommented = false;
     public $orderTotal;
+    public $scheduleDayShifts;
+    public $relatedShift;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -50,13 +52,10 @@ class ScheduleForm extends Form
         'urlText' => '',
     ];
 
-
-
     protected $validationAttributes = [
         'type' => 'Schedule Type',
         'sx_ordernumber' => 'Order Number',
         'schedule_date' => 'Schedule Date',
-        'schedule_time' => 'Schedule Time',
         'suffix' => 'Order Suffix',
     ];
     public $serviceArray = [
@@ -84,12 +83,7 @@ class ScheduleForm extends Form
             'schedule_date' => [
                 'required',
                 new ValidateScheduleDate($this->getActiveDays())
-            ],
-            'schedule_time' => [
-                'required',
-                'date_format:H:i',
-                new ValidateScheduleTime($this->getActiveDays(), $this->schedule_date, $this->type)
-            ],
+            ]
         ];
 
     }
@@ -172,10 +166,13 @@ class ScheduleForm extends Form
         $validatedData['status'] = 'Scheduled';
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['order_number_suffix'] = $this->suffix;
+        $validatedData['schedule_time'] = $this->schedule_time;
         if($this->saveRecommented) {
             $validatedData['recommended_address'] = $this->recommendedAddress['postalAddress'];
         }
         $schedule = Schedule::create($validatedData);
+        $shift = $this->getShift($this->orderInfo->warehouse->id, $schedule->type);
+        $this->saveShiftData($shift, $this->schedule_date, $this->schedule_time, true);
         return $schedule;
     }
 
@@ -183,9 +180,9 @@ class ScheduleForm extends Form
     {
         $this->schedule = $schedule;
         $this->fill($schedule->toArray());
-        $this->schedule_time = Carbon::parse($schedule->schedule_time)->format('H:i');
-        $this->suffix = $schedule->order_number_suffix;
 
+        $this->suffix = $schedule->order_number_suffix;
+        $this->relatedShift = $this->getShift($schedule->order->warehouse->id, $schedule->type);
     }
 
     public function update()
@@ -195,6 +192,14 @@ class ScheduleForm extends Form
         if($this->saveRecommented) {
             $validatedData['recommended_address'] = $this->recommendedAddress['postalAddress'];
         }
+        if($this->schedule->schedule_date != $this->schedule_date || $this->schedule_time != $this->schedule->schedule_time) {
+
+            $this->saveShiftData($this->relatedShift, $this->schedule->schedule_date, $this->schedule->schedule_time, false);
+            $shift = $this->getShift($this->orderInfo->warehouse->id, $this->type);
+            $this->saveShiftData($shift, $this->schedule_date, $this->schedule_time, true);
+
+        }
+        $validatedData['schedule_time'] = $this->schedule_time;
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
@@ -293,5 +298,46 @@ class ScheduleForm extends Form
         $this->alertConfig['class'] = 'success';
 
         $this->scheduleDateDisable = false;
+    }
+
+    public function selectedDayShifts()
+    {
+        $date = Carbon::parse($this->schedule_date);
+        $selectedDay = strtolower($date->format('l'));
+        $month = strtolower($date->format('F'));
+        $shift = $this->getShift($this->orderInfo->warehouse->id, $this->type);
+        if(!isset($shift->shift[$month][$selectedDay])) {
+            return false;
+        }
+        $this->scheduleDayShifts = $shift->shift[$month][$selectedDay];
+        return true;
+    }
+
+    public function getShift($whse, $type)
+    {
+        if($this->type == 'at_home_maintenance') {
+            $type = 'ahm';
+        }
+        if($this->type == 'pickup' || $this->type == 'delivery') {
+            $type = 'delivery_pickup';
+        }
+        $shift = Shifts::where(['type'=>$type,'whse' => $whse])->first();
+        return $shift;
+    }
+
+    public function saveShiftData($shift, $schedule_date, $time, $operation)
+    {
+        $schedule_date = Carbon::parse($schedule_date);
+        $selectedDay = strtolower($schedule_date->format('l'));
+        $month = strtolower($schedule_date->format('F'));
+        $data =  $shift->shift;
+        foreach ($data[$month][$selectedDay] as &$item) {
+            if (isset($item['shift']) && $item['shift'] === $time) {
+                $item['slots'] = max(0, $operation ? $item['slots']-1 :  $item['slots']+1  );
+                break;
+            }
+        }
+        $shift->shift = $data;
+        $shift->save();
     }
 }
