@@ -68,7 +68,43 @@
                                         @endif
                                     </div>
                                 </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <button type="button" class="list-group-item list-group-item-action">
+                                            Number of Events <span
+                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$eventCount}}</span>
+                                        </button>
+                                        <button type="button" class="list-group-item list-group-item-action">
+                                            Number of Shifts <span
+                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$this->shiftRotation->count()}}</span>
+                                        </button>
+                                    </div>
+                                </div>
                             @endif
+                            <div class="card-body">
+                                <h5 class="card-title">Truck information</h5>
+                                <div class="list-group">
+                                    @if (count($this->shiftRotation)>0)
+                                        <button type="button" class="list-group-item list-group-item-action d-flex p-0">
+                                            <span class="flex-grow-1 text-center border-end py-2">Truck Name</span>
+                                            <span class="flex-grow-1 text-center border-end py-2">VIN Number</span>
+                                            <span class="flex-grow-1 text-center py-2">Driver</span>
+                                        </button>
+                                        @foreach ($this->shiftRotation as $shift)
+                                            <button type="button" class="list-group-item list-group-item-action d-flex p-0">
+                                                <span class="flex-grow-1 text-center border-end py-2">{{$shift->truck->truck_name}}</span>
+                                                <span class="flex-grow-1 text-center border-end py-2">{{$shift->truck->vin_number}}</span>
+                                                <span class="flex-grow-1 text-center py-2">{{$shift->truck->driverName->name}}</span>
+                                            </button>
+                                        @endforeach
+                                    @else
+                                    <button type="button" class="list-group-item list-group-item-action">
+                                        Trucks not available this day
+                                    </button>
+                                    @endif
+
+                                </div>
+                            </div>
 
                         </div>
                     </div>

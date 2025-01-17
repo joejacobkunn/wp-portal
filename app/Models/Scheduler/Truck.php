@@ -44,4 +44,9 @@ class Truck extends Model
     {
         return $this->hasMany(Rotation::class, 'truck_id');
     }
+
+    public function driverName()
+    {
+        return $this->belongsTo(User::class, 'driver');
+    }
 }

@@ -42,6 +42,8 @@ class Index extends Component
     public $activeWarehouse;
     public $showTimeSlots = false;
     public $shiftMsg;
+    public $shiftRotation;
+    public $eventCount;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -243,6 +245,9 @@ class Index extends Component
         $date = Carbon::parse($date);
         $this->dateSelected = $date;
         $this->shifts = Shifts::where('whse', $this->activeWarehouse->id)->get();
+        $this->shiftRotation = ShiftRotation::where('scheduled_date', $date)->get();
+        $this->eventCount =  Schedule::where('schedule_date', $date)->count();
+
     }
 
     public function onDateRangeChanges($start, $end)
@@ -311,7 +316,6 @@ class Index extends Component
                 'whse' => $truck->shift->whse,
             ];
         })->toArray();
-
     }
 
     public function setScheduleTimes($field, $value)
