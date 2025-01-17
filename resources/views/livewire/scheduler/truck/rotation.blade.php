@@ -40,7 +40,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h3 class="h6 mb-1">Baseline Date</h3>
-                                <p class="small pe-4">{{ $truck->baseline_date }}</p>
+                                <p class="small pe-4">{{ $truck->baseline_date ? \Carbon\Carbon::parse($truck->baseline_date)->toDateString() : '-' }}</p>
                             </div>
                         </div>
 
@@ -58,6 +58,7 @@
                                         model="serviceType"
                                         :selected="$serviceType"
                                         :options="$serviceTypes"
+                                        :listener="'resetZones'"
                                         has-associative-index
                                         />
                                 </div>
@@ -78,7 +79,8 @@
                                         </span>
                                         <div class="select-div">
                                             <x-forms.select model="rotationData.{{ $index }}" :options="$zones"
-                                                :selected="$rotationData[$index] ?? ''" has-associative-index :key="$index . 'rotation' . time()" />
+                                                :selected="$rotationData[$index] ?? ''"
+                                                has-associative-index :key="$index . 'rotation' . time()" />
                                         </div>
 
                                         @if (count($rotationData) > 1 || !$loop->first)

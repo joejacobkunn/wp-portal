@@ -40,12 +40,19 @@ class Index extends Component
     public $activeType;
     public $truckInfo = [];
     public $activeWarehouse;
+    public $showTimeSlots = false;
+    public $shiftMsg;
+    public $shiftRotation;
+    public $eventCount;
+
     protected $listeners = [
         'closeModal' => 'closeModal',
         'edit' => 'edit',
         'deleteRecord' => 'delete',
         'typeCheck' => 'typeCheck',
-        'closeAddress' => 'closeAddress'
+        'closeAddress' => 'closeAddress',
+        'setScheduleTimes' => 'setScheduleTimes',
+        'closeTimeSlot' => 'closeTimeSlot'
     ];
 
     public $actionButtons = [
@@ -103,6 +110,7 @@ class Index extends Component
         $this->form->reset();
         $this->form->type = $type;
         $this->showModal = true;
+        $this->shiftMsg = null;
 
     }
 
@@ -184,6 +192,7 @@ class Index extends Component
     public function edit()
     {
         $this->showView = false;
+        $this->shiftMsg = 'service is scheduled for '.$this->form->schedule_date.' between '.$this->form->schedule_time;
     }
 
     public function delete()
@@ -236,6 +245,9 @@ class Index extends Component
         $date = Carbon::parse($date);
         $this->dateSelected = $date;
         $this->shifts = Shifts::where('whse', $this->activeWarehouse->id)->get();
+        $this->shiftRotation = ShiftRotation::where('scheduled_date', $date)->get();
+        $this->eventCount =  Schedule::where('schedule_date', $date)->count();
+
     }
 
     public function onDateRangeChanges($start, $end)
@@ -304,7 +316,32 @@ class Index extends Component
                 'whse' => $truck->shift->whse,
             ];
         })->toArray();
+    }
 
+    public function setScheduleTimes($field, $value)
+    {
+        $this->form->schedule_date = $value;
+        $status = $this->form->selectedDayShifts();
+        if(!$status) {
+            $this->addError('form.schedule_date', 'No shift available for this day');
+            $this->shiftMsg = null;
+            $this->form->schedule_time = null;
+            return;
+        }
+        $this->showTimeSlots = true;
+    }
+
+    public function closeTimeSlot()
+    {
+        $this->showTimeSlots = false;
+    }
+
+    public function adjustSlot($shift, $slots)
+    {
+        $this->form->schedule_time = $shift;
+        $this->shiftMsg = 'service is scheduled for '.$this->form->schedule_date.' between '.$this->form->schedule_time;
+        $this->resetValidation('form.schedule_date');
+        $this->closeTimeSlot();
     }
 
 }
