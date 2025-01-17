@@ -136,6 +136,19 @@ class Index extends Component
        unset($this->shiftData[$month][$day][$count-1]);
     }
 
+    public function updatedMonths($value, $field)
+    {
+       $params = explode(".", $field);
+        if($value) {
+            return;
+        }
+        unset($this->shiftData[$params[0]][$params[2]]);
+        if(count($this->shiftData[$params[0]]) < 1) {
+            unset($this->shiftData[$params[0]]);
+        }
+        unset($this->months[$params[0]]['days'][$params[2]]);
+    }
+
     public function cancel()
     {
         $this->resetValidation();
