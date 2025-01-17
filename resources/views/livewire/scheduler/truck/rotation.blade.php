@@ -78,7 +78,8 @@
                                         </span>
                                         <div class="select-div">
                                             <x-forms.select model="rotationData.{{ $index }}" :options="$zones"
-                                                :selected="$rotationData[$index] ?? ''" has-associative-index :key="$index . 'rotation' . time()" />
+                                                :selected="$rotationData[$index] ?? ''" :listener="'resetZones'"
+                                                has-associative-index :key="$index . 'rotation' . time()" />
                                         </div>
 
                                         @if (count($rotationData) > 1 || !$loop->first)
