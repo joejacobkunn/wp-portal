@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Rotation extends Component
 {
     use AuthorizesRequests, LivewireAlert;
-    
+
     public Truck $truck;
 
     public $rotations = [];
@@ -37,15 +37,14 @@ class Rotation extends Component
 
     public $rotationDataUpdated = false;
 
+    protected $listeners = [
+        'resetZones' => 'getZones'
+    ];
+
     public function mount()
     {
         $this->authorize('view', $this->truck);
-
-        $this->zones = Zones::select('id', 'name')
-            ->where('whse_id', $this->truck->whse)
-            ->pluck('name', 'id')
-            ->toArray();
-
+        $this->getZones('service_type', $this->serviceType);
         $this->initRotationData();
     }
 
@@ -62,7 +61,7 @@ class Rotation extends Component
         foreach ($rotations as $rotation) {
             $this->rotationData[uniqid()] = $rotation->zone_id;
         }
-        
+
         $this->rotations = $rotations->toArray();
     }
 
@@ -88,7 +87,7 @@ class Rotation extends Component
         $this->rotationDataUpdated = true;
         $this->dispatch($this->id() . ':zones-updated');
     }
-    
+
     public function removeRotationItem($index)
     {
         $this->rotationDataUpdated = true;
@@ -154,7 +153,7 @@ class Rotation extends Component
             //generate rotation shifts
             GenerateShiftRotationJob::dispatch(
                 $this->baselineDate,
-                Carbon::parse($this->baselineDate)->endOfYear()->toDateString(),
+                Carbon::parse($this->baselineDate)->addYear()->endOfYear()->toDateString(),
                 $this->truck->id);
         }
 
@@ -165,5 +164,15 @@ class Rotation extends Component
     {
         $this->initRotationData();
         $this->editRotation = false;
+    }
+
+    public function getZones($field,$value)
+    {
+        $this->serviceType = $value;
+        $query = Zones::select('id', 'name')->where('whse_id', $this->truck->whse);
+        if($this->serviceType) {
+            $query->where('service', strtolower($this->serviceType));
+        }
+        $this->zones = $query->pluck('name', 'id')->toArray();
     }
 }

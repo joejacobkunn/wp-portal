@@ -1,12 +1,23 @@
 <div class="form-group {{ $errors->has($model) ? 'is-invalid' : '' }}">
-    <label>{{ $label ?? '' }}</label>
+    @if(!isset($noLabel))
+        <label>{{ $label ?? '' }}</label>
+    @endif
 
-    <livewire:x-forms-htmleditor :field-id="$id ?? ''" :model="$model ?? ''" :value="$value ?? ''" :height="$height ?? 200"
-        :listener="$listener ?? 'fieldUpdated'" parentComponent="{{ $parentComponent ?? $this::class }}" :key="$key ?? 'editor-' . now()" />
+    <livewire:x-forms-htmleditor
+        :field-id="$id ?? ''"
+        :model="$model ?? ''"
+        :value="$value ?? ''"
+        :height="$height ?? 200"
+        :maxLength="$maxLength ?? '-1'"
+        :placeholder="$placeholder ?? ''"
+        :listener="$listener ?? 'fieldUpdated'"
+        :showCharCount="isset($showCharCount) ? filter_var($showCharCount, FILTER_VALIDATE_BOOL) : false"
+        :strictCount="isset($strictCount) ? filter_var($strictCount, FILTER_VALIDATE_BOOL) : false"
+        parentComponent="{{ $parentComponent ?? $this::class }}"
+        :key="($key ?? 'text').'editor'"
+    />
 
-    @if (isset($model))
-        @error($model)
-            <span class="text-danger">{{ $message }}</span>
-        @enderror
+    @if(isset($model))
+        @error($model) <span class="text-danger">{{ $message }}</span> @enderror
     @endif
 </div>
