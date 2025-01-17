@@ -39,7 +39,19 @@ class HtmlEditor extends Component
     /**
      * @var Integer Editor Max Height
      */
-    public $listener = 'fieldUpdated'; //in px
+    public $maxLength;
+
+    public $placeholder;
+
+    public $showCharCount = false;
+
+    //count html chars as well
+    public $strictCount = false;
+
+    /**
+     * Listener
+     */
+    public $listener = 'fieldUpdated';
 
     public $parentComponent;
 
