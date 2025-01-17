@@ -37,14 +37,14 @@ class Rotation extends Component
 
     public $rotationDataUpdated = false;
 
-    public $listener = [
+    protected $listeners = [
         'resetZones' => 'getZones'
     ];
 
     public function mount()
     {
         $this->authorize('view', $this->truck);
-        $this->getZones();
+        $this->getZones('service_type', $this->serviceType);
         $this->initRotationData();
     }
 
@@ -166,11 +166,12 @@ class Rotation extends Component
         $this->editRotation = false;
     }
 
-    public function getZones()
+    public function getZones($field,$value)
     {
+        $this->serviceType = $value;
         $query = Zones::select('id', 'name')->where('whse_id', $this->truck->whse);
         if($this->serviceType) {
-            $query->where('service', $this->serviceType);
+            $query->where('service', strtolower($this->serviceType));
         }
         $this->zones = $query->pluck('name', 'id')->toArray();
     }
