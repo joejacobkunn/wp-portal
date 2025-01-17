@@ -40,7 +40,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h3 class="h6 mb-1">Baseline Date</h3>
-                                <p class="small pe-4">{{ $truck->baseline_date }}</p>
+                                <p class="small pe-4">{{ $truck->baseline_date ? \Carbon\Carbon::parse($truck->baseline_date)->toDateString() : '-' }}</p>
                             </div>
                         </div>
 

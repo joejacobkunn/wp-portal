@@ -153,7 +153,7 @@ class Rotation extends Component
             //generate rotation shifts
             GenerateShiftRotationJob::dispatch(
                 $this->baselineDate,
-                Carbon::parse($this->baselineDate)->endOfYear()->toDateString(),
+                Carbon::parse($this->baselineDate)->addYear()->endOfYear()->toDateString(),
                 $this->truck->id);
         }
 
