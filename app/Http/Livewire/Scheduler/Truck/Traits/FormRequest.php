@@ -12,8 +12,8 @@ trait FormRequest
 {
     use LivewireAlert;
     public $serviceTypes = [
-        'at_home_maintenance' => 'AHM',
-        'delivery_pickup' => 'Delivery / Pickup'
+        'AHM' => 'AHM',
+        'Delivery / Pickup' => 'Delivery / Pickup'
     ];
     protected $validationAttributes = [
         'truck.truck_name' => 'Truck Name',

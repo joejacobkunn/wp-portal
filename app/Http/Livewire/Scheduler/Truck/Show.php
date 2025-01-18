@@ -15,7 +15,16 @@ class Show extends Component
     public Truck $truck;
 
     public $editRecord = false;
+    public $breadcrumbs = [
+        [
+            'title' => 'Scheduler',
+        ],
+        [
+            'title' => 'Trucks',
+            'route_name' => 'scheduler.truck.index',
+        ]
 
+    ];
     public $actionButtons = [
         [
             'icon' => 'fa-edit',
@@ -44,6 +53,12 @@ class Show extends Component
     public function mount()
     {
         $this->authorize('view', $this->truck);
+       $this->breadcrumbs=  array_merge($this->breadcrumbs,
+        [
+            [
+                'title' => $this->truck ->truck_name,
+            ]
+        ]);
     }
 
     public function render()

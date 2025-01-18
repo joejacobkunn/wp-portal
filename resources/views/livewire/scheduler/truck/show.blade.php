@@ -15,9 +15,6 @@
             @else
                 @include('livewire.scheduler.truck.partials.view')
 
-                <livewire:scheduler.truck.rotation
-                    :truck="$truck"
-                />
                 <livewire:scheduler.truck.schedule
                     :truck="$truck"
                 />

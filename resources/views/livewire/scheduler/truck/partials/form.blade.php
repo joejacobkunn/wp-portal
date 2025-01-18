@@ -2,15 +2,6 @@
     <div class="col-12 col-md-12">
         <div class="card card-body shadow-sm mb-4">
             <form wire:submit.prevent="submit">
-                @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
                 <!-- Truck Name -->
                 <div class="row">
                     <div class="col-md-12 mb-3">
