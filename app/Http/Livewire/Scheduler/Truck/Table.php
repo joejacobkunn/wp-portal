@@ -70,13 +70,7 @@ class Table extends DataTableComponent
                     return $value;
                 })
                 ->excludeFromColumnSelect(),
-            Column::make('Driver', 'driver.name')
-                ->sortable()
-                ->searchable()
-                ->format(function ($value, $row) {
-                    return $value;
-                })
-                ->excludeFromColumnSelect(),
+
             Column::make('Cubic Storage Space')
                 ->sortable()
                 ->searchable()

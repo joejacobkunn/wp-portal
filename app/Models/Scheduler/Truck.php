@@ -23,7 +23,6 @@ class Truck extends Model
         'color',
         'notes',
         'whse',
-        'driver',
         'cubic_storage_space',
         'baseline_date',
         'service_type',
@@ -35,18 +34,8 @@ class Truck extends Model
         return $this->belongsTo(Warehouse::class, 'whse');
     }
 
-    public function driver()
-    {
-        return $this->belongsTo(User::class, 'driver');
-    }
-
     public function rotations()
     {
         return $this->hasMany(Rotation::class, 'truck_id');
-    }
-
-    public function driverName()
-    {
-        return $this->belongsTo(User::class, 'driver');
     }
 }

@@ -15,7 +15,6 @@ class Index extends Component
     public Truck $truck;
     public $addRecord = false;
     public $warehouses;
-    public $drivers;
     public $activeWarehouse;
     public $whseId;
     public $breadcrumbs = [
@@ -28,6 +27,7 @@ class Index extends Component
         ]
 
     ];
+
     protected $queryString = [
         'whseId' => ['except' => '', 'as' => 'whseId'],
     ];
@@ -40,7 +40,6 @@ class Index extends Component
         $this->whseId =  $this->whseId ? $this->whseId : Warehouse::where('title', Auth::user()->office_location)->first()->id;
 
         $this->activeWarehouse = Warehouse::where('cono', 10)->where('id', $this->whseId)->first();
-        $this->drivers = User::where('title', 'driver')->where('office_location', $this->activeWarehouse->title)->get();
     }
 
     public function render()
@@ -62,6 +61,5 @@ class Index extends Component
     {
         $this->activeWarehouse = Warehouse::find($whseId);
         $this->whseId = $this->activeWarehouse->id;
-        $this->drivers = User::where('title', 'driver')->where('office_location', $this->activeWarehouse->title)->get();
     }
 }
