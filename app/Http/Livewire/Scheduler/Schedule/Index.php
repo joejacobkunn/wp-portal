@@ -5,13 +5,13 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
+use App\Http\Livewire\Scheduler\Schedule\Forms\TruckScheduleForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
-use App\Models\Scheduler\ShiftRotation;
-use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\Truck;
+use App\Models\Scheduler\TruckSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -22,6 +22,8 @@ class Index extends Component
     use LivewireAlert;
 
     public ScheduleForm $form;
+
+    public TruckScheduleForm $truckScheduleForm;
 
     public $showModal;
     public $name;
@@ -34,7 +36,6 @@ class Index extends Component
     public $warehouses;
     public $dateSelected;
     public $holidays;
-    public $shifts;
     public $eventStart;
     public $eventEnd;
     public $activeType;
@@ -42,8 +43,10 @@ class Index extends Component
     public $activeWarehouse;
     public $showTimeSlots = false;
     public $shiftMsg;
-    public $shiftRotation;
     public $eventCount;
+    public $filteredSchedules;
+    public $selectedTruck;
+    public $showSlotModal = false;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -52,7 +55,8 @@ class Index extends Component
         'typeCheck' => 'typeCheck',
         'closeAddress' => 'closeAddress',
         'setScheduleTimes' => 'setScheduleTimes',
-        'closeTimeSlot' => 'closeTimeSlot'
+        'closeTimeSlot' => 'closeTimeSlot',
+        'closeSlotModal' => 'closeSlotModal'
     ];
 
     public $actionButtons = [
@@ -242,12 +246,20 @@ class Index extends Component
 
     public function handleDateClick($date)
     {
-        $date = Carbon::parse($date);
         $this->dateSelected = $date;
-        $this->shifts = Shifts::where('whse', $this->activeWarehouse->id)->get();
-        $this->shiftRotation = ShiftRotation::where('scheduled_date', $date)->get();
+        $date = Carbon::parse($date)->format('Y-m-d');
+
         $this->eventCount =  Schedule::where('schedule_date', $date)->count();
 
+        $this->filteredSchedules = array_values(array_filter($this->truckInfo, function ($schedule) use ($date) {
+            return isset($schedule['schedule_date']) && $schedule['schedule_date'] === $date;
+        }));
+       if($this->filteredSchedules) {
+           $this->showTruckData( $this->filteredSchedules[0]['id']);
+           return;
+       }
+       $this->reset(['selectedTruck']);
+       $this->truckScheduleForm->reset();
     }
 
     public function onDateRangeChanges($start, $end)
@@ -262,6 +274,7 @@ class Index extends Component
     {
         $this->activeType = $type;
         $this->getEvents();
+        $this->getTruckData();
         $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Services' );
 
     }
@@ -272,48 +285,38 @@ class Index extends Component
         $start = $this->eventStart;
         $end = $this->eventEnd;
         $spanText = '';
-        $query = ShiftRotation::whereBetween('scheduled_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('shift', function($query) use ($start, $end, $type) {
-            $query->where('whse', $this->activeWarehouse->id);
-        });
-
+        $query = TruckSchedule::whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
+                ->whereHas('truck', function($query) use ($start, $end, $type) {
+                    $query->where('whse', $this->activeWarehouse->id);
+                });
         if($type == 'at_home_maintenance') {
-            $query = $query->whereHas('shift', function($query) use ($start, $end, $type) {
-                $query->where('type', 'ahm');
+            $query = $query->whereHas('truck', function($query) use ($start, $end, $type) {
+                $query->where('service_type', 'AHM');
             });
-            $spanText  = 'AHM';
         }
 
         if($type == 'delivery' || $type == 'pickup') {
-            $query = $query->whereHas('shift', function($query) use ($start, $end, $type) {
-                $query->where('type', 'delivery_pickup');
+            $query = $query->whereHas('truck', function($query) use ($start, $end, $type) {
+                $query->where('service_type', 'Delivery / Pickup');
             });
-            $spanText = 'P/D';
         }
         if($type == 'setup_install') {
-            $query = $query->whereHas('shift', function($query) use ($start, $end, $type) {
-                $query->where('type', 'setup_install');
+            $query = $query->whereHas('truck', function($query) use ($start, $end, $type) {
+                $query->where('service_type', 'setup_install');
             });
-            $spanText = 'S/I';
         }
 
         $this->truckInfo  = $query->get()
-
-         ->map(function ($truck) {
-             $spanText  = '';
-           if( $truck->shift->type == 'ahm') {
-                $spanText  = 'AHM';
-           }
-           if( $truck->shift->type == 'delivery_pickup') {
-                $spanText  = 'P/D';
-           }
+        ->map(function ($truck) {
             return [
                 'id' => $truck->id,
-                'scheduled_date' => $truck->scheduled_date,
-                'service_type' => $truck->shift->type,
+                'schedule_date' => $truck->schedule_date,
+                'service_type' => $truck->truck->service_type,
                 'truck_name' => $truck->truck->truck_name,
-                'spanText' => $spanText. ' '.$truck->zone->name,
-                'whse' => $truck->shift->whse,
+                'vin_number' => $truck->truck->vin_number,
+                'spanText' => $truck->zone->name. ' - '.$truck->truck->truck_name,
+                'whse' => $truck->truck->whse,
+                'zone' => $truck->zone->name,
             ];
         })->toArray();
     }
@@ -344,4 +347,27 @@ class Index extends Component
         $this->closeTimeSlot();
     }
 
+    public function showTruckData($shiftId)
+    {
+        $this->selectedTruck = TruckSchedule::find($shiftId);
+        $this->truckScheduleForm->init($this->selectedTruck);
+    }
+
+    public function showSlotModalForm()
+    {
+        $this->showSlotModal = true;
+    }
+
+    public function closeSlotModal()
+    {
+        $this->showSlotModal = false;
+    }
+
+    public function updateSlot()
+    {
+        $this->truckScheduleForm->update();
+        $this->alert('success', 'Slots Updated');
+        $this->selectedTruck = $this->selectedTruck->fresh();
+        $this->closeSlotModal();
+    }
 }

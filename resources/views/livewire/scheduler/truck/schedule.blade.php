@@ -206,10 +206,10 @@
                         span3.classList.add('badge', 'bg-light-success', 'zoneinfo-span');
                         span3.style.fontSize = 'x-small';
                         span3.innerHTML = `
-                            <i class="fas fa-user"></i> ${data[3]}
+                            <i class="fas fa-layer-group"></i> ${data[3]}
                         `;
 
-                        // Find the bottom div in current cell and append other spans
+                        // append other spans on botton div
                         const bottomDiv = clickedDateCell.querySelector('.fc-daygrid-day-bottom');
                         if (bottomDiv) {
                             bottomDiv.appendChild(span2);
