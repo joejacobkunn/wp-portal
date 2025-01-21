@@ -36,15 +36,17 @@ class ProcessTruckScheduleImport implements ShouldQueue
     public function handle(): void
     {
         foreach($this->records as $record) {
-            $timeslots = explode('-', $record['timeslots']);
+            $timeslots = explode('-', trim($record['timeslots']));
+            $starTime = date("h:i A", strtotime($timeslots[0]));
+            $endTime = date("h:i A", strtotime($timeslots[1]));
             $this->truck->schedules()->updateOrCreate(
                 [
                     'schedule_date' => Carbon::parse($record['date'])->format('Y-m-d'),
-                    'zone_id' => trim($record['zone_id']),
+                    'start_time' => $starTime,
+                    'end_time' => $endTime,
                 ],
                 [
-                    'start_time' => trim($timeslots[0]),
-                    'end_time' => trim($timeslots[1]),
+                    'zone_id' => trim($record['zone_id']),
                     'slots' => trim($record['slots']),
                 ]
             );

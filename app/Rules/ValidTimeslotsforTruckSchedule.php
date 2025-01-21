@@ -14,20 +14,21 @@ class ValidTimeslotsforTruckSchedule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $pattern = '/^(0[0-9]|1[0-2]):[0-5][0-9]\s+(AM|PM|am|pm)\s+-\s+(0[0-9]|1[0-2]):[0-5][0-9]\s+(AM|PM|am|pm)$/';
+        // Pattern for format like "9am-1pm" (accepts 1-12 followed by am/pm)
+        $pattern = '/^([1-9]|1[0-2])(am|pm)\s*-\s*([1-9]|1[0-2])(am|pm)$/i';
 
-        if (!preg_match($pattern, $value)) {
-            $fail("The {$attribute} must be in the format '09:00 AM - 10:00 PM'.");
+        if (!preg_match($pattern, $value, $matches)) {
+            $fail("The {$attribute} must be in the format '9am-1pm'.");
+            return;
         }
 
-        if (preg_match($pattern, $value)) {
-            [$startTime, $endTime] = explode(' - ', $value);
-            $startTimestamp = strtotime($startTime);
-            $endTimestamp = strtotime($endTime);
+        // Split the time range and convert to timestamps
+        [$startTime, $endTime] = explode('-', str_replace(' ', '', $value));
+        $startTimestamp = strtotime($startTime);
+        $endTimestamp = strtotime($endTime);
 
-            if ($startTimestamp >= $endTimestamp) {
-                $fail("The end time must be after the start time in {$attribute}.");
-            }
+        if ($startTimestamp >= $endTimestamp) {
+            $fail("The end time must be after the start time in {$attribute}.");
         }
     }
 }

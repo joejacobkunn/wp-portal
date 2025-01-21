@@ -152,33 +152,6 @@
                                     Please cross-check the file with the sample template and try again.
                                     Alternatively, these rows will be skipped during processing.
                             </div>
-                            <div class="table-responsive overflow-auto csv-table-wrap">
-                                <table id="csv-table" class="table table-bordered" >
-                                    <thead>
-                                        <!-- for header -->
-                                            <tr>
-                                                <th>Truck</th>
-                                                <th>Date</th>
-                                                <th>TimeSlot</th>
-                                                <th>Slots</th>
-                                                <th>Zone</th>
-                                            </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($importForm->importErrorRows as $cell)
-                                            <tr>
-                                                <td>{{ $cell['truck'] }}</td>
-                                                <td>{{ $cell['date'] }}</td>
-                                                <td>{{ $cell['timeslots'] }}</td>
-                                                <td>{{ $cell['slots'] }}</td>
-                                                <td>{{ $cell['zone'] }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr><td colspan="4" class="text-center">No valid records are available.</td></tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
                         @endif
                     </div>
                 </div>

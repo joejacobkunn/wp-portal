@@ -125,9 +125,5 @@ class TruckScheduleImport implements ToCollection,WithValidation, WithHeadingRow
             throw new \Exception('Uploaded file is empty, please upload a file with data');
         }
 
-        if ($totalRows-1 > 10000 ) {
-            throw new \Exception('Maximum number of rows allowed is 10000. please adjust the import file.');
-        }
-
     }
 }
