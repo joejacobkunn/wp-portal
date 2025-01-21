@@ -3,22 +3,31 @@
 namespace App\Http\Livewire\Scheduler\Truck;
 
 use App\Http\Livewire\Scheduler\Truck\Form\ScheduleForm;
+use App\Http\Livewire\Scheduler\Truck\Form\ScheduleImportForm;
 use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\Zones;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Schedule extends Component
 {
-    use LivewireAlert;
+    use LivewireAlert, WithFileUploads;
     public ScheduleForm $form;
     public TruckSchedule $truckSchedule;
+    public ScheduleImportForm $importForm;
     public $truck;
     public $zone;
     public $showForm = false;
+    public $showImportForm;
+    public $csvFile;
+    public $importIteration = 2;
 
+    protected $listeners = [
+        'closeImportForm' => 'closeImportForm'
+    ];
     public $zones;
 
     public function mount()
@@ -83,4 +92,44 @@ class Schedule extends Component
         ->toArray();
         $this->dispatch('calender-schedules-update', $schedules);
     }
+
+    public function importDataModal()
+    {
+       $this->showImportForm = true;
+       $this->importForm->init($this->truck);
+    }
+
+    public function updatedImportFormCsvFile()
+    {
+        $response = $this->importForm->dataImport();
+        if(!$response['status']) {
+            $this->addError('importForm.csvFile', $response['message']);
+        }
+    }
+
+    public function closeImportForm()
+    {
+        $this->showImportForm = false;
+        $this->resetValidation();
+        $this->importForm->reset();
+    }
+
+    public function importTruckSchedule()
+    {
+        $this->importForm->store();
+        $this->alert('success', 'Import initiated');
+        $this->closeImportForm();
+    }
+
+    public function downloadDemo()
+    {
+        $filePath = public_path(config('scheduler.demo_file_path'));
+
+        if (!file_exists($filePath)) {
+            $this->alert('error', 'File not found.');
+            return;
+        }
+        return response()->download($filePath);
+    }
 }
+

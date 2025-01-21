@@ -26,6 +26,7 @@ class Truck extends Model
         'cubic_storage_space',
         'baseline_date',
         'service_type',
+        'shift_type',
     ];
 
 
@@ -37,5 +38,10 @@ class Truck extends Model
     public function rotations()
     {
         return $this->hasMany(Rotation::class, 'truck_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(TruckSchedule::class, 'truck_id');
     }
 }

@@ -65,4 +65,11 @@ class Show extends Component
     {
         return $this->renderView('livewire.scheduler.truck.show');
     }
+
+    public function cancel()
+    {
+        $this->resetValidation();
+        $this->editRecord = false;
+
+    }
 }

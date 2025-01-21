@@ -5,6 +5,9 @@
                 <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
                     <h3 class="h5 mb-0">
                          Schedule zones
+                            <button type="button" wire:click="importDataModal" class="btn btn-sm float-end">
+                                <i class="fa fa-file-import" aria-hidden="true"></i> Import Data
+                            </button>
                     </h3>
                     <hr class="mb-0" />
                 </div>
@@ -114,7 +117,84 @@
             </div>
         </div>
     </div>
+    <x-modal :toggle="$showImportForm" size="lg" :closeEvent="'closeImportForm'">
+        <x-slot name="title"> Import Truck Schedules </x-slot>
+        <form wire:submit.prevent="importTruckSchedule">
+            <div class="mb-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-light-info color-info">
+                            <i class="fas fa-info-circle"></i>
+                            Please upload schedule file csv here, <a href="#" wire:click.prevent="downloadDemo">
+                                click here </a>to download csv file template <i class="fas fa-download"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-12 mt-2" x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
+                        x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
+                        x-on:livewire-upload-error="uploading = false">
+                        <label>Import Truck Schedule File</label>
+                        <input type="file" id="csv-{{ $importIteration }}" class="form-control" wire:model="importForm.csvFile">
+                        @error('importForm.csvFile')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                        <div x-show="uploading" class="mt-2">
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 mt-2 mb-2 csv-table-col">
+                        @if(count($importForm->importErrorRows) > 0)
+                            <div class="alert alert-light-warning color-warning">
+                                <i class="fas fa-info-circle"></i> Found {{count($importForm->importErrorRows)}} error rows in the uploaded file.
+                                    Please cross-check the file with the sample template and try again.
+                                    Alternatively, these rows will be skipped during processing.
+                            </div>
+                            <div class="table-responsive overflow-auto csv-table-wrap">
+                                <table id="csv-table" class="table table-bordered" >
+                                    <thead>
+                                        <!-- for header -->
+                                            <tr>
+                                                <th>Truck</th>
+                                                <th>Date</th>
+                                                <th>TimeSlot</th>
+                                                <th>Slots</th>
+                                                <th>Zone</th>
+                                            </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($importForm->importErrorRows as $cell)
+                                            <tr>
+                                                <td>{{ $cell['truck'] }}</td>
+                                                <td>{{ $cell['date'] }}</td>
+                                                <td>{{ $cell['timeslots'] }}</td>
+                                                <td>{{ $cell['slots'] }}</td>
+                                                <td>{{ $cell['zone'] }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr><td colspan="4" class="text-center">No valid records are available.</td></tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <hr>
 
+            <div class="mt-2 float-start">
+                <button type="submit" class="btn btn-primary" wire:click="importTruckSchedule">
+                    <div wire:loading wire:target="importTruckSchedule">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </div>
+                    Import
+                </button>
+            </div>
+        </form>
+    </x-modal>
     <script src="https://code.jquery.com/jquery-3.6.0.js" data-navigate-once></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" data-navigate-once></script>
 
