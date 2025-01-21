@@ -41,7 +41,6 @@ class Index extends Component
     public $activeType;
     public $truckInfo = [];
     public $activeWarehouse;
-    public $showTimeSlots = false;
     public $shiftMsg;
     public $eventCount;
     public $filteredSchedules;
@@ -321,31 +320,6 @@ class Index extends Component
         })->toArray();
     }
 
-    public function setScheduleTimes($field, $value)
-    {
-        $this->form->schedule_date = $value;
-        $status = $this->form->selectedDayShifts();
-        if(!$status) {
-            $this->addError('form.schedule_date', 'No shift available for this day');
-            $this->shiftMsg = null;
-            $this->form->schedule_time = null;
-            return;
-        }
-        $this->showTimeSlots = true;
-    }
-
-    public function closeTimeSlot()
-    {
-        $this->showTimeSlots = false;
-    }
-
-    public function adjustSlot($shift, $slots)
-    {
-        $this->form->schedule_time = $shift;
-        $this->shiftMsg = 'service is scheduled for '.$this->form->schedule_date.' between '.$this->form->schedule_time;
-        $this->resetValidation('form.schedule_date');
-        $this->closeTimeSlot();
-    }
 
     public function showTruckData($shiftId)
     {
@@ -369,5 +343,9 @@ class Index extends Component
         $this->alert('success', 'Slots Updated');
         $this->selectedTruck = $this->selectedTruck->fresh();
         $this->closeSlotModal();
+    }
+    public function updateFormScheduleDate($date)
+    {
+        $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
     }
 }

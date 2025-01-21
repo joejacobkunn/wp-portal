@@ -128,12 +128,8 @@
                     height: 'auto',
                     datesSet: function(info) {
                         $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {
-                            //setZoneInDayCells();
                         });
-                        if (info.view.type === 'listDay') {
-                            $wire.handleDateClick(info.startStr);
 
-                        }
                     },
                     dateClick: function(info) {
                         const todayCell = document.querySelector('.fc-day-today');
@@ -151,7 +147,6 @@
                         }
 
                         $wire.handleDateClick(info.dateStr).then(() => {
-                            const clickedDateCell = document.querySelector(`[data-date="${info.dateStr}"]`);
                         });
                     },
                 });
