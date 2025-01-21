@@ -1,8 +1,7 @@
 <div class="row">
     <div class="col-12 col-md-12">
         <div class="card card-body shadow-sm mb-4">
-            <form wire:submit.prevent="{{ !empty($truck->id) ? 'save()' : 'submit()' }}">
-
+            <form wire:submit.prevent="submit">
                 <!-- Truck Name -->
                 <div class="row">
                     <div class="col-md-12 mb-3">
@@ -16,12 +15,19 @@
                         <x-forms.input label="VIN Number" model="truck.vin_number" lazy />
                     </div>
                 </div>
-                <!-- Driver -->
+                <!-- Shift Type -->
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <x-forms.select label="Driver" model="truck.driver" :options="$drivers" :selected="$truck->driver ?? null"
-                            default-selectable default-option-label="- Select Driver -" label-index="name"
-                            value-index="id" />
+                        <x-forms.select label="Shift Type" model="truck.shift_type" :options="['Full Time', 'Part Time']" :selected="$truck->shift_type ?? null"
+                            default-selectable default-option-label="- Select Shift -" />
+                    </div>
+                </div>
+
+                <!-- Service Type -->
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <x-forms.select label="Service Type" model="truck.service_type" :options="$serviceTypes" :selected="$truck->service_type ?? null"
+                            :hasAssociativeIndex="true" default-selectable default-option-label="- Select Shift -"  />
                     </div>
                 </div>
 
@@ -65,7 +71,7 @@
                 <!-- Submit and Cancel Buttons -->
                 <div class="mt-2 float-start">
                     <button type="submit" class="btn btn-success">
-                        <div wire:loading wire:target="{{ !empty($truck->id) ? 'save' : 'submit' }}">
+                        <div wire:loading wire:target="submit">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
                         {{ $button_text }}
