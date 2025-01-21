@@ -1,8 +1,9 @@
 <div class="row">
     <div class="col-8 col-md-12 col-xxl-12">
         <div class="card border-light shadow-sm mb-4">
-            <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
-                <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Overview</h3>
+            <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" >
+                <livewire:component.action-button :actionButtons="$actionButtons" :key="'truck' . time()">
+                    <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Overview</h3>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -16,10 +17,17 @@
                             </li>
                             <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                                 <div>
-                                    <h3 class="h6 mb-1">Driver</h3>
-                                    <p class="small pe-4">{{ $truck->cubic_storage_space }}</p>
+                                    <h3 class="h6 mb-1">Shift Type</h3>
+                                    <p class="small pe-4">{{ $truck->shift_type }}</p>
                                 </div>
                             </li>
+                            <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                <div>
+                                    <h3 class="h6 mb-1">Service Type</h3>
+                                    <p class="small pe-4">{{  $truck->service_type }}</p>
+                                </div>
+                            </li>
+
                             <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                                 <div>
                                     <h3 class="h6 mb-1">Year</h3>

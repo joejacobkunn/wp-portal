@@ -1,10 +1,10 @@
 <x-page :breadcrumbs="$breadcrumbs">
     <x-slot:title>Schedule</x-slot>
     <x-slot:content>
-        <div class="card border-light shadow-sm schedule-tab">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
+        <div class="row">
+            <div class="col-9">
+                <div class="card border-light shadow-sm schedule-tab">
+                    <div class="card-body">
                         <div id="calendar" class="w-100" wire:ignore></div>
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
@@ -29,83 +29,73 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-3">
-                        <div class="card" wire:key="order-info-panel-{{ $orderInfoStrng }}">
-                            @if (isset($shifts))
-                                <div class="card-body">
-                                    <h5 class="card-title">Shift Information</h5>
 
-                                    <div class="list-group">
-                                        <button type="button" class="list-group-item list-group-item-primary">Shifts
-                                            and
-                                            Slots</button>
-                                        @php
-                                            $selectedDay = strtolower($dateSelected->format('l'));
-                                            $month = strtolower($dateSelected->format('F'));
-                                            $status = true;
-                                        @endphp
-                                        @foreach ($shifts as $shift)
-                                            @if (isset($shift->shift[$month]) && isset($shift->shift[$month][$selectedDay]))
-                                                @php $status = false; @endphp
-                                                @foreach ($shift->shift[$month][$selectedDay] as $key => $data)
-                                                    <button type="button"
-                                                        class="list-group-item list-group-item-action">
-                                                        @if ($shift->type == 'ahm')
-                                                            AHM :
-                                                        @elseif ($shift->type == 'delivery_pickup')
-                                                            P/D :
-                                                        @endif
-                                                        {{ $data['shift'] }}
-                                                        <span
-                                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $data['slots'] }}</span>
-                                                    </button>
-                                                @endforeach
-                                            @endif
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card border-light shadow-sm schedule-tab"  wire:key="order-info-panel-{{ $orderInfoStrng }}">
+                    <div class="card-body">
+                        <h5 class="card-title">Trucks</h5>
+                        <div class="list-group">
+                            @if (count($this->filteredSchedules) > 0)
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Truck Name</th>
+                                            <th>VIN Number</th>
+                                            <th>Zone</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($this->filteredSchedules as $shift)
+                                            <tr>
+                                                <td><a href="" wire:click.prevent="showTruckData({{$shift['id']}})">{{ $shift['truck_name'] }}</a></td>
+                                                <td>{{ $shift['vin_number'] }}</td>
+                                                <td>{{ $shift['zone'] }}</td>
+                                            </tr>
                                         @endforeach
-                                        @if ($status)
-                                            <button type="button" class="list-group-item list-group-item-action"> No
-                                                shifts available this day</button>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="list-group">
-                                        <button type="button" class="list-group-item list-group-item-action">
-                                            Number of Events <span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$eventCount}}</span>
-                                        </button>
-                                        <button type="button" class="list-group-item list-group-item-action">
-                                            Number of Shifts <span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$this->shiftRotation->count()}}</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            @endif
-                            <div class="card-body">
-                                <h5 class="card-title">Truck information</h5>
-                                <div class="list-group">
-                                    @if (count($this->shiftRotation)>0)
-                                        <button type="button" class="list-group-item list-group-item-action d-flex p-0">
-                                            <span class="flex-grow-1 text-center border-end py-2">Truck Name</span>
-                                            <span class="flex-grow-1 text-center border-end py-2">VIN Number</span>
-                                            <span class="flex-grow-1 text-center py-2">Driver</span>
-                                        </button>
-                                        @foreach ($this->shiftRotation as $shift)
-                                            <button type="button" class="list-group-item list-group-item-action d-flex p-0">
-                                                <span class="flex-grow-1 text-center border-end py-2">{{$shift->truck->truck_name}}</span>
-                                                <span class="flex-grow-1 text-center border-end py-2">{{$shift->truck->vin_number}}</span>
-                                                <span class="flex-grow-1 text-center py-2">{{$shift->truck->driverName->name}}</span>
-                                            </button>
-                                        @endforeach
-                                    @else
-                                    <button type="button" class="list-group-item list-group-item-action">
-                                        Trucks not available this day
-                                    </button>
-                                    @endif
-
-                                </div>
+                                    </tbody>
+                                </table>
                             </div>
+                        @else
+                        <div class="alert alert-warning text-center opacity-50" role="alert">
+                            Trucks not available this day
+                        </div>
+                        @endif
+                        </div>
+                    </div>
 
+                </div>
+                @if($this->selectedTruck)
+
+                <div class="card border-light shadow-sm schedule-tab">
+                    <div class="card-body" wire:key="{{'slots-'.$selectedTruck->slots}}">
+                        <h5 class="card-title">Truck information</h5>
+                        <div class="list-group">
+                            <ul class="list-group">
+                                <li class="list-group-item">Truck : {{$selectedTruck->truck->truck_name}}</li>
+                                <li class="list-group-item">Type : {{$selectedTruck->truck->service_type}}</li>
+                                <li class="list-group-item">Shift : {{$selectedTruck->start_time. ' - '.$selectedTruck->end_time;}}</li>
+                                <li class="list-group-item">slots : {{$selectedTruck->slots}}
+                                    <button class="btn btn-sm btn-outline-primary ms-1 float-end"
+                                        type="button" wire:click="showSlotModalForm">Update</span>
+
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                <div class="card border-light shadow-sm schedule-tab">
+                    <div class="card-body">
+                        <h5 class="card-title">Events</h5>
+
+                        <div class="list-group">
+                            <button type="button" class="list-group-item list-group-item-action">
+                                Number of Events <span
+                                class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$eventCount}}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -121,6 +111,29 @@
                     @include('livewire.scheduler.schedule.partial.view')
                 @endif
             </x-modal>
+
+        @endif
+        @if($showSlotModal)
+        <x-modal :toggle="$showSlotModal" size="md" :closeEvent="'closeSlotModal'">
+            <x-slot name="title">Update Slots</x-slot>
+            <form wire:submit.prevent="updateSlot()">
+                <div class="row w-100">
+                    <div class="col-md-12 mb-3">
+                        <div class="form-group">
+                            <x-forms.input type="number" label="Slots" model="truckScheduleForm.slots" lazy />
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 float-start">
+                    <button type="submit" class="btn btn-primary">
+                        <div wire:loading wire:target="updateSlot">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Update
+                    </button>
+                </div>
+            </form>
+        </x-modal>
         @endif
     </x-slot>
 </x-page>
@@ -336,7 +349,8 @@
                     setZoneInDayCells()
                 });
 
-                function setZoneInDayCells() {
+                function setZoneInDayCells()
+                {
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
                         span.remove();
                     });
@@ -345,9 +359,10 @@
                         let cellDate = dayCell.getAttribute('data-date');
                         let cellDateObj = new Date(cellDate);
                         truckinfo.forEach(truckData => {
-                            let truckDateObj = new Date(truckData.scheduled_date);
+                            let truckDateObj = new Date(truckData.schedule_date);
                             if (cellDateObj.toISOString().split('T')[0] === truckDateObj
                                 .toISOString().split('T')[0]) {
+
                                 let span = document.createElement('span');
                                 span.classList.add('badge', 'bg-light-info', 'zoneinfo-span');
                                 span.style.fontSize = 'x-small';

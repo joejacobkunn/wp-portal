@@ -98,7 +98,7 @@
                         </div>
                     @endif
                     @if ($form->orderInfo?->line_items)
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-12 mb-2">
                             <ul class="list-group">
                                 <li class="list-group-item list-group-item-primary">
                                     <span class="float-end fst-italic fw-light">Select all that apply</span>
@@ -112,19 +112,42 @@
                             </ul>
                         </div>
                     @endif
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <x-forms.datepicker type="date"
-                                label="Schedule Date"
-                                model="form.schedule_date"
-                                :disabled="$form->scheduleDateDisable"
-                                :listener="'setScheduleTimes'"
-                                :value="$form->schedule_date" lazy />
+
+                                <label for="datepicker" class="form-label">Select Date</label>
+                                <div wire:ignore>
+                                    <input
+                                        type="text"
+                                        id="datepicker"
+                                        class="form-control"
+                                        wire:model.defer="form.schedule_date"
+                                        x-data
+                                        x-init="
+                                            flatpickr($el, {
+                                                inline: true,
+                                                dateFormat: 'Y-m-d',
+                                                defaultDate: '{{ $form->schedule_date }}',
+                                                onChange: function(selectedDates, dateStr) {
+                                                    $wire.updateFormScheduleDate(dateStr )
+                                                }
+                                            })
+                                        "
+                                    >
+                                    @error('form.schedule_date')
+                                        <span class="text-danger"> {{$message}}</span>
+                                    @enderror
+                                </div>
                             @if($shiftMsg)
                                 <p class="text-success"><i
                                         class="far fa-check-circle"></i> {{$shiftMsg}}
                                 </p>
                             @endif
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+
                         </div>
                     </div>
                 </div>
@@ -205,46 +228,7 @@
                 </li>
             @endif
         </ul>
-        {{-- @if ($form->zipcodeInfo)
 
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr class="bg-light-primary">
-                            <th colspan="4" class="text-center color-primary ">Slot Info</th>
-                        </tr>
-                        <tr>
-                            <th class="bg-light">Day</th>
-                            @if ($form->type == 'at_home_maintenance')
-                                <th class="bg-light">AHM Slot</th>
-                                <th class="bg-light">Shift</th>
-                            @endif
-                            @if ($form->type == 'delivery' || $form->type == 'pickup')
-                                <th class="bg-light"> Delivery/Pickup Slot</th>
-                                <th class="bg-light">Shift</th>
-                            @endif
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($form->zipcodeInfo?->getZone?->schedule_days as $key => $day)
-                            @if ($day['enabled'])
-                                <tr>
-                                    <td>{{ ucfirst($key) }}</td>
-                                    @if ($form->type == 'at_home_maintenance')
-                                        <td>{{ $day['ahm_slot'] }}</td>
-                                        <td>{{ $form->serviceArray[$day['ahm_shift']] }}</td>
-                                    @endif
-                                    @if ($form->type == 'delivery' || $form->type == 'pickup')
-                                        <td>{{ $day['pickup_delivery_slot'] }}</td>
-                                        <td>{{ $form->serviceArray[$day['delivery_pickup_shift']] }}</td>
-                                    @endif
-                                </tr>
-                            @endif
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif --}}
         @if ($addressModal)
             <x-modal :toggle="$addressModal" size="md" :closeEvent="'closeAddress'">
                 <x-slot name="title">Recommended Address </x-slot>
@@ -290,22 +274,8 @@
                 </div>
             </x-modal>
         @endif
-        @if ($showTimeSlots)
-        <x-modal :toggle="$showTimeSlots" size="md" :closeEvent="'closeTimeSlot'">
-            <x-slot name="title"> Select Time Slots </x-slot>
-            <div class="mb-4">
-                <h6 class="text-primary">Available shifts for {{$this->form->schedule_date}}</h6>
-                <div class="list-group">
-                    @foreach ($form->scheduleDayShifts as $shift)
-                    <button type="button" class="list-group-item list-group-item-action" wire:click="adjustSlot('{{$shift['shift']}}', '{{$shift['slots']}}')">
-                        {{$shift['shift']}}
-                        <span class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $shift['slots'] }}</span>
-                    </button>
 
-                    @endforeach
-                </div>
-            </div>
-        </x-modal>
-        @endif
     </div>
+
 </div>
+
