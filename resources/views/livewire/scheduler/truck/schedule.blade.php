@@ -4,15 +4,16 @@
             <div class="card border-light shadow-sm mb-4 schedule-truck">
                 <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
                     <h3 class="h5 mb-0">
-                         Schedule zones
-                            <button type="button" wire:click="importDataModal" class="btn btn-sm float-end">
-                                <i class="fa fa-file-import" aria-hidden="true"></i> Import Data
-                            </button>
+                        Truck Schedule
+                        <button type="button" wire:click="importDataModal"
+                            class="btn btn-outline-secondary btn-sm float-end">
+                            <i class="fa fa-file-import" aria-hidden="true"></i> Import from CSV
+                        </button>
                     </h3>
                     <hr class="mb-0" />
                 </div>
                 <div class="card-body">
-                        <div id="calendar" wire:ignore></div>
+                    <div id="calendar" wire:ignore></div>
                 </div>
             </div>
         </div>
@@ -20,8 +21,8 @@
             <div class="card border-light shadow-sm mb-4">
                 <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
                     <h3 class="h5 mb-0">
-                         {{ empty($this->form->truckSchedule) ? ' Create Schedule for ' : 'Update Schedule ' }}
-                         {{$this->form->schedule_date}}
+                        {{ empty($this->form->truckSchedule) ? ' Create Schedule for ' : 'Update Schedule ' }}
+                        {{ Carbon\Carbon::parse($this->form->schedule_date)->toFormattedDayDateString() }}
                     </h3>
                     <hr class="mb-0" />
                 </div>
@@ -34,17 +35,17 @@
                             <div class="col-md-12 mb-3">
                                 {{-- <x-forms.select label="Zone" :options="$zones" :model="'form.zoneValue'"
                                     :label-index="'name'" :value-index="'id'"  default-option-label="- Select Zone -" /> --}}
-                                    <div class="form-group">
-                                        <select class="form-select" wire:model="form.zone" >
-                                            <option value=""> Select Zone</option>
-                                            @foreach ($zones as $zone)
-                                                <option value="{{$zone->id}}">{{$zone->name}}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('form.zone')
-                                            <span class="text-danger">{{$message}}</span>
-                                        @enderror
-                                    </div>
+                                <div class="form-group">
+                                    <select class="form-select" wire:model="form.zone">
+                                        <option value=""> Select Zone</option>
+                                        @foreach ($zones as $zone)
+                                            <option value="{{ $zone->id }}">{{ $zone->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('form.zone')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
                         {{-- start time --}}
@@ -54,11 +55,13 @@
                                 <label> Start Time</label>
                                 <div class="input-group">
                                     <!-- Time Input -->
-                                    <input type="time" wire:model="form.start_time" class="form-control" placeholder="Select Time" aria-label="Time input">
+                                    <input type="time" wire:model="form.start_time" class="form-control"
+                                        placeholder="Select Time" aria-label="Time input">
 
                                     <!-- AM/PM Select Dropdown -->
                                     <div class="input-group-append">
-                                        <select class="form-select" id="timePeriod" wire:model="form.timePeriod" name="timePeriod" >
+                                        <select class="form-select" id="timePeriod" wire:model="form.timePeriod"
+                                            name="timePeriod">
                                             <option value="AM">AM</option>
                                             <option value="PM">PM</option>
                                         </select>
@@ -66,11 +69,11 @@
 
                                 </div>
                                 @error('form.start_time')
-                                    <span class="text-danger">{{$message}}</span>
+                                    <span class="text-danger">{{ $message }}</span>
                                     <br>
                                 @enderror
                                 @error('form.timePeriod')
-                                    <span class="text-danger">{{$message}}</span>
+                                    <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
 
@@ -82,18 +85,18 @@
                                     <input type="time" wire:model="form.end_time" class="form-control">
                                     <!-- AM/PM Select Dropdown -->
                                     <div class="input-group-append">
-                                        <select class="form-select" wire:model="form.timePeriodEnd" >
+                                        <select class="form-select" wire:model="form.timePeriodEnd">
                                             <option value="AM">AM</option>
                                             <option value="PM">PM</option>
                                         </select>
                                     </div>
                                 </div>
                                 @error('form.end_time')
-                                    <span class="text-danger">{{$message}}</span>
+                                    <span class="text-danger">{{ $message }}</span>
                                     <br>
                                 @enderror
                                 @error('form.timePeriodEnd')
-                                    <span class="text-danger">{{$message}}</span>
+                                    <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
                         </div>
@@ -107,7 +110,8 @@
                         <div class="mt-2">
                             <button class="btn btn-primary" type="submit">
                                 <div wire:loading wire:target="submit">
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
                                 </div>
                                 {{ !empty($this->form->truckSchedule) ? 'Update' : 'Schedule' }}
                             </button>
@@ -133,7 +137,8 @@
                         x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-cancel="uploading = false"
                         x-on:livewire-upload-error="uploading = false">
                         <label>Import Truck Schedule File</label>
-                        <input type="file" id="csv-{{ $importIteration }}" class="form-control" wire:model="importForm.csvFile">
+                        <input type="file" id="csv-{{ $importIteration }}" class="form-control"
+                            wire:model="importForm.csvFile">
                         @error('importForm.csvFile')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -146,11 +151,12 @@
                         </div>
                     </div>
                     <div class="col-md-12 mt-2 mb-2 csv-table-col">
-                        @if(count($importForm->importErrorRows) > 0)
+                        @if (count($importForm->importErrorRows) > 0)
                             <div class="alert alert-light-warning color-warning">
-                                <i class="fas fa-info-circle"></i> Found {{count($importForm->importErrorRows)}} error rows in the uploaded file.
-                                    Please cross-check the file with the sample template and try again.
-                                    Alternatively, these rows will be skipped during processing.
+                                <i class="fas fa-info-circle"></i> Found {{ count($importForm->importErrorRows) }}
+                                error rows in the uploaded file.
+                                Please cross-check the file with the sample template and try again.
+                                Alternatively, these rows will be skipped during processing.
                             </div>
                         @endif
                     </div>
@@ -180,8 +186,7 @@
                     initialView: 'dayGridMonth',
                     height: 'auto',
                     datesSet: function(info) {
-                        $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {
-                        });
+                        $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {});
 
                     },
                     dateClick: function(info) {
@@ -199,8 +204,7 @@
                             clickedDateCell.classList.add('highlighted-date');
                         }
 
-                        $wire.handleDateClick(info.dateStr).then(() => {
-                        });
+                        $wire.handleDateClick(info.dateStr).then(() => {});
                     },
                 });
                 calendar.render();

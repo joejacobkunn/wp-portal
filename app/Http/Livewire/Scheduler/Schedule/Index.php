@@ -12,6 +12,7 @@ use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Truck;
 use App\Models\Scheduler\TruckSchedule;
+use App\Models\Scheduler\Zones;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -44,9 +45,11 @@ class Index extends Component
     public $activeWarehouse;
     public $shiftMsg;
     public $eventCount;
-    public $filteredSchedules;
+    public $filteredSchedules = [];
     public $selectedTruck;
     public $showSlotModal = false;
+    public $availableZones;
+    public $eventsData;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -153,8 +156,11 @@ class Index extends Component
 
     public function updatedFormSuffix($value)
     {
-        $this->form->getOrderInfo($value);
-        $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
+        if(is_numeric($value))
+        {
+            $this->form->getOrderInfo($value);
+            $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
+        }
     }
 
     public function updatedFormSxOrdernumber($value)
@@ -254,13 +260,20 @@ class Index extends Component
         $this->dateSelected = $date;
         $date = Carbon::parse($date)->format('Y-m-d');
 
-        $this->eventCount =  Schedule::where('schedule_date', $date)->count();
+        $this->eventsData =  Schedule::where('schedule_date', $date)->get();
 
-        $this->filteredSchedules = array_values(array_filter($this->truckInfo, function ($schedule) use ($date) {
-            return isset($schedule['schedule_date']) && $schedule['schedule_date'] === $date;
-        }));
-       if($this->filteredSchedules) {
-           $this->showTruckData( $this->filteredSchedules[0]['id']);
+        $this->availableZones = Zones::whereHas('truckSchedules', function ($query) use ($date) {
+            $query->where('schedule_date', $date);
+        })->get();
+
+        if ($this->availableZones->isNotEmpty()) {
+            $this->filteredSchedules = $this->getTrucks($this->availableZones->first()->id);
+        } else {
+            $this->filteredSchedules = [];
+        }
+
+        if($this->filteredSchedules) {
+           $this->showTruckData( $this->filteredSchedules['0']['id']);
            return;
        }
        $this->reset(['selectedTruck']);
@@ -282,6 +295,22 @@ class Index extends Component
         $this->getTruckData();
         $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Services' );
 
+    }
+
+    public function getTrucks($zoneId)
+    {
+        $date = $this->dateSelected;
+        $filteredData = array_filter($this->truckInfo, function ($item) use ($zoneId, $date) {
+            return $item['zone_id'] === $zoneId && $item['schedule_date'] === $date;
+        });
+        $filteredData = array_values($filteredData);
+        $uniqueData = array_values(array_reduce($filteredData, function ($carry, $item) {
+            if (!isset($carry[$item['truck_id']])) {
+                $carry[$item['truck_id']] = $item;
+            }
+            return $carry;
+        }, []));
+        return $uniqueData;
     }
 
     public function getTruckData()
@@ -318,10 +347,12 @@ class Index extends Component
                 'schedule_date' => $truck->schedule_date,
                 'service_type' => $truck->truck->service_type,
                 'truck_name' => $truck->truck->truck_name,
+                'truck_id' => $truck->truck->id,
                 'vin_number' => $truck->truck->vin_number,
                 'spanText' => $truck->zone->name. ' - '.$truck->truck->truck_name,
                 'whse' => $truck->truck->whse,
                 'zone' => $truck->zone->name,
+                'zone_id' => $truck->zone->id,
             ];
         })->toArray();
     }

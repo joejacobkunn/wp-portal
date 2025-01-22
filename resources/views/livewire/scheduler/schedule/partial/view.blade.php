@@ -9,6 +9,10 @@
             </div>
 
             <div class="card-body">
+                <div class="alert alert-light-primary color-primary">
+                    <i class="far fa-calendar-check"></i> This AHM is scheduled for
+                    {{ $form->schedule->schedule_date->toFormattedDateString() }}
+                </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
@@ -65,7 +69,7 @@
         <div class="card border rounded shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">
 
-                    <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Order Overview</h3>
+                <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Order Overview</h3>
             </div>
 
             <div class="card-body">
@@ -73,7 +77,8 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Order Number</h3>
-                            <p class="small pe-4">{{ $form->schedule->sx_ordernumber.'-'. $form->schedule->order_number_suffix}}</p>
+                            <p class="small pe-4">
+                                {{ $form->schedule->sx_ordernumber . '-' . $form->schedule->order_number_suffix }}</p>
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
@@ -85,7 +90,8 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Order Date</h3>
-                            <p class="small pe-4">{{ $form->orderInfo?->order_date?->format(config('app.default_datetime_format')) }}</p>
+                            <p class="small pe-4">
+                                {{ $form->orderInfo?->order_date?->format(config('app.default_datetime_format')) }}</p>
                         </div>
                     </li>
 
@@ -98,7 +104,7 @@
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
-                            <h3 class="h6 mb-1">CUstomer Name</h3>
+                            <h3 class="h6 mb-1">Customer Name</h3>
                             <p class="small pe-4">{{ $form->orderInfo?->customer->name ?? '---' }}</p>
                         </div>
                     </li>

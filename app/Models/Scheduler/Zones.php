@@ -54,4 +54,9 @@ class Zones extends Model
     {
         return $this->belongsToMany(Zipcode::class, 'zipcode_zone', 'zone_id', 'scheduler_zipcode_id');
     }
+
+    public function truckSchedules()
+    {
+        return $this->hasMany(TruckSchedule::class, 'zone_id');
+    }
 }
