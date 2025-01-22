@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::table('schedules', function (Blueprint $table) {
+            $table->dropColumn('schedule_time');
+            $table->unsignedBigInteger('truck_schedule_id');
+        });
     }
 
     /**
@@ -19,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('schedules', function (Blueprint $table) {
+            $table->time('schedule_time');
+            $table->dropColumn('truck_schedule_id');
+        });
     }
 };

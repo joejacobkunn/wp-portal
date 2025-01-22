@@ -38,8 +38,6 @@ class ScheduleForm extends Form
     public $shipping;
     public $saveRecommented = false;
     public $orderTotal;
-    public $scheduleDayShifts;
-    public $relatedShift;
     public $disabledDates;
     public $truckSchedules = [];
 
@@ -164,24 +162,26 @@ class ScheduleForm extends Form
         $validatedData['status'] = 'Scheduled';
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['order_number_suffix'] = $this->suffix;
-        $validatedData['schedule_time'] = $this->schedule_time;
+        $validatedData['truck_schedule_id'] = $this->schedule_time;
         if($this->saveRecommented) {
-            $validatedData['recommended_address'] = $this->recommendedAddress['postalAddress'];
+            $validatedData['recommended_address'] = array_intersect_key(
+                $this->recommendedAddress,
+                array_flip(['postalAddress', 'formattedAddress'])
+            );
         }
         $schedule = Schedule::create($validatedData);
-        // $shift = $this->getShift($this->orderInfo->warehouse->id, $schedule->type);
-        // $this->saveShiftData($shift, $this->schedule_date, $this->schedule_time, true);
         return $schedule;
     }
 
     public function init(Schedule $schedule)
     {
         $this->schedule = $schedule;
+        $this->schedule_time = $schedule->truck_schedule_id;
         $this->fill($schedule->toArray());
 
         $this->suffix = $schedule->order_number_suffix;
-        $this->relatedShift = $this->getShift($schedule->order->warehouse->id, $schedule->type);
-
+        $this->recommendedAddress =  $this->schedule->recommended_address;
+        $this->getTruckSchedules();
     }
 
     public function update()
@@ -189,10 +189,14 @@ class ScheduleForm extends Form
         $validatedData = $this->validate();
         $validatedData['order_suffix_number'] = $this->suffix;
         if($this->saveRecommented) {
-            $validatedData['recommended_address'] = $this->recommendedAddress['postalAddress'];
+            $validatedData['recommended_address'] =
+            array_intersect_key(
+                $this->recommendedAddress,
+                array_flip(['postalAddress', 'formattedAddress'])
+            );
         }
 
-        $validatedData['schedule_time'] = $this->schedule_time;
+        $validatedData['truck_schedule_id'] = $this->schedule_time;
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
@@ -283,30 +287,6 @@ class ScheduleForm extends Form
         $this->scheduleDateDisable = false;
     }
 
-    public function selectedDayShifts()
-    {
-        $date = Carbon::parse($this->schedule_date);
-        $selectedDay = strtolower($date->format('l'));
-        $month = strtolower($date->format('F'));
-        $shift = $this->getShift($this->orderInfo->warehouse->id, $this->type);
-        if(!isset($shift->shift[$month][$selectedDay])) {
-            return false;
-        }
-        $this->scheduleDayShifts = $shift->shift[$month][$selectedDay];
-        return true;
-    }
-
-    public function getShift($whse, $type)
-    {
-        if($this->type == 'at_home_maintenance') {
-            $type = 'ahm';
-        }
-        if($this->type == 'pickup' || $this->type == 'delivery') {
-            $type = 'delivery_pickup';
-        }
-        $shift = Shifts::where(['type'=>$type,'whse' => $whse])->first();
-        return $shift;
-    }
 
 
     public function getTruckSchedules()
@@ -318,7 +298,11 @@ class ScheduleForm extends Form
         ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
         ->where('orders.order_number', '=', $this->sx_ordernumber)
         ->where('truck_schedules.schedule_date', '=', $this->schedule_date)
-        ->select('truck_schedules.*', 'orders.id as order_id')
+        ->select(
+            'truck_schedules.*',
+            'orders.id as order_id',
+            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
+            )
         ->get();
     }
 }

@@ -70,6 +70,9 @@
 
                                 <p class="mb-0"><Strong>Ship To</Strong>
                                 </p>
+                                @if ($form->recommendedAddress)
+                                <p class="mb-0"> {{ $form->recommendedAddress['formattedAddress'] }}</p>
+                                @else
                                 <p class="mb-0">
                                     {{ $form->orderInfo->shipping_info['line'] .
                                         ', ' .
@@ -81,6 +84,8 @@
                                         ', ' .
                                         $form->orderInfo->shipping_info['zip'] }}
                                 </p>
+                                @endif
+
 
                                 <p class="mb-0">Shipping Instructions :
                                     {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
@@ -153,7 +158,10 @@
                         <div class="d-flex flex-column gap-2">
                             @forelse($this->form->truckSchedules as $schedule)
                             <div class="p-3 bg-light rounded border">
-                                <button type="button" wire:click="selectSlot({{$schedule->id}})"  class="list-group-item list-group-item-action">{{$schedule->start_time. ' - '.$schedule->end_time}}</button>
+                                <button type="button" wire:click="selectSlot({{$schedule->id}})"  class="list-group-item list-group-item-action">{{$schedule->start_time. ' - '.$schedule->end_time}}
+                                    <span
+                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$schedule->slots - $schedule->schedule_count}}</span>
+                                </button>
                             </div>
                             @empty
                                 <div class="p-3 bg-light rounded border">

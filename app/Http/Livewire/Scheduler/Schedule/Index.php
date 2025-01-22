@@ -199,7 +199,8 @@ class Index extends Component
     public function edit()
     {
         $this->showView = false;
-        $this->shiftMsg = 'service is scheduled for '.$this->form->schedule_date.' between '.$this->form->schedule_time;
+        $this->shiftMsg = 'service is scheduled for '.$this->form->schedule_date.' between '
+        .$this->form->schedule->truckSchedule->start_time. ' - '.$this->form->schedule->truckSchedule->end_time;
     }
 
     public function delete()
@@ -359,7 +360,6 @@ class Index extends Component
         $schedule = TruckSchedule::find($scheduleId);
         $this->form->schedule_time = $schedule->id;
         $this->shiftMsg = 'service is scheduled for '
-            .$this->form->schedule_date.' between '.$schedule->start_time. ' - '.$schedule->end_time ;
-
+            .$this->form->schedule_date.' between '.$schedule->start_time. ' - '.$schedule->end_time;
     }
 }
