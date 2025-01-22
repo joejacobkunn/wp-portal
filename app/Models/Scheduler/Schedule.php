@@ -18,7 +18,7 @@ class Schedule extends Model
         'sx_ordernumber',
         'order_number_suffix',
         'schedule_date',
-        'schedule_time',
+        'truck_schedule_id',
         'line_items',
         'status',
         'recommended_address',
@@ -38,5 +38,10 @@ class Schedule extends Model
     public function order()
     {
         return $this->belongsTo(Order::class, 'sx_ordernumber', 'order_number');
+    }
+
+    public function truckSchedule()
+    {
+        return $this->belongsTo(TruckSchedule::class, 'truck_schedule_id');
     }
 }

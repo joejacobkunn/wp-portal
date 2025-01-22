@@ -8,12 +8,14 @@ use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Shifts;
+use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\Zipcode;
 use App\Models\SX\Order as SXOrder;
 use App\Rules\ValidateScheduleDate;
 use App\Rules\ValidateScheduleTime;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Livewire\Form;
@@ -32,13 +34,15 @@ class ScheduleForm extends Form
     public $orderInfo;
     public $SXOrderInfo;
     public $zipcodeInfo;
-    public $scheduleDateDisable = true;
+    public $scheduleDateDisable = false;
     public $created_by;
     public $shipping;
     public $saveRecommented = false;
     public $orderTotal;
-    public $scheduleDayShifts;
-    public $relatedShift;
+    public $disabledDates;
+    public $truckSchedules = [];
+    public $enabledDates = [];
+    public $scheduleType;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -56,16 +60,12 @@ class ScheduleForm extends Form
         'type' => 'Schedule Type',
         'sx_ordernumber' => 'Order Number',
         'schedule_date' => 'Schedule Date',
+        'schedule_time' => 'Time Slot',
         'suffix' => 'Order Suffix',
     ];
     public $serviceArray = [
-        'am' => '9 AM - 1 PM',
-        'pm' => '1 PM - 6 PM',
         'at_home_maintenance' => 'At Home Maintenance',
         'delivery_pickup' => 'Delivery/Pickup',
-        'morning' => '8:00AM - 12:00PM',
-        'noon' => '12:00PM - 4:00PM',
-        'afternoon' => '4:00PM - 7:00PM',
     ];
     protected function rules()
     {
@@ -83,9 +83,17 @@ class ScheduleForm extends Form
             'schedule_date' => [
                 'required',
                 new ValidateScheduleDate($this->getActiveDays())
-            ]
+            ],
+            'schedule_time' =>'required'
         ];
 
+    }
+
+    public function messages()
+    {
+        return [
+            'schedule_time.required' => 'Time slot not selected',
+        ];
     }
 
     public function getOrderInfo($suffix)
@@ -106,7 +114,7 @@ class ScheduleForm extends Form
 
         if(is_null($this->orderInfo)) {
             $this->addError('sx_ordernumber', 'order not found');
-            $this->reset(['zipcodeInfo', 'scheduleDateDisable', 'schedule_date', 'schedule_time']);
+            $this->reset(['zipcodeInfo', 'scheduleDateDisable', 'schedule_date', 'schedule_time', 'enabledDates' ,'truckSchedules']);
             return;
         }
 
@@ -135,8 +143,8 @@ class ScheduleForm extends Form
             $this->alertConfig['params'] = 'tab=zip_code';
             return;
         }
-
         $this->checkServiceValidity();
+        $this->getEnabledDates();
 
     }
 
@@ -166,23 +174,26 @@ class ScheduleForm extends Form
         $validatedData['status'] = 'Scheduled';
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['order_number_suffix'] = $this->suffix;
-        $validatedData['schedule_time'] = $this->schedule_time;
+        $validatedData['truck_schedule_id'] = $this->schedule_time;
         if($this->saveRecommented) {
-            $validatedData['recommended_address'] = $this->recommendedAddress['postalAddress'];
+            $validatedData['recommended_address'] = array_intersect_key(
+                $this->recommendedAddress,
+                array_flip(['postalAddress', 'formattedAddress'])
+            );
         }
         $schedule = Schedule::create($validatedData);
-        $shift = $this->getShift($this->orderInfo->warehouse->id, $schedule->type);
-        $this->saveShiftData($shift, $this->schedule_date, $this->schedule_time, true);
         return $schedule;
     }
 
     public function init(Schedule $schedule)
     {
         $this->schedule = $schedule;
+        $this->schedule_time = $schedule->truck_schedule_id;
         $this->fill($schedule->toArray());
 
         $this->suffix = $schedule->order_number_suffix;
-        $this->relatedShift = $this->getShift($schedule->order->warehouse->id, $schedule->type);
+        $this->recommendedAddress =  $this->schedule->recommended_address;
+        $this->getTruckSchedules();
     }
 
     public function update()
@@ -190,16 +201,14 @@ class ScheduleForm extends Form
         $validatedData = $this->validate();
         $validatedData['order_suffix_number'] = $this->suffix;
         if($this->saveRecommented) {
-            $validatedData['recommended_address'] = $this->recommendedAddress['postalAddress'];
+            $validatedData['recommended_address'] =
+            array_intersect_key(
+                $this->recommendedAddress,
+                array_flip(['postalAddress', 'formattedAddress'])
+            );
         }
-        if($this->schedule->schedule_date != $this->schedule_date || $this->schedule_time != $this->schedule->schedule_time) {
 
-            $this->saveShiftData($this->relatedShift, $this->schedule->schedule_date, $this->schedule->schedule_time, false);
-            $shift = $this->getShift($this->orderInfo->warehouse->id, $this->type);
-            $this->saveShiftData($shift, $this->schedule_date, $this->schedule_time, true);
-
-        }
-        $validatedData['schedule_time'] = $this->schedule_time;
+        $validatedData['truck_schedule_id'] = $this->schedule_time;
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
@@ -230,18 +239,8 @@ class ScheduleForm extends Form
 
     public function getActiveDays()
     {
-
-        $type = $this->type;
-        if($this->type == 'delivery' || $this->type == 'pickup') {
-            $type = 'delivery_pickup';
-        }
-        if($this->type == 'at_home_maintenance') {
-            $type = 'ahm';
-        }
         $holidays = CalendarHoliday::listAll();
-
-        $shift = Shifts::where(['type' => $type, 'whse' => $this->orderInfo?->warehouse?->id])->first();
-        return ['holidays' => $holidays, 'shift' => $shift];
+        return ['holidays' => $holidays];
     }
 
     public function setAddress()
@@ -300,44 +299,45 @@ class ScheduleForm extends Form
         $this->scheduleDateDisable = false;
     }
 
-    public function selectedDayShifts()
+
+
+    public function getTruckSchedules()
     {
-        $date = Carbon::parse($this->schedule_date);
-        $selectedDay = strtolower($date->format('l'));
-        $month = strtolower($date->format('F'));
-        $shift = $this->getShift($this->orderInfo->warehouse->id, $this->type);
-        if(!isset($shift->shift[$month][$selectedDay])) {
-            return false;
-        }
-        $this->scheduleDayShifts = $shift->shift[$month][$selectedDay];
-        return true;
+
+        $this->truckSchedules = DB::table('truck_schedules')
+        ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
+        ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+        ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
+        ->where('orders.order_number', '=', $this->sx_ordernumber)
+        ->where('truck_schedules.schedule_date', '=', $this->schedule_date)
+        ->select(
+            'truck_schedules.*',
+            'orders.id as order_id',
+            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
+            )
+        ->get();
     }
 
-    public function getShift($whse, $type)
+    public function calendarInit()
     {
-        if($this->type == 'at_home_maintenance') {
-            $type = 'ahm';
-        }
-        if($this->type == 'pickup' || $this->type == 'delivery') {
-            $type = 'delivery_pickup';
-        }
-        $shift = Shifts::where(['type'=>$type,'whse' => $whse])->first();
-        return $shift;
+        $holidays = CalendarHoliday::listAll();
+        $this->disabledDates = array_column($holidays, 'date');
+        $this->schedule_date = Carbon::now()->format('Y-m-d');
     }
 
-    public function saveShiftData($shift, $schedule_date, $time, $operation)
+    public function getEnabledDates()
     {
-        $schedule_date = Carbon::parse($schedule_date);
-        $selectedDay = strtolower($schedule_date->format('l'));
-        $month = strtolower($schedule_date->format('F'));
-        $data =  $shift->shift;
-        foreach ($data[$month][$selectedDay] as &$item) {
-            if (isset($item['shift']) && $item['shift'] === $time) {
-                $item['slots'] = max(0, $operation ? $item['slots']-1 :  $item['slots']+1  );
-                break;
-            }
-        }
-        $shift->shift = $data;
-        $shift->save();
+        $schedules = DB::table('truck_schedules')
+        ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
+        ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+        ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
+        ->where('orders.order_number', '=', $this->sx_ordernumber)
+        ->select(
+            'truck_schedules.*',
+            'orders.id as order_id',
+            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
+            )
+        ->get();
+        $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
     }
 }
