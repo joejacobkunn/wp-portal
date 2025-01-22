@@ -16,7 +16,7 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <div class="form-group">
-                            <x-forms.input type="number" label="Order Number Suffix" model="form.suffix" lazy />
+                            <x-forms.input type="number" label="Order Number Suffix" model="form.suffix" :live="true"  lazy />
                         </div>
                     </div>
                     @if ($form->alertConfig['status'])
@@ -120,31 +120,59 @@
                             </ul>
                         </div>
                     @endif
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <x-forms.select label="Schedule Type" model="form.scheduleType"
+                            :options="[
+                                'one_year' => 'One year From Now',
+                                 'next_avail' =>'Next Available Date'
+                            ]"
+                            :hasAssociativeIndex="true"
+                            :listener="'scheduleTypeChange'"
+                            default-option-label="- None -"
+                            :selected="$form->scheduleType" :key="'schedule-' . now()" />
+                        </div>
+                    </div>
                     <div class="col-md-6">
                         <div class="form-group">
 
                                 <label for="datepicker" class="form-label">Select Date</label>
                                 <div wire:ignore>
                                     <input
-                                        type="text"
-                                        id="datepicker"
-                                        class="form-control"
-                                        wire:model.defer="form.schedule_date"
-                                        x-data="{
-                                            disabledDates: @js($form->disabledDates ?? [])
-                                        }"
-                                        x-init="
-                                                flatpickr($el, {
-                                                    inline: true,
-                                                    dateFormat: 'Y-m-d',
-                                                    defaultDate: '{{ $form->schedule_date }}',
-                                                    minDate: new Date(),
-                                                    disable: disabledDates,
-                                                    onChange: function(selectedDates, dateStr) {
-                                                        $wire.updateFormScheduleDate(dateStr);
-                                                    }
-                                                });"
-                                        >
+                                    type="text"
+                                    id="datepicker"
+                                    class="form-control"
+                                    wire:model.defer="form.schedule_date"
+                                    x-data="{
+                                        disabledDates: @js($form->disabledDates ?? []),
+                                        enabledDates: @js($form->enabledDates ?? []),
+                                        flatpickrInstance: null
+                                    }"
+                                    x-init="
+                                        flatpickrInstance = flatpickr($el, {
+                                            inline: true,
+                                            dateFormat: 'Y-m-d',
+                                            defaultDate: '{{ $form->schedule_date }}',
+                                            enable: enabledDates,
+                                            minDate: new Date(),
+                                            disable: disabledDates,
+                                            onChange: function(selectedDates, dateStr) {
+                                                $wire.updateFormScheduleDate(dateStr);
+                                            }
+                                        });"
+                                        x-on:enable-date-update.window="
+                                        if (flatpickrInstance) {
+                                            flatpickrInstance.set('enable', $event.detail.enabledDates);
+                                        }
+                                    "
+                                    x-on:set-current-date.window="
+                                    if (flatpickrInstance) {
+                                        const oneYearFromToday = new Date();
+                                        oneYearFromToday.setFullYear(oneYearFromToday.getFullYear() + 1);
+                                        flatpickrInstance.setDate($event.detail.activeDay, true);
+                                    }
+                                "
+                                >
 
                                 </div>
                                 @error('form.schedule_date')
@@ -158,7 +186,7 @@
                         <div class="d-flex flex-column gap-2">
                             @forelse($this->form->truckSchedules as $schedule)
                             <div class="p-3 bg-light rounded border">
-                                <button type="button" wire:click="selectSlot({{$schedule->id}})"  class="list-group-item list-group-item-action">{{$schedule->start_time. ' - '.$schedule->end_time}}
+                                <button type="button" wire:click="selectSlot({{$schedule->id}})"  class="list-group-item list-group-item-action ">{{$schedule->start_time. ' - '.$schedule->end_time}}
                                     <span
                                         class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$schedule->slots - $schedule->schedule_count}}</span>
                                 </button>
@@ -170,13 +198,18 @@
                             @endforelse
                         </div>
                     </div>
-                    @if($shiftMsg)
+                    @if($shiftMsg && ! $errors->has('form.schedule_time') )
                         <div class="col-md-12">
                             <p class="text-success"><i
                                     class="far fa-check-circle"></i> {{$shiftMsg}}
                             </p>
                         </div>
                     @endif
+                    @error('form.schedule_time')
+                        <div class="col-md-12">
+                            <span class="text-danger">{{$message}}</span>
+                        </div>
+                    @enderror
                 </div>
                 <div class="mt-2">
                     <button class="btn btn-primary" type="submit">

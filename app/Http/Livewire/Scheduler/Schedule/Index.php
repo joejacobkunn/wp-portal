@@ -56,7 +56,8 @@ class Index extends Component
         'closeAddress' => 'closeAddress',
         'setScheduleTimes' => 'setScheduleTimes',
         'closeTimeSlot' => 'closeTimeSlot',
-        'closeSlotModal' => 'closeSlotModal'
+        'closeSlotModal' => 'closeSlotModal',
+        'scheduleTypeChange' => 'scheduleTypeChange'
     ];
 
     public $actionButtons = [
@@ -115,9 +116,7 @@ class Index extends Component
         $this->form->type = $type;
         $this->showModal = true;
         $this->shiftMsg = null;
-        $holidays = CalendarHoliday::listAll();
-        $this->form->disabledDates = array_column($holidays, 'date');
-        $this->form->schedule_date = Carbon::now()->format('Y-m-d');
+        $this->form->calendarInit();
 
     }
 
@@ -155,6 +154,7 @@ class Index extends Component
     public function updatedFormSuffix($value)
     {
         $this->form->getOrderInfo($value);
+        $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
     }
 
     public function updatedFormSxOrdernumber($value)
@@ -201,6 +201,7 @@ class Index extends Component
         $this->showView = false;
         $this->shiftMsg = 'service is scheduled for '.$this->form->schedule_date.' between '
         .$this->form->schedule->truckSchedule->start_time. ' - '.$this->form->schedule->truckSchedule->end_time;
+        $this->form->calendarInit();
     }
 
     public function delete()
@@ -361,5 +362,17 @@ class Index extends Component
         $this->form->schedule_time = $schedule->id;
         $this->shiftMsg = 'service is scheduled for '
             .$this->form->schedule_date.' between '.$schedule->start_time. ' - '.$schedule->end_time;
+    }
+
+    public function scheduleTypeChange($field, $value)
+    {
+        $this->form->scheduleType = $value;
+        if($value == 'one_year') {
+            $date = Carbon::now()->addYear()->format('Y-m-d');
+        }
+        if($value == 'next_avail') {
+            $date = isset($this->form->enabledDates[0]) ? $this->form->enabledDates[0] : Carbon::now()->format('Y-m-d');
+        }
+        $this->dispatch('set-current-date', activeDay: $date);
     }
 }

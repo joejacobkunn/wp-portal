@@ -8,6 +8,7 @@ use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Shifts;
+use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\Zipcode;
 use App\Models\SX\Order as SXOrder;
 use App\Rules\ValidateScheduleDate;
@@ -40,6 +41,8 @@ class ScheduleForm extends Form
     public $orderTotal;
     public $disabledDates;
     public $truckSchedules = [];
+    public $enabledDates = [];
+    public $scheduleType;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -57,6 +60,7 @@ class ScheduleForm extends Form
         'type' => 'Schedule Type',
         'sx_ordernumber' => 'Order Number',
         'schedule_date' => 'Schedule Date',
+        'schedule_time' => 'Time Slot',
         'suffix' => 'Order Suffix',
     ];
     public $serviceArray = [
@@ -79,9 +83,17 @@ class ScheduleForm extends Form
             'schedule_date' => [
                 'required',
                 new ValidateScheduleDate($this->getActiveDays())
-            ]
+            ],
+            'schedule_time' =>'required'
         ];
 
+    }
+
+    public function messages()
+    {
+        return [
+            'schedule_time.required' => 'Time slot not selected',
+        ];
     }
 
     public function getOrderInfo($suffix)
@@ -102,7 +114,7 @@ class ScheduleForm extends Form
 
         if(is_null($this->orderInfo)) {
             $this->addError('sx_ordernumber', 'order not found');
-            $this->reset(['zipcodeInfo', 'scheduleDateDisable', 'schedule_date', 'schedule_time']);
+            $this->reset(['zipcodeInfo', 'scheduleDateDisable', 'schedule_date', 'schedule_time', 'enabledDates' ,'truckSchedules']);
             return;
         }
 
@@ -131,8 +143,8 @@ class ScheduleForm extends Form
             $this->alertConfig['params'] = 'tab=zip_code';
             return;
         }
-
         $this->checkServiceValidity();
+        $this->getEnabledDates();
 
     }
 
@@ -304,5 +316,28 @@ class ScheduleForm extends Form
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
             )
         ->get();
+    }
+
+    public function calendarInit()
+    {
+        $holidays = CalendarHoliday::listAll();
+        $this->disabledDates = array_column($holidays, 'date');
+        $this->schedule_date = Carbon::now()->format('Y-m-d');
+    }
+
+    public function getEnabledDates()
+    {
+        $schedules = DB::table('truck_schedules')
+        ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
+        ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+        ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
+        ->where('orders.order_number', '=', $this->sx_ordernumber)
+        ->select(
+            'truck_schedules.*',
+            'orders.id as order_id',
+            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
+            )
+        ->get();
+        $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
     }
 }
