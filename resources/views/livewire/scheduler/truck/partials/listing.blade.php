@@ -10,7 +10,7 @@
 
         <div class="card-body">
             <div class="alert alert-light-primary color-primary"><i class="fas fa-info-circle"></i> Add/Manage trucks and
-                configure rotations</div>
+                configure truck schedule</div>
             <livewire:scheduler.truck.table :whseId="$activeWarehouse->id" :key="'trucks-' . $activeWarehouse->id" />
         </div>
     </div>
