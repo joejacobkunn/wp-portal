@@ -29,7 +29,7 @@ class HtmlEditor extends Component
     /**
      * @var Integer Editor Height
      */
-    public $height = 250; //in px
+    public $height = 150; //in px
 
     /**
      * @var Integer Editor Max Height
