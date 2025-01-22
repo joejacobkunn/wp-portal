@@ -35,14 +35,46 @@
             <div class="col-3">
                 <div class="card border-light shadow-sm schedule-tab"  wire:key="order-info-panel-{{ $orderInfoStrng }}">
                     <div class="card-body">
-                        <h5 class="card-title">Trucks</h5>
+                        <h5 class="card-title">Zone Information</h5>
                         <div class="list-group">
-                            @if (count($this->filteredSchedules) > 0)
+                            @if (count($this->availableZones) > 0)
                             <div class="table-responsive">
                                 <table class="table table-bordered text-center">
                                     <thead>
                                         <tr>
-                                            <th>Truck Name</th>
+                                            <th>Zone</th>
+                                            <th>Service Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($this->availableZones as $zone)
+                                            <tr>
+                                                <td><a href="" wire:click.prevent="getTrucks({{$zone['id']}})">{{ $zone['name'] }}</a></td>
+                                                <td>{{ strtoupper($zone['service']) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                        <div class="alert alert-warning text-center opacity-50" role="alert">
+                            service not available this day
+                        </div>
+                        @endif
+                        </div>
+                    </div>
+
+                </div>
+                @if (count($this->filteredSchedules) > 0)
+                <div class="card border-light shadow-sm schedule-tab"  >
+                    <div class="card-body">
+                        <h5 class="card-title">Trucks</h5>
+                        <div class="list-group">
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Truck</th>
                                             <th>VIN Number</th>
                                             <th>Zone</th>
                                         </tr>
@@ -58,15 +90,11 @@
                                     </tbody>
                                 </table>
                             </div>
-                        @else
-                        <div class="alert alert-warning text-center opacity-50" role="alert">
-                            Trucks not available this day
-                        </div>
-                        @endif
                         </div>
                     </div>
 
                 </div>
+                @endif
                 @if($this->selectedTruck)
 
                 <div class="card border-light shadow-sm schedule-tab">
@@ -92,11 +120,27 @@
                         <h5 class="card-title">Events</h5>
 
                         <div class="list-group">
-                            <button type="button" class="list-group-item list-group-item-action">
-                                Number of Events <span
-                                class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$eventCount}}</span>
+                            @foreach ($eventsData as $event)
+                            <button type="button" wire:click="handleEventClick({{$event->id}})" class="list-group-item list-group-item-action">
+                                <div class="fw-bold">Order #{{$event->sx_ordernumber}}-{{$event->order->order_number_suffix}}
+                                    <span
+                                    class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                    @if($event->type == 'at_home_maintenance')
+                                        AHM
+                                    @elseif($event->type == 'pickup'|| $event->type == 'delivery')
+                                        PICKUP / DELIVERY
+                                    @else
+                                        N/A
+                                    @endif
+                                </span>
+                                </div>
+                                <p>{{$event->order->customer->name}}</p>
+                                <p>{{$event->order->customer->address}}</p>
+
                             </button>
+                            @endforeach
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -111,7 +155,6 @@
                     @include('livewire.scheduler.schedule.partial.view')
                 @endif
             </x-modal>
-
         @endif
         @if($showSlotModal)
         <x-modal :toggle="$showSlotModal" size="md" :closeEvent="'closeSlotModal'">
