@@ -14,6 +14,7 @@ use App\Models\Scheduler\Truck;
 use App\Models\Scheduler\TruckSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Illuminate\Support\Str;
 
@@ -114,6 +115,9 @@ class Index extends Component
         $this->form->type = $type;
         $this->showModal = true;
         $this->shiftMsg = null;
+        $holidays = CalendarHoliday::listAll();
+        $this->form->disabledDates = array_column($holidays, 'date');
+        $this->form->schedule_date = Carbon::now()->format('Y-m-d');
 
     }
 
@@ -347,5 +351,15 @@ class Index extends Component
     public function updateFormScheduleDate($date)
     {
         $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
+        $this->form->getTruckSchedules();
+    }
+
+    public function selectSlot($scheduleId)
+    {
+        $schedule = TruckSchedule::find($scheduleId);
+        $this->form->schedule_time = $schedule->id;
+        $this->shiftMsg = 'service is scheduled for '
+            .$this->form->schedule_date.' between '.$schedule->start_time. ' - '.$schedule->end_time ;
+
     }
 }

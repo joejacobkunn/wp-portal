@@ -63,6 +63,9 @@
                                     class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
                                     Use recommended address
                                 </a>
+                                <div wire:loading wire:target="showAdrress">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </div>
                                 <hr>
 
                                 <p class="mb-0"><Strong>Ship To</Strong>
@@ -122,34 +125,50 @@
                                         id="datepicker"
                                         class="form-control"
                                         wire:model.defer="form.schedule_date"
-                                        x-data
+                                        x-data="{
+                                            disabledDates: @js($form->disabledDates ?? [])
+                                        }"
                                         x-init="
-                                            flatpickr($el, {
-                                                inline: true,
-                                                dateFormat: 'Y-m-d',
-                                                defaultDate: '{{ $form->schedule_date }}',
-                                                onChange: function(selectedDates, dateStr) {
-                                                    $wire.updateFormScheduleDate(dateStr )
-                                                }
-                                            })
-                                        "
-                                    >
-                                    @error('form.schedule_date')
-                                        <span class="text-danger"> {{$message}}</span>
-                                    @enderror
+                                                flatpickr($el, {
+                                                    inline: true,
+                                                    dateFormat: 'Y-m-d',
+                                                    defaultDate: '{{ $form->schedule_date }}',
+                                                    minDate: new Date(),
+                                                    disable: disabledDates,
+                                                    onChange: function(selectedDates, dateStr) {
+                                                        $wire.updateFormScheduleDate(dateStr);
+                                                    }
+                                                });"
+                                        >
+
                                 </div>
-                            @if($shiftMsg)
-                                <p class="text-success"><i
-                                        class="far fa-check-circle"></i> {{$shiftMsg}}
-                                </p>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
+                                @error('form.schedule_date')
+                                    <span class="text-danger"> {{$message}}</span>
+                                @enderror
 
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Available Time Slots  on {{$this->form->schedule_date}}</label>
+                        <div class="d-flex flex-column gap-2">
+                            @forelse($this->form->truckSchedules as $schedule)
+                            <div class="p-3 bg-light rounded border">
+                                <button type="button" wire:click="selectSlot({{$schedule->id}})"  class="list-group-item list-group-item-action">{{$schedule->start_time. ' - '.$schedule->end_time}}</button>
+                            </div>
+                            @empty
+                                <div class="p-3 bg-light rounded border">
+                                    <button type="button"  class="list-group-item list-group-item-action" >No Slots Available</button>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                    @if($shiftMsg)
+                        <div class="col-md-12">
+                            <p class="text-success"><i
+                                    class="far fa-check-circle"></i> {{$shiftMsg}}
+                            </p>
+                        </div>
+                    @endif
                 </div>
                 <div class="mt-2">
                     <button class="btn btn-primary" type="submit">
