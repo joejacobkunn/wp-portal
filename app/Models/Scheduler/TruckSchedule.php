@@ -28,4 +28,15 @@ class TruckSchedule extends Model
     {
         return $this->belongsTo(Zones::class, 'zone_id');
     }
+
+    public function orderSchedule()
+    {
+        return $this->hasMany(Schedule::class, 'truck_schedule_id');
+    }
+
+    public function getScheduleCountAttribute()
+    {
+        return $this->orderSchedule()->count();
+    }
+
 }
