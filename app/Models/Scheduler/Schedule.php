@@ -26,6 +26,7 @@ class Schedule extends Model
     ];
 
     protected $casts = [
+        'schedule_date' => 'date',
         'line_items' => 'array',
         'recommended_address' => 'array',
     ];
