@@ -1,13 +1,18 @@
 <div class="form-group {{ $errors->has($model) ? 'is-invalid' : '' }}">
+
+    @php
+        $id = !empty($id) ? $id : str_replace('.', '_', $model . "_editor");
+    @endphp
+
     @if(!isset($noLabel))
         <label>{{ $label ?? '' }}</label>
     @endif
 
     <livewire:x-forms-htmleditor
-        :field-id="$id ?? ''"
+        :field-id="$id"
         :model="$model ?? ''"
         :value="$value ?? ''"
-        :height="$height ?? 200"
+        :height="$height ?? 150"
         :maxLength="$maxLength ?? '-1'"
         :placeholder="$placeholder ?? ''"
         :listener="$listener ?? 'fieldUpdated'"
