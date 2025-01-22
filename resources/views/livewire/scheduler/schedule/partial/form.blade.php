@@ -16,7 +16,8 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <div class="form-group">
-                            <x-forms.input type="number" label="Order Number Suffix" model="form.suffix" :live="true"  lazy />
+                            <x-forms.input type="number" label="Order Suffix" model="form.suffix" :live="true"
+                                lazy />
                         </div>
                     </div>
                     @if ($form->alertConfig['status'])
@@ -46,11 +47,14 @@
                                 <h4 class="alert-heading">Service Address</h4>
                                 <p>
                                 <address class="ms-1">
-                                    <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
-                                    {{ $form->orderInfo?->customer->address }}<br>
-                                    {{ $form->orderInfo?->customer->address2 }}<br>
-                                    {{ $form->orderInfo?->customer->city }}, {{ $form->orderInfo?->customer->state }}
-                                    {{ $form->orderInfo?->customer->zip }}<br>
+                                    <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
+                                    {{ $form->orderInfo?->shipping_info['line'] }}<br>
+                                    @if ($form->orderInfo?->shipping_info['line2'])
+                                        $form->orderInfo?->customer->address2 <br>
+                                    @endif
+                                    {{ $form->orderInfo?->shipping_info['city'] }},
+                                    {{ $form->orderInfo?->shipping_info['state'] }}
+                                    {{ $form->orderInfo?->shipping_info['zip'] }}<br>
                                     <i class="fa-solid fa-phone"></i>
                                     {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
                                     <i class="fa-solid fa-envelope"></i>
@@ -64,26 +68,27 @@
                                     Use recommended address
                                 </a>
                                 <div wire:loading wire:target="showAdrress">
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
                                 </div>
                                 <hr>
 
                                 <p class="mb-0"><Strong>Ship To</Strong>
                                 </p>
                                 @if ($form->recommendedAddress)
-                                <p class="mb-0"> {{ $form->recommendedAddress['formattedAddress'] }}</p>
+                                    <p class="mb-0"> {{ $form->recommendedAddress['formattedAddress'] }}</p>
                                 @else
-                                <p class="mb-0">
-                                    {{ $form->orderInfo->shipping_info['line'] .
-                                        ', ' .
-                                        $form->orderInfo->shipping_info['line2'] .
-                                        ', ' .
-                                        $form->orderInfo->shipping_info['city'] .
-                                        ', ' .
-                                        $form->orderInfo->shipping_info['state'] .
-                                        ', ' .
-                                        $form->orderInfo->shipping_info['zip'] }}
-                                </p>
+                                    <p class="mb-0">
+                                        {{ $form->orderInfo->shipping_info['line'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['line2'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['city'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['state'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['zip'] }}
+                                    </p>
                                 @endif
 
 
@@ -114,7 +119,7 @@
                                 </li>
                                 @foreach ($form->orderInfo->line_items['line_items'] as $item)
                                     <li class="list-group-item">
-                                       <p>{{$item['descrip'] . '(' . $item['shipprod'] . ')' }}</p>
+                                        <p>{{ $item['descrip'] . '(' . $item['shipprod'] . ')' }}</p>
                                     </li>
                                 @endforeach
                             </ul>
@@ -122,45 +127,37 @@
                     @endif
                     <div class="col-md-12">
                         <div class="form-group">
-                            <x-forms.select label="Schedule Type" model="form.scheduleType"
-                            :options="[
-                                'one_year' => 'One year From Now',
-                                 'next_avail' =>'Next Available Date'
+                            <x-forms.select label="Scheduling Priority" model="form.scheduleType" :options="[
+                                'next_avail' => 'Next Available Date',
+                                'one_year' => 'One Year from Now',
                             ]"
-                            :hasAssociativeIndex="true"
-                            :listener="'scheduleTypeChange'"
-                            default-option-label="- None -"
-                            :selected="$form->scheduleType" :key="'schedule-' . now()" />
+                                :hasAssociativeIndex="true" :listener="'scheduleTypeChange'" default-option-label="- None -" :selected="$form->scheduleType"
+                                :key="'schedule-' . now()" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
 
-                                <label for="datepicker" class="form-label">Select Date</label>
-                                <div wire:ignore>
-                                    <input
-                                    type="text"
-                                    id="datepicker"
-                                    class="form-control"
-                                    wire:model.defer="form.schedule_date"
-                                    x-data="{
+                            <label for="datepicker" class="form-label">Select Date</label>
+                            <div wire:ignore>
+                                <input type="text" id="datepicker" class="form-control"
+                                    wire:model.defer="form.schedule_date" x-data="{
                                         disabledDates: @js($form->disabledDates ?? []),
                                         enabledDates: @js($form->enabledDates ?? []),
                                         flatpickrInstance: null
                                     }"
-                                    x-init="
-                                        flatpickrInstance = flatpickr($el, {
-                                            inline: true,
-                                            dateFormat: 'Y-m-d',
-                                            defaultDate: '{{ $form->schedule_date }}',
-                                            enable: enabledDates,
-                                            minDate: new Date(),
-                                            disable: disabledDates,
-                                            onChange: function(selectedDates, dateStr) {
-                                                $wire.updateFormScheduleDate(dateStr);
-                                            }
-                                        });"
-                                        x-on:enable-date-update.window="
+                                    x-init="flatpickrInstance = flatpickr($el, {
+                                        inline: true,
+                                        dateFormat: 'Y-m-d',
+                                        defaultDate: '{{ $form->schedule_date }}',
+                                        enable: enabledDates,
+                                        minDate: new Date(),
+                                        disable: disabledDates,
+                                        onChange: function(selectedDates, dateStr) {
+                                            $wire.updateFormScheduleDate(dateStr);
+                                        }
+                                    });"
+                                    x-on:enable-date-update.window="
                                         if (flatpickrInstance) {
                                             flatpickrInstance.set('enable', $event.detail.enabledDates);
                                         }
@@ -171,43 +168,43 @@
                                         oneYearFromToday.setFullYear(oneYearFromToday.getFullYear() + 1);
                                         flatpickrInstance.setDate($event.detail.activeDay, true);
                                     }
-                                "
-                                >
+                                ">
 
-                                </div>
-                                @error('form.schedule_date')
-                                    <span class="text-danger"> {{$message}}</span>
-                                @enderror
+                            </div>
+                            @error('form.schedule_date')
+                                <span class="text-danger"> {{ $message }}</span>
+                            @enderror
 
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Available Time Slots  on {{$this->form->schedule_date}}</label>
+                        <label class="form-label">Available Time Slots on {{ $this->form->schedule_date }}</label>
                         <div class="d-flex flex-column gap-2">
                             @forelse($this->form->truckSchedules as $schedule)
-                            <div class="p-3 bg-light rounded border">
-                                <button type="button" wire:click="selectSlot({{$schedule->id}})"  class="list-group-item list-group-item-action ">{{$schedule->start_time. ' - '.$schedule->end_time}}
-                                    <span
-                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$schedule->slots - $schedule->schedule_count}}</span>
-                                </button>
-                            </div>
+                                <div class="p-3 bg-light rounded border">
+                                    <button type="button" wire:click="selectSlot({{ $schedule->id }})"
+                                        class="list-group-item list-group-item-action ">{{ $schedule->start_time . ' - ' . $schedule->end_time }}
+                                        <span
+                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $schedule->slots - $schedule->schedule_count }}</span>
+                                    </button>
+                                </div>
                             @empty
                                 <div class="p-3 bg-light rounded border">
-                                    <button type="button"  class="list-group-item list-group-item-action" >No Slots Available</button>
+                                    <button type="button" class="list-group-item list-group-item-action">No Slots
+                                        Available</button>
                                 </div>
                             @endforelse
                         </div>
                     </div>
-                    @if($shiftMsg && ! $errors->has('form.schedule_time') )
+                    @if ($shiftMsg && !$errors->has('form.schedule_time'))
                         <div class="col-md-12">
-                            <p class="text-success"><i
-                                    class="far fa-check-circle"></i> {{$shiftMsg}}
+                            <p class="text-success"><i class="far fa-check-circle"></i> {{ $shiftMsg }}
                             </p>
                         </div>
                     @endif
                     @error('form.schedule_time')
                         <div class="col-md-12">
-                            <span class="text-danger">{{$message}}</span>
+                            <span class="text-danger">{{ $message }}</span>
                         </div>
                     @enderror
                 </div>
@@ -338,4 +335,3 @@
     </div>
 
 </div>
-
