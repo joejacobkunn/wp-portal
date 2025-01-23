@@ -140,14 +140,14 @@ class Index extends Component
         if( $this->isEdit ) {
 
             $this->authorize('update', $this->form->schedule);
-            $this->form->update();
-            $this->alert('success', 'Schedule Updated');
+            $response = $this->form->update();
 
         } else {
             $this->authorize('store', Schedule::class);
-            $this->form->store();
-            $this->alert('success', 'New Shipping Scheduled!');
+            $response = $this->form->store();
         }
+
+        $this->alert($response['class'], $response['message']);
 
         return redirect()->route('schedule.index');
     }
@@ -340,10 +340,10 @@ class Index extends Component
                 'truck_name' => $truck->truck->truck_name,
                 'truck_id' => $truck->truck->id,
                 'vin_number' => $truck->truck->vin_number,
-                'spanText' => $truck->zone->name. ' - '.$truck->truck->truck_name,
+                'spanText' => $truck->zone?->name. ' - '.$truck->truck->truck_name,
                 'whse' => $truck->truck->whse,
-                'zone' => $truck->zone->name,
-                'zone_id' => $truck->zone->id,
+                'zone' => $truck->zone?->name,
+                'zone_id' => $truck->zone?->id,
                 'start_time' => $truck->start_time,
                 'end_time' => $truck->end_time,
                 'slots' => $truck->slots,

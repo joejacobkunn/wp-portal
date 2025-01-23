@@ -50,8 +50,8 @@
                                                         {{ $truck['zone'] }}</span></a>
                                                     => <a href="{{ route('scheduler.truck.show', ['truck' => $truck['truck_id']]) }}">
                                                             <span class="badge bg-light-secondary"><i
-                                                            class="fas fa-truck"></i>
-                                                        {{ $truck['truck_name'] }}</span></div>
+                                                                class="fas fa-truck"></i>{{ $truck['truck_name'] }}</span>
+                                                        </a></div>
                                                 <span class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
                                                         class="far fa-clock"></i>
                                                     {{$truck['start_time']}}

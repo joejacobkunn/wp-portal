@@ -219,11 +219,12 @@
                     @endif
 
                 <div class="mt-2">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-primary" type="submit" @if (!$form->ServiceStatus) disabled @endif>
                         <div wire:loading wire:target="submit">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
                         {{ $this->isEdit ? 'Update' : 'Schedule' }}
+
                     </button>
 
                 </div>

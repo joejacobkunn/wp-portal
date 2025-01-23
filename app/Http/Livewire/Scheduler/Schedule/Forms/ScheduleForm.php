@@ -34,7 +34,6 @@ class ScheduleForm extends Form
     public $orderInfo;
     public $SXOrderInfo;
     public $zipcodeInfo;
-    public $scheduleDateDisable = false;
     public $created_by;
     public $shipping;
     public $saveRecommented = false;
@@ -44,6 +43,7 @@ class ScheduleForm extends Form
     public $enabledDates = [];
     public $scheduleType;
     public $shiftMsg;
+    public $ServiceStatus = false;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -174,7 +174,7 @@ class ScheduleForm extends Form
         }
         foreach($this->zipcodeInfo?->zones as $zone)
         {
-            if($zone->service == 'ahm' && $value == 'at_home_maintenance' ) {
+            if(strtolower($zone->service) == 'ahm' && $value == 'at_home_maintenance' ) {
                 return true;
             }
             if($zone->service == 'Pickup/Delivery' ) {
@@ -190,6 +190,10 @@ class ScheduleForm extends Form
     public function store()
     {
         $validatedData = $this->validate();
+        if(!$this->ServiceStatus) {
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
+
         $validatedData['status'] = 'Scheduled';
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['order_number_suffix'] = $this->suffix;
@@ -202,7 +206,7 @@ class ScheduleForm extends Form
             );
         }
         $schedule = Schedule::create($validatedData);
-        return $schedule;
+        return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created'];
     }
 
     public function init(Schedule $schedule)
@@ -223,6 +227,9 @@ class ScheduleForm extends Form
     public function update()
     {
         $validatedData = $this->validate();
+        if(!$this->ServiceStatus) {
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
         $validatedData['order_suffix_number'] = $this->suffix;
         $validatedData['schedule_type'] = $this->scheduleType;
         if($this->saveRecommented) {
@@ -237,6 +244,7 @@ class ScheduleForm extends Form
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated'];
     }
 
     public function delete()
@@ -309,19 +317,18 @@ class ScheduleForm extends Form
 
     public function checkServiceValidity()
     {
-        $ServiceStatus = $this->checkServiceAVailability($this->type);
-        if(!$ServiceStatus) {
+        $this->ServiceStatus = $this->checkServiceAVailability($this->type);
+        if(!$this->ServiceStatus) {
             $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
             $this->alertConfig['icon'] = 'fa-times-circle';
             $this->alertConfig['class'] = 'danger';
-            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time']);
+            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time', 'scheduleType', 'shiftMsg']);
             return;
         }
         $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
         $this->alertConfig['icon'] = 'fa-check-circle';
         $this->alertConfig['class'] = 'success';
 
-        $this->scheduleDateDisable = false;
     }
 
 
