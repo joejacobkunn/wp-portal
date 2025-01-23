@@ -33,112 +33,80 @@
                 </div>
             </div>
             <div class="col-3">
-                <div class="card border-light shadow-sm schedule-tab"  wire:key="order-info-panel-{{ $orderInfoStrng }}">
-                    <div class="card-body">
-                        <h5 class="card-title">Zone Information</h5>
-                        <div class="list-group">
-                            @if (count($this->availableZones) > 0)
-                            <div class="table-responsive">
-                                <table class="table table-bordered text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>Zone</th>
-                                            <th>Service Type</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($this->availableZones as $zone)
-                                            <tr>
-                                                <td><a href="" wire:click.prevent="getTrucks({{$zone['id']}})">{{ $zone['name'] }}</a></td>
-                                                <td>{{ strtoupper($zone['service']) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                        <div class="alert alert-warning text-center opacity-50" role="alert">
-                            service not available this day
-                        </div>
-                        @endif
-                        </div>
-                    </div>
+                <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
 
-                </div>
-                @if (count($this->filteredSchedules) > 0)
-                <div class="card border-light shadow-sm schedule-tab"  >
-                    <div class="card-body">
-                        <h5 class="card-title">Trucks</h5>
-                        <div class="list-group">
-                            <div class="table-responsive">
-                                <table class="table table-bordered text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>Truck</th>
-                                            <th>VIN Number</th>
-                                            <th>Zone</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($this->filteredSchedules as $shift)
-                                            <tr>
-                                                <td><a href="" wire:click.prevent="showTruckData({{$shift['id']}})">{{ $shift['truck_name'] }}</a></td>
-                                                <td>{{ $shift['vin_number'] }}</td>
-                                                <td>{{ $shift['zone'] }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                @endif
-                @if($this->selectedTruck)
 
                 <div class="card border-light shadow-sm schedule-tab">
-                    <div class="card-body" wire:key="{{'slots-'.$selectedTruck->slots}}">
-                        <h5 class="card-title">Truck information</h5>
-                        <div class="list-group">
-                            <ul class="list-group">
-                                <li class="list-group-item">Truck : {{$selectedTruck->truck->truck_name}}</li>
-                                <li class="list-group-item">Type : {{$selectedTruck->truck->service_type}}</li>
-                                <li class="list-group-item">Shift : {{$selectedTruck->start_time. ' - '.$selectedTruck->end_time;}}</li>
-                                <li class="list-group-item">slots : {{$selectedTruck->slots}}
-                                    <button class="btn btn-sm btn-outline-primary ms-1 float-end"
-                                        type="button" wire:click="showSlotModalForm">Update</span>
-
-                                </li>
-                            </ul>
-                        </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Active Trucks and Zones</h5>
+                        @if (count($this->filteredSchedules) > 0)
+                            <div class="list-group">
+                                <ul class="list-group">
+                                    @foreach ($this->filteredSchedules as $shift)
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold"><span class="badge bg-light-primary"><i
+                                                            class="fas fa-truck"></i>
+                                                        {{ $shift['truck_name'] }}</span>
+                                                    => <span class="badge bg-light-secondary"><i
+                                                            class="fas fa-globe"></i>
+                                                        {{ $shift['zone'] }}</span></div>
+                                                <span class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
+                                                        class="far fa-clock"></i>
+                                                    9:00 AM
+                                                    -
+                                                    01:00
+                                                    PM</span>
+                                            </div>
+                                            <span class="badge bg-primary rounded-pill">5 / 8</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @else
+                            <div class="alert alert-light-warning color-warning"><i
+                                    class="bi bi-exclamation-triangle"></i> No active trucks or zones
+                            </div>
+                        @endif
                     </div>
+
                 </div>
-                @endif
+
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
                         <h5 class="card-title">Events</h5>
 
                         <div class="list-group">
-                            @foreach ($eventsData as $event)
-                            <button type="button" wire:click="handleEventClick({{$event->id}})" class="list-group-item list-group-item-action">
-                                <div class="fw-bold">Order #{{$event->sx_ordernumber}}-{{$event->order->order_number_suffix}}
-                                    <span
-                                    class="badge bg-secondary badge-pill badge-round ms-1 float-end">
-                                    @if($event->type == 'at_home_maintenance')
-                                        AHM
-                                    @elseif($event->type == 'pickup'|| $event->type == 'delivery')
-                                        PICKUP / DELIVERY
-                                    @else
-                                        N/A
-                                    @endif
-                                </span>
-                                </div>
-                                <p>{{$event->order->customer->name}}</p>
-                                <p>{{$event->order->customer->address}}</p>
+                            @forelse ($eventsData as $event)
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">Order
+                                            #{{ $event->sx_ordernumber }}-{{ $event->order->order_number_suffix }}
+                                        </h5>
+                                        <small>
+                                            <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
+                                                @if ($event->type == 'at_home_maintenance')
+                                                    AHM
+                                                @elseif($event->type == 'pickup' || $event->type == 'delivery')
+                                                    P / D
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </span>
+                                        </small>
+                                    </div>
+                                    <p class="mb-1">
+                                        {{ $event->order->customer->name }} - SX#
+                                        {{ $event->order->customer->sx_customer_number }}
+                                    </p>
+                                    <small>{{ $event->order->shipping_info['line'] . ', ' . $event->order->shipping_info['city'] . ', ' . $event->order->shipping_info['state'] . ', ' . $event->order->shipping_info['zip'] }}</small>
+                                </a>
+                            @empty
+                                <div class="alert alert-light-warning color-warning"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    No events for today</div>
+                            @endforelse
 
-                            </button>
-                            @endforeach
                         </div>
 
                     </div>
@@ -156,27 +124,27 @@
                 @endif
             </x-modal>
         @endif
-        @if($showSlotModal)
-        <x-modal :toggle="$showSlotModal" size="md" :closeEvent="'closeSlotModal'">
-            <x-slot name="title">Update Slots</x-slot>
-            <form wire:submit.prevent="updateSlot()">
-                <div class="row w-100">
-                    <div class="col-md-12 mb-3">
-                        <div class="form-group">
-                            <x-forms.input type="number" label="Slots" model="truckScheduleForm.slots" lazy />
+        @if ($showSlotModal)
+            <x-modal :toggle="$showSlotModal" size="md" :closeEvent="'closeSlotModal'">
+                <x-slot name="title">Update Slots</x-slot>
+                <form wire:submit.prevent="updateSlot()">
+                    <div class="row w-100">
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group">
+                                <x-forms.input type="number" label="Slots" model="truckScheduleForm.slots" lazy />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="mt-2 float-start">
-                    <button type="submit" class="btn btn-primary">
-                        <div wire:loading wire:target="updateSlot">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-                        Update
-                    </button>
-                </div>
-            </form>
-        </x-modal>
+                    <div class="mt-2 float-start">
+                        <button type="submit" class="btn btn-primary">
+                            <div wire:loading wire:target="updateSlot">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                            Update
+                        </button>
+                    </div>
+                </form>
+            </x-modal>
         @endif
     </x-slot>
 </x-page>
@@ -392,8 +360,7 @@
                     setZoneInDayCells()
                 });
 
-                function setZoneInDayCells()
-                {
+                function setZoneInDayCells() {
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
                         span.remove();
                     });

@@ -154,8 +154,11 @@ class Index extends Component
 
     public function updatedFormSuffix($value)
     {
-        $this->form->getOrderInfo($value);
-        $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
+        if(is_numeric($value))
+        {
+            $this->form->getOrderInfo($value);
+            $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
+        }
     }
 
     public function updatedFormSxOrdernumber($value)

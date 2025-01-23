@@ -104,9 +104,15 @@ class ScheduleForm extends Form
         $this->resetValidation(['sx_ordernumber', 'suffix']);
         $this->alertConfig['status'] = false;
         if(!$this->sx_ordernumber) {
-            $this->addError('sx_ordernumber', 'order number is required');
+            $this->addError('sx_ordernumber', 'Order Number is required');
             return;
         }
+
+        if(!is_numeric($suffix)) {
+            $this->addError('sx_ordernumber', 'Order Suffix is required');
+            return;
+        }
+
 
         $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
             ->first();
@@ -166,7 +172,7 @@ class ScheduleForm extends Form
         }
         foreach($this->zipcodeInfo?->zones as $zone)
         {
-            if($zone->service == 'AHM' && $value == 'at_home_maintenance' ) {
+            if($zone->service == 'ahm' && $value == 'at_home_maintenance' ) {
                 return true;
             }
             if($zone->service == 'Pickup/Delivery' ) {
