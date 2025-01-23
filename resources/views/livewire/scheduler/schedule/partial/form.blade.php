@@ -11,7 +11,8 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
-                            <x-forms.input type="number" label="Order Number" model="form.sx_ordernumber" lazy />
+                            <x-forms.input type="number" label="Order Number" model="form.sx_ordernumber" :live="true"
+                                 lazy />
                         </div>
                     </div>
                     <div class="col-md-6 mb-2">
@@ -20,200 +21,210 @@
                                 lazy />
                         </div>
                     </div>
-                    @if ($form->alertConfig['status'])
-                        <div class="col-md-12 mb-1">
-                            <p class="text-{{ $form->alertConfig['class'] }}"><i
-                                    class="far {{ $form->alertConfig['icon'] }}"></i> {!! $form->alertConfig['message'] !!}
-                                @if ($form->alertConfig['show_url'])
-                                    <a class="float-end" target="_blank"
-                                        href="{{ route($form->alertConfig['url']) }}?{{ $form->alertConfig['params'] }}"
-                                        target="_blank"> {{ $form->alertConfig['urlText'] }} <i
-                                            class="fas fa-external-link-alt"></i></a>
-                                @endif
-                            </p>
-                        </div>
-                    @endif
-                    <div wire:loading wire:target="form.suffix" class="mb-3">
-                        <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
-                        <span>Please wait, processing order...</span>
-                    </div>
-
-                    @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
-                        <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
-                            <div class="alert alert-light-primary color-primary" role="alert">
-                                <span class="badge bg-light-warning float-end"><a target="_blank" href=""><i
-                                            class="fas fa-external-link-alt"></i> CustNo
-                                        #{{ $form->orderInfo?->sx_customer_number }}</a></span>
-                                <h4 class="alert-heading">Service Address</h4>
-                                <p>
-                                <address class="ms-1">
-                                    <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
-                                    {{ $form->orderInfo?->shipping_info['line'] }}<br>
-                                    @if ($form->orderInfo?->shipping_info['line2'])
-                                        $form->orderInfo?->customer->address2 <br>
-                                    @endif
-                                    {{ $form->orderInfo?->shipping_info['city'] }},
-                                    {{ $form->orderInfo?->shipping_info['state'] }}
-                                    {{ $form->orderInfo?->shipping_info['zip'] }}<br>
-                                    <i class="fa-solid fa-phone"></i>
-                                    {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
-                                    <i class="fa-solid fa-envelope"></i>
-                                    {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
-
-                                </address>
-                                </p>
-
-                                <a href="#" wire:click.prevent="showAdrress()"
-                                    class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
-                                    Use recommended address
-                                </a>
-                                <div wire:loading wire:target="showAdrress">
-                                    <span class="spinner-border spinner-border-sm" role="status"
-                                        aria-hidden="true"></span>
-                                </div>
-                                <hr>
-
-                                <p class="mb-0"><Strong>Ship To</Strong>
-                                </p>
-                                @if ($form->recommendedAddress)
-                                    <p class="mb-0"> {{ $form->recommendedAddress['formattedAddress'] }}</p>
-                                @else
-                                    <p class="mb-0">
-                                        {{ $form->orderInfo->shipping_info['line'] .
-                                            ', ' .
-                                            $form->orderInfo->shipping_info['line2'] .
-                                            ', ' .
-                                            $form->orderInfo->shipping_info['city'] .
-                                            ', ' .
-                                            $form->orderInfo->shipping_info['state'] .
-                                            ', ' .
-                                            $form->orderInfo->shipping_info['zip'] }}
-                                    </p>
-                                @endif
-
-
-                                <p class="mb-0">Shipping Instructions :
-                                    {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12 mb-1">
-                            <p class="text-success"><i class="fas fa-truck"></i>
-                                Per google, the driving distance is {{ $form->shipping['distance'] }} and takes roughly
-                                {{ $form->shipping['duration'] }}
-                            </p>
-                        </div>
-                    @endif
-                    @if ($this->form->saveRecommented)
-                        <div class="col-md-12 mb-3">
-                            <p class="text-success"><i class="fas fa-check-circle"></i>
-                                Using recommended address from google
-                            </p>
-                        </div>
-                    @endif
-                    @if ($form->orderInfo?->line_items)
-                        <div class="col-md-12 mb-2">
-                            <ul class="list-group">
-                                <li class="list-group-item list-group-item-primary">
-                                    <span class="float-end fst-italic fw-light">Select all that apply</span>
-                                    Line Items
-                                </li>
-                                @foreach ($form->orderInfo->line_items['line_items'] as $item)
-                                    <li class="list-group-item">
-                                        <p>{{ $item['descrip'] . '(' . $item['shipprod'] . ')' }}</p>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <x-forms.select label="Scheduling Priority" model="form.scheduleType" :options="[
-                                'next_avail' => 'Next Available Date',
-                                'one_year' => 'One Year from Now',
-                            ]"
-                                :hasAssociativeIndex="true" :listener="'scheduleTypeChange'" default-option-label="- None -" :selected="$form->scheduleType"
-                                :key="'schedule-' . now()" />
+                    <div class="col-md-12 mb-2">
+                        <div wire:loading wire:target="form.suffix" class="mb-3">
+                            <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+                            <span>Please wait, processing order...</span>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-
-                            <label for="datepicker" class="form-label">Select Date</label>
-                            <div wire:ignore>
-                                <input type="text" id="datepicker" class="form-control"
-                                    wire:model.defer="form.schedule_date" x-data="{
-                                        disabledDates: @js($form->disabledDates ?? []),
-                                        enabledDates: @js($form->enabledDates ?? []),
-                                        flatpickrInstance: null
-                                    }"
-                                    x-init="flatpickrInstance = flatpickr($el, {
-                                        inline: true,
-                                        dateFormat: 'Y-m-d',
-                                        defaultDate: '{{ $form->schedule_date }}',
-                                        enable: enabledDates,
-                                        minDate: new Date(),
-                                        disable: disabledDates,
-                                        onChange: function(selectedDates, dateStr) {
-                                            $wire.updateFormScheduleDate(dateStr);
-                                        }
-                                    });"
-                                    x-on:enable-date-update.window="
-                                        if (flatpickrInstance) {
-                                            flatpickrInstance.set('enable', $event.detail.enabledDates);
-                                        }
-                                    "
-                                    x-on:set-current-date.window="
-                                    if (flatpickrInstance) {
-                                        const oneYearFromToday = new Date();
-                                        oneYearFromToday.setFullYear(oneYearFromToday.getFullYear() + 1);
-                                        flatpickrInstance.setDate($event.detail.activeDay, true);
-                                    }
-                                ">
-
-                            </div>
-                            @error('form.schedule_date')
-                                <span class="text-danger"> {{ $message }}</span>
-                            @enderror
-
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Available Time Slots on {{ $this->form->schedule_date }}</label>
-                        <div class="d-flex flex-column gap-2">
-                            @forelse($this->form->truckSchedules as $schedule)
-                                <div class="p-3 bg-light rounded border">
-                                    <button type="button" wire:click="selectSlot({{ $schedule->id }})"
-                                        class="list-group-item list-group-item-action ">{{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                        <span
-                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $schedule->slots - $schedule->schedule_count }}</span>
-                                    </button>
-                                </div>
-                            @empty
-                                <div class="p-3 bg-light rounded border">
-                                    <button type="button" class="list-group-item list-group-item-action">No Slots
-                                        Available</button>
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-                    @if ($shiftMsg && !$errors->has('form.schedule_time'))
-                        <div class="col-md-12">
-                            <p class="text-success"><i class="far fa-check-circle"></i> {{ $shiftMsg }}
-                            </p>
-                        </div>
-                    @endif
-                    @error('form.schedule_time')
-                        <div class="col-md-12">
-                            <span class="text-danger">{{ $message }}</span>
-                        </div>
-                    @enderror
                 </div>
+
+                    @if ($form->orderInfo)
+                        <div class="row w-100" wire:loading.remove wire:target="form.suffix">
+                            @if ($form->alertConfig['status'])
+                                <div class="col-md-12 mb-1">
+                                    <p class="text-{{ $form->alertConfig['class'] }}"><i
+                                            class="far {{ $form->alertConfig['icon'] }}"></i> {!! $form->alertConfig['message'] !!}
+                                        @if ($form->alertConfig['show_url'])
+                                            <a class="float-end" target="_blank"
+                                                href="{{ route($form->alertConfig['url']) }}?{{ $form->alertConfig['params'] }}"
+                                                target="_blank"> {{ $form->alertConfig['urlText'] }} <i
+                                                    class="fas fa-external-link-alt"></i></a>
+                                        @endif
+                                    </p>
+                                </div>
+                            @endif
+
+
+                            @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
+                                <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
+                                    <div class="alert alert-light-primary color-primary" role="alert">
+                                        <span class="badge bg-light-warning float-end"><a target="_blank" href=""><i
+                                                    class="fas fa-external-link-alt"></i> CustNo
+                                                #{{ $form->orderInfo?->sx_customer_number }}</a></span>
+                                        <h4 class="alert-heading">Service Address</h4>
+                                        <p>
+                                        <address class="ms-1">
+                                            <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
+                                            {{ $form->orderInfo?->shipping_info['line'] }}<br>
+                                            @if ($form->orderInfo?->shipping_info['line2'])
+                                                {{ $form->orderInfo?->customer->address2 }} <br>
+                                            @endif
+                                            {{ $form->orderInfo?->shipping_info['city'] }},
+                                            {{ $form->orderInfo?->shipping_info['state'] }}
+                                            {{ $form->orderInfo?->shipping_info['zip'] }}<br>
+                                            <i class="fa-solid fa-phone"></i>
+                                            {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
+                                            <i class="fa-solid fa-envelope"></i>
+                                            {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
+
+                                        </address>
+                                        </p>
+
+                                        <a href="#" wire:click.prevent="showAdrress()"
+                                            class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
+                                            Use recommended address
+                                        </a>
+                                        <div wire:loading wire:target="showAdrress">
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
+                                        </div>
+                                        <hr>
+
+                                        <p class="mb-0"><Strong>Ship To</Strong>
+                                        </p>
+                                        @if ($form->recommendedAddress)
+                                            <p class="mb-0"> {{ $form->recommendedAddress['formattedAddress'] }}</p>
+                                        @else
+                                            <p class="mb-0">
+                                                {{ $form->orderInfo->shipping_info['line'] .
+                                                    ', ' .
+                                                    $form->orderInfo->shipping_info['line2'] .
+                                                    ', ' .
+                                                    $form->orderInfo->shipping_info['city'] .
+                                                    ', ' .
+                                                    $form->orderInfo->shipping_info['state'] .
+                                                    ', ' .
+                                                    $form->orderInfo->shipping_info['zip'] }}
+                                            </p>
+                                        @endif
+
+
+                                        <p class="mb-0">Shipping Instructions :
+                                            {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mb-1">
+                                    <p class="text-success"><i class="fas fa-truck"></i>
+                                        Per google, the driving distance is {{ $form->shipping['distance'] }} and takes roughly
+                                        {{ $form->shipping['duration'] }}
+                                    </p>
+                                </div>
+                            @endif
+                            @if ($this->form->saveRecommented)
+                                <div class="col-md-12 mb-3">
+                                    <p class="text-success"><i class="fas fa-check-circle"></i>
+                                        Using recommended address from google
+                                    </p>
+                                </div>
+                            @endif
+                            @if ($form->orderInfo?->line_items)
+                                <div class="col-md-12 mb-2">
+                                    <ul class="list-group">
+                                        <li class="list-group-item list-group-item-primary">
+                                            Line Items
+                                        </li>
+                                        @foreach ($form->orderInfo->line_items['line_items'] as $item)
+                                            <li class="list-group-item">
+                                                <p>{{$item['descrip'] . '(' . $item['shipprod'] . ')' }}</p>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <x-forms.select label="Scheduling Priority" model="form.scheduleType" :options="[
+                                        'next_avail' => 'Next Available Date',
+                                        'one_year' => 'One Year from Now',
+                                    ]"
+                                        :hasAssociativeIndex="true" :listener="'scheduleTypeChange'" default-option-label="- None -" :selected="$form->scheduleType"
+                                        :key="'schedule-' . now()" />
+                                </div>
+                            </div>
+                                <div class="col-md-6 {{$form->scheduleType ? '' : 'd-none'}}">
+                                    <div class="form-group">
+                                        <label for="datepicker" class="form-label">Select Date</label>
+                                        <div wire:ignore>
+                                            <input type="text" id="datepicker" class="form-control"
+                                                wire:model.defer="form.schedule_date" x-data="{
+                                                    enabledDates: @js($form->enabledDates ?? []),
+                                                    flatpickrInstance: null
+                                                }"
+                                            x-init="flatpickrInstance = flatpickr($el, {
+                                                inline: true,
+                                                dateFormat: 'Y-m-d',
+                                                defaultDate: '{{ $form->schedule_date }}',
+                                                enable: enabledDates,
+                                                minDate: new Date(),
+                                                onChange: function(selectedDates, dateStr) {
+                                                    $wire.updateFormScheduleDate(dateStr);
+                                                }
+                                            });"
+                                            x-on:enable-date-update.window="
+                                                if (flatpickrInstance) {
+                                                    flatpickrInstance.set('enable', $event.detail.enabledDates);
+                                                }
+                                            "
+                                            x-on:set-current-date.window="
+                                                if (flatpickrInstance) {
+                                                    flatpickrInstance.setDate($event.detail.activeDay, true);
+                                                }
+                                        ">
+
+                                    </div>
+                                    @error('form.schedule_date')
+                                        <span class="text-danger"> {{ $message }}</span>
+                                    @enderror
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6 {{$form->scheduleType ? '' : 'd-none'}}">
+                                    <label class="form-label">Available Time Slots on {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
+                                    <div class="d-flex flex-column gap-2">
+
+                                        @forelse($this->form->truckSchedules as $schedule)
+                                            <div class="p-3 bg-light rounded border">
+                                                <button type="button" wire:click="selectSlot({{$schedule->id}})"
+                                                    class="list-group-item list-group-item-action ">{{$schedule->start_time. ' - '.$schedule->end_time}}
+                                                    <span
+                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$schedule->schedule_count }} / {{$schedule->slots}}</span>
+                                                    <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
+                                                        class="fas fa-globe"></i>
+                                                            {{$schedule->zone_name}} => <i
+                                                            class="fas fa-truck"></i>{{$schedule->truck_name}}
+                                                    </p>
+                                                </button>
+                                            </div>
+                                        @empty
+                                            <div class="p-3 bg-light rounded border">
+                                                <button type="button"  class="list-group-item list-group-item-action" >No Slots
+                                                    Available</button>
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                                @if($form->shiftMsg )
+                                    <div class="col-md-12">
+                                        <p class="text-success"><i class="far fa-check-circle"></i> {{$form->shiftMsg}}
+                                        </p>
+                                    </div>
+                                @endif
+                                @error('form.schedule_time')
+                                    <div class="col-md-12">
+                                        <span class="text-danger">{{$message}}</span>
+                                    </div>
+                                @enderror
+                        </div>
+                    @endif
+
                 <div class="mt-2">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-primary" type="submit" @if (!$form->ServiceStatus) disabled @endif>
                         <div wire:loading wire:target="submit">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
                         {{ $this->isEdit ? 'Update' : 'Schedule' }}
+
                     </button>
 
                 </div>
@@ -285,9 +296,22 @@
                 </li>
             @endif
         </ul>
+        @if (isset($form->zipcodeInfo))
+            <ul class="list-group mb-3">
+                <li class="list-group-item list-group-item-primary">
+                    Zones
+                </li>
+                @foreach ($form->zipcodeInfo->zones as $zone)
+                <li class="list-group-item"><strong>{{$zone->name}}</strong>
+                    <span class="badge bg-light-warning float-end">{{strtoupper($zone->service)}}</span>
+                    <small></small>
+                </li>
+                @endforeach
+            </ul>
+        @endif
 
         @if ($addressModal)
-            <x-modal :toggle="$addressModal" size="md" :closeEvent="'closeAddress'">
+            <x-modal toggle="addressModal" size="md" :closeEvent="'closeAddress'">
                 <x-slot name="title">Recommended Address </x-slot>
                 <div class="mb-4">
                     <h6 class="text-primary">Current Address</h6>

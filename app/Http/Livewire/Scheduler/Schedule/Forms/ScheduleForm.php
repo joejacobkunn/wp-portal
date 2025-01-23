@@ -34,7 +34,6 @@ class ScheduleForm extends Form
     public $orderInfo;
     public $SXOrderInfo;
     public $zipcodeInfo;
-    public $scheduleDateDisable = false;
     public $created_by;
     public $shipping;
     public $saveRecommented = false;
@@ -43,6 +42,8 @@ class ScheduleForm extends Form
     public $truckSchedules = [];
     public $enabledDates = [];
     public $scheduleType;
+    public $shiftMsg;
+    public $ServiceStatus = false;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -59,6 +60,7 @@ class ScheduleForm extends Form
     protected $validationAttributes = [
         'type' => 'Schedule Type',
         'sx_ordernumber' => 'Order Number',
+        'scheduleType' => 'Schedule Type',
         'schedule_date' => 'Schedule Date',
         'schedule_time' => 'Time Slot',
         'suffix' => 'Order Suffix',
@@ -84,7 +86,8 @@ class ScheduleForm extends Form
                 'required',
                 new ValidateScheduleDate($this->getActiveDays())
             ],
-            'schedule_time' =>'required'
+            'scheduleType' =>'required',
+            'schedule_time' =>'required',
         ];
 
     }
@@ -120,7 +123,17 @@ class ScheduleForm extends Form
 
         if(is_null($this->orderInfo)) {
             $this->addError('sx_ordernumber', 'order not found');
-            $this->reset(['zipcodeInfo', 'scheduleDateDisable', 'schedule_date', 'schedule_time', 'enabledDates' ,'truckSchedules']);
+            $this->reset([
+                'zipcodeInfo',
+                'scheduleDateDisable',
+                'schedule_date',
+                'schedule_time',
+                'enabledDates' ,
+                'truckSchedules',
+                'shiftMsg',
+                'scheduleType'
+
+            ]);
             return;
         }
 
@@ -136,7 +149,7 @@ class ScheduleForm extends Form
 
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
         $this->getDistance();
-        $this->zipcodeInfo = Zipcode::where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
+        $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
         $this->reset('alertConfig');
         $this->alertConfig['status'] = true;
         if(!$this->zipcodeInfo) {
@@ -161,7 +174,7 @@ class ScheduleForm extends Form
         }
         foreach($this->zipcodeInfo?->zones as $zone)
         {
-            if($zone->service == 'ahm' && $value == 'at_home_maintenance' ) {
+            if(strtolower($zone->service) == 'ahm' && $value == 'at_home_maintenance' ) {
                 return true;
             }
             if($zone->service == 'Pickup/Delivery' ) {
@@ -177,10 +190,15 @@ class ScheduleForm extends Form
     public function store()
     {
         $validatedData = $this->validate();
+        if(!$this->ServiceStatus) {
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
+
         $validatedData['status'] = 'Scheduled';
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
+        $validatedData['schedule_type'] = $this->scheduleType;
         if($this->saveRecommented) {
             $validatedData['recommended_address'] = array_intersect_key(
                 $this->recommendedAddress,
@@ -188,7 +206,7 @@ class ScheduleForm extends Form
             );
         }
         $schedule = Schedule::create($validatedData);
-        return $schedule;
+        return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created'];
     }
 
     public function init(Schedule $schedule)
@@ -196,16 +214,24 @@ class ScheduleForm extends Form
         $this->schedule = $schedule;
         $this->schedule_time = $schedule->truck_schedule_id;
         $this->fill($schedule->toArray());
-
+        $this->schedule_date = Carbon::parse($schedule->schedule_date)->format('Y-m-d');
         $this->suffix = $schedule->order_number_suffix;
+        $this->scheduleType = $schedule->schedule_type;
         $this->recommendedAddress =  $this->schedule->recommended_address;
+        $this->shiftMsg = 'service is scheduled for '.Carbon::parse($this->schedule_date)->toFormattedDayDateString()
+        .' between '
+        .$this->schedule->truckSchedule->start_time. ' - '.$this->schedule->truckSchedule->end_time;
         $this->getTruckSchedules();
     }
 
     public function update()
     {
         $validatedData = $this->validate();
+        if(!$this->ServiceStatus) {
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
         $validatedData['order_suffix_number'] = $this->suffix;
+        $validatedData['schedule_type'] = $this->scheduleType;
         if($this->saveRecommented) {
             $validatedData['recommended_address'] =
             array_intersect_key(
@@ -218,6 +244,7 @@ class ScheduleForm extends Form
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated'];
     }
 
     public function delete()
@@ -290,19 +317,18 @@ class ScheduleForm extends Form
 
     public function checkServiceValidity()
     {
-        $ServiceStatus = $this->checkServiceAVailability($this->type);
-        if(!$ServiceStatus) {
+        $this->ServiceStatus = $this->checkServiceAVailability($this->type);
+        if(!$this->ServiceStatus) {
             $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
             $this->alertConfig['icon'] = 'fa-times-circle';
             $this->alertConfig['class'] = 'danger';
-            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time']);
+            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time', 'scheduleType', 'shiftMsg']);
             return;
         }
         $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
         $this->alertConfig['icon'] = 'fa-check-circle';
         $this->alertConfig['class'] = 'success';
 
-        $this->scheduleDateDisable = false;
     }
 
 
@@ -313,22 +339,27 @@ class ScheduleForm extends Form
         $this->truckSchedules = DB::table('truck_schedules')
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
         ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+        ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
+        ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
         ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
         ->where('orders.order_number', '=', $this->sx_ordernumber)
         ->where('truck_schedules.schedule_date', '=', $this->schedule_date)
         ->select(
             'truck_schedules.*',
             'orders.id as order_id',
+            'zones.name as zone_name',
+            'trucks.id as truck_id',
+            'trucks.truck_name',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
             )
         ->get();
+
     }
 
     public function calendarInit()
     {
         $holidays = CalendarHoliday::listAll();
         $this->disabledDates = array_column($holidays, 'date');
-        $this->schedule_date = Carbon::now()->format('Y-m-d');
     }
 
     public function getEnabledDates()

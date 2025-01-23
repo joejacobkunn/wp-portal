@@ -49,3 +49,9 @@ function loadStyle(url, callback ) {
 window.addEventListener("popstate", function (event) { 
     window.location.reload();
 });
+
+
+function scrollModalToTop() {
+    // Scroll to the top of the modal
+    document.querySelector('.modal').scrollTop = 0;
+}

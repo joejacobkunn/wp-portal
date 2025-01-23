@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-    <x-modal :toggle="$generateKeyModal">
+    <x-modal toggle="generateKeyModal">
         <x-slot name="title">
             <div class="pre-genkey-div">Create API Key</div>
             <div class="post-genkey-div d-none">Your API Key</div>

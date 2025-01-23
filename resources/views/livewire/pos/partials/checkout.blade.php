@@ -520,7 +520,7 @@
         </div>
     </div>
 
-    <x-modal :toggle="$priceUpdateModal" closeEvent="closePriceUpdateModal">
+    <x-modal toggle="priceUpdateModal" closeEvent="closePriceUpdateModal">
         <x-slot name="title">
             <div class="">Update Product Price</div>
         </x-slot>
@@ -560,7 +560,7 @@
 
     </x-modal>
 
-    <x-modal :toggle="$measureUpdateModal" closeEvent="closeMeasureUpdateModal">
+    <x-modal toggle="measureUpdateModal" closeEvent="closeMeasureUpdateModal">
         <x-slot name="title">
             <div class="">Update Unit Of Measure</div>
         </x-slot>
@@ -594,7 +594,7 @@
 
     </x-modal>
 
-    <x-modal :toggle="$supersedeModal" closeEvent="closeSupersedeModal">
+    <x-modal toggle="supersedeModal" closeEvent="closeSupersedeModal">
         <x-slot name="title">
             <div class="">View Supersede</div>
         </x-slot>

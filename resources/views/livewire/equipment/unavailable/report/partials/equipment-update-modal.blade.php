@@ -1,4 +1,4 @@
-<x-modal :toggle="$equipment_modal">
+<x-modal toggle="equipment_modal">
     <x-slot name="title">
         <div class="">Update Location</div>
     </x-slot>
