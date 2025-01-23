@@ -1,4 +1,4 @@
-<x-modal :toggle="$orderStatusModal" :size="'lg'" closeEvent="closeOrderStatusModal">
+<x-modal toggle="orderStatusModal" :size="'lg'" closeEvent="closeOrderStatusModal">
     <x-slot name="title">
         <div>Order Status</div>
     </x-slot>

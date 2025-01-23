@@ -145,7 +145,7 @@
     </div>
 
     <div class="qty-update-model">
-        <x-modal :toggle="$qtyModal" size="md" :closeEvent="'closeQtyUpdate'">
+        <x-modal toggle="qtyModal" size="md" :closeEvent="'closeQtyUpdate'">
             <x-slot name="title">Update Quantity</x-slot>
             <form wire:submit.prevent="submit()">
                 <div class="row w-100">

@@ -168,4 +168,10 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasOne(UserSkills::class, 'user_id');
     }
+
+    public function hasModule($module_slug)
+    {
+        $account = $this->account;
+        return $account->modules->where('slug', $module_slug)->count() > 0;
+    }
 }

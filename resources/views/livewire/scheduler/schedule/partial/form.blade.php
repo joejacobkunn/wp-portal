@@ -310,7 +310,7 @@
         @endif
 
         @if ($addressModal)
-            <x-modal :toggle="$addressModal" size="md" :closeEvent="'closeAddress'">
+            <x-modal toggle="addressModal" size="md" :closeEvent="'closeAddress'">
                 <x-slot name="title">Recommended Address </x-slot>
                 <div class="mb-4">
                     <h6 class="text-primary">Current Address</h6>

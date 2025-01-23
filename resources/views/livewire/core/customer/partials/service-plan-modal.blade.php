@@ -1,4 +1,4 @@
-<x-modal :toggle="$service_plan_modal" size="xl">
+<x-modal toggle="service_plan_modal" size="xl">
     <x-slot name="title">
         <div class="">7YEPP History</div>
     </x-slot>

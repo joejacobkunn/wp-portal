@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div class="update-model">
-                <x-modal :toggle="$ShowUpdateModel" size="lg" :closeEvent="'closeUpdate'">
+                <x-modal toggle="ShowUpdateModel" size="lg" :closeEvent="'closeUpdate'">
                     <x-slot name="title">Update Quantity</x-slot>
                     <form wire:submit.prevent="bulkUpdate()">
                         <div class="row w-100">
@@ -77,7 +77,7 @@
                 </x-modal>
             </div>
             <div class="delete-model">
-                <x-modal :toggle="$ShowDeleteModel" size="lg" :closeEvent="'closeDelete'">
+                <x-modal toggle="ShowDeleteModel" size="lg" :closeEvent="'closeDelete'">
                     <x-slot name="title">Delete Records</x-slot>
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-exclamation-circle"></i> You have selected {{ count($records) }} record(s) for

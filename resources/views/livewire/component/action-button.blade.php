@@ -21,7 +21,7 @@
         </div>
     @endif
 
-    <x-modal :toggle="$actionConfirm">
+    <x-modal toggle="actionConfirm">
         <x-slot
             name="title">{{ !empty($activeButton['confirm_header']) ? $activeButton['confirm_header'] : 'Confirm?' }}</x-slot>
         <p>{{ !empty($activeButton['confirm_message']) ? $activeButton['confirm_message'] : 'Are you sure you want to proceed?' }}

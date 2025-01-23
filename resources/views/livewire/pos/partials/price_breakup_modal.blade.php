@@ -1,4 +1,4 @@
-<x-modal :toggle="$priceBreakdownModal" :size="'lg'" :closeEvent="'closeBreakdownModal'">
+<x-modal toggle="priceBreakdownModal" :size="'lg'" :closeEvent="'closeBreakdownModal'">
     <x-slot name="title">
         <div>Price Breakdown</div>
     </x-slot>

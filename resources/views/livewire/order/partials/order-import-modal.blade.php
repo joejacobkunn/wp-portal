@@ -1,5 +1,5 @@
 <div class="order-export-modal">
-    <x-modal :toggle="$exportModal" size="lg" :closeEvent="'closeModel'">
+    <x-modal toggle="exportModal" size="lg" :closeEvent="'closeModel'">
         <x-slot name="title">Reports</x-slot>
         @if (empty($orderType))
             <div class="alert alert-secondary">

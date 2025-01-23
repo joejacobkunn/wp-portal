@@ -46,7 +46,7 @@
             </div>
 
             <div class="order-message-model">
-                <x-modal :toggle="$orderMessageModal" size="lg" :closeEvent="'closeOrderMessage'">
+                <x-modal toggle="orderMessageModal" size="lg" :closeEvent="'closeOrderMessage'">
                     <x-slot name="title">Message</x-slot>
                     <div class="row w-100">
                         <div class="col-md-12">

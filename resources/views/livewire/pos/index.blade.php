@@ -32,7 +32,7 @@
                     @endif
 
                     @if ($newCustomerModal)
-                        <x-modal :toggle="$newCustomerModal" :size="'xl'" :closeEvent="'closeNewCustomer'">
+                        <x-modal toggle="newCustomerModal" :size="'xl'" :closeEvent="'closeNewCustomer'">
                             <x-slot name="title">
                                 <div>Add New Customer</div>
                             </x-slot>
