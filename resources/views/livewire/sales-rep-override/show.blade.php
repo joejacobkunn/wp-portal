@@ -7,7 +7,7 @@
                 @include('livewire.sales-rep-override.partials.view')
                 @if ($editRecord)
                 <div class="update-model">
-                    <x-modal :toggle="$editRecord" size="md" :closeEvent="'closeUpdate'">
+                    <x-modal toggle="editRecord" size="md" :closeEvent="'closeUpdate'">
                         <x-slot name="title">Update Data</x-slot>
                             @include('livewire.sales-rep-override.partials.form', ['button_text' => 'Update'])
                     </x-modal>

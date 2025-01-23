@@ -1,4 +1,4 @@
-<x-modal :toggle="$customerSearchModal" :size="'xl'" :closeEvent="'closeCustomerSearch'">
+<x-modal toggle="customerSearchModal" :size="'xl'" :closeEvent="'closeCustomerSearch'">
     <x-slot name="title">
         <div>Search Customer: {{ $lastCustomerQuery }}</div>
     </x-slot>

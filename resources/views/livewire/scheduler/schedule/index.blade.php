@@ -116,7 +116,7 @@
             </div>
         </div>
         @if ($showModal || $isEdit)
-            <x-modal :toggle="$showModal" size="xl" :closeEvent="'closeModal'">
+            <x-modal toggle="showModal" size="xl" :closeEvent="'closeModal'">
                 <x-slot name="title">Schedule
                     {{ Illuminate\Support\Str::of($form->type)->replace('_', ' ')->title() }}</x-slot>
                 @if (!$this->showView)
@@ -127,7 +127,7 @@
             </x-modal>
         @endif
         @if ($showSlotModal)
-            <x-modal :toggle="$showSlotModal" size="md" :closeEvent="'closeSlotModal'">
+            <x-modal toggle="showSlotModal" size="md" :closeEvent="'closeSlotModal'">
                 <x-slot name="title">Update Slots</x-slot>
                 <form wire:submit.prevent="updateSlot()">
                     <div class="row w-100">

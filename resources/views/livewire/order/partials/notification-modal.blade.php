@@ -1,4 +1,4 @@
-<x-modal :toggle="$notificationModal" size="xl">
+<x-modal toggle="notificationModal" size="xl">
     <x-slot name="title">
         @if ($cancelOrderModal)
             Cancel Order

@@ -1,6 +1,6 @@
 <div>
 
-    <x-modal :toggle="$showRotationFormModal">
+    <x-modal toggle="showRotationFormModal">
         <x-slot name="title">
             <div class="">Create New Rotation</div>
         </x-slot>

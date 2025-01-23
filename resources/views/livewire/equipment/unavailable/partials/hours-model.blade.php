@@ -1,4 +1,4 @@
-<x-modal :toggle="$hours_modal" :closeEvent="'closeHoursModel'">
+<x-modal toggle="hours_modal" :closeEvent="'closeHoursModel'">
     <x-slot name="title">
         <div class="">Update Hours</div>
     </x-slot>

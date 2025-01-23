@@ -1,5 +1,5 @@
 <div class="product-search-modal">
-    <x-modal :toggle="$couponSearchModal" size="xl" :closeEvent="'closeCouponSearch'">
+    <x-modal toggle="couponSearchModal" size="xl" :closeEvent="'closeCouponSearch'">
         <x-slot name="title">
             <div>Search Coupons</div>
         </x-slot>
