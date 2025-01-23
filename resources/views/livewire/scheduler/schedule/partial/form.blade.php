@@ -179,7 +179,7 @@
 
                                     </div>
                                 </div>
-                                <div class="col-md-6 {{$form->scheduleType ? '' : 'd-none'}}">
+                                <div class="col-md-6 {{$form->schedule_date ? '' : 'd-none'}}">
                                     <label class="form-label">Available Time Slots on {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
                                     <div class="d-flex flex-column gap-2">
 

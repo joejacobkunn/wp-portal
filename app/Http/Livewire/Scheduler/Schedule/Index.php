@@ -403,6 +403,7 @@ class Index extends Component
         if($value == 'next_avail') {
             $date = isset($this->form->enabledDates[0]) ? $this->form->enabledDates[0] : Carbon::now()->format('Y-m-d');
         }
+        $this->form->reset(['schedule_time', 'shiftMsg', 'truckSchedules', 'schedule_date']);
         $this->dispatch('set-current-date', activeDay: $date);
     }
 }
