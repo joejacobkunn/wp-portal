@@ -43,7 +43,6 @@ class Index extends Component
     public $activeType;
     public $truckInfo = [];
     public $activeWarehouse;
-    public $shiftMsg;
     public $eventCount;
     public $filteredSchedules = [];
     public $selectedTruck;
@@ -118,7 +117,6 @@ class Index extends Component
         $this->form->reset();
         $this->form->type = $type;
         $this->showModal = true;
-        $this->shiftMsg = null;
         $this->form->calendarInit();
 
     }
@@ -202,8 +200,6 @@ class Index extends Component
     public function edit()
     {
         $this->showView = false;
-        $this->shiftMsg = 'service is scheduled for '.$this->form->schedule_date.' between '
-        .$this->form->schedule->truckSchedule->start_time. ' - '.$this->form->schedule->truckSchedule->end_time;
         $this->form->calendarInit();
     }
 
@@ -382,14 +378,17 @@ class Index extends Component
     {
         $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
         $this->form->getTruckSchedules();
+        $this->form->reset('shiftMsg');
+        $this->form->schedule_time = null;
     }
 
     public function selectSlot($scheduleId)
     {
         $schedule = TruckSchedule::find($scheduleId);
         $this->form->schedule_time = $schedule->id;
-        $this->shiftMsg = 'service is scheduled for '
+        $this->form->shiftMsg = 'service is scheduled for '
             .$this->form->schedule_date.' between '.$schedule->start_time. ' - '.$schedule->end_time;
+        $this->resetValidation(['form.schedule_time']);
     }
 
     public function scheduleTypeChange($field, $value)

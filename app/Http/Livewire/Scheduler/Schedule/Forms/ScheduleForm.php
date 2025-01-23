@@ -43,6 +43,7 @@ class ScheduleForm extends Form
     public $truckSchedules = [];
     public $enabledDates = [];
     public $scheduleType;
+    public $shiftMsg;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -114,7 +115,17 @@ class ScheduleForm extends Form
 
         if(is_null($this->orderInfo)) {
             $this->addError('sx_ordernumber', 'order not found');
-            $this->reset(['zipcodeInfo', 'scheduleDateDisable', 'schedule_date', 'schedule_time', 'enabledDates' ,'truckSchedules']);
+            $this->reset([
+                'zipcodeInfo',
+                'scheduleDateDisable',
+                'schedule_date',
+                'schedule_time',
+                'enabledDates' ,
+                'truckSchedules',
+                'shiftMsg',
+                'scheduleType'
+
+            ]);
             return;
         }
 
@@ -193,6 +204,8 @@ class ScheduleForm extends Form
 
         $this->suffix = $schedule->order_number_suffix;
         $this->recommendedAddress =  $this->schedule->recommended_address;
+        $this->shiftMsg = 'service is scheduled for '.$this->schedule_date.' between '
+        .$this->schedule->truckSchedule->start_time. ' - '.$this->schedule->truckSchedule->end_time;
         $this->getTruckSchedules();
     }
 
