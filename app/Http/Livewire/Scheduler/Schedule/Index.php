@@ -343,7 +343,7 @@ class Index extends Component
                 'spanText' => $truck->zone?->name. ' - '.$truck->truck->truck_name,
                 'whse' => $truck->truck->whse,
                 'zone' => $truck->zone?->name,
-                'zone_id' => $truck->zone?->id,
+                'zone_id' => $truck->zone_id,
                 'start_time' => $truck->start_time,
                 'end_time' => $truck->end_time,
                 'slots' => $truck->slots,
@@ -403,6 +403,7 @@ class Index extends Component
         if($value == 'next_avail') {
             $date = isset($this->form->enabledDates[0]) ? $this->form->enabledDates[0] : Carbon::now()->format('Y-m-d');
         }
+        $this->form->reset(['schedule_time', 'shiftMsg', 'truckSchedules', 'schedule_date']);
         $this->dispatch('set-current-date', activeDay: $date);
     }
 }

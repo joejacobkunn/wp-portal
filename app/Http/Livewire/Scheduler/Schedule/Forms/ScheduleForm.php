@@ -44,6 +44,7 @@ class ScheduleForm extends Form
     public $scheduleType;
     public $shiftMsg;
     public $ServiceStatus = false;
+    public $serialNumbers;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -121,8 +122,16 @@ class ScheduleForm extends Form
 
         $this->SXOrderInfo = (config('sx.mock')) ? [] : SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
 
+        $this->serialNumbers = $this->getSerialNumbers($this->sx_ordernumber, $suffix);
+
+        if(empty($this->serialNumbers) && !config('sx.mock') && strtolower($this->type) == 'ahm')
+        {
+            $this->addError('sx_ordernumber', 'No serialized line items found');
+            return;
+        } 
+
         if(is_null($this->orderInfo)) {
-            $this->addError('sx_ordernumber', 'order not found');
+            $this->addError('sx_ordernumber', 'Order not Found');
             $this->reset([
                 'zipcodeInfo',
                 'scheduleDateDisable',
@@ -377,4 +386,12 @@ class ScheduleForm extends Form
         ->get();
         $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
     }
+
+    public function getSerialNumbers($orderno, $suffix)
+    {
+        if(config('sx.mock')) return [];
+
+        return DB::connection('sx')->select("select s.prod,s.serialno from pub.icets s where s.cono = ? and s.ordertype = 'o' and s.orderno = ? and s.ordersuf = ? with(nolock)",[10, $orderno, $suffix]);
+    }
+
 }
