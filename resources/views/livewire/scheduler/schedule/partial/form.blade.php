@@ -168,7 +168,7 @@
                                             "
                                             x-on:set-current-date.window="
                                                 if (flatpickrInstance) {
-                                                    flatpickrInstance.setDate($event.detail.activeDay, true);
+                                                    flatpickrInstance.jumpToDate($event.detail.activeDay);
                                                 }
                                         ">
 
