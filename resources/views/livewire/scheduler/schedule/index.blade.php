@@ -42,23 +42,25 @@
                         @if (count($this->filteredSchedules) > 0)
                             <div class="list-group">
                                 <ul class="list-group">
-                                    @foreach ($this->filteredSchedules as $shift)
+                                    @foreach ($this->filteredSchedules as $truck)
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold"><span class="badge bg-light-primary"><i
+                                                <div class="fw-bold"><a href="{{ route('service-area.zones.show', ['zone' => $truck['zone_id']]) }}">
+                                                    <span class="badge bg-light-primary"><i class="fas fa-globe"></i>
+                                                        {{ $truck['zone'] }}</span></a>
+                                                    => <a href="{{ route('scheduler.truck.show', ['truck' => $truck['truck_id']]) }}">
+                                                            <span class="badge bg-light-secondary"><i
                                                             class="fas fa-truck"></i>
-                                                        {{ $shift['truck_name'] }}</span>
-                                                    => <span class="badge bg-light-secondary"><i
-                                                            class="fas fa-globe"></i>
-                                                        {{ $shift['zone'] }}</span></div>
+                                                        {{ $truck['truck_name'] }}</span></div>
                                                 <span class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
                                                         class="far fa-clock"></i>
-                                                    9:00 AM
+                                                    {{$truck['start_time']}}
                                                     -
-                                                    01:00
-                                                    PM</span>
+                                                    {{$truck['end_time']}}
+                                                    </span>
                                             </div>
-                                            <span class="badge bg-primary rounded-pill">5 / 8</span>
+                                            <span class="badge bg-primary rounded-pill">{{$truck['scheduled_count']}} /
+                                                {{$truck['slots']}}</span>
                                         </li>
                                     @endforeach
                                 </ul>
@@ -78,7 +80,7 @@
 
                         <div class="list-group">
                             @forelse ($eventsData as $event)
-                                <a href="#" class="list-group-item list-group-item-action">
+                                <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="handleEventClick({{$event->id}})">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1">Order
                                             #{{ $event->sx_ordernumber }}-{{ $event->order->order_number_suffix }}

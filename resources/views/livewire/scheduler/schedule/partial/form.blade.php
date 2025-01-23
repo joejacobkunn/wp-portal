@@ -11,7 +11,8 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
-                            <x-forms.input type="number" label="Order Number" model="form.sx_ordernumber" lazy />
+                            <x-forms.input type="number" label="Order Number" model="form.sx_ordernumber" :live="true"
+                                 lazy />
                         </div>
                     </div>
                     <div class="col-md-6 mb-2">
@@ -57,7 +58,7 @@
                                             <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
                                             {{ $form->orderInfo?->shipping_info['line'] }}<br>
                                             @if ($form->orderInfo?->shipping_info['line2'])
-                                                $form->orderInfo?->customer->address2 <br>
+                                                {{ $form->orderInfo?->customer->address2 }} <br>
                                             @endif
                                             {{ $form->orderInfo?->shipping_info['city'] }},
                                             {{ $form->orderInfo?->shipping_info['state'] }}
@@ -121,7 +122,6 @@
                                 <div class="col-md-12 mb-2">
                                     <ul class="list-group">
                                         <li class="list-group-item list-group-item-primary">
-                                            <span class="float-end fst-italic fw-light">Select all that apply</span>
                                             Line Items
                                         </li>
                                         @foreach ($form->orderInfo->line_items['line_items'] as $item)
@@ -148,7 +148,6 @@
                                         <div wire:ignore>
                                             <input type="text" id="datepicker" class="form-control"
                                                 wire:model.defer="form.schedule_date" x-data="{
-                                                    disabledDates: @js($form->disabledDates ?? []),
                                                     enabledDates: @js($form->enabledDates ?? []),
                                                     flatpickrInstance: null
                                                 }"
@@ -158,7 +157,6 @@
                                                 defaultDate: '{{ $form->schedule_date }}',
                                                 enable: enabledDates,
                                                 minDate: new Date(),
-                                                disable: disabledDates,
                                                 onChange: function(selectedDates, dateStr) {
                                                     $wire.updateFormScheduleDate(dateStr);
                                                 }
@@ -182,14 +180,20 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 {{$form->scheduleType ? '' : 'd-none'}}">
-                                    <label class="form-label">Available Time Slots on {{ $this->form->schedule_date }}</label>
+                                    <label class="form-label">Available Time Slots on {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
                                     <div class="d-flex flex-column gap-2">
+
                                         @forelse($this->form->truckSchedules as $schedule)
                                             <div class="p-3 bg-light rounded border">
                                                 <button type="button" wire:click="selectSlot({{$schedule->id}})"
                                                     class="list-group-item list-group-item-action ">{{$schedule->start_time. ' - '.$schedule->end_time}}
                                                     <span
-                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$schedule->slots - $schedule->schedule_count}}</span>
+                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{$schedule->schedule_count }} / {{$schedule->slots}}</span>
+                                                    <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
+                                                        class="fas fa-globe"></i>
+                                                            {{$schedule->zone_name}} => <i
+                                                            class="fas fa-truck"></i>{{$schedule->truck_name}}
+                                                    </p>
                                                 </button>
                                             </div>
                                         @empty
@@ -291,6 +295,19 @@
                 </li>
             @endif
         </ul>
+        @if (isset($form->zipcodeInfo))
+            <ul class="list-group mb-3">
+                <li class="list-group-item list-group-item-primary">
+                    Zones
+                </li>
+                @foreach ($form->zipcodeInfo->zones as $zone)
+                <li class="list-group-item"><strong>{{$zone->name}}</strong>
+                    <span class="badge bg-light-warning float-end">{{strtoupper($zone->service)}}</span>
+                    <small></small>
+                </li>
+                @endforeach
+            </ul>
+        @endif
 
         @if ($addressModal)
             <x-modal :toggle="$addressModal" size="md" :closeEvent="'closeAddress'">
