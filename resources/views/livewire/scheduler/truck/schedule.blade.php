@@ -121,7 +121,7 @@
             </div>
         </div>
     </div>
-    <x-modal :toggle="$showImportForm" size="lg" :closeEvent="'closeImportForm'">
+    <x-modal toggle="showImportForm" size="lg" :closeEvent="'closeImportForm'">
         <x-slot name="title"> Import Truck Schedules </x-slot>
         <form wire:submit.prevent="importTruckSchedule">
             <div class="mb-4">

@@ -35,7 +35,7 @@
 
 @unless (request()->route_subdomain == 'admin')
 
-    @if (auth()->user()->account->hasModule('customers'))
+    @if (auth()->user()->hasModule('customers'))
         @canany(['customers.view'])
             <li class="menu-item  {{ request()->is('customers*') ? 'active' : '' }}">
                 <a href="{{ route('core.customer.index') }}" wire:navigate class='menu-link'>
@@ -47,7 +47,7 @@
 
     @endif
 
-    @if (auth()->user()->account->hasModule('reporting'))
+    @if (auth()->user()->hasModule('reporting'))
         @canany(['reporting.view'])
             <li class="menu-item {{ request()->is('reporting*') ? 'active' : '' }}">
                 <a href="{{ route('reporting.index') }}" wire:navigate class='menu-link'>
@@ -59,7 +59,7 @@
 
     @endif
 
-    @if (auth()->user()->account->hasModule('vehicles'))
+    @if (auth()->user()->hasModule('vehicles'))
 
         @canany(['vehicle.view'])
             <li class="menu-item  {{ request()->is('vehicle*') ? 'active' : '' }}">
@@ -72,7 +72,7 @@
 
     @endif
 
-    @if (auth()->user()->account->hasModule('equipment'))
+    @if (auth()->user()->hasModule('equipment'))
         <li class="menu-item {{ request()->is('equipment*') ? 'active' : '' }}  has-sub">
             <a href="#" class="menu-link">
                 <span><i class="far fa-list-alt"></i> Equipment</span>
@@ -103,7 +103,7 @@
             </div>
         </li>
     @endif
-    @if (auth()->user()->account->hasModule('sales-rep-override'))
+    @if (auth()->user()->hasModule('sales-rep-override'))
         @can('customer.sales-rep-override.view')
             <li class="menu-item  {{ request()->is('sales-rep-override*') ? 'active' : '' }}">
                 <a href="{{ route('sales-rep-override.index') }}" wire:navigate class='menu-link'>
@@ -114,7 +114,7 @@
         @endcan
     @endif
 
-    @if (auth()->user()->account->hasModule('marketing'))
+    @if (auth()->user()->hasModule('marketing'))
         <li class="menu-item {{ request()->is('marketing*') ? 'active' : '' }}  has-sub">
             <a href="#" class="menu-link">
                 <span><i class="far fa-list-alt"></i> Marketing</span>
@@ -133,7 +133,7 @@
             </div>
         </li>
     @endif
-    @if (auth()->user()->account->hasModule('orders'))
+    @if (auth()->user()->hasModule('orders'))
 
         @canany(['order.view'])
             <li class="menu-item  {{ request()->is('orders*') ? 'active' : '' }}">
@@ -146,7 +146,7 @@
 
     @endif
 
-    @if (auth()->user()->account->hasModule('pos'))
+    @if (auth()->user()->hasModule('pos'))
 
         @canany(['terminals.view', 'transactions.view'])
             <li class="menu-item  {{ request()->is('pos*') ? 'active' : '' }}">
@@ -159,7 +159,7 @@
 
     @endif
 
-    @if (auth()->user()->account->hasModule('products'))
+    @if (auth()->user()->hasModule('products'))
 
         @canany(['products.view'])
             <li class="menu-item  {{ request()->is('products*') ? 'active' : '' }}">
@@ -172,7 +172,7 @@
 
     @endif
 
-    @if (auth()->user()->account->hasModule('scheduler'))
+    @if (auth()->user()->hasModule('scheduler'))
 
         <li class="menu-item {{ request()->is('scheduler*') ? 'active' : '' }}  has-sub">
             <a href="#" class="menu-link">
@@ -216,13 +216,7 @@
                                 </a>
                             </li>
                         @endcan
-                        @canany(['scheduler.shift.view'])
-                            <li class="submenu-item">
-                                <a href="{{ route('schedule.shift.index') }}" wire:navigate>
-                                    <span>Shifts</span>
-                                </a>
-                            </li>
-                        @endcan
+
                     </ul>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-<x-modal :toggle="$wtModal" size="xl">
+<x-modal toggle="wtModal" size="xl">
     <x-slot name="title">
         Initiate Warehouse Transfer for Line Item {{ $backorder_line_info['prod'] ?? '' }}
     </x-slot>
