@@ -264,14 +264,7 @@ class Index extends Component
 
         $this->eventsData =  Schedule::where('schedule_date', $date)->get();
 
-        $this->availableZones = Zones::whereHas('truckSchedules', function ($query) use ($date) {
-            $query->where('schedule_date', $date);
-        })->get();
         $this->filteredSchedules = $this->getTrucks();
-    //     if($this->filteredSchedules) {
-    //        $this->showTruckData( $this->filteredSchedules->first()->id);
-    //        return;
-    //    }
 
        $this->reset(['selectedTruck']);
        $this->truckScheduleForm->reset();
