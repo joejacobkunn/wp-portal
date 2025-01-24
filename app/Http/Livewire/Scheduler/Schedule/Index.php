@@ -170,7 +170,8 @@ class Index extends Component
             'scheduleType',
             'schedule_date',
             'shiftMsg',
-            'schedule_time'
+            'schedule_time',
+            'line_items'
         ]);
     }
 
@@ -373,7 +374,6 @@ class Index extends Component
     {
         $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
         $this->form->getTruckSchedules();
-        $this->form->reset('shiftMsg');
         $this->form->schedule_time = null;
     }
 
@@ -381,9 +381,7 @@ class Index extends Component
     {
         $schedule = TruckSchedule::find($scheduleId);
         $this->form->schedule_time = $schedule->id;
-        $this->form->shiftMsg = 'service is scheduled for '
-            .Carbon::parse($this->form->schedule_date)->toFormattedDayDateString()
-            .' between '.$schedule->start_time. ' - '.$schedule->end_time;
+
         $this->resetValidation(['form.schedule_time']);
     }
 

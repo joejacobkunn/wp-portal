@@ -128,11 +128,17 @@
                                     </li>
                                     @foreach ($form->orderInfo->line_items['line_items'] as $item)
                                         <li class="list-group-item">
-                                            <p>{{ $item['descrip'] . '(' . $item['shipprod'] . ')' }} @if ($form->serialNumbers->where('prod', $item['shipprod'])->first())
+                                            <x-forms.radio
+                                            :label="$item['descrip']. '(' . $item['shipprod'] . ')'"
+                                            :name="'lineitems'"
+                                            :value="$item['descrip']"
+                                            :model="'form.line_items'"
+                                            />
+                                            {{-- <p>{{ $item['descrip'] . '(' . $item['shipprod'] . ')' }} @if ($form->serialNumbers->where('prod', $item['shipprod'])->first())
                                                     <span class="badge bg-light-secondary float-end"> SN :
                                                         {{ $form->serialNumbers->where('prod', $item['shipprod'])->first()->serialno }}</span>
                                                 @endif
-                                            </p>
+                                            </p> --}}
                                         </li>
                                     @endforeach
                                 </ul>
