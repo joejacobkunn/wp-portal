@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('schedules', function (Blueprint $table) {
             $table->string('line_items');
+            $table->text('notes');
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('schedules', function (Blueprint $table) {
             $table->dropColumn('line_items');
+            $table->dropColumn('notes');
         });
     }
 };

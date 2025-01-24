@@ -28,6 +28,7 @@
                             <span>Please wait, processing order...</span>
                         </div>
                     </div>
+
                 </div>
 
                 @if ($form->orderInfo)
@@ -258,10 +259,15 @@
                         @enderror
                     </div>
                 @endif
-
+                <div class="row w-100">
+                    <div class="col-md-12">
+                        <x-forms.textarea label="Notes" model="form.notes"
+                            lazy />
+                    </div>
+                </div>
                 <div class="mt-2">
                     <hr>
-                    <button class="btn btn-primary" type="submit" @if (!$form->ServiceStatus) disabled @endif>
+                    <button class="btn btn-primary" type="submit" @if (!$form->schedule_time) disabled @endif>
                         <div wire:loading wire:target="submit">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>

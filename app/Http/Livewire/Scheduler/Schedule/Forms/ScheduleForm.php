@@ -46,6 +46,7 @@ class ScheduleForm extends Form
     public $ServiceStatus = false;
     public $serialNumbers;
     public $line_items;
+    public $notes;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -66,6 +67,7 @@ class ScheduleForm extends Form
         'schedule_date' => 'Schedule Date',
         'schedule_time' => 'Time Slot',
         'suffix' => 'Order Suffix',
+        'notes' => 'Notes',
         'line_items' => 'Line item',
     ];
     public $serviceArray = [
@@ -92,6 +94,7 @@ class ScheduleForm extends Form
             'scheduleType' =>'required',
             'schedule_time' =>'required',
             'line_items' =>'required',
+            'notes' =>'nullable',
         ];
 
     }
