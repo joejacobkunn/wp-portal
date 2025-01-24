@@ -45,6 +45,8 @@ class ScheduleForm extends Form
     public $shiftMsg;
     public $ServiceStatus = false;
     public $serialNumbers;
+    public $line_items;
+    public $notes;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -65,6 +67,8 @@ class ScheduleForm extends Form
         'schedule_date' => 'Schedule Date',
         'schedule_time' => 'Time Slot',
         'suffix' => 'Order Suffix',
+        'notes' => 'Notes',
+        'line_items' => 'Line item',
     ];
     public $serviceArray = [
         'at_home_maintenance' => 'At Home Maintenance',
@@ -89,6 +93,8 @@ class ScheduleForm extends Form
             ],
             'scheduleType' =>'required',
             'schedule_time' =>'required',
+            'line_items' =>'required',
+            'notes' =>'nullable',
         ];
 
     }
@@ -131,8 +137,8 @@ class ScheduleForm extends Form
                 'schedule_time',
                 'enabledDates' ,
                 'truckSchedules',
-                'shiftMsg',
-                'scheduleType'
+                'scheduleType',
+                'line_items'
 
             ]);
             return;
@@ -154,7 +160,7 @@ class ScheduleForm extends Form
         // {
         //     $this->addError('sx_ordernumber', 'No serialized line items found');
         //     return;
-        // } 
+        // }
 
 
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
@@ -332,7 +338,7 @@ class ScheduleForm extends Form
             $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
             $this->alertConfig['icon'] = 'fa-times-circle';
             $this->alertConfig['class'] = 'danger';
-            $this->reset(['scheduleDateDisable', 'schedule_date', 'schedule_time', 'scheduleType', 'shiftMsg']);
+            $this->reset(['schedule_date', 'schedule_time', 'scheduleType']);
             return;
         }
         $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
@@ -363,7 +369,6 @@ class ScheduleForm extends Form
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
             )
         ->get();
-
     }
 
     public function calendarInit()
@@ -392,7 +397,7 @@ class ScheduleForm extends Form
     {
         if(config('sx.mock'))
         {
-            $serials = [];
+           $serials = [];
             foreach($this->orderInfo->line_items['line_items'] as $item)
             {
                 if (mt_rand(0,1))

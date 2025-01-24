@@ -168,7 +168,10 @@
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn dropdownButton'
                     },
-
+                    titleFormat: {
+                        month: 'short',
+                        year: 'numeric'
+                    },
                     customButtons: {
                         dropdownButton: {
                             text: 'Schedule',

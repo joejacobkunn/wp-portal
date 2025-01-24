@@ -79,11 +79,11 @@ class Schedule extends Component
 
     public function onDateRangeChanges($start,$end)
     {
-        $schedules = TruckSchedule::where('truck_id', $this->truck->id)
+        $schedules = TruckSchedule::with('zone')->where('truck_id', $this->truck->id)
         ->whereBetween('schedule_date', [Carbon::parse($start)->format('Y-m-d'), Carbon::parse($end)->format('Y-m-d')])
         ->get()->map(function ($truckSchedule) {
             return [
-                'zoneName' => $truckSchedule->zone->name ,
+                'zoneName' => $truckSchedule->zone?->name ,
                 'timeString' => $truckSchedule->start_time . ' - ' . $truckSchedule->end_time,
                 'slotsString' => 'Slots : ' . $truckSchedule->slots,
                 'schedule_date' => $truckSchedule->schedule_date,
