@@ -44,6 +44,7 @@ class ScheduleForm extends Form
     public $scheduleType;
     public $shiftMsg;
     public $ServiceStatus = false;
+    public $serialNumbers;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -122,7 +123,7 @@ class ScheduleForm extends Form
         $this->SXOrderInfo = (config('sx.mock')) ? [] : SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
 
         if(is_null($this->orderInfo)) {
-            $this->addError('sx_ordernumber', 'order not found');
+            $this->addError('sx_ordernumber', 'Order not Found');
             $this->reset([
                 'zipcodeInfo',
                 'scheduleDateDisable',
@@ -137,15 +138,24 @@ class ScheduleForm extends Form
             return;
         }
 
-        if(empty($this->orderInfo->line_items)) {
-            $this->addError('sx_ordernumber', 'Line items not found in this order');
-            return;
-        }
+        // if(empty($this->orderInfo->line_items['line_items'])) {
+        //     $this->addError('sx_ordernumber', 'Line items not found in this order');
+        //     return;
+        // }
 
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
         }
+
+        $this->serialNumbers = collect($this->getSerialNumbers($this->sx_ordernumber, $suffix));
+
+        // if(empty($this->serialNumbers) && !config('sx.mock') && strtolower($this->type) == 'at_home_maintenance')
+        // {
+        //     $this->addError('sx_ordernumber', 'No serialized line items found');
+        //     return;
+        // } 
+
 
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
         $this->getDistance();
@@ -377,4 +387,24 @@ class ScheduleForm extends Form
         ->get();
         $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
     }
+
+    public function getSerialNumbers($orderno, $suffix)
+    {
+        if(config('sx.mock'))
+        {
+            $serials = [];
+            foreach($this->orderInfo->line_items['line_items'] as $item)
+            {
+                if (mt_rand(0,1))
+                {
+                    $serials[] = ['prod' => $item['shipprod'], 'serialno' => rand ( 100000 , 999999 )];
+                }
+            }
+
+            return $serials;
+        }
+
+        return DB::connection('sx')->select("select s.prod,s.serialno from pub.icets s where s.cono = ? and s.ordertype = 'o' and s.orderno = ? and s.ordersuf = ? with(nolock)",[10, $orderno, $suffix]);
+    }
+
 }
