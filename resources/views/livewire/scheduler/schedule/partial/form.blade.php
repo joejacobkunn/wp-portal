@@ -230,7 +230,7 @@
                             <div class="d-flex flex-column gap-2">
 
                                 @forelse($this->form->truckSchedules as $schedule)
-                                <a href="#" wire:click.prevent="selectSlot({{ $schedule->id }})" class="list-group-item list-group-item-action ">
+                                <a href="javascript:void(0)" wire:click.prevent="selectSlot({{ $schedule->id }})" class="list-group-item list-group-item-action ">
                                     <div class="p-3 bg-light rounded border @if($schedule->id == $form->schedule_time) border-primary @endif">
                                         {{ $schedule->start_time . ' - ' . $schedule->end_time }}
                                         <span
