@@ -42,10 +42,11 @@ class ProcessTruckScheduleImport implements ShouldQueue
             $this->truck->schedules()->updateOrCreate(
                 [
                     'schedule_date' => Carbon::parse($record['date'])->format('Y-m-d'),
-                    'start_time' => $starTime,
-                    'end_time' => $endTime,
+
                 ],
                 [
+                    'start_time' => $starTime,
+                    'end_time' => $endTime,
                     'zone_id' => trim($record['zone_id']),
                     'slots' => trim($record['slots']),
                 ]
