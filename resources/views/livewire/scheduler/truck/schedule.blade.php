@@ -184,6 +184,11 @@
                 let calendar = new FullCalendar.Calendar(calendarEl, {
                     themeSystem: 'bootstrap5',
                     initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next',
+                        center: 'title',
+                        right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                    },
                     height: 'auto',
                     datesSet: function(info) {
                         $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {});

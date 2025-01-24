@@ -23,12 +23,12 @@ class Schedule extends Model
         'status',
         'recommended_address',
         'created_by',
-        'schedule_type'
+        'schedule_type',
+        'notes'
     ];
 
     protected $casts = [
         'schedule_date' => 'date',
-        'line_items' => 'array',
         'recommended_address' => 'array',
     ];
 

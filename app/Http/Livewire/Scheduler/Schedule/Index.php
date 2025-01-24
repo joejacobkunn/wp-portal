@@ -43,12 +43,12 @@ class Index extends Component
     public $activeType;
     public $truckInfo = [];
     public $activeWarehouse;
-    public $eventCount;
     public $filteredSchedules = [];
     public $selectedTruck;
     public $showSlotModal = false;
     public $availableZones;
     public $eventsData;
+    public $showTypeLoader =false;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -59,7 +59,8 @@ class Index extends Component
         'setScheduleTimes' => 'setScheduleTimes',
         'closeTimeSlot' => 'closeTimeSlot',
         'closeSlotModal' => 'closeSlotModal',
-        'scheduleTypeChange' => 'scheduleTypeChange'
+        'scheduleTypeChange' => 'scheduleTypeChange',
+        'scheduleTypeDispatch' => 'scheduleTypeDispatch',
     ];
 
     public $actionButtons = [
@@ -170,7 +171,8 @@ class Index extends Component
             'scheduleType',
             'schedule_date',
             'shiftMsg',
-            'schedule_time'
+            'schedule_time',
+            'line_items'
         ]);
     }
 
@@ -264,14 +266,7 @@ class Index extends Component
 
         $this->eventsData =  Schedule::where('schedule_date', $date)->get();
 
-        $this->availableZones = Zones::whereHas('truckSchedules', function ($query) use ($date) {
-            $query->where('schedule_date', $date);
-        })->get();
         $this->filteredSchedules = $this->getTrucks();
-    //     if($this->filteredSchedules) {
-    //        $this->showTruckData( $this->filteredSchedules->first()->id);
-    //        return;
-    //    }
 
        $this->reset(['selectedTruck']);
        $this->truckScheduleForm->reset();
@@ -380,7 +375,6 @@ class Index extends Component
     {
         $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
         $this->form->getTruckSchedules();
-        $this->form->reset('shiftMsg');
         $this->form->schedule_time = null;
     }
 
@@ -388,22 +382,29 @@ class Index extends Component
     {
         $schedule = TruckSchedule::find($scheduleId);
         $this->form->schedule_time = $schedule->id;
-        $this->form->shiftMsg = 'service is scheduled for '
-            .Carbon::parse($this->form->schedule_date)->toFormattedDayDateString()
-            .' between '.$schedule->start_time. ' - '.$schedule->end_time;
         $this->resetValidation(['form.schedule_time']);
     }
 
     public function scheduleTypeChange($field, $value)
     {
+        $this->showTypeLoader = true;
         $this->form->scheduleType = $value;
-        if($value == 'one_year') {
+        $this->dispatch('scheduleTypeDispatch');
+
+    }
+
+    public function scheduleTypeDispatch()
+    {
+        if($this->form->scheduleType == 'one_year') {
             $date = Carbon::now()->addYear()->format('Y-m-d');
         }
-        if($value == 'next_avail') {
+
+        if($this->form->scheduleType == 'next_avail') {
             $date = isset($this->form->enabledDates[0]) ? $this->form->enabledDates[0] : Carbon::now()->format('Y-m-d');
         }
+
         $this->form->reset(['schedule_time', 'shiftMsg', 'truckSchedules', 'schedule_date']);
         $this->dispatch('set-current-date', activeDay: $date);
+        $this->showTypeLoader = false;
     }
 }
