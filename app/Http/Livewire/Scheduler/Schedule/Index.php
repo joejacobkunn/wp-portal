@@ -43,12 +43,12 @@ class Index extends Component
     public $activeType;
     public $truckInfo = [];
     public $activeWarehouse;
-    public $eventCount;
     public $filteredSchedules = [];
     public $selectedTruck;
     public $showSlotModal = false;
     public $availableZones;
     public $eventsData;
+    public $showTypeLoader =false;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -59,7 +59,8 @@ class Index extends Component
         'setScheduleTimes' => 'setScheduleTimes',
         'closeTimeSlot' => 'closeTimeSlot',
         'closeSlotModal' => 'closeSlotModal',
-        'scheduleTypeChange' => 'scheduleTypeChange'
+        'scheduleTypeChange' => 'scheduleTypeChange',
+        'scheduleTypeDispatch' => 'scheduleTypeDispatch',
     ];
 
     public $actionButtons = [
@@ -381,20 +382,29 @@ class Index extends Component
     {
         $schedule = TruckSchedule::find($scheduleId);
         $this->form->schedule_time = $schedule->id;
-
         $this->resetValidation(['form.schedule_time']);
     }
 
     public function scheduleTypeChange($field, $value)
     {
+        $this->showTypeLoader = true;
         $this->form->scheduleType = $value;
-        if($value == 'one_year') {
+        $this->dispatch('scheduleTypeDispatch');
+
+    }
+
+    public function scheduleTypeDispatch()
+    {
+        if($this->form->scheduleType == 'one_year') {
             $date = Carbon::now()->addYear()->format('Y-m-d');
         }
-        if($value == 'next_avail') {
+
+        if($this->form->scheduleType == 'next_avail') {
             $date = isset($this->form->enabledDates[0]) ? $this->form->enabledDates[0] : Carbon::now()->format('Y-m-d');
         }
+
         $this->form->reset(['schedule_time', 'shiftMsg', 'truckSchedules', 'schedule_date']);
         $this->dispatch('set-current-date', activeDay: $date);
+        $this->showTypeLoader = false;
     }
 }

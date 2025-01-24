@@ -9,7 +9,7 @@
                                 :listener="'typeCheck'" default-option-label="- None -" :selected="$form->type" :key="'schedule-' . now()" />
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-2">
                         <div class="form-group">
                             <x-forms.input type="number" label="Order Number" model="form.sx_ordernumber"
                                 :live="true" lazy />
@@ -142,6 +142,9 @@
                                         </li>
                                     @endforeach
                                 </ul>
+                                @error('form.line_items')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         @endif
                         <div class="col-md-12">
@@ -154,7 +157,15 @@
                                     :selected="$form->scheduleType" :key="'schedule-' . now()" />
                             </div>
                         </div>
-                        <div class="col-md-6 {{ $form->scheduleType ? '' : 'd-none' }}">
+                        @if ($showTypeLoader)
+                            <div  class="col-md-12 mb-3">
+                                <span class="spinner-border spinner-border-sm mr-2" role="status"
+                                    aria-hidden="true"></span>
+                                <span>Please wait,fetching schedule dates ...</span>
+                            </div>
+                        @endif
+
+                        <div class="col-md-6 {{ !$showTypeLoader && $form->scheduleType ? '' : 'd-none' }}">
                             <div class="form-group">
                                 <label for="datepicker" class="form-label">Select Date</label>
                                 <div wire:ignore>
@@ -191,25 +202,46 @@
 
                             </div>
                         </div>
-                        <div class="col-md-6 {{ $form->schedule_date ? '' : 'd-none' }}">
+                        <div wire:loading wire:target="updateFormScheduleDate"  class="col-md-6">
+                            <div class="d-flex justify-content-center align-items-center h-100 w-100 py-3">
+                                <div class="text-center">
+                                    <div class="spinner-grow text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <div class="spinner-grow text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <div class="spinner-grow text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <div class="spinner-grow text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <div class="spinner-grow text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div wire:loading.remove wire:target="updateFormScheduleDate" class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }}">
                             <label class="form-label">Available Time Slots on
                                 {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
                             <div class="d-flex flex-column gap-2">
 
                                 @forelse($this->form->truckSchedules as $schedule)
-                                    <div class="p-3 bg-light rounded border">
-                                        <button type="button" wire:click="selectSlot({{ $schedule->id }})"
-                                            class="list-group-item list-group-item-action ">{{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                            <span
-                                                class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $schedule->schedule_count }}
-                                                / {{ $schedule->slots }}</span>
-                                            <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
-                                                    class="fas fa-globe"></i>
-                                                {{ $schedule->zone_name }} => <i
-                                                    class="fas fa-truck"></i>{{ $schedule->truck_name }}
-                                            </p>
-                                        </button>
+                                <a href="#" wire:click.prevent="selectSlot({{ $schedule->id }})" class="list-group-item list-group-item-action ">
+                                    <div class="p-3 bg-light rounded border @if($schedule->id == $form->schedule_time) border-primary @endif">
+                                        {{ $schedule->start_time . ' - ' . $schedule->end_time }}
+                                        <span
+                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $schedule->schedule_count }}
+                                            / {{ $schedule->slots }}</span>
+                                        <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
+                                                class="fas fa-globe"></i>
+                                            {{ $schedule->zone_name }} => <i
+                                                class="fas fa-truck"></i>{{ $schedule->truck_name }}
+                                        </p>
                                     </div>
+                                </a>
                                 @empty
                                     <div class="p-3 bg-light rounded border">
                                         <button type="button" class="list-group-item list-group-item-action">No Slots
@@ -218,12 +250,7 @@
                                 @endforelse
                             </div>
                         </div>
-                        @if ($form->shiftMsg)
-                            <div class="col-md-12">
-                                <p class="text-success"><i class="far fa-check-circle"></i> {{ $form->shiftMsg }}
-                                </p>
-                            </div>
-                        @endif
+
                         @error('form.schedule_time')
                             <div class="col-md-12">
                                 <span class="text-danger">{{ $message }}</span>
@@ -233,12 +260,12 @@
                 @endif
 
                 <div class="mt-2">
+                    <hr>
                     <button class="btn btn-primary" type="submit" @if (!$form->ServiceStatus) disabled @endif>
                         <div wire:loading wire:target="submit">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        {{ $this->isEdit ? 'Update' : 'Schedule' }}
-
+                        Schedule
                     </button>
 
                 </div>
