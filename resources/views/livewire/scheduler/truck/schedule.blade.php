@@ -187,7 +187,7 @@
                     headerToolbar: {
                         left: 'prev,next',
                         center: 'title',
-                        right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                        right: 'dayGridMonth,multiMonthYear'
                     },
                     height: 'auto',
                     datesSet: function(info) {
