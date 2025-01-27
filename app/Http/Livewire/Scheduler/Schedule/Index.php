@@ -202,7 +202,7 @@ class Index extends Component
             return [
                 'id' => $schedule->id,
                 'title' => 'Order #' . $schedule->sx_ordernumber,
-                'start' => $schedule->schedule_date,
+                'start' => $schedule->schedule_date->format('Y-m-d'),
                 'description' => 'schedule',
                 'icon' => $icon,
             ];
