@@ -53,22 +53,26 @@
                                     @foreach ($this->filteredSchedules as $truck)
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold"><a href="{{ route('service-area.zones.show', ['zone' => $truck['zone_id']]) }}">
-                                                    <span class="badge bg-light-primary"><i class="fas fa-globe"></i>
-                                                        {{ $truck['zone'] }}</span></a>
-                                                    => <a href="{{ route('scheduler.truck.show', ['truck' => $truck['truck_id']]) }}">
-                                                            <span class="badge bg-light-secondary"><i
+                                                <div class="fw-bold"><a
+                                                        href="{{ route('service-area.zones.show', ['zone' => $truck['zone_id']]) }}">
+                                                        <span class="badge bg-light-primary"><i
+                                                                class="fas fa-globe"></i>
+                                                            {{ $truck['zone'] }}</span></a>
+                                                    => <a
+                                                        href="{{ route('scheduler.truck.show', ['truck' => $truck['truck_id']]) }}">
+                                                        <span class="badge bg-light-secondary"><i
                                                                 class="fas fa-truck"></i>{{ $truck['truck_name'] }}</span>
-                                                        </a></div>
+                                                    </a></div>
                                                 <span class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
                                                         class="far fa-clock"></i>
-                                                    {{$truck['start_time']}}
+                                                    {{ $truck['start_time'] }}
                                                     -
-                                                    {{$truck['end_time']}}
-                                                    </span>
+                                                    {{ $truck['end_time'] }}
+                                                </span>
                                             </div>
-                                            <span class="badge bg-primary rounded-pill">{{$truck['scheduled_count']}} /
-                                                {{$truck['slots']}}</span>
+                                            <span class="badge bg-primary rounded-pill">{{ $truck['scheduled_count'] }}
+                                                /
+                                                {{ $truck['slots'] }}</span>
                                         </li>
                                     @endforeach
                                 </ul>
@@ -88,7 +92,8 @@
 
                         <div class="list-group">
                             @forelse ($eventsData as $event)
-                                <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="handleEventClick({{$event['id']}})">
+                                <a href="#" class="list-group-item list-group-item-action"
+                                    wire:click.prevent="handleEventClick({{ $event['id'] }})">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1">Order
                                             #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}
@@ -174,7 +179,7 @@
                     headerToolbar: {
                         left: 'prev,next today dayGridMonth,listDay',
                         center: 'title',
-                        right: 'warehouseBtn scheduleBtn dropdownButton zoneBtn'
+                        right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
                     titleFormat: {
                         month: 'short',
