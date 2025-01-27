@@ -882,6 +882,12 @@
 .schedule-tab .fc-scheduleBtn-button {
     background-color: #bea20c !important;
     border-color: #bea20c !important;
+}
+.schedule-tab .fc-zoneBtn-button {
+    background-color: #d63384 !important;
+    border-color: #d63384 !important;
+}
+.schedule-tab .fc-zoneBtn-button, .schedule-tab .fc-scheduleBtn-button {
     color: white !important;
     border-radius: 4px;
     padding: 5px 10px;
@@ -896,14 +902,24 @@
     background-color: #bea20c !important;
     border-color: #bea20c !important;
 }
+.schedule-tab .fc-zoneBtn-button:hover {
+    background-color: #d63384 !important;
+    border-color: #d63384 !important;
+}
 
 .schedule-tab .fc-scheduleBtn-button:active,
 .schedule-tab .fc-scheduleBtn-button:focus {
     background-color: #bea20c !important;
     border-color: #bea20c !important;
 }
+.schedule-tab .fc-zoneBtn-button:active,
+.schedule-tab .fc-zoneBtn-button:focus {
+    background-color: #d63384 !important;
+    border-color: #d63384 !important;
+}
 
-.schedule-tab .fc-scheduleBtn-button::after {
+.schedule-tab .fc-scheduleBtn-button::after,
+.schedule-tab .fc-zoneBtn-button::after {
     content: '';
     display: inline-block;
     margin-left: 0.5em;
