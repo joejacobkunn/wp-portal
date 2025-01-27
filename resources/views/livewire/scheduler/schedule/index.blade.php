@@ -14,7 +14,7 @@
                                 @endforeach
                             </div>
                             <div id="warehouse-wrap">
-                                @foreach ($warehouses as $whse)
+                                @foreach ($this->warehouses as $whse)
                                     <a class="dropdown-item border-bottom" href="#"
                                         wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}</a>
                                 @endforeach
@@ -25,6 +25,14 @@
                                 @foreach ($scheduleOptions as $key => $value)
                                     <a class="dropdown-item border-bottom" href="#"
                                         wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
+                                @endforeach
+                            </div>
+                            <div id="zones-wrap">
+                                <a class="dropdown-item border-bottom" href="#"
+                                    wire:click.prevent="changeZone('')">All Zones</a>
+                                @foreach ($this->activeWarehouse->zones->sortBy('name') as $zone)
+                                    <a class="dropdown-item border-bottom" href="#"
+                                        wire:click.prevent="changeZone('{{ $zone->id }}')">{{ $zone->name }}</a>
                                 @endforeach
                             </div>
                         </div>
@@ -166,7 +174,7 @@
                     headerToolbar: {
                         left: 'prev,next today dayGridMonth,listDay',
                         center: 'title',
-                        right: 'warehouseBtn scheduleBtn dropdownButton'
+                        right: 'warehouseBtn scheduleBtn dropdownButton zoneBtn'
                     },
                     titleFormat: {
                         month: 'short',
@@ -196,13 +204,15 @@
                                     document.getElementById('schedule-options').style.display = 'block';
                                     document.getElementById('warehouse-wrap').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'none';
+                                    document.getElementById('zones-wrap').style.display = 'none';
+
 
                                 }
                                 e.stopPropagation();
                             }
                         },
                         warehouseBtn: {
-                            text: '{{ $activeWarehouse->title }}',
+                            text: '{{ $this->activeWarehouse->title }}',
                             click: function(e) {
                                 const button = e.currentTarget;
                                 const buttonRect = button.getBoundingClientRect();
@@ -224,6 +234,8 @@
                                     document.getElementById('warehouse-wrap').style.display = 'block';
                                     document.getElementById('type-wrap').style.display = 'none';
                                     document.getElementById('schedule-options').style.display = 'none';
+                                    document.getElementById('zones-wrap').style.display = 'none';
+
                                 }
                                 e.stopPropagation();
                             }
@@ -251,6 +263,36 @@
                                     document.getElementById('warehouse-wrap').style.display = 'none';
                                     document.getElementById('schedule-options').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'block';
+                                    document.getElementById('zones-wrap').style.display = 'none';
+
+                                }
+                                e.stopPropagation();
+                            }
+                        },
+                        zoneBtn: {
+                            text: 'All Zones',
+                            click: function(e) {
+                                const button = e.currentTarget;
+                                const buttonRect = button.getBoundingClientRect();
+                                const calendarRect = calendarEl.getBoundingClientRect();
+
+                                if (isDropdownVisible) {
+                                    dropdownMenu.style.display = 'none';
+                                    isDropdownVisible = false;
+                                } else {
+                                    const dropdownWidth = 160;
+                                    dropdownMenu.style.top = (buttonRect.bottom + 5) + 'px';
+                                    const leftPosition = Math.min(
+                                        buttonRect.left,
+                                        calendarRect.right - dropdownWidth - 10
+                                    );
+                                    dropdownMenu.style.left = leftPosition + 'px';
+                                    dropdownMenu.style.display = 'block';
+                                    isDropdownVisible = true;
+                                    document.getElementById('warehouse-wrap').style.display = 'none';
+                                    document.getElementById('schedule-options').style.display = 'none';
+                                    document.getElementById('type-wrap').style.display = 'none';
+                                    document.getElementById('zones-wrap').style.display = 'block';
                                 }
                                 e.stopPropagation();
                             }
@@ -353,6 +395,7 @@
                     calendar.addEventSource($wire.schedules);
                     calendar.addEventSource($wire.holidays);
                     const button = document.querySelector('.fc-warehouseBtn-button');
+                    button.textContent = '';
                     button.textContent = activeWarehouse;
                     setZoneInDayCells()
                 });
@@ -361,6 +404,19 @@
                     calendar.addEventSource($wire.schedules);
                     calendar.addEventSource($wire.holidays);
                     const button = document.querySelector('.fc-scheduleBtn-button');
+                    while (button.firstChild) {
+                        button.removeChild(button.firstChild);
+                    }
+                    button.innerHTML = '';
+                    button.innerHTML = title;
+                    setZoneInDayCells()
+                });
+                Livewire.on('calendar-zone-update', (title) => {
+                    calendar.removeAllEvents();
+                    calendar.addEventSource($wire.schedules);
+                    calendar.addEventSource($wire.holidays);
+                    const button = document.querySelector('.fc-zoneBtn-button');
+                    button.innerHTML = '';
                     button.innerHTML = title;
                     setZoneInDayCells()
                 });
@@ -426,6 +482,10 @@
                             buttonClass = '.fc-scheduleBtn-button';
                         }
 
+                        if (document.getElementById('zones-wrap').style.display === 'block') {
+                            buttonClass = '.fc-zoneBtn-button';
+                        }
+
                         const button = document.querySelector(buttonClass);
                         if (button) {
                             const buttonRect = button.getBoundingClientRect();
@@ -453,6 +513,9 @@
                         }
                         if (document.getElementById('type-wrap').style.display === 'block') {
                             buttonClass = '.fc-scheduleBtn-button';
+                        }
+                        if (document.getElementById('zones-wrap').style.display === 'block') {
+                            buttonClass = '.fc-zoneBtn-button';
                         }
                         const button = document.querySelector(buttonClass);
                         if (button) {

@@ -28,27 +28,26 @@ class Index extends Component
     public TruckScheduleForm $truckScheduleForm;
 
     public $showModal;
-    public $name;
     public $schedules;
     public $isEdit;
     public $showView;
     public $addressModal;
     public $orderInfoStrng;
     public $scheduleOptions;
-    public $warehouses;
     public $dateSelected;
     public $holidays;
     public $eventStart;
     public $eventEnd;
     public $activeType;
+    public $activeZone;
     public $truckInfo = [];
-    public $activeWarehouse;
     public $filteredSchedules = [];
     public $selectedTruck;
     public $showSlotModal = false;
     public $availableZones;
     public $eventsData;
     public $showTypeLoader =false;
+    public $activeWarehouseId;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -86,13 +85,14 @@ class Index extends Component
         $this->scheduleOptions = collect(ScheduleEnum::cases())
             ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->value])
             ->toArray();
-        $this->warehouses = Warehouse::select(['id', 'short', 'title'])->where('cono', 10)->orderBy('title', 'asc')->get();
 
-        $query = $this->warehouses;
-        if(Auth::user()->office_location) {
-           $query = $query->where('title', Auth::user()->office_location);
+        if (Auth::user()->office_location) {
+            $activeWarehouse = $this->warehouses->firstWhere('title', Auth::user()->office_location);
+
+            $this->setActiveWarehouse($activeWarehouse ? $activeWarehouse->id : $this->warehouses->first()->id);
+        } else {
+            $this->setActiveWarehouse($this->warehouses->first()->id);
         }
-        $this->activeWarehouse = $query->first();
 
         $this->activeType = '';
         $holidays = CalendarHoliday::listAll();
@@ -107,8 +107,27 @@ class Index extends Component
             ];
         })->toArray();
 
-        //to get shift data
        $this->handleDateClick(Carbon::now());
+    }
+
+    public function getWarehousesProperty()
+    {
+        $data = Warehouse::select(['id', 'short', 'title'])
+            ->where('cono', 10)
+            ->orderBy('title', 'asc')
+            ->get();
+
+        return $data;
+    }
+
+    public function getActiveWarehouseProperty()
+    {
+        return $this->warehouses->find($this->activeWarehouseId);
+    }
+
+    public function setActiveWarehouse($warehouseId)
+    {
+        $this->activeWarehouseId = $warehouseId;
     }
 
     public function create($type)
@@ -194,6 +213,13 @@ class Index extends Component
             $query->where('whse', strtolower($whse));
         });
 
+        if($this->activeZone) {
+            $zoneId = $this->activeZone->id;
+            $query = $query->whereHas('truckSchedule', function ($query) use ($zoneId) {
+                $query->where('zone_id', $zoneId);
+            });
+        }
+
         $this->schedules =  $query->get()
         ->map(function ($schedule) {
             $type = Str::title(str_replace('_', ' ', $schedule->type));
@@ -252,7 +278,7 @@ class Index extends Component
 
     public function changeWarehouse($wsheID)
     {
-        $this->activeWarehouse = $this->warehouses->find($wsheID);
+        $this->setActiveWarehouse($wsheID);
         $this->getEvents();
         $this->handleDateClick(Carbon::now());
         $this->getTruckData();
@@ -309,6 +335,10 @@ class Index extends Component
                 ->whereHas('truck', function($query) use ($start, $end, $type) {
                     $query->where('whse', $this->activeWarehouse->id);
                 });
+
+        if($this->activeZone) {
+            $query = $query->where('zone_id', $this->activeZone->id);
+        }
         if($type == 'at_home_maintenance') {
             $query = $query->whereHas('truck', function($query) use ($start, $end, $type) {
                 $query->where('service_type', 'AHM');
@@ -406,5 +436,18 @@ class Index extends Component
         $this->form->reset(['schedule_time', 'shiftMsg', 'truckSchedules', 'schedule_date']);
         $this->dispatch('set-current-date', activeDay: $date);
         $this->showTypeLoader = false;
+    }
+
+    public function changeZone($zoneId)
+    {
+        if($zoneId && $zoneId != '') {
+            $this->activeZone = Zones::find($zoneId);
+        } else {
+            $this->activeZone = null;
+        }
+
+        $this->getEvents();
+        $this->getTruckData();
+        $this->dispatch('calendar-zone-update', $this->activeZone ? $this->activeZone->name : 'All Zones' );
     }
 }
