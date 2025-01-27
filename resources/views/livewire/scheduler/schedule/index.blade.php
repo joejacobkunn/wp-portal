@@ -88,16 +88,16 @@
 
                         <div class="list-group">
                             @forelse ($eventsData as $event)
-                                <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="handleEventClick({{$event->id}})">
+                                <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="handleEventClick({{$event['id']}})">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1">Order
-                                            #{{ $event->sx_ordernumber }}-{{ $event->order->order_number_suffix }}
+                                            #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}
                                         </h5>
                                         <small>
                                             <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
-                                                @if ($event->type == 'at_home_maintenance')
+                                                @if ($event['type'] == 'at_home_maintenance')
                                                     AHM
-                                                @elseif($event->type == 'pickup' || $event->type == 'delivery')
+                                                @elseif($event['type'] == 'pickup' || $event['type'] == 'delivery')
                                                     P / D
                                                 @else
                                                     N/A
@@ -106,10 +106,10 @@
                                         </small>
                                     </div>
                                     <p class="mb-1">
-                                        {{ $event->order->customer->name }} - SX#
-                                        {{ $event->order->customer->sx_customer_number }}
+                                        {{ $event['order']['customer']['name'] }} - SX#
+                                        {{ $event['order']['customer']['sx_customer_number'] }}
                                     </p>
-                                    <small>{{ $event->order->shipping_info['line'] . ', ' . $event->order->shipping_info['city'] . ', ' . $event->order->shipping_info['state'] . ', ' . $event->order->shipping_info['zip'] }}</small>
+                                    <small>{{ $event['order']['shipping_info']['line'] . ', ' . $event['order']['shipping_info']['city'] . ', ' . $event['order']['shipping_info']['state'] . ', ' . $event['order']['shipping_info']['zip'] }}</small>
                                 </a>
                             @empty
                                 <div class="alert alert-light-warning color-warning"><i

@@ -39,7 +39,7 @@ class Index extends Component
     public $eventStart;
     public $eventEnd;
     public $activeType;
-    public $activeZone;
+    public $activeZone = [];
     public $truckInfo = [];
     public $filteredSchedules = [];
     public $selectedTruck;
@@ -213,8 +213,8 @@ class Index extends Component
             $query->where('whse', strtolower($whse));
         });
 
-        if($this->activeZone) {
-            $zoneId = $this->activeZone->id;
+        if(!empty($this->activeZone)) {
+            $zoneId = $this->activeZone['id'];
             $query = $query->whereHas('truckSchedule', function ($query) use ($zoneId) {
                 $query->where('zone_id', $zoneId);
             });
@@ -246,7 +246,6 @@ class Index extends Component
         $this->form->delete();
         $this->alert('success', 'Record Deleted!');
         return redirect()->route('schedule.index');
-
     }
 
     public function handleEventClick(Schedule $schedule)
@@ -290,12 +289,14 @@ class Index extends Component
         $this->dateSelected = $date;
         $date = Carbon::parse($date)->format('Y-m-d');
 
-        $this->eventsData =  Schedule::where('schedule_date', $date)->get();
-
+        $this->eventsData =  Schedule::where('schedule_date', $date)
+        ->with(['order.customer'])
+        ->get()
+        ->toArray();
         $this->filteredSchedules = $this->getTrucks();
 
        $this->reset(['selectedTruck']);
-       $this->truckScheduleForm->reset();
+       //$this->truckScheduleForm->reset();
     }
 
     public function onDateRangeChanges($start, $end)
@@ -336,8 +337,8 @@ class Index extends Component
                     $query->where('whse', $this->activeWarehouse->id);
                 });
 
-        if($this->activeZone) {
-            $query = $query->where('zone_id', $this->activeZone->id);
+        if(!empty($this->activeZone)) {
+            $query = $query->where('zone_id', $this->activeZone['id']);
         }
         if($type == 'at_home_maintenance') {
             $query = $query->whereHas('truck', function($query) use ($start, $end, $type) {
@@ -441,13 +442,13 @@ class Index extends Component
     public function changeZone($zoneId)
     {
         if($zoneId && $zoneId != '') {
-            $this->activeZone = Zones::find($zoneId);
+            $this->activeZone = Zones::find($zoneId)->toArray();
         } else {
-            $this->activeZone = null;
+            $this->activeZone = [];
         }
 
         $this->getEvents();
         $this->getTruckData();
-        $this->dispatch('calendar-zone-update', $this->activeZone ? $this->activeZone->name : 'All Zones' );
+        $this->dispatch('calendar-zone-update', !empty($this->activeZone) ? $this->activeZone['name'] : 'All Zones' );
     }
 }
