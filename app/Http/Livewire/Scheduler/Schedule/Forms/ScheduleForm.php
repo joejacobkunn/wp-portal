@@ -32,7 +32,7 @@ class ScheduleForm extends Form
     public $allItems = [];
     public $status;
     public $orderInfo;
-    public $SXOrderInfo;
+    protected $SXOrderInfo;
     public $zipcodeInfo;
     public $created_by;
     public $shipping;
