@@ -42,7 +42,6 @@ class ScheduleForm extends Form
     public $truckSchedules = [];
     public $enabledDates = [];
     public $scheduleType;
-    public $shiftMsg;
     public $ServiceStatus = false;
     public $serialNumbers;
     public $line_items;
@@ -70,10 +69,10 @@ class ScheduleForm extends Form
         'notes' => 'Notes',
         'line_items' => 'Line item',
     ];
-    public $serviceArray = [
-        'at_home_maintenance' => 'At Home Maintenance',
-        'delivery_pickup' => 'Delivery/Pickup',
-    ];
+    // public $serviceArray = [
+    //     'at_home_maintenance' => 'At Home Maintenance',
+    //     'delivery_pickup' => 'Delivery/Pickup',
+    // ];
     protected function rules()
     {
         return [
@@ -234,9 +233,6 @@ class ScheduleForm extends Form
         $this->suffix = $schedule->order_number_suffix;
         $this->scheduleType = $schedule->schedule_type;
         $this->recommendedAddress =  $this->schedule->recommended_address;
-        $this->shiftMsg = 'service is scheduled for '.Carbon::parse($this->schedule_date)->toFormattedDayDateString()
-        .' between '
-        .$this->schedule->truckSchedule->start_time. ' - '.$this->schedule->truckSchedule->end_time;
         $this->getTruckSchedules();
     }
 
