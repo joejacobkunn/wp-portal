@@ -210,6 +210,11 @@
                 let dropdownMenu = document.getElementById('calendar-dropdown-menu');
                 let isDropdownVisible = false;
                 let schedulesData = @json($schedules);
+                let currentButtonTexts = {
+                    schedule: 'All Services',
+                    warehouse: '{{ $this->activeWarehouse->title }}',
+                    zone: 'All Zones',
+                };
                 let calendar = new FullCalendar.Calendar(calendarEl, {
                     themeSystem: 'bootstrap5',
                     initialView: 'dayGridMonth',
@@ -248,8 +253,6 @@
                                     document.getElementById('warehouse-wrap').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'none';
                                     document.getElementById('zones-wrap').style.display = 'none';
-
-
                                 }
                                 e.stopPropagation();
                             }
@@ -261,7 +264,7 @@
                             }
                         },
                         warehouseBtn: {
-                            text: '{{ $this->activeWarehouse->title }}',
+                            text:  currentButtonTexts.warehouse,
                             click: function(e) {
                                 const button = e.currentTarget;
                                 const buttonRect = button.getBoundingClientRect();
@@ -290,7 +293,7 @@
                             }
                         },
                         scheduleBtn: {
-                            text: 'All Services',
+                            text:  currentButtonTexts.schedule,
                             click: function(e) {
                                 const button = e.currentTarget;
                                 const buttonRect = button.getBoundingClientRect();
@@ -319,7 +322,7 @@
                             }
                         },
                         zoneBtn: {
-                            text: 'All Zones',
+                            text: currentButtonTexts.zone,
                             click: function(e) {
                                 const button = e.currentTarget;
                                 const buttonRect = button.getBoundingClientRect();
@@ -384,12 +387,21 @@
                             calendar.addEventSource($wire.schedules);
                             calendar.addEventSource($wire.holidays);
                             setZoneInDayCells();
+                            const scheduleButton = document.querySelector('.fc-scheduleBtn-button');
+                            const zoneButton = document.querySelector('.fc-zoneBtn-button');
+                            const warehouseButton = document.querySelector('.fc-warehouseBtn-button');
+                            scheduleButton.innerHTML=currentButtonTexts.schedule;
+                            zoneButton.textContent=currentButtonTexts.zone;
+                            warehouseButton.textContent=currentButtonTexts.warehouse;
+                            if (warehouseButton) {
+                                const icon = document.createElement('i');
+                                icon.className = 'fas fa-map-marker-alt';
+                                icon.style.marginRight = '4px';
+                                const text = warehouseButton.textContent;
+                                warehouseButton.textContent = text;
+                                warehouseButton.prepend(icon);
+                            }
                         });
-                        if (info.view.type === 'listDay') {
-                            $wire.handleDateClick(info.startStr);
-
-                        }
-
                     },
                     dateClick: function(info) {
 
@@ -450,8 +462,17 @@
                     calendar.addEventSource($wire.schedules);
                     calendar.addEventSource($wire.holidays);
                     const button = document.querySelector('.fc-warehouseBtn-button');
-                    button.textContent = '';
                     button.textContent = activeWarehouse;
+                    currentButtonTexts.warehouse = activeWarehouse;
+                    if (button) {
+                        const icon = document.createElement('i');
+                        icon.className = 'fas fa-map-marker-alt';
+                        icon.style.marginRight = '4px';
+                        const text = button.textContent;
+                        button.textContent = text;
+                        button.prepend(icon);
+                    }
+
                     setZoneInDayCells()
                 });
                 Livewire.on('calendar-type-update', (title) => {
@@ -459,11 +480,8 @@
                     calendar.addEventSource($wire.schedules);
                     calendar.addEventSource($wire.holidays);
                     const button = document.querySelector('.fc-scheduleBtn-button');
-                    while (button.firstChild) {
-                        button.removeChild(button.firstChild);
-                    }
-                    button.innerHTML = '';
                     button.innerHTML = title;
+                    currentButtonTexts.schedule = title;
                     setZoneInDayCells()
                 });
                 Livewire.on('calendar-zone-update', (title) => {
@@ -473,6 +491,8 @@
                     const button = document.querySelector('.fc-zoneBtn-button');
                     button.innerHTML = '';
                     button.innerHTML = title;
+                    currentButtonTexts.zone = title;
+
                     setZoneInDayCells()
                 });
                 Livewire.on('jump-to-date', ({ activeDay }) => {
