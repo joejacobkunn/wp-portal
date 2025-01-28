@@ -162,7 +162,7 @@
                             @if($searchData)
                             <div class="alert alert-light-success color-warning"><i
                                 class="fas fa-check-circle"></i>
-                                    Showing results for {{$searchKey}}</div>
+                                    Showing results for "{{$searchKey}}"</div>
                                 @forelse ($searchData as $event)
                                     <a h ref="#" class="list-group-item list-group-item-action"
                                         wire:click.prevent="handleEventClick({{ $event['id'] }})">
@@ -191,7 +191,7 @@
                                 @empty
                                     <div class="alert alert-light-warning color-warning"><i
                                         class="bi bi-exclamation-triangle"></i>
-                                    Schedules not found for {{$searchKey}}</div>
+                                    Schedules not found for "{{$searchKey}}" </div>
                                 @endforelse
                             @endif
                         </div>
