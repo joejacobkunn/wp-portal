@@ -971,6 +971,9 @@
     height: 100px;
     width: 100px;
 }
+.schedule-tab .fc {
+    min-height: 600px !important;
+}
 
 .pac-container {
     z-index: 10000 !important;
