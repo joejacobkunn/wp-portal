@@ -23,7 +23,8 @@ class Schedule extends Component
     public $showForm = false;
     public $showImportForm;
     public $csvFile;
-    public $importIteration = 2;
+    public $daySchedules;
+    public $importIteration = 1245332;
 
     protected $listeners = [
         'closeImportForm' => 'closeImportForm'
@@ -49,6 +50,8 @@ class Schedule extends Component
         $this->alert('success', 'Schedule created');
         $this->handleDateClick($this->form->schedule_date);
         $this->dispatch('calendar-needs-update', $this->form->schedule_date, $truckSchedule->zone->name , $timeStrng, $slotsString);
+        $this->closeUpdateForm();
+
     }
 
     public function save()
@@ -58,23 +61,34 @@ class Schedule extends Component
         $slotsString = 'Slots : ' .$truckSchedule->slots;
         $this->alert('success', 'Schedule Updated');
         $this->dispatch('calendar-needs-update', $this->form->schedule_date, $truckSchedule->zone->name , $timeStrng, $slotsString);
-
+        $this->closeUpdateForm();
     }
 
     public function handleDateClick($date)
     {
         $date = Carbon::parse($date)->format('Y-m-d');
-        $this->showForm = true;
-        $schedule = TruckSchedule::where(['schedule_date' => $date, 'truck_id' => $this->truck->id])->first();
-        $this->resetValidation();
-        if($schedule) {
-            $this->form->init($schedule);
-            $this->truckSchedule = $schedule;
-            return;
-        }
+        $this->daySchedules = TruckSchedule::where(['schedule_date' => $date, 'truck_id' => $this->truck->id])
+        ->get()
+        ->map(function($schedule) {
+            return [
+            'id' => $schedule->id,
+            'zone' => $schedule->zone?->name,
+            'start_time' => $schedule->start_time,
+            'end_time' => $schedule->end_time,
+            'slots' => $schedule->slots,
+            'scheduleCount' => $schedule->scheduleCount,
+            ];
+        })
+        ->toArray();
         $this->form->reset();
-        $this->form->setScheduleDate($date);
-        $this->reset('truckSchedule');
+        $this->form->schedule_date = $date;
+        $this->showForm = false;
+    }
+
+    public function showTruckScheudleForm(TruckSchedule $schedule)
+    {
+        $this->showForm = true;
+        $this->form->init($schedule);
     }
 
     public function onDateRangeChanges($start,$end)
@@ -130,6 +144,19 @@ class Schedule extends Component
             return;
         }
         return response()->download($filePath);
+    }
+
+    public function closeUpdateForm()
+    {
+        $this->showForm = false;
+        $this->resetValidation();
+        $this->form->reset(['zone', 'start_time', 'end_time', 'timePeriod', 'timePeriodEnd', 'slots']);
+        $this->handleDateClick($this->form->schedule_date);
+    }
+
+    public function createSchedule()
+    {
+        $this->showForm = true;
     }
 }
 
