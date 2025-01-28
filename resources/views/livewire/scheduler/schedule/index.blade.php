@@ -95,8 +95,8 @@
                                 <a href="#" class="list-group-item list-group-item-action"
                                     wire:click.prevent="handleEventClick({{ $event['id'] }})">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">Order
-                                            #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}
+                                        <h5><span class="badge bg-secondary">Order
+                                                #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
                                         </h5>
                                         <small>
                                             <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
@@ -111,8 +111,8 @@
                                         </small>
                                     </div>
                                     <p class="mb-1">
-                                        {{ $event['order']['customer']['name'] }} - SX#
-                                        {{ $event['order']['customer']['sx_customer_number'] }}
+                                        {{ $event['order']['customer']['name'] }} - CustNo
+                                        #{{ $event['order']['customer']['sx_customer_number'] }}
                                     </p>
                                     <small>{{ $event['order']['shipping_info']['line'] . ', ' . $event['order']['shipping_info']['city'] . ', ' . $event['order']['shipping_info']['state'] . ', ' . $event['order']['shipping_info']['zip'] }}</small>
                                 </a>
@@ -139,26 +139,65 @@
                 @endif
             </x-modal>
         @endif
-        @if ($showSlotModal)
-            <x-modal toggle="showSlotModal" size="md" :closeEvent="'closeSlotModal'">
-                <x-slot name="title">Update Slots</x-slot>
-                <form wire:submit.prevent="updateSlot()">
-                    <div class="row w-100">
-                        <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                                <x-forms.input type="number" label="Slots" model="truckScheduleForm.slots" lazy />
-                            </div>
+        @if ($showSearchModal)
+            <x-modal toggle="showSearchModal" size="md" :closeEvent="'closeSearchModal'">
+                <x-slot name="title">Search for Event</x-slot>
+                <div class="row w-100">
+                    <div class="col-md-12 mb-3">
+                        <div class="form-group">
+                            <x-forms.input type="text" label="Search Schedule" model="searchKey" :live="true"
+                                hint="Search by order number, name, email or phone" lazy />
                         </div>
                     </div>
-                    <div class="mt-2 float-start">
-                        <button type="submit" class="btn btn-primary">
-                            <div wire:loading wire:target="updateSlot">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </div>
-                            Update
-                        </button>
+                </div>
+                <div class="row w-100">
+                    <div class="col-md-12 mb-2">
+                        <div wire:loading wire:target="searchKey" class="mb-3">
+                            <span class="spinner-border spinner-border-sm mr-2" role="status"
+                                aria-hidden="true"></span>
+                            <span>Please wait, looking for schedules...</span>
+                        </div>
                     </div>
-                </form>
+                    <div class="col-md-12 mb-3">
+                        <div class="list-group " wire:loading.remove wire:target="searchKey">
+                            @if ($searchData)
+                                <div class="alert alert-light-success color-warning"><i class="fas fa-check-circle"></i>
+                                    Showing results for {{ $searchKey }}</div>
+                                @forelse ($searchData as $event)
+                                    <a h ref="#" class="list-group-item list-group-item-action"
+                                        wire:click.prevent="handleEventClick({{ $event['id'] }})">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">Order
+                                                #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}
+                                            </h5>
+                                            <small>
+                                                <span
+                                                    class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
+                                                    @if ($event['type'] == 'at_home_maintenance')
+                                                        AHM
+                                                    @elseif($event['type'] == 'pickup' || $event['type'] == 'delivery')
+                                                        P / D
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </span>
+                                            </small>
+                                        </div>
+                                        <p class="mb-1">
+                                            {{ $event['customer'] }} - SX#
+                                            {{ $event['sx_customer_number'] }}
+                                        </p>
+                                        <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                    </a>
+                                @empty
+                                    <div class="alert alert-light-warning color-warning"><i
+                                            class="bi bi-exclamation-triangle"></i>
+                                        Schedules not found for {{ $searchKey }}</div>
+                                @endforelse
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </x-modal>
         @endif
     </x-slot>
@@ -177,7 +216,7 @@
                     initialView: 'dayGridMonth',
                     height: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today dayGridMonth,listDay',
+                        left: 'prev,next today searchBtn',
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
@@ -214,6 +253,12 @@
 
                                 }
                                 e.stopPropagation();
+                            }
+                        },
+                        searchBtn: {
+                            text: '',
+                            click: function(e) {
+                                $wire.showSearchModalForm();
                             }
                         },
                         warehouseBtn: {
@@ -375,6 +420,12 @@
                 });
 
                 calendar.render();
+                const searchButton = document.querySelector('.fc-searchBtn-button');
+                if (searchButton) {
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-search';
+                    searchButton.appendChild(icon);
+                }
                 const scheduleButton = document.querySelector('.fc-dropdownButton-button');
                 if (scheduleButton) {
                     const icon = document.createElement('i');
@@ -424,6 +475,17 @@
                     button.innerHTML = '';
                     button.innerHTML = title;
                     setZoneInDayCells()
+                });
+                Livewire.on('jump-to-date', ({
+                    activeDay
+                }) => {
+                    calendar.gotoDate(activeDay);
+
+                    // Clear any existing highlights
+                    document.querySelectorAll('.highlighted-date').forEach(cell => {
+                        cell.classList.remove('highlighted-date');
+                    });
+
                 });
 
                 function setZoneInDayCells() {
