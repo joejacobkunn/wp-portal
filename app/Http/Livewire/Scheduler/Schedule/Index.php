@@ -43,11 +43,13 @@ class Index extends Component
     public $truckInfo = [];
     public $filteredSchedules = [];
     public $selectedTruck;
-    public $showSlotModal = false;
+    public $showSearchModal = false;
     public $availableZones;
     public $eventsData;
     public $showTypeLoader =false;
     public $activeWarehouseId;
+    public $searchKey;
+    public $searchData;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -256,6 +258,11 @@ class Index extends Component
         $this->isEdit = true;
         $this->showView = true;
         $this->updatedFormSuffix($schedule->order_number_suffix);
+        if($this->showSearchModal) {
+            $this->closeSearchModal();
+            $this->dispatch('jump-to-date', activeDay: $schedule->schedule_date->format('Y-m-d'));
+
+        }
     }
 
     public function showAdrress()
@@ -385,23 +392,17 @@ class Index extends Component
         $this->truckScheduleForm->init($this->selectedTruck);
     }
 
-    public function showSlotModalForm()
+    public function showSearchModalForm()
     {
-        $this->showSlotModal = true;
+        $this->showSearchModal = true;
     }
 
-    public function closeSlotModal()
+    public function closeSearchModal()
     {
-        $this->showSlotModal = false;
+        $this->showSearchModal = false;
+        $this->reset(['searchKey', 'searchData']);
     }
 
-    public function updateSlot()
-    {
-        $this->truckScheduleForm->update();
-        $this->alert('success', 'Slots Updated');
-        $this->selectedTruck = $this->selectedTruck->fresh();
-        $this->closeSlotModal();
-    }
     public function updateFormScheduleDate($date)
     {
         $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
@@ -434,7 +435,7 @@ class Index extends Component
             $date = isset($this->form->enabledDates[0]) ? $this->form->enabledDates[0] : Carbon::now()->format('Y-m-d');
         }
 
-        $this->form->reset(['schedule_time', 'shiftMsg', 'truckSchedules', 'schedule_date']);
+        $this->form->reset(['schedule_time', 'truckSchedules', 'schedule_date']);
         $this->dispatch('set-current-date', activeDay: $date);
         $this->showTypeLoader = false;
     }
@@ -451,4 +452,30 @@ class Index extends Component
         $this->getTruckData();
         $this->dispatch('calendar-zone-update', !empty($this->activeZone) ? $this->activeZone['name'] : 'All Zones' );
     }
+
+    public function updatedSearchKey($value)
+    {
+        $this->searchKey = $value;
+        $this->searchData = Schedule::where('sx_ordernumber', 'like', '%' . $this->searchKey . '%')
+        ->orWhereHas('order.customer', function ($query) {
+            $query->where('name', 'like', '%' . $this->searchKey . '%')
+                  ->orWhere('email', 'like', '%' . $this->searchKey . '%')
+                  ->orWhere('phone', 'like', '%' . $this->searchKey . '%');
+        })
+        ->get()
+        ->map(function ($schedule) {
+            return [
+                'id' => $schedule->id,
+                'schedule_date' => $schedule->schedule_date,
+                'sx_ordernumber' => $schedule->sx_ordernumber,
+                'order_number_suffix' => $schedule->order_number_suffix,
+                'type' => $schedule->type,
+                'customer' => $schedule->order->customer->name,
+                'sx_customer_number' => $schedule->order->customer->sx_customer_number,
+                'shipping_info' => $schedule->order?->shipping_info,
+            ];
+        })
+        ->toArray();
+    }
+
 }
