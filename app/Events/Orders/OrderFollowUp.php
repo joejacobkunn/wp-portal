@@ -10,9 +10,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Core\Customer;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-
-class OrderFollowUp
+class OrderFollowUp implements ShouldQueue
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -32,12 +32,14 @@ class OrderFollowUp
 
     public $sms_enabled;
 
+    public $email_enabled;
+
 
 
     /**
      * Create a new event instance.
      */
-    public function __construct($order, $mailSubject, $mailContent, $email, $smsPhone, $smsMessage, $smsEnabled)
+    public function __construct($order, $mailSubject, $mailContent, $email, $smsPhone, $smsMessage, $smsEnabled, $emailEnabled)
     {
         $this->order = $order;
         $this->mailSubject = $mailSubject;
@@ -46,6 +48,7 @@ class OrderFollowUp
         $this->sms_phone = $smsPhone;
         $this->sms_message = $smsMessage;
         $this->sms_enabled = $smsEnabled;
+        $this->email_enabled = $emailEnabled;
         $this->customer_name = Customer::where('sx_customer_number', $order->sx_customer_number)->first()?->name;
     }
 

@@ -1,8 +1,9 @@
-<div>
+<div wire:init="setWarehouse">
 
     <x-page :breadcrumbs="$breadcrumbs">
         <x-slot:title>Checkout</x-slot>
         <x-slot:content>
+
             <div class="card border-light shadow-sm mb-4">
                 <div class="card-content">
                     <div class="card-body">
@@ -31,7 +32,7 @@
                     @endif
 
                     @if ($newCustomerModal)
-                        <x-modal :toggle="$newCustomerModal" :size="'xl'" :closeEvent="'closeNewCustomer'">
+                        <x-modal toggle="newCustomerModal" :size="'xl'" :closeEvent="'closeNewCustomer'">
                             <x-slot name="title">
                                 <div>Add New Customer</div>
                             </x-slot>
@@ -52,4 +53,8 @@
 
     </x-page>
 
+    @script
+        <script type="text/javascript" id="ariPartStream"
+            src="https://services.arinet.com/PartStream/?appKey={{ config('partstream.key') }}"></script>
+    @endscript
 </div>

@@ -1,5 +1,4 @@
-<div wire:init="init" >
-    @if($loaded)
+<div >
     <div class="card border-light shadow-sm mb-4">
         <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew' . time()">
             <button wire:click="openGenerateKeyModal" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-plus"></i> Create API Key</button>
@@ -39,25 +38,38 @@
             </div>
         </div>
     </div>
-    @endif
-
-    <x-modal :toggle="$generateKeyModal">
+    <x-modal toggle="generateKeyModal">
         <x-slot name="title">
             <div class="pre-genkey-div">Create API Key</div>
             <div class="post-genkey-div d-none">Your API Key</div>
         </x-slot>
         <div class="row">
             <div class="col-md-12 mb-3">
-                <div class="pre-genkey-div">
-                    <x-forms.input
-                        label="Key Label"
-                        model="keyLabel"
-                        hint="This is to identify your app, eg Mobile App"
-                    />
-                </div>
-                <div class="post-genkey-div d-none">
+                    <div class="pre-genkey-div">
+                        <x-forms.input
+                            label="Key Label"
+                            model="keyLabel"
+                            hint="This is to identify your app, eg Mobile App"
+                        />
+                    </div>
+                <div class="post-genkey-div keysDiv d-none">
                     <label class="alert alert-light-warning mb-0">Warning: This key secret will only be displayed once. Please make sure to copy it down or store it securely before proceeding</label>
-                    <div class="api-key-field-div mt-3 p-3"></div>
+                    <div class="api-key-field-div mt-3 p-3">
+                            <div class="mb-3">
+                                <strong>Key:</strong>
+                                <div>
+                                    <span class="key"></span>
+                                    <input type="hidden" value="${e.detail.client_key}" class="copy-input" />
+                                    <i class="fa-regular fa-clone copy-btn ms-2" title="Copy"></i>
+                                </div>
+                            </div>
+                            <strong>Secret:</strong>
+                            <div>
+                                <span class="secret"></span>
+                                <input type="hidden" value="${e.detail.client_secret}" class="copy-input" />
+                                <i class="fa-regular fa-clone copy-btn ms-2" title="Copy"></i>
+                            </div>
+                        </div>
                 </div>
             </div>
         </div>
@@ -68,39 +80,58 @@
         </x-slot>
 
     </x-modal>
-
-    <script wire:ignore>
-        function copyToClipboard() {
-            document.getElementById("copy_").select();
-            document.execCommand('copy');
-        }
-
-        document.addEventListener('account:key-generated', (e) => {
-            document.querySelectorAll('.pre-genkey-div').forEach((v) => v.classList.add('d-none'))
-            document.querySelectorAll('.post-genkey-div').forEach((v) => v.classList.remove('d-none'))
-            document.querySelector('.api-key-field-div').innerHTML = '<div class="mb-3"><strong>Key:</strong><div>'+ e.detail.client_key +'<input type="hidden" value="'+ e.detail.client_key +'" class="copy-input" /> <i class="fa-regular fa-clone copy-btn ms-2" title="Copy"></i></div></div><strong>Secret:</strong><div>'+ e.detail.client_secret +'<input type="hidden" value="'+ e.detail.client_secret +'" class="copy-input" /> <i class="fa-regular fa-clone copy-btn ms-2" title="Copy"></i><div>'
-
-            setTimeout(() => {
-                @this.closeKeyPopup()
-            }, 180000)
-        });
-
-        document.addEventListener('click', function(event) {
-            if (event.target.matches('.copy-btn')) {
-                event.preventDefault();
-                console.log(event.target)
-                let copyText = event.target.parentElement.querySelector('.copy-input')
-                copyText.select()
-
-                navigator.clipboard.writeText(copyText.value);
-
-                document.dispatchEvent(new CustomEvent('show:toast', {
-                    detail: {
-                        type: "success",
-                        message: "Copied!"
-                    }
-                }))
+    @script
+    <script>
+        (function () {
+            function copyToClipboard() {
+                document.getElementById("copy_").select();
+                document.execCommand('copy');
             }
-        }, false);
+
+            document.addEventListener('account:key-generated', (e) => {
+                setTimeout(() => {
+                    const keyDiv = document.querySelector('.keysDiv');
+                    document.querySelectorAll('.pre-genkey-div').forEach((v) => v.classList.add('d-none'))
+                    document.querySelectorAll('.post-genkey-div').forEach((v) => v.classList.remove('d-none'))
+
+                    if (keyDiv) {
+                        const keySpan = keyDiv.querySelector('.key');
+                        const keyInput =  keySpan.nextElementSibling;
+                        const secretSpan = keyDiv.querySelector('.secret');
+                        const secretInput = secretSpan.nextElementSibling;
+
+                        if (keySpan) {
+                            keySpan.textContent = e.detail[0].client_key;
+                            keyInput.value = e.detail[0].client_key;
+                        }
+
+                        if (secretSpan) {
+                            secretSpan.textContent = e.detail[0].client_secret;
+                            secretInput.value = e.detail[0].client_secret;
+                        }
+                    }
+                }, 100);
+            });
+
+
+
+            document.addEventListener('click', function(event) {
+                if (event.target.matches('.copy-btn')) {
+                    event.preventDefault();
+                    let copyText = event.target.parentElement.querySelector('.copy-input')
+                    copyText.select()
+
+                    navigator.clipboard.writeText(copyText.value);
+
+                    document.dispatchEvent(new CustomEvent('show:toast', {
+                        detail: {
+                            type: "success",
+                            message: "Copied!"
+                        }
+                    }))
+                }
+            }, false);
+        })();
     </script>
+    @endscript
 </div>

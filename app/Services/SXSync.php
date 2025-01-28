@@ -233,7 +233,7 @@ class SXSync
 
     private function orderCreated($data)
     {
-        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
+        $sx_order = Order::select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6', 'shiptoaddr', 'shiptonm', 'shiptost', 'shiptozip', 'shiptocity', 'shipinstr', 'shipto'])->where('cono', $data['cono'])->where('orderno', $data['order_no'])->where('ordersuf',$data['order_suffix'])->first();
         $line_items = $this->getSxOrderLineItemsProperty($data['order_no'],$data['order_suffix']);
         $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
         
@@ -249,7 +249,7 @@ class SXSync
                 'order_date' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
                 'stage_code' => $sx_order['stagecd'],
                 'sx_customer_number' => $sx_order['custno'],
-                'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
+                'is_sro' => $this->isSro($sx_order,$line_items->toArray()),
                 'ship_via' => strtolower($sx_order['shipviaty']),
                 'qty_ship' => $sx_order['totqtyshp'],
                 'qty_ord' => $sx_order['totqtyord'],
@@ -261,7 +261,9 @@ class SXSync
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
                 'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
-                'status' => 'Pending Review'
+                'last_line_added_at' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
+                'status' => 'Pending Review',
+                'shipping_info' => $sx_order->constructAddress($sx_order)
             ]
         );
         
@@ -306,6 +308,7 @@ class SXSync
             'icsl.whse',
             'icsl.prodline',
             'oeel.cono',
+            'oeel.enterdt',
         ];
     
         return OrderLineItem::select($required_line_item_columns)
@@ -330,10 +333,31 @@ class SXSync
     {
         foreach($line_items as $line_item)
         {
-            if(str_contains($line_item['prodline'], '-E')) return true;
+            if(!str_contains($line_item['prodline'], 'LR-E') && str_contains($line_item['prodline'], '-E'))
+            {
+                return true;
+            } 
         }
 
         return false;
+    }
+
+    private function isSro($order,$line_items)
+    {
+        $is_sro = $order['user1'] == 'SRO' ? 1 : 0;
+
+        if($is_sro) return true;
+
+        foreach($line_items as $line_item)
+        {
+            if(str_contains($line_item['prodline'], 'LR-E'))
+            {
+                return true;
+            } 
+        }
+
+        return false;
+
     }
 
     private function checkForWarehouseTransfer($sx_order, $line_items)
@@ -346,7 +370,7 @@ class SXSync
             {
                 $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
 
-                if($backorder_count > 0)
+                if($backorder_count > 0 && strtolower($line_item->ordertype) != 't')
                 {
                     $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
 

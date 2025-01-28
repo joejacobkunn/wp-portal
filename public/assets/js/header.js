@@ -45,3 +45,13 @@ function loadStyle(url, callback ) {
     link.src = url;
     document.getElementsByTagName( "head" )[0].appendChild( link );
 }
+
+window.addEventListener("popstate", function (event) { 
+    window.location.reload();
+});
+
+
+function scrollModalToTop() {
+    // Scroll to the top of the modal
+    document.querySelector('.modal').scrollTop = 0;
+}

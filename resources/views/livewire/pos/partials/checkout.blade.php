@@ -34,7 +34,7 @@
                                                         type="text"
                                                         class="form-control"
                                                         wire:model="productQuery"
-                                                        placeholder="Enter Product Code"
+                                                        placeholder="Enter Product Code / Alias"
                                                         wire:keydown.enter="searchProduct"
                                                     >
                                                     <div class="input-group-append">
@@ -81,20 +81,14 @@
                                                     type="button" data-bs-toggle="dropdown" aria-haspopup="true"
                                                     aria-expanded="true">
                                                     <i class="fas fa-warehouse me-2"></i> Warehouse:
-
-                                                    <div class="warehouse-selected-list-div">
-                                                    @forelse($selectedWareHouses as $warehouseShort)
-                                                        {{ $warehouses[$warehouseShort] }}<br/>
-                                                    @empty
-                                                        <strong>- Not Selected -</strong>
-                                                    @endforelse
-                                                    </div>
+                                                    <strong>{{ $selectedWareHouse ? $warehouses[$selectedWareHouse] : '- Not Selected -' }}</strong>
                                                 </button>
-                                                <div class="dropdown-menu {{ $warehouseDropdown ? 'show' : '' }}" aria-labelledby="dropdownMenuButton"
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
                                                     data-popper-placement="bottom-start">
                                                     <h6 class="dropdown-header">Select Warehouse</h6>
                                                     @foreach ($warehouses as $warehouseShort => $warehouseName)
-                                                        <label class="dropdown-item text-link"><input type="checkbox" value="{{ $warehouseShort }}" wire:model.live="selectedWareHouses" /> {{ $warehouseName }}</label>
+                                                        <a class="dropdown-item" href="javascript:;"
+                                                                wire:click="selectWareHouse('{{ $warehouseShort }}')">{{ $warehouseName }}</a>
                                                     @endforeach
                                                 </div>
                                             </div>
@@ -124,6 +118,17 @@
                                     <tr>
                                         <td><a href="https://weingartz.com//searchPage.action?keyWord={{ $item['product_code'] }}"
                                                 target="_blank">{{ $item['product_name'] }}</a>
+
+                                            @if(!empty($item['supersedes']))
+                                            <div class="d-flex">
+                                                @foreach($item['supersedes'] as $supersede)
+                                                    <span class="badge text-primary media-library-text-link me-1" wire:click="viewSupersede('{{ $supersede }}', '{{ $item['product_code'] }}')">
+                                                        <i class="far fa-clone me-1"></i> {{ $supersede }}
+                                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" wire:loading wire:target="viewSupersede('{{ $supersede }}', '{{ $item['product_code'] }}')"></span>
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                            @endif
                                         </td>
                                         <td>{{ $item['prodline'] }}</td>
                                         <td>{{ $item['bin_location'] }}</td>
@@ -515,7 +520,7 @@
         </div>
     </div>
 
-    <x-modal :toggle="$priceUpdateModal" closeEvent="closePriceUpdateModal">
+    <x-modal toggle="priceUpdateModal" closeEvent="closePriceUpdateModal">
         <x-slot name="title">
             <div class="">Update Product Price</div>
         </x-slot>
@@ -555,7 +560,7 @@
 
     </x-modal>
 
-    <x-modal :toggle="$measureUpdateModal" closeEvent="closeMeasureUpdateModal">
+    <x-modal toggle="measureUpdateModal" closeEvent="closeMeasureUpdateModal">
         <x-slot name="title">
             <div class="">Update Unit Of Measure</div>
         </x-slot>
@@ -585,6 +590,59 @@
                     role="status"
                     aria-hidden="true"></span> Update
             </button>
+        </x-slot>
+
+    </x-modal>
+
+    <x-modal toggle="supersedeModal" closeEvent="closeSupersedeModal">
+        <x-slot name="title">
+            <div class="">View Supersede</div>
+        </x-slot>
+        
+        @if(!empty($supersedeData))
+        <div>
+            <table class="table">
+                <tr>
+                    <td>Product Code</td>
+                    <td>{{ $supersedeData['product_code'] }}</td>
+                </tr>
+                <tr>
+                    <td>Product Line</td>
+                    <td>{{ $supersedeData['prodline'] }}</td>
+                </tr>
+                <tr>
+                    <td>Bin Location</td>
+                    <td>{{ $supersedeData['bin_location'] }}</td>
+                </tr>
+                <tr>
+                    <td>Net Availability</td>
+                    <td>{{ $supersedeData['stock'] }}</td>
+                </tr>
+                <tr>
+                    <td>Price</td>
+                    <td>${{ number_format($supersedeData['price'], 2) }}</td>
+                </tr>
+            </table>
+
+            @if(!empty($supersedeData['stock_error']))
+            <div class="alert alert-warning">
+                <p class="mb-0">Not enough stock for the selected quantity!</p>
+            </div>
+            @endif
+        </div>
+        @endif
+
+        <x-slot name="footer">
+            <div class="m-auto">
+                @if(!empty($supersedeData))
+                <button type="button"
+                    class="btn btn-primary mb-3 px-4 py-2 mt-1"
+                    wire:click="substituteSupersede('{{ $supersedeData['product_code'] }}')"
+                    {{ !empty($supersedeData['stock_error']) ? 'disabled' : '' }}>
+                    <i class="fas fa-sync-alt me-2" wire:loading.class="fa-spin"></i> Substitute supersede
+                </button>
+                @endif
+            </div>
         </x-slot>
 
     </x-modal>

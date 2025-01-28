@@ -4,12 +4,14 @@ namespace App\Models\Order;
 
 use App\Models\Core\Comment;
 use App\Enums\Order\OrderStatus;
+use App\Models\Core\Customer;
+use App\Models\Core\Warehouse;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
-
+use Spatie\Activitylog\LogOptions;
 
 class Order extends Model
 {
@@ -43,19 +45,28 @@ class Order extends Model
         'is_web_order',
         'partial_warehouse_transfer_available',
         'wt_transfers',
-        'golf_parts'
+        'golf_parts',
+        'last_line_added_at',
+        'shipping_info'
     ];
 
     protected $casts = [
         'order_date' => 'date',
         'promise_date' => 'date',
+        'last_line_added_at' => 'date',
         'last_followed_up_at' => 'datetime',
         'status' => OrderStatus::class,
         'dnr_items' => 'array',
         'line_items' => 'array',
         'wt_transfers' => 'array',
         'golf_parts' => 'array',
-        'non_stock_line_items' => 'array'
+        'non_stock_line_items' => 'array',
+        'shipping_info' => 'array'
+    ];
+
+    protected $attributes = [
+        'shipping_info' => '[]',
+
     ];
 
     const LOG_FIELD_MAPS = [
@@ -73,7 +84,14 @@ class Order extends Model
         ],
     ];
 
-    public bool $logOnlyDirty = true;
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->dontSubmitEmptyLogs()
+            ->logOnly(['created_at', 'order_date', 'stage_code', 'status'])
+            ->logOnlyDirty();
+    }
+
 
     private $stage_codes = [
         0 => 'Quoted',
@@ -101,7 +119,7 @@ class Order extends Model
 
 
 
-    
+
     public function isPendingReview()
     {
         return $this->status == OrderStatus::PendingReview;
@@ -122,6 +140,12 @@ class Order extends Model
         $query->whereIn('stage_code', [1, 2]);
     }
 
+    public function scopeClosedOrders(Builder $query)
+    {
+        $query->whereIn('stage_code', [3,4,5]);
+    }
+
+
 
     public function getShippingStage($stage_code)
     {
@@ -137,4 +161,13 @@ class Order extends Model
         return $this->warehouse_emails[strtolower($this->whse)];
     }
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'sx_customer_number', 'sx_customer_number');
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'whse', 'short');
+    }
 }

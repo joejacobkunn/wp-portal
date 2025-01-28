@@ -1,4 +1,4 @@
-<x-modal :toggle="$retire_modal">
+<x-modal toggle="retire_modal">
         <x-slot name="title">
             <div class="">Retire Vehicle</div>
         </x-slot>

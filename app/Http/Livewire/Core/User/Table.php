@@ -41,6 +41,10 @@ class Table extends DataTableComponent
                 })
                 ->html(),
 
+                Column::make('Account ID', 'account_id')
+                ->hideIf(1)
+                ->excludeFromColumnSelect(),
+
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable()
@@ -53,9 +57,19 @@ class Table extends DataTableComponent
             Column::make('Account', 'account.name')
                 ->excludeFromColumnSelect(),
 
+            Column::make('Role', 'sx_operator_id')
+                ->format(function ($value, $row) {
+                    return $row->roles->first()->label;
+                })
+                ->excludeFromColumnSelect(),
+
             Column::make('Email', 'email')
                 ->sortable()
                 ->searchable()
+                ->excludeFromColumnSelect(),
+
+            Column::make('Unavailable Equipment', 'unavailable_equipments_id')
+                ->hideIf(!in_array(auth()->user()->account_id, [2,null]))
                 ->excludeFromColumnSelect(),
 
             BooleanColumn::make('Is Active', 'is_active')

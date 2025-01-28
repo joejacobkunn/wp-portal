@@ -4,7 +4,14 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 
+use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
 use App\Models\Equipment\Warranty\BrandConfigurator\BrandWarranty;
+use App\Models\SalesRepOverride\SalesRepOverride;
+use App\Models\Scheduler\NotificationTemplate;
+use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\Shifts;
+use App\Models\Scheduler\Zipcode;
+use App\Models\Scheduler\Zones;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -36,6 +43,10 @@ class AuthServiceProvider extends ServiceProvider
         $policies += $this->getReportingPolicies();
         $policies += $this->getOrderPolicies();
         $policies += $this->getWarrantyPolicies();
+        $policies += $this->getFloorModelPolicies();
+        $policies += $this->getSalesRepOverride();
+        $policies += $this->getServiceAreaPolicies();
+        $policies += $this->getSchedulesPolicies();
         return $policies;
     }
 
@@ -82,5 +93,35 @@ class AuthServiceProvider extends ServiceProvider
         ];
     }
 
+    private function getFloorModelPolicies()
+    {
+        return [
+            FloorModelInventory::class => \App\Policies\Equipment\FloorModel\FloorModelInventoryPolicy::class
+        ];
+    }
+    private function getSalesRepOverride()
+    {
+        return [
+            SalesRepOverride::class => \App\Policies\SalesRepOverride\SalesRepOverridePolicy::class
+        ];
+    }
 
+
+    private function getServiceAreaPolicies()
+    {
+        return [
+            Zones::class => \App\Policies\Scheduler\ServiceArea\ZonesPolicy::class,
+            Zipcode::class => \App\Policies\Scheduler\ServiceArea\ZipcodePolicy::class
+        ];
+    }
+
+    public function getSchedulesPolicies()
+    {
+        return [
+            Schedule::class => \App\Policies\Scheduler\Schedule\SchedulesPolicy::class,
+            Shifts::class => \App\Policies\Scheduler\ShiftPolicy::class,
+            NotificationTemplate::class => \App\Policies\Scheduler\TemplatePolicy::class,
+            \App\Models\Scheduler\Truck::class => \App\Policies\Scheduler\TruckPolicy::class,
+        ];
+    }
 }

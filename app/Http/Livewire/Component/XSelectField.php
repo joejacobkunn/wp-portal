@@ -112,6 +112,8 @@ class XSelectField extends Component
     
     public $parentComponent;
 
+    public $class = '';
+
     /*
     |--------------------------------------------------------------------------
     | Non-Configurable Attributes 
@@ -198,6 +200,7 @@ class XSelectField extends Component
                 $items[] = [
                     'text' => $item[$this->labelIndex] ?? '',
                     'value' => $item[$this->valueIndex] ?? '',
+                    'class' => $item['class'] ?? ''
                 ];
             }
         }

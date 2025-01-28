@@ -18,7 +18,7 @@
     </ul>
 
     <div class="d-grid gap-2">
-        <a href="{{ route('auth.azure.login') }}" class="btn btn-outline-primary btn-lg mt-2 d-inline-block">
+        <a href="{{ $login_link }}" class="btn btn-outline-primary btn-lg mt-2 d-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-microsoft"
                 viewBox="0 0 16 16">
                 <path

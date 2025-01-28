@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,8 @@ Route::get('reporting-dashboard/{dashboard}/broadcast', \App\Http\Livewire\Repor
 Route::group(['domain' => config('constants.azure_auth_domain')], function () {
     Route::get('/azure/login/redirect', [\App\Http\Controllers\Auth\AzureLoginController::class, 'attemptLogin'])->name('host.azure.redirect');
     Route::get('/azure/callback', [\App\Http\Controllers\Auth\AzureLoginController::class, 'callback'])->name('host.azure.callback');
+    Route::get('/azure/pwa-login/redirect', [\App\Http\Controllers\Auth\PwaAzureLoginController::class, 'attemptLogin'])->name('host.azure_pwa.redirect');
+    Route::get('/azure/pwa-callback', [\App\Http\Controllers\Auth\PwaAzureLoginController::class, 'callback'])->name('host.azure_pwa.callback');
 });
 
 /** Azure urls ends */
@@ -47,6 +50,15 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         });
 
         Route::mediaLibrary();
+
+        Route::get('peoplevox/{mode}/{ponumber}', function (string $mode, string $ponumber) {
+
+            $exitCode = Artisan::call('app:process-purchase-order-receipts', [
+                '--mode' => Route::current()->parameter('mode'), '--po' => Route::current()->parameter('ponumber')
+            ]);
+
+            return Artisan::output();
+        });
 
         Route::get('dashboard', \App\Http\Livewire\Dashboard\Index::class)->name('core.dashboard.index');
 
@@ -89,7 +101,37 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('equipment/unavailable/{unavailable_unit}/show', \App\Http\Livewire\Equipment\Unavailable\Show::class)->name('equipment.unavailable.show');
         Route::get('equipment/warranty', \App\Http\Livewire\Equipment\Warranty\Index::class)->name('equipment.warranty.index');
         Route::get('equipment/warranty/{warranty}/show', \App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Show::class)->name('equipment.warranty.show');
+        Route::get('equipment/floor-model-inventory/', \App\Http\Livewire\Equipment\FloorModelInventory\Index::class)->name('equipment.floor-model-inventory.index');
+        Route::get('equipment/floor-model-inventory/{floorModel}/show', \App\Http\Livewire\Equipment\FloorModelInventory\Show::class)->name('equipment.floor-model-inventory.show');
 
+
+        Route::get('marketing/sms-marketing/', \App\Http\Livewire\Marketing\SMSMarketing\Index::class)->name('marketing.sms-marketing.index');
+
+
+        //pwa
+        Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
+        Route::get('sales-rep-override', \App\Http\Livewire\SalesRepOverride\Index::class)->name('sales-rep-override.index');
+        Route::get('sales-rep-override/{salesRepOverride}/show', \App\Http\Livewire\SalesRepOverride\Show::class)->name('sales-rep-override.show');
+
+        Route::get('scheduler', \App\Http\Livewire\Scheduler\ServiceArea\Index::class)->name('service-area.index');
+        Route::get('scheduler/zones/{zone}/show', \App\Http\Livewire\Scheduler\ServiceArea\Zones\Show::class)->name('service-area.zones.show');
+        Route::get('scheduler/zip-codes/{zipcode}/show', \App\Http\Livewire\Scheduler\ServiceArea\ZipCode\Show::class)->name('service-area.zipcode.show');
+
+        Route::get('scheduler/schedule', \App\Http\Livewire\Scheduler\Schedule\Index::class)->name('schedule.index');
+
+        Route::get('scheduler/drivers', \App\Http\Livewire\Scheduler\Drivers\Index::class)->name('schedule.driver.index');
+        Route::get('scheduler/drivers/{user}/show', \App\Http\Livewire\Scheduler\Drivers\Show::class)->name('schedule.driver.show');
+
+        Route::get('scheduler/template', \App\Http\Livewire\Scheduler\NotificationTemplate\Index::class)->name('schedule.email-template.index');
+        Route::get('scheduler/template/{template}/show', \App\Http\Livewire\Scheduler\NotificationTemplate\Show::class)->name('schedule.email-template.show');
+        Route::get('scheduler/shift', \App\Http\Livewire\Scheduler\Shifts\Index::class)->name('schedule.shift.index');
+
+        // Scheduler Trucks
+        Route::get('scheduler/trucks', \App\Http\Livewire\Scheduler\Truck\Index::class)->name('scheduler.truck.index');
+        Route::get('scheduler/trucks/{truck}/show', \App\Http\Livewire\Scheduler\Truck\Show::class)->name('scheduler.truck.show');
     });
+
+    //pwa
+    Route::prefix('fortis/app')->group(base_path('routes/web/pwa.php'));
 });
 

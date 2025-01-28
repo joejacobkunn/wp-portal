@@ -43,7 +43,7 @@ class UpdateOpenOrders extends Command
         foreach($open_orders as $open_order)
         {
             //fetch sx order
-            $sx_order = SXOrder::select('user1','stagecd','shipviaty','totqtyshp','totqtyord','promisedt','whse')->where('cono',$open_order->cono)->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
+            $sx_order = SXOrder::select('user1','stagecd','shipviaty','totqtyshp','totqtyord','promisedt','whse','shiptoaddr', 'shiptonm', 'shiptost', 'shiptozip', 'shiptocity', 'shipinstr', 'shipto')->where('cono',$open_order->cono)->where('orderno', $open_order->order_number)->where('ordersuf', $open_order->order_number_suffix)->first();
             $status = $open_order->status;
             $line_items = $this->getSxOrderLineItemsProperty($open_order->order_number,$open_order->order_number_suffix);
             $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
@@ -55,7 +55,7 @@ class UpdateOpenOrders extends Command
             $open_order->update([
                 'status' => $status, 
                 'stage_code' => $sx_order->stagecd,
-                'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
+                'is_sro' => $this->isSro($sx_order,$line_items->toArray()),
                 'ship_via' => $sx_order['shipviaty'],
                 'qty_ship' => $sx_order['totqtyshp'],
                 'qty_ord' => $sx_order['totqtyord'],
@@ -64,6 +64,8 @@ class UpdateOpenOrders extends Command
                 'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'promise_date' => Carbon::parse($sx_order['promisedt'])->format('Y-m-d'),
+                'last_line_added_at' => $this->getLatestEnteredLineDate($line_items,$open_order->enterdt),
+                'shipping_info' => $sx_order->constructAddress($sx_order)
             ]);
 
         }
@@ -84,7 +86,7 @@ class UpdateOpenOrders extends Command
             {
                 $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
 
-                if($backorder_count > 0)
+                if($backorder_count > 0 && strtolower($line_item->ordertype) != 't')
                 {
                     $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
 
@@ -130,9 +132,11 @@ class UpdateOpenOrders extends Command
             'oeel.user8',
             'oeel.vendno',
             'oeel.whse',
+            'oeel.enterdt',
             'oeel.stkqtyord',
             'oeel.stkqtyship',
             'oeel.returnfl',
+            'oeel.enterdt',
             'icsp.descrip',
             'icsl.user3',
             'icsl.whse',
@@ -162,10 +166,45 @@ class UpdateOpenOrders extends Command
     {
         foreach($line_items as $line_item)
         {
-            if(str_contains($line_item['prodline'], '-E')) return true;
+            if(!str_contains($line_item['prodline'], 'LR-E') && str_contains($line_item['prodline'], '-E'))
+            {
+                return true;
+            } 
         }
 
         return false;
+    }
+
+    private function isSro($order,$line_items)
+    {
+        $is_sro = $order['user1'] == 'SRO' ? 1 : 0;
+
+        if($is_sro) return true;
+
+        foreach($line_items as $line_item)
+        {
+            if(str_contains($line_item['prodline'], 'LR-E'))
+            {
+                return true;
+            } 
+        }
+
+        return false;
+
+    }
+
+    private function getLatestEnteredLineDate($line_items, $order_date)
+    {
+        $dates = [];
+
+        if($line_items->isEmpty()) return $order_date;
+
+        foreach($line_items as $line_item)
+        {
+            $dates[] = Carbon::parse($line_item['enterdt'])->format('Y-m-d');
+        }
+
+        return max($dates);
     }
 
 

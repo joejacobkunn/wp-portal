@@ -8,10 +8,11 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCancelled
+class OrderCancelled implements ShouldQueue
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -31,10 +32,12 @@ class OrderCancelled
 
     public $sms_enabled;
 
+    public $email_enabled;
+
     /**
      * Create a new event instance.
      */
-    public function __construct($order, $mailSubject, $mailContent, $email, $smsPhone, $smsMessage, $smsEnabled)
+    public function __construct($order, $mailSubject, $mailContent, $email, $smsPhone, $smsMessage, $smsEnabled, $emailEnabled)
     {
         $this->order = $order;
         $this->mailSubject = $mailSubject;
@@ -43,6 +46,7 @@ class OrderCancelled
         $this->sms_phone = $smsPhone;
         $this->sms_message = $smsMessage;
         $this->sms_enabled = $smsEnabled;
+        $this->email_enabled = $emailEnabled;
         $this->customer_name = Customer::where('sx_customer_number', $order->sx_customer_number)->first()?->name;
     }
 

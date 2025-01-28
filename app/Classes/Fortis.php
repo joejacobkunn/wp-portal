@@ -43,6 +43,26 @@ class Fortis
             return $response->body();
     }
 
+
+    public function getUser($userId)
+    {
+        $response = Http::withHeaders($this->headers())
+            ->acceptJson()
+            ->get($this->endpoint.'/v1/users/'.$userId);
+        
+            return $response->body();
+    }
+
+    public function createContact($data)
+    {
+        $response = Http::withHeaders($this->headers())
+                    ->acceptJson()
+                    ->post($this->endpoint.'/v1/contacts',$data);
+        
+        return $response->body();
+    }
+
+
     public function fetchTerminals($location_id)
     {
         $response = Http::withHeaders($this->headers())
@@ -71,6 +91,24 @@ class Fortis
         $response = Http::withHeaders($this->headers())
             ->acceptJson()
             ->post($this->endpoint.'/v1/transactions/cc/sale/terminal', $data);
+        
+            return $response->json();
+    }
+
+    public function terminalRefund($data)
+    {
+        $response = Http::withHeaders($this->headers())
+            ->acceptJson()
+            ->post($this->endpoint.'/v1/transactions/cc/refund/terminal', $data);
+        
+            return $response->json();
+    }
+
+    public function getTransaction($id)
+    {
+        $response = Http::withHeaders($this->headers())
+            ->acceptJson()
+            ->get($this->endpoint.'/v1/transactions/' . $id);
         
             return $response->json();
     }

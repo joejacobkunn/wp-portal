@@ -5,7 +5,7 @@
         <span class="badge bg-light-success">Configured</span>
     @endunless
 
-    <x-modal :toggle="$show">
+    <x-modal toggle="show">
         <x-slot name="title">
             <div class="">Configure Herohub for {{$account->name}}</div>
         </x-slot>

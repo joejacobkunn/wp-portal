@@ -20,7 +20,7 @@ class Table extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
-        $this->setDefaultSort('created_at', 'desc');
+        $this->setDefaultSort('unavailable_reports.created_at', 'desc');
 
         $this->setPerPageAccepted([25, 50, 100]);
         $this->setTableAttributes([
@@ -42,11 +42,18 @@ class Table extends DataTableComponent
                 ->html(),
 
             Column::make('Report Date', 'report_date')
+            ->searchable()
                 ->sortable()->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
                     return '<a href="'.route('equipment.unavailable.report.show', $row->id).'" wire:navigate class="text-primary text-decoration-underline">Report for '.$row->report_date->toFormattedDateString().'</a>';
                 })
                 ->html(),
+
+            Column::make('Assignee', 'assignee.name')
+                ->searchable()
+                ->sortable()->excludeFromColumnSelect()
+                ->html(),
+
 
             Column::make('Status', 'status')
                 ->excludeFromColumnSelect()

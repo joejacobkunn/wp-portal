@@ -4,7 +4,7 @@ namespace App\Notifications\UnavailableEquipment;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use App\Classes\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class UnavailableEquipmentReportReminder extends Notification
@@ -39,7 +39,10 @@ class UnavailableEquipmentReportReminder extends Notification
         return (new MailMessage)
                     ->subject('Unavailable Equipment Report is due for '.$this->report->report_date->toFormattedDateString())
                     ->line('Please complete your unavailable/demo report by '.$this->report->report_date->addDays(7)->toFormattedDateString().'. Click on the below link to get started.')
-                    ->action('Go to Report', url('/equipment/unavailable/report/'.$this->report->id.'/show'));
+                    ->withData([
+                        'logo_url' => 'https://portal-files.powerweb.app/storage/5/ped.png'
+                    ])
+                    ->action('Go to Report', 'https://ped.powerweb.app/equipment/unavailable/report/'.$this->report->id.'/show');
     }
 
     /**

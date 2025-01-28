@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use Spatie\MediaLibraryPro\Http\Livewire\Concerns\WithMedia as SpatieWithMedia;
+use Spatie\MediaLibraryPro\Livewire\Concerns\WithMedia as SpatieWithMedia;
 
 trait WithMedia
 {
@@ -13,7 +13,7 @@ trait WithMedia
         $media = $this->makeSureCustomPropertiesUseRightCasing($media);
         $this->$name = $media;
 
-        $this->dispatchBrowserEvent($name .':media-updated',  [
+        $this->dispatch($name .':media-updated',  [
             'collection' => $this->collection,
             'name' => $name,
             'media' => $media,
@@ -23,7 +23,6 @@ trait WithMedia
 
     public function bootWithMedia(): void
     {
-        $this->fileVar = uniqid();
         $this->mediaComponentNames = [$this->fileVar];
     }
 }

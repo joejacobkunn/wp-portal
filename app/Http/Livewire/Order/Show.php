@@ -17,11 +17,13 @@ use App\Models\Core\User;
 use App\Models\Core\Warehouse;
 use App\Models\Order\NotificationTemplate;
 use App\Models\Order\Order;
+use App\Models\SRO\RepairOrders;
 use App\Models\SX\Operator;
 use App\Models\SX\Shipping;
 use App\Models\SX\WarehouseProduct;
 use App\Services\Kenect;
 use App\Services\Kinect;
+use Carbon\Carbon;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
@@ -64,8 +66,8 @@ class Show extends Component
     public $templates = [];
     public $templateId;
 
-    public $smsEnabled = true;
-    public $emailEnabled = true;
+    public $smsEnabled = false;
+    public $emailEnabled = false;
     public $wtModal = false;
 
     public $line_item_inventory = [];
@@ -76,6 +78,8 @@ class Show extends Component
     public $wt_whse;
     public $wt_transfer_number;
     public $order_notes;
+
+    public $sro_order;
 
     
     public $breadcrumbs = [
@@ -119,6 +123,7 @@ class Show extends Component
         'oeel.stkqtyord',
         'oeel.stkqtyship',
         'oeel.returnfl',
+        'oeel.enterdt',
         'icsp.descrip',
         'icsl.user3',
         'icsl.whse',
@@ -128,9 +133,9 @@ class Show extends Component
     public function rules()
     {
         return [
-            'emailTo' => 'required|email',
-            'emailSubject' => 'required',
-            'emailContent' => 'required',
+            'emailTo' => [Rule::requiredIf($this->emailEnabled)],
+            'emailSubject' => [Rule::requiredIf($this->emailEnabled)],
+            'emailContent' => [Rule::requiredIf($this->emailEnabled)],
             'smsPhone' => [Rule::requiredIf($this->smsEnabled)],
             'smsMessage' => [Rule::requiredIf($this->smsEnabled)]
         ];
@@ -147,6 +152,7 @@ class Show extends Component
         $this->order_number = $this->order->order_number;
         $this->order_suffix = $this->order->order_number_suffix;
         $this->order_notes = $this->getOrderNotes();
+        if($this->order->is_sro) $this->sro_order = $this->fetch_sro();
         $this->authorize('view', $this->order);
     }
 
@@ -253,42 +259,45 @@ class Show extends Component
         $this->order->save();
         $this->closePopup('cancelOrderModal');
 
-        event(new OrderCancelled($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
+        event(new OrderCancelled($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled, $this->emailEnabled));
 
     }
 
     public function sendEmail()
     {
+        $this->validate();
         $this->authorize('manage', $this->order);
             $this->order->status = OrderStatus::FollowUp->value;
             $this->order->last_updated_by = auth()->user()->id;
             $this->order->last_followed_up_at = now();
             $this->order->save();
             $this->closePopup('followUpModal');
-            event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
+            event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled, $this->emailEnabled));
     }
 
     public function sendShippingEmail()
     {
+        $this->validate();
         $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::ShipmentFollowUp->value;
         $this->order->last_updated_by = auth()->user()->id;
         $this->order->last_followed_up_at = now();
         $this->order->save();
         $this->closePopup('shippingModal');
-        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->shippingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
+        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->shippingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled, $this->emailEnabled));
 
     }
 
     public function sendReceivingEmail()
     {
+        $this->validate();
         $this->authorize('manage', $this->order);
         $this->order->status = OrderStatus::ReceivingFollowUp->value;
         $this->order->last_updated_by = auth()->user()->id;
         $this->order->last_followed_up_at = now();
         $this->order->save();
         $this->closePopup('receivingModal');
-        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->receivingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled));
+        event(new OrderFollowUp($this->order, $this->emailSubject, $this->emailContent, $this->receivingEmail, $this->emailTo, $this->smsPhone, $this->smsMessage, $this->smsEnabled, $this->emailEnabled));
     }
 
     public function getCustomerProperty()
@@ -376,12 +385,23 @@ class Show extends Component
             $backorder_count = intval($item->stkqtyord) - intval($item->stkqtyship);
 
             if($backorder_count > 0)
-            $estimated_date = (!empty($item->user8)) ? date("F j, Y", strtotime($item->user8)) : '';
-            $backorders[] = [
-                'shipprod' => $item->shipprod,
-                'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).' ('.$estimated_date.')'
-            ];
-
+            {
+                $display_date = '';
+                if(!empty($item->user8))
+                {   $past_three_year_date = Carbon::now()->subYears(3);
+                    $future_three_year = Carbon::now()->addYears(3);
+                    $estimated_date = Carbon::parse($item->user8);
+                    if($estimated_date->greaterThan($past_three_year_date) && $estimated_date->lessThan($future_three_year))
+                    {
+                        $display_date = ' ('.date("F j, Y", strtotime($item->user8)).')';
+                    }
+                }
+                $backorders[] = [
+                    'shipprod' => $item->shipprod,
+                    'full_name' => $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).$display_date
+                ];
+    
+            }
         }
 
         return $backorders;
@@ -621,7 +641,7 @@ class Show extends Component
                 $string .= $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).', ';
             }
 
-            return $string;
+            return rtrim($string,", ");
 
         }
         else
@@ -652,7 +672,7 @@ class Show extends Component
                 $string .= $item->user3.' '.substr($item->shipprod,2).' '.trim($item->cleanDescription()).', ';
             }
 
-            return $string;
+            return rtrim($string,", ");
 
         }
         else
@@ -686,7 +706,7 @@ class Show extends Component
                 $string .= $item['full_name'].', ';
             }
 
-            return $string;
+            return rtrim($string,", ");
 
         }
         else
@@ -738,6 +758,11 @@ class Show extends Component
     {
         $sx_client = new SX();
         return $sx_client->get_notes(['request' => ['companyNumber' => 10, 'primaryKey' => $this->order->order_number, 'operatorInit' => 'WEB', 'notesType' => 'o', 'requiredNotesOnlyFlag' => false, 'recordLimit' => 10]]);
+    }
+
+    private function fetch_sro()
+    {
+        return RepairOrders::where('sx_repair_order_no', $this->order->order_number)->first();
     }
 
 

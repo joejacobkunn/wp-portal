@@ -14,11 +14,13 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         //rerun failed jobs every 3 hours
-        $schedule->command('queue:retry all')->everyThreeHours();
         $schedule->command('queue:prune-failed --hours=72')->dailyAt('07:45');
 
         //task to sync customer last sale dates from sx to local database
         $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->dailyAt('21:15');
+
+        //task to process peoplvox receipts
+        $schedule->command('app:process-purchase-order-receipts --mode=process')->timezone('America/New_York')->dailyAt('21:30');
 
         //task to update dnr orders
         $schedule->command('sx:update-dnr-backorders')->everyThreeHours();
@@ -29,20 +31,26 @@ class Kernel extends ConsoleKernel
         //task to fetch sx operators
         $schedule->command('sx:fetch-operators')->wednesdays();
 
+        //task to sync drivers/techs for scheduler app
+        $schedule->command("app:sync-azure-users --title='Driver,Service Technician'")->daily();
+
+        //task to generate warranty regsitration
+        $schedule->command('sx:generate-warranty-report')->hourly();
+
         //task to refresh open order data
         $schedule->command('import:sx customer-order-status-sync weingartz')->timezone('America/New_York')->dailyAt('03:15');
 
         //task to sync unavailable/demo units
         $schedule->command('sx:sync-unavailable-units')->timezone('America/New_York')->dailyAt('04:15');
-        $schedule->command('app:create-unavailable-equipment-report')->timezone('America/New_York')->twiceMonthly(1, 15, '07:00');
+        $schedule->command('app:create-unavailable-equipment-report')->timezone('America/New_York')->monthlyOn(1, '07:00');
 
         //purge old auth logs that are more than a year old
         $schedule->command('authentication-log:purge')->monthly();
         
         //Product Seeders
-        $schedule->command('db:seed --class=ProductMetaSeeder')->dailyAt('04:45');
-        $schedule->command('db:seed --class=ProductSeeder')->dailyAt('04:55');
-        $schedule->command('db:seed --class=UnitSellSeeder')->dailyAt('05:45');
+        $schedule->command('db:seed --class=ProductMetaSeeder')->daily();
+        $schedule->command('db:seed --class=ProductSeeder')->daily();
+        $schedule->command('db:seed --class=UnitSellSeeder')->daily();
 
         //purge old webhooks daily - 90 days or older
         $schedule->command('model:prune', [
@@ -56,6 +64,8 @@ class Kernel extends ConsoleKernel
 
         //cron to clean up laravel log files
         $schedule->command('logcleaner:run', ['--keeplines' => 5000, '--keepfiles' => 14])->daily()->timezone('America/New_York')->at('06:00');
+
+        $schedule->command('activitylog:clean')->daily();
 
     }
 

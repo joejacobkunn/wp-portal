@@ -22,7 +22,7 @@
             duration: 3000,
             gravity:"bottom",
             position: "right",
-            backgroundColor: e.detail.type == 'success' ? "#4fbe87" : '#f3616d',
+            background: e.detail.type == 'success' ? "#4fbe87" : '#f3616d',
         }).showToast();
     });
 </script>

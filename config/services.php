@@ -38,4 +38,17 @@ return [
         'tenant' => env('AZURE_TENANT_ID'),
         'proxy' => env('PROXY'),  // optionally
     ],
+
+    'azure_pwa' => [
+        'client_id' => env('AZURE_CLIENT_ID'),
+        'client_secret' => env('AZURE_CLIENT_SECRET'),
+        'redirect' => env('AZURE_PWA_REDIRECT_URI'),
+        'tenant' => env('AZURE_TENANT_ID'),
+        'proxy' => env('PROXY'),  // optionally
+    ],
+
+    //google places for address search
+    'google_places' => [
+        'api_key' => env('GOOGLE_PLACES_API_KEY', null),
+    ]
 ];

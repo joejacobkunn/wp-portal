@@ -8,6 +8,7 @@ use App\Models\Order\Order;
 use App\Models\SX\Order as SXOrder;
 use App\Models\SX\OrderLineItem;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 
 class SxOrderSync extends Command
@@ -17,7 +18,7 @@ class SxOrderSync extends Command
      *
      * @var string
      */
-    protected $signature = 'sx:order-sync {--months=2}';
+    protected $signature = 'sx:order-sync {--months=2} {--open}';
 
     /**
      * The console command description.
@@ -33,10 +34,17 @@ class SxOrderSync extends Command
     {
         $startDate = date('Y-m-d', strtotime('-'.$this->option('months').' months'));
         $endDate = date('Y-m-d');
-        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6'])->where('cono', 10)->whereBetween('enterdt', [$startDate, $endDate])->get();
+        $is_open = $this->option('open');
+        $sx_orders = SXOrder::without(['customer'])->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6', 'shiptoaddr', 'shiptonm', 'shiptost', 'shiptozip', 'shiptocity', 'shipinstr', 'shipto'])
+                        ->where('cono', 10)
+                        ->whereBetween('enterdt', [$startDate, $endDate])
+                        ->when($is_open,function (Builder $query, bool $is_open) {
+                            $query->openOrders();
+                        })
+                        ->get();
 
         foreach($sx_orders as $sx_order)
-        {
+        {  
             $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
             $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
 
@@ -52,7 +60,7 @@ class SxOrderSync extends Command
                     'order_date' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
                     'stage_code' => $sx_order['stagecd'],
                     'sx_customer_number' => $sx_order['custno'],
-                    'is_sro' => $sx_order['user1'] == 'SRO' ? 1 : 0,
+                    'is_sro' => $this->isSro($sx_order,$line_items->toArray()),
                     'ship_via' => $sx_order['shipviaty'],
                     'qty_ship' => $sx_order['totqtyshp'],
                     'qty_ord' => $sx_order['totqtyord'],
@@ -64,7 +72,8 @@ class SxOrderSync extends Command
                     'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
                     'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
                     'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
-                    'status' => $this->status($sx_order['stagecd'])
+                    'status' => $this->status($sx_order['stagecd']),
+                    'shipping_info' => $sx_order->constructAddress($sx_order)
                 ]
             );
 
@@ -135,11 +144,32 @@ class SxOrderSync extends Command
     {
         foreach($line_items as $line_item)
         {
-            if(str_contains($line_item['prodline'], '-E')) return true;
+            if(!str_contains($line_item['prodline'], 'LR-E') && str_contains($line_item['prodline'], '-E'))
+            {
+                return true;
+            } 
         }
 
         return false;
     }
+
+    private function isSro($order,$line_items)
+    {
+        $is_sro = $order['user1'] == 'SRO' ? 1 : 0;
+
+        if($is_sro) return true;
+
+        foreach($line_items as $line_item)
+        {
+            if(str_contains($line_item['prodline'], 'LR-E'))
+            {
+                return true;
+            } 
+        }
+
+        return false;
+    }
+
 
     private function checkForWarehouseTransfer($sx_order, $line_items)
     {

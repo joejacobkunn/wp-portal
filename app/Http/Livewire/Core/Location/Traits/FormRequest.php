@@ -7,6 +7,7 @@ use App\Models\Core\Account;
 use App\Models\Core\Location;
 use App\Models\Core\Role;
 use App\Models\Core\User;
+use App\Models\Core\Warehouse;
 
 trait FormRequest
 {
@@ -24,7 +25,8 @@ trait FormRequest
             'location.address' => 'required',
             'location.location' => 'required',
             'location.is_active' => 'required|boolean',
-            'location.fortis_location_id' => 'nullable'
+            'location.fortis_location_id' => 'nullable',
+            'location.sx_location' => 'nullable'
         ];
     }
 
@@ -64,6 +66,7 @@ trait FormRequest
         $this->authorize('store', Location::class);
 
         $this->location->account_id = $this->account->id;
+        $this->location->sx_location = Warehouse::where('title', ucwords($this->location->location))->first()?->short ?? null;
 
         $this->location->save();
 
