@@ -13,7 +13,6 @@ class ScheduleForm extends Form
     public ?TruckSchedule $truckSchedule;
 
     public $zone;
-    public $shift_type;
     public $start_time;
     public $end_time;
     public $schedule_date;
