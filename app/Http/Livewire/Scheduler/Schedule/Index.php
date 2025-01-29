@@ -5,7 +5,6 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
-use App\Http\Livewire\Scheduler\Schedule\Forms\TruckScheduleForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
@@ -25,8 +24,6 @@ class Index extends Component
 
     public ScheduleForm $form;
 
-    public TruckScheduleForm $truckScheduleForm;
-
     public $showModal;
     public $schedules;
     public $isEdit;
@@ -42,7 +39,6 @@ class Index extends Component
     public $activeZone = [];
     public $truckInfo = [];
     public $filteredSchedules = [];
-    public $selectedTruck;
     public $showSearchModal = false;
     public $availableZones;
     public $eventsData;
@@ -301,9 +297,6 @@ class Index extends Component
         ->get()
         ->toArray();
         $this->filteredSchedules = $this->getTrucks();
-
-       $this->reset(['selectedTruck']);
-       //$this->truckScheduleForm->reset();
     }
 
     public function onDateRangeChanges($start, $end)
@@ -383,13 +376,6 @@ class Index extends Component
                 'scheduled_count' => $truck->schedule_count,
             ];
         })->toArray();
-    }
-
-
-    public function showTruckData($shiftId)
-    {
-        $this->selectedTruck = TruckSchedule::find($shiftId);
-        $this->truckScheduleForm->init($this->selectedTruck);
     }
 
     public function showSearchModalForm()
