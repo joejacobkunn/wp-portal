@@ -12,8 +12,8 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <div class="form-group">
-                                <x-forms.input type="number" label="Order Number" model="form.sx_ordernumber"
-                                    :live="true" lazy />
+                                <x-forms.input type="number" label="Order Number" model="form.sx_ordernumber" :hint="'Please enter SX order number from '
+                                    .strtoupper($this->activeWarehouse->short)" :live="true" lazy />
                             </div>
                         </div>
                         <div class="col-md-6 mb-2">

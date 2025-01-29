@@ -69,10 +69,7 @@ class ScheduleForm extends Form
         'notes' => 'Notes',
         'line_items' => 'Line item',
     ];
-    // public $serviceArray = [
-    //     'at_home_maintenance' => 'At Home Maintenance',
-    //     'delivery_pickup' => 'Delivery/Pickup',
-    // ];
+
     protected function rules()
     {
         return [
@@ -105,7 +102,7 @@ class ScheduleForm extends Form
         ];
     }
 
-    public function getOrderInfo($suffix)
+    public function getOrderInfo($suffix, $aciveWarehouse)
     {
         $google = app(DistanceInterface::class);
         $this->saveRecommented = false;
@@ -127,7 +124,7 @@ class ScheduleForm extends Form
 
         $this->SXOrderInfo = (config('sx.mock')) ? [] : SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
 
-        if(is_null($this->orderInfo)) {
+        if(is_null($this->orderInfo) || strtolower($this->orderInfo->whse) != strtolower($aciveWarehouse)) {
             $this->addError('sx_ordernumber', 'Order not Found');
             $this->reset([
                 'zipcodeInfo',
@@ -137,11 +134,14 @@ class ScheduleForm extends Form
                 'enabledDates' ,
                 'truckSchedules',
                 'scheduleType',
-                'line_items'
+                'line_items',
+                'orderInfo'
 
             ]);
             return;
         }
+
+
 
         // if(empty($this->orderInfo->line_items['line_items'])) {
         //     $this->addError('sx_ordernumber', 'Line items not found in this order');

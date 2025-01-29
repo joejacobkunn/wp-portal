@@ -174,7 +174,7 @@ class Index extends Component
     {
         if(is_numeric($value))
         {
-            $this->form->getOrderInfo($value);
+            $this->form->getOrderInfo($value, $this->activeWarehouse->short);
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
         }
     }
