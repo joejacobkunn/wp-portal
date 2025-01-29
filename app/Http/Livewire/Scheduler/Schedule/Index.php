@@ -201,23 +201,8 @@ class Index extends Component
 
     public function getEvents()
     {
-        $whse = $this->activeWarehouse?->short;
-        $query = Schedule::with('order');
-        if($this->activeType && $this->activeType != '') {
-            $query->where('type', $this->activeType);
-        }
-        $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('order', function ($query) use ($whse) {
-            $query->where('whse', strtolower($whse));
-        });
 
-        if(!empty($this->activeZone)) {
-            $zoneId = $this->activeZone['id'];
-            $query = $query->whereHas('truckSchedule', function ($query) use ($zoneId) {
-                $query->where('zone_id', $zoneId);
-            });
-        }
-
+        $query = $this->getSchedules();
         $this->schedules =  $query->get()
         ->map(function ($schedule) {
             $type = Str::title(str_replace('_', ' ', $schedule->type));
@@ -292,9 +277,23 @@ class Index extends Component
         $this->dateSelected = $date;
         $date = Carbon::parse($date)->format('Y-m-d');
 
-        $this->eventsData =  Schedule::where('schedule_date', $date)
-        ->with(['order.customer'])
+        $query = $this->getSchedules();
+
+        $this->eventsData = $query->where('schedule_Date', $date)
         ->get()
+        ->map(function($schedule){
+            return [
+                'id' => $schedule->id,
+                'type' => $schedule->type,
+                'sx_ordernumber' => $schedule->sx_ordernumber,
+                'schedule_date' => $schedule->schedule_date,
+                'status' => $schedule->status,
+                'order_number_suffix' => $schedule->order_number_suffix,
+                'customer_name' => $schedule->order->customer->name,
+                'sx_customer_number' => $schedule->order->customer->sx_customer_number,
+                'shipping_info' => $schedule->order->shipping_info,
+            ];
+        })
         ->toArray();
         $this->filteredSchedules = $this->getTrucks();
     }
@@ -469,6 +468,28 @@ class Index extends Component
             ];
         })
         ->toArray();
+    }
+
+    public function getSchedules()
+    {
+        $whse = $this->activeWarehouse?->short;
+        $query = Schedule::with('order.customer');
+        if($this->activeType && $this->activeType != '') {
+            $query->where('type', $this->activeType);
+        }
+        $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
+        ->whereHas('order', function ($query) use ($whse) {
+            $query->where('whse', strtolower($whse));
+        });
+
+        if(!empty($this->activeZone)) {
+            $zoneId = $this->activeZone['id'];
+            $query = $query->whereHas('truckSchedule', function ($query) use ($zoneId) {
+                $query->where('zone_id', $zoneId);
+            });
+        }
+
+        return $query;
     }
 
 }

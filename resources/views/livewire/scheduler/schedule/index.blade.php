@@ -111,10 +111,10 @@
                                         </small>
                                     </div>
                                     <p class="mb-1">
-                                        {{ $event['order']['customer']['name'] }} - CustNo
-                                        #{{ $event['order']['customer']['sx_customer_number'] }}
+                                        {{ $event['customer_name'] }} - CustNo
+                                        #{{ $event['sx_customer_number'] }}
                                     </p>
-                                    <small>{{ $event['order']['shipping_info']['line'] . ', ' . $event['order']['shipping_info']['city'] . ', ' . $event['order']['shipping_info']['state'] . ', ' . $event['order']['shipping_info']['zip'] }}</small>
+                                    <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
                                 </a>
                             @empty
                                 <div class="alert alert-light-warning color-warning"><i
