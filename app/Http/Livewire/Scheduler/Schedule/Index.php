@@ -55,7 +55,7 @@ class Index extends Component
         'closeAddress' => 'closeAddress',
         'setScheduleTimes' => 'setScheduleTimes',
         'closeTimeSlot' => 'closeTimeSlot',
-        'closeSlotModal' => 'closeSlotModal',
+        'closeSearchModal' => 'closeSearchModal',
         'scheduleTypeChange' => 'scheduleTypeChange',
         'scheduleTypeDispatch' => 'scheduleTypeDispatch',
     ];
