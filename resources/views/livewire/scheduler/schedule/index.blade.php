@@ -93,10 +93,15 @@
                         <div class="list-group">
                             @forelse ($eventsData as $event)
                                 <a href="#" class="list-group-item list-group-item-action"
-                                    wire:click.prevent="handleEventClick({{ $event['id'] }})">
+                                    wire:click.prevent="handleEventClick({{ $event['id'] }})"
+                                    wire:loading.attr="disabled"
+                                    wire:target="handleEventClick({{ $event['id'] }})">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5><span class="badge bg-secondary">Order
                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
+                                                <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                </div>
                                         </h5>
                                         <small>
                                             <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
@@ -169,6 +174,9 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h5 class="mb-1">Order
                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}
+                                                <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                </div>
                                             </h5>
                                             <small>
                                                 <span
