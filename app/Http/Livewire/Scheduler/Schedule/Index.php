@@ -5,7 +5,6 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
-use App\Http\Livewire\Scheduler\Schedule\Forms\TruckScheduleForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
@@ -25,8 +24,6 @@ class Index extends Component
 
     public ScheduleForm $form;
 
-    public TruckScheduleForm $truckScheduleForm;
-
     public $showModal;
     public $schedules;
     public $isEdit;
@@ -42,7 +39,6 @@ class Index extends Component
     public $activeZone = [];
     public $truckInfo = [];
     public $filteredSchedules = [];
-    public $selectedTruck;
     public $showSearchModal = false;
     public $availableZones;
     public $eventsData;
@@ -59,7 +55,7 @@ class Index extends Component
         'closeAddress' => 'closeAddress',
         'setScheduleTimes' => 'setScheduleTimes',
         'closeTimeSlot' => 'closeTimeSlot',
-        'closeSlotModal' => 'closeSlotModal',
+        'closeSearchModal' => 'closeSearchModal',
         'scheduleTypeChange' => 'scheduleTypeChange',
         'scheduleTypeDispatch' => 'scheduleTypeDispatch',
     ];
@@ -178,7 +174,7 @@ class Index extends Component
     {
         if(is_numeric($value))
         {
-            $this->form->getOrderInfo($value);
+            $this->form->getOrderInfo($value, $this->activeWarehouse->short);
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
         }
     }
@@ -205,23 +201,8 @@ class Index extends Component
 
     public function getEvents()
     {
-        $whse = $this->activeWarehouse?->short;
-        $query = Schedule::with('order');
-        if($this->activeType && $this->activeType != '') {
-            $query->where('type', $this->activeType);
-        }
-        $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('order', function ($query) use ($whse) {
-            $query->where('whse', strtolower($whse));
-        });
 
-        if(!empty($this->activeZone)) {
-            $zoneId = $this->activeZone['id'];
-            $query = $query->whereHas('truckSchedule', function ($query) use ($zoneId) {
-                $query->where('zone_id', $zoneId);
-            });
-        }
-
+        $query = $this->getSchedules();
         $this->schedules =  $query->get()
         ->map(function ($schedule) {
             $type = Str::title(str_replace('_', ' ', $schedule->type));
@@ -296,14 +277,25 @@ class Index extends Component
         $this->dateSelected = $date;
         $date = Carbon::parse($date)->format('Y-m-d');
 
-        $this->eventsData =  Schedule::where('schedule_date', $date)
-        ->with(['order.customer'])
+        $query = $this->getSchedules();
+
+        $this->eventsData = $query->where('schedule_Date', $date)
         ->get()
+        ->map(function($schedule){
+            return [
+                'id' => $schedule->id,
+                'type' => $schedule->type,
+                'sx_ordernumber' => $schedule->sx_ordernumber,
+                'schedule_date' => $schedule->schedule_date,
+                'status' => $schedule->status,
+                'order_number_suffix' => $schedule->order_number_suffix,
+                'customer_name' => $schedule->order->customer->name,
+                'sx_customer_number' => $schedule->order->customer->sx_customer_number,
+                'shipping_info' => $schedule->order->shipping_info,
+            ];
+        })
         ->toArray();
         $this->filteredSchedules = $this->getTrucks();
-
-       $this->reset(['selectedTruck']);
-       //$this->truckScheduleForm->reset();
     }
 
     public function onDateRangeChanges($start, $end)
@@ -385,13 +377,6 @@ class Index extends Component
         })->toArray();
     }
 
-
-    public function showTruckData($shiftId)
-    {
-        $this->selectedTruck = TruckSchedule::find($shiftId);
-        $this->truckScheduleForm->init($this->selectedTruck);
-    }
-
     public function showSearchModalForm()
     {
         $this->showSearchModal = true;
@@ -456,6 +441,12 @@ class Index extends Component
     public function updatedSearchKey($value)
     {
         $this->searchKey = $value;
+        if($this->searchKey == '') {
+            $this->addError('searchKey', 'search field can\'t be empty');
+            $this->reset('searchData');
+            return;
+        }
+        $this->resetValidation('searchKey');
         $this->searchData = Schedule::where('sx_ordernumber', 'like', '%' . $this->searchKey . '%')
         ->orWhereHas('order.customer', function ($query) {
             $query->where('name', 'like', '%' . $this->searchKey . '%')
@@ -466,7 +457,8 @@ class Index extends Component
         ->map(function ($schedule) {
             return [
                 'id' => $schedule->id,
-                'schedule_date' => $schedule->schedule_date,
+                'schedule_date' => $schedule->schedule_date->toFormattedDayDateString(),
+                'schedule_time' => $schedule->truckSchedule->start_time. ' - ' .$schedule->truckSchedule->start_time,
                 'sx_ordernumber' => $schedule->sx_ordernumber,
                 'order_number_suffix' => $schedule->order_number_suffix,
                 'type' => $schedule->type,
@@ -476,6 +468,28 @@ class Index extends Component
             ];
         })
         ->toArray();
+    }
+
+    public function getSchedules()
+    {
+        $whse = $this->activeWarehouse?->short;
+        $query = Schedule::with('order.customer');
+        if($this->activeType && $this->activeType != '') {
+            $query->where('type', $this->activeType);
+        }
+        $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
+        ->whereHas('order', function ($query) use ($whse) {
+            $query->where('whse', strtolower($whse));
+        });
+
+        if(!empty($this->activeZone)) {
+            $zoneId = $this->activeZone['id'];
+            $query = $query->whereHas('truckSchedule', function ($query) use ($zoneId) {
+                $query->where('zone_id', $zoneId);
+            });
+        }
+
+        return $query;
     }
 
 }

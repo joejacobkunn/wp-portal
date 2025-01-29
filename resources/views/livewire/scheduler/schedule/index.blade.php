@@ -93,10 +93,15 @@
                         <div class="list-group">
                             @forelse ($eventsData as $event)
                                 <a href="#" class="list-group-item list-group-item-action"
-                                    wire:click.prevent="handleEventClick({{ $event['id'] }})">
+                                    wire:click.prevent="handleEventClick({{ $event['id'] }})"
+                                    wire:loading.attr="disabled"
+                                    wire:target="handleEventClick({{ $event['id'] }})">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5><span class="badge bg-secondary">Order
                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
+                                                <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                </div>
                                         </h5>
                                         <small>
                                             <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
@@ -111,10 +116,10 @@
                                         </small>
                                     </div>
                                     <p class="mb-1">
-                                        {{ $event['order']['customer']['name'] }} - CustNo
-                                        #{{ $event['order']['customer']['sx_customer_number'] }}
+                                        {{ $event['customer_name'] }} - CustNo
+                                        #{{ $event['sx_customer_number'] }}
                                     </p>
-                                    <small>{{ $event['order']['shipping_info']['line'] . ', ' . $event['order']['shipping_info']['city'] . ', ' . $event['order']['shipping_info']['state'] . ', ' . $event['order']['shipping_info']['zip'] }}</small>
+                                    <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
                                 </a>
                             @empty
                                 <div class="alert alert-light-warning color-warning"><i
@@ -169,6 +174,9 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h5 class="mb-1">Order
                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}
+                                                <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                </div>
                                             </h5>
                                             <small>
                                                 <span
@@ -183,6 +191,8 @@
                                                 </span>
                                             </small>
                                         </div>
+                                        <small><i class="fas fa-clock fa-xs"></i> {{$event['schedule_date']}}
+                                            , {{$event['schedule_time']}}</small>
                                         <p class="mb-1">
                                             {{ $event['customer'] }} - SX#
                                             {{ $event['sx_customer_number'] }}

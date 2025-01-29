@@ -967,6 +967,11 @@
     cursor: pointer;
 }
 
+.schedule-form .time-slot-full {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
 .scheduler-driver-img-thumbnail {
     height: 100px;
     width: 100px;
