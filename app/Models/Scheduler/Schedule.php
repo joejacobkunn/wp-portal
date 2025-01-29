@@ -46,4 +46,10 @@ class Schedule extends Model
     {
         return $this->belongsTo(TruckSchedule::class, 'truck_schedule_id');
     }
+
+    public function scheduleId()
+    {
+        $unique_id = 1000000 + $this->id;
+        return strtoupper(substr($this->truckSchedule->truck->warehouse->short,0,1)).$unique_id;
+    }
 }
