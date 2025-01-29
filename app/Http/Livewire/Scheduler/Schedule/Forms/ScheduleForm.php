@@ -128,7 +128,7 @@ class ScheduleForm extends Form
 
         $this->SXOrderInfo = (config('sx.mock')) ? [] : SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
 
-        if(is_null($this->orderInfo) || strtolower($this->orderInfo->whse) != strtolower($aciveWarehouse)) {
+        if(is_null($this->orderInfo)) {
             $this->addError('sx_ordernumber', 'Order not Found');
             $this->reset([
                 'zipcodeInfo',
@@ -157,7 +157,7 @@ class ScheduleForm extends Form
             return;
         }
 
-        $this->serialNumbers = collect($this->getSerialNumbers($this->sx_ordernumber, $suffix));
+        //$this->serialNumbers = collect($this->getSerialNumbers($this->sx_ordernumber, $suffix));
 
         // if(empty($this->serialNumbers) && !config('sx.mock') && strtolower($this->type) == 'at_home_maintenance')
         // {
