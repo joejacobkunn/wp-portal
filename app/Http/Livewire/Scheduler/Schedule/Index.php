@@ -472,14 +472,14 @@ class Index extends Component
 
     public function getSchedules()
     {
-        $whse = $this->activeWarehouse?->short;
+        $whse = $this->activeWarehouse;
         $query = Schedule::with('order.customer');
         if($this->activeType && $this->activeType != '') {
             $query->where('type', $this->activeType);
         }
         $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('order', function ($query) use ($whse) {
-            $query->where('whse', strtolower($whse));
+        ->whereHas('truckSchedule', function ($query) use ($whse) {
+            $query->whereIn('truck_id', Truck::where('whse', $whse->id)->pluck('id')->toArray());
         });
 
         if(!empty($this->activeZone)) {
