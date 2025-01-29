@@ -107,7 +107,7 @@
                 let calendarEl = document.getElementById('calendar');
                 let calendar = new FullCalendar.Calendar(calendarEl, {
                     themeSystem: 'bootstrap5',
-                    initialView: 'dayGridMonth',
+                    initialView: 'multiMonthYear',
                     headerToolbar: {
                         left: 'prev,next',
                         center: 'title',
