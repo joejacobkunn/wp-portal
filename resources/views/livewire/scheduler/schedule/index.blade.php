@@ -183,6 +183,8 @@
                                                 </span>
                                             </small>
                                         </div>
+                                        <small><i class="fas fa-clock fa-xs"></i> {{$event['schedule_date']}}
+                                            , {{$event['schedule_time']}}</small>
                                         <p class="mb-1">
                                             {{ $event['customer'] }} - SX#
                                             {{ $event['sx_customer_number'] }}

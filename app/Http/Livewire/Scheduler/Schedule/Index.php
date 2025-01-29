@@ -458,7 +458,8 @@ class Index extends Component
         ->map(function ($schedule) {
             return [
                 'id' => $schedule->id,
-                'schedule_date' => $schedule->schedule_date,
+                'schedule_date' => $schedule->schedule_date->toFormattedDayDateString(),
+                'schedule_time' => $schedule->truckSchedule->start_time. ' - ' .$schedule->truckSchedule->start_time,
                 'sx_ordernumber' => $schedule->sx_ordernumber,
                 'order_number_suffix' => $schedule->order_number_suffix,
                 'type' => $schedule->type,
