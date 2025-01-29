@@ -146,12 +146,29 @@
                 });
                 calendar.render();
                 Livewire.on('calendar-needs-update', (data) => {
-
-                    setSpanData(data);
+                    if (data['0'].length > 0) {
+                        const dateCell = document.querySelector(`[data-date="${data['0'][0].scheduleDate}"]`);
+                        if (dateCell) {
+                            const existingSpans = dateCell.querySelectorAll('.zoneinfo-span');
+                            existingSpans.forEach(span => span.remove());
+                        }
+                    }
+                    data['0'].forEach((schedule, index) => {
+                        const bgClass = index % 2 === 0 ? 'bg-light-info' : 'bg-light-success';
+                        const scheduleArray = [
+                            schedule.scheduleDate,
+                            schedule.zone,
+                            schedule.start_time + ' - ' + schedule.end_time,
+                            'Slots : ' + schedule.slots,
+                            bgClass
+                            ];
+                        setSpanData(scheduleArray);
+                    });
                 });
 
                 // add all zone data
                 Livewire.on('calender-schedules-update', (data) => {
+
                     data[0].forEach((schedule, index) => {
                         const bgClass = index % 2 === 0 ? 'bg-light-info' : 'bg-light-success';
                         const scheduleArray = [
@@ -170,8 +187,6 @@
                     const clickedDateCell = document.querySelector(`[data-date="${data[0]}"]`);
 
                     if (clickedDateCell) {
-
-
                         // Create single span with all information
                         const span = document.createElement('span');
                         span.classList.add('badge', data[4], 'zoneinfo-span');

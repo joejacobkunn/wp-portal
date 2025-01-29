@@ -49,8 +49,8 @@ class Schedule extends Component
         $slotsString = 'Slots : ' .$truckSchedule->slots;
         $this->alert('success', 'Schedule created');
         $this->handleDateClick($this->form->schedule_date);
-        $this->dispatch('calendar-needs-update', $this->form->schedule_date, $truckSchedule->zone->name , $timeStrng, $slotsString);
         $this->closeUpdateForm();
+        $this->dispatch('calendar-needs-update', $this->daySchedules);
 
     }
 
@@ -60,8 +60,9 @@ class Schedule extends Component
         $timeStrng = $truckSchedule->start_time. ' - '. $truckSchedule->end_time;
         $slotsString = 'Slots : ' .$truckSchedule->slots;
         $this->alert('success', 'Schedule Updated');
-        $this->dispatch('calendar-needs-update', $this->form->schedule_date, $truckSchedule->zone->name , $timeStrng, $slotsString);
         $this->closeUpdateForm();
+        $this->handleDateClick($truckSchedule->schedule_date);
+        $this->dispatch('calendar-needs-update', $this->daySchedules);
     }
 
     public function handleDateClick($date)
@@ -69,7 +70,7 @@ class Schedule extends Component
         $date = Carbon::parse($date)->format('Y-m-d');
         $this->daySchedules = TruckSchedule::where(['schedule_date' => $date, 'truck_id' => $this->truck->id])
         ->get()
-        ->map(function($schedule) {
+        ->map(function($schedule) use($date) {
             return [
             'id' => $schedule->id,
             'zone' => $schedule->zone?->name,
@@ -77,6 +78,7 @@ class Schedule extends Component
             'end_time' => $schedule->end_time,
             'slots' => $schedule->slots,
             'scheduleCount' => $schedule->scheduleCount,
+            'scheduleDate' => $date,
             ];
         })
         ->toArray();
