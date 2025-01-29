@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-8 ">
+    <div class="col-8 schedule-form">
         <div class="border rounded">
             <form wire:submit.prevent="submit()">
                 <div class="modal-body">
@@ -122,6 +122,7 @@
                                     </p>
                                 </div>
                             @endif
+                            {{-- line items --}}
                             @if ($form->orderInfo?->line_items)
                                 <div class="col-md-12 mb-2">
                                     <ul class="list-group">
@@ -149,6 +150,7 @@
                                     @enderror
                                 </div>
                             @endif
+                            {{-- end of line items --}}
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <x-forms.select label="Scheduling Priority" model="form.scheduleType" :options="[
@@ -225,18 +227,21 @@
                                     </div>
                                 </div>
                             </div>
+                            {{-- timeslots listing --}}
                             <div wire:loading.remove wire:target="updateFormScheduleDate" class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }}">
                                 <label class="form-label">Available Time Slots on
                                     {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
                                 <div class="d-flex flex-column gap-2">
 
                                     @forelse($this->form->truckSchedules as $schedule)
-                                    <a href="javascript:void(0)" wire:click.prevent="selectSlot({{ $schedule->id }})" class="list-group-item list-group-item-action ">
+                                    <a href="javascript:void(0)" wire:click.prevent="selectSlot({{ $schedule->id }})"
+                                        class="list-group-item list-group-item-action
+                                            @if($schedule->schedule_count >= $schedule->slots) disabled text-muted time-slot-full @endif">
                                         <div class="p-3 bg-light rounded border @if($schedule->id == $form->schedule_time) border-primary @endif">
                                             {{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                            <span
-                                                class="badge bg-secondary badge-pill badge-round ms-1 float-end">{{ $schedule->schedule_count }}
-                                                / {{ $schedule->slots }}</span>
+                                            <span class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                                {{ $schedule->schedule_count }} / {{ $schedule->slots }}
+                                            </span>
                                             <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
                                                     class="fas fa-globe"></i>
                                                 {{ $schedule->zone_name }} => <i
@@ -252,6 +257,7 @@
                                     @endforelse
                                 </div>
                             </div>
+                            {{-- end of timeslots listing --}}
 
                             @error('form.schedule_time')
                                 <div class="col-md-12">
@@ -279,6 +285,8 @@
         </div>
 
     </div>
+
+    {{-- sidebar --}}
     <div class="col-4">
         <ul class="list-group mb-3">
             <li class="list-group-item list-group-item-primary">
@@ -357,6 +365,7 @@
             </ul>
         @endif
 
+        {{-- address modal --}}
         @if ($addressModal)
             <x-modal toggle="addressModal" size="md" :closeEvent="'closeAddress'">
                 <x-slot name="title">Recommended Address </x-slot>
@@ -404,5 +413,5 @@
         @endif
 
     </div>
-
+{{-- end of sidebar --}}
 </div>

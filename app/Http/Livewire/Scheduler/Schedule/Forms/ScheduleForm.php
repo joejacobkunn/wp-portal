@@ -13,6 +13,7 @@ use App\Models\Scheduler\Zipcode;
 use App\Models\SX\Order as SXOrder;
 use App\Rules\ValidateScheduleDate;
 use App\Rules\ValidateScheduleTime;
+use App\Rules\ValidateSlotsforSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -88,7 +89,10 @@ class ScheduleForm extends Form
                 new ValidateScheduleDate($this->getActiveDays())
             ],
             'scheduleType' =>'required',
-            'schedule_time' =>'required',
+            'schedule_time' =>[
+                'required',
+                new ValidateSlotsforSchedule()
+            ],
             'line_items' =>'required',
             'notes' =>'nullable',
         ];
