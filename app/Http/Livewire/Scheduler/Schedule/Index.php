@@ -442,6 +442,12 @@ class Index extends Component
     public function updatedSearchKey($value)
     {
         $this->searchKey = $value;
+        if($this->searchKey == '') {
+            $this->addError('searchKey', 'search field can\'t be empty');
+            $this->reset('searchData');
+            return;
+        }
+        $this->resetValidation('searchKey');
         $this->searchData = Schedule::where('sx_ordernumber', 'like', '%' . $this->searchKey . '%')
         ->orWhereHas('order.customer', function ($query) {
             $query->where('name', 'like', '%' . $this->searchKey . '%')
