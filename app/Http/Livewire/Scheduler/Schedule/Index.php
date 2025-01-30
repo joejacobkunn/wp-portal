@@ -475,29 +475,37 @@ class Index extends Component
                         $query->select('id', 'name', 'email', 'phone', 'sx_customer_number');
                     }]);
             }
-        ]);
+        ])
+        ->join('truck_schedules', 'truck_schedules.id', '=', 'schedules.truck_schedule_id')
+        ->join('orders', 'orders.order_number', '=', 'schedules.sx_ordernumber')
+        ->join('customers', 'orders.sx_customer_number', '=', 'customers.sx_customer_number')
+        ->select(
+            'schedules.id',
+            'schedules.schedule_date',
+            'schedules.sx_ordernumber',
+            'schedules.type',
+            'schedules.order_number_suffix',
+            'schedules.sx_ordernumber',
+            'schedules.truck_schedule_id'
+        )
+        ->groupBy('schedules.id')
+        ->limit(100);
+
+
         if (is_numeric($this->searchKey)) {
             $length = strlen($this->searchKey);
             if ($length === 8) {
-                $query->where('sx_ordernumber', $this->searchKey);
+                $query->where('schedules.sx_ordernumber', $this->searchKey);
             } elseif ($length === 10) {
-                $query->whereHas('order.customer', function ($subQuery) use ($value) {
-                    $subQuery->where('phone', $value );
-                });
+                $query->where('customers.phone', $value);
             } else {
                 $this->searchData = [];
                 return;
             }
         } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
-
-            $query->whereHas('order.customer', function ($subQuery) use ($value) {
-                $subQuery->where('email',  $value);
-            });
+            $query->where('customers.email',  $value);
         } elseif (Str::length($this->searchKey) >= 4) {
-
-            $query->whereHas('order.customer', function ($subQuery) use ($value) {
-                $subQuery->where('name', 'like', $value . '%');
-            });
+            $query->where('customers.name', 'like', $value . '%');
         } else {
             $this->searchData = [];
             return;
