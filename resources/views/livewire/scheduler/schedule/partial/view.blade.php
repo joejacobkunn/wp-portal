@@ -16,7 +16,7 @@
 
                 </div>
 
-                <div class="collapse" id="confirmCollapse">
+                <div class="collapse @if ($sro_number) show @endif" id="confirmCollapse">
                     <div class="card card-body">
                         Confirm this schedule by linking the correct SRO# and click confirm below. Click on confirm
                         again to cancel
@@ -58,9 +58,19 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
+                            <h3 class="h6 mb-1">Service Address</h3>
+                            <p class="small pe-4">
+                                {!! $form->schedule->service_address !!}
+                            </p>
+                        </div>
+                    </li>
+
+                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                        <div>
                             <h3 class="h6 mb-1">Equipment</h3>
                             <p class="small pe-4">
-                                {{ $form->schedule->line_items }}</p>
+                                {{ head($form->schedule->line_item) }} ({{ array_keys($form->schedule->line_item)[0] }})
+                            </p>
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">

@@ -201,8 +201,12 @@ class Index extends Component
 
     public function updatedSroNumber($value)
     {
-        if(strlen($value) == 6){
+        $this->sro_response = [];
+        
+        if(strlen($value) > 6){
             $this->sro_response = RepairOrders::where('sro_no', $value)->first()->toArray();
+        }else{
+            $this->sro_response = [];
         }
     }
 
