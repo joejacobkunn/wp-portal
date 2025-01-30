@@ -306,8 +306,6 @@ class Index extends Component
                 'customer_name' => $schedule->order->customer->name,
                 'sx_customer_number' => $schedule->order->customer->sx_customer_number,
                 'shipping_info' => $schedule->order->shipping_info,
-                'truckName' => $schedule->truckSchedule->truck->truck_name,
-                'zone' => $schedule->truckSchedule->zone->name,
             ];
         })
         ->toArray();
@@ -401,7 +399,6 @@ class Index extends Component
     public function closeSearchModal()
     {
         $this->showSearchModal = false;
-        $this->resetValidation('searchKey');
         $this->reset(['searchKey', 'searchData']);
     }
 
@@ -464,69 +461,27 @@ class Index extends Component
             return;
         }
         $this->resetValidation('searchKey');
-
-        $query = Schedule::with([
-            'truckSchedule' => function($query) {
-                $query->select('id', 'start_time', 'end_time');
-            },
-            'order' => function($query) {
-                $query->select('id', 'order_number', 'sx_customer_number', 'shipping_info')
-                    ->with(['customer' => function($query) {
-                        $query->select('id', 'name', 'email', 'phone', 'sx_customer_number');
-                    }]);
-            }
-        ])
-        ->join('truck_schedules', 'truck_schedules.id', '=', 'schedules.truck_schedule_id')
-        ->join('orders', 'orders.order_number', '=', 'schedules.sx_ordernumber')
-        ->join('customers', 'orders.sx_customer_number', '=', 'customers.sx_customer_number')
-        ->select(
-            'schedules.id',
-            'schedules.schedule_date',
-            'schedules.sx_ordernumber',
-            'schedules.type',
-            'schedules.order_number_suffix',
-            'schedules.sx_ordernumber',
-            'schedules.truck_schedule_id'
-        )
-        ->groupBy('schedules.id')
-        ->limit(100);
-
-
-        if (is_numeric($this->searchKey)) {
-            $length = strlen($this->searchKey);
-            if ($length === 8) {
-                $query->where('schedules.sx_ordernumber', $this->searchKey);
-            } elseif ($length === 10) {
-                $query->where('customers.phone', $value);
-            } else {
-                $this->searchData = [];
-                return;
-            }
-        } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
-            $query->where('customers.email',  $value);
-        } elseif (Str::length($this->searchKey) >= 4) {
-            $query->where('customers.name', 'like', $value . '%');
-        } else {
-            $this->searchData = [];
-            return;
-        }
-
-        $this->searchData = $query->get()->map(function ($schedule) {
+        $this->searchData = Schedule::where('sx_ordernumber', 'like', '%' . $this->searchKey . '%')
+        ->orWhereHas('order.customer', function ($query) {
+            $query->where('name', 'like', '%' . $this->searchKey . '%')
+                  ->orWhere('email', 'like', '%' . $this->searchKey . '%')
+                  ->orWhere('phone', 'like', '%' . $this->searchKey . '%');
+        })
+        ->get()
+        ->map(function ($schedule) {
             return [
                 'id' => $schedule->id,
-                'schedule_date' => optional($schedule->schedule_date)->toFormattedDayDateString(),
-                'schedule_time' => optional($schedule->truckSchedule)->start_time
-                                   . ' - ' . optional($schedule->truckSchedule)->end_time,
+                'schedule_date' => $schedule->schedule_date->toFormattedDayDateString(),
+                'schedule_time' => $schedule->truckSchedule->start_time. ' - ' .$schedule->truckSchedule->start_time,
                 'sx_ordernumber' => $schedule->sx_ordernumber,
                 'order_number_suffix' => $schedule->order_number_suffix,
                 'type' => $schedule->type,
-                'customer' => optional($schedule->order->customer)->name,
-                'sx_customer_number' => optional($schedule->order->customer)->sx_customer_number,
-                'shipping_info' => optional($schedule->order)->shipping_info,
+                'customer' => $schedule->order->customer->name,
+                'sx_customer_number' => $schedule->order->customer->sx_customer_number,
+                'shipping_info' => $schedule->order?->shipping_info,
             ];
-        });
-
-
+        })
+        ->toArray();
     }
 
     public function getSchedules()
