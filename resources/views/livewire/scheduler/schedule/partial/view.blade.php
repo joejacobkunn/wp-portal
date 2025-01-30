@@ -6,6 +6,9 @@
 
                 <div class="alert alert-light-secondary color-secondary"> Actions
                     <div class="btn-group mt-n1 mb-3 float-end" role="group" aria-label="Basic example">
+                        <button type="button" class="btn btn-sm btn-danger"><i class="far fa-calendar-times"></i>
+                            Cancel</button>
+
                         <button type="button" class="btn btn-sm btn-warning"><i class="fas fa-redo"></i>
                             Reschedule</button>
                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse"
@@ -23,17 +26,27 @@
                         <div class="col-md-12 mt-3">
                             <x-forms.input label="SRO Number" model="sro_number" live />
                             @if (!empty($sro_response))
-                                <div class="alert alert-light-primary color-primary">{{ $sro_response['first_name'] }}
+                                <div class="alert alert-secondary">
+                                    <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
+                                        {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
+                                    <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
+                                            {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
+                                    <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
+                                            {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
+                                            {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
                                 </div>
+
+                                <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
+                                    name="sro_verified" :value="1" model="sro_verified" />
                             @endif
-                            <div class="mt-2 float-start">
+                            <div class="mt-4 float-start">
                                 <button @if (!$sro_verified) disabled @endif wire:click="linkSRO"
                                     class="btn btn-sm btn-success">
                                     <div wire:loading>
                                         <span class="spinner-border spinner-border-sm" role="status"
                                             aria-hidden="true"></span>
                                     </div>
-                                    Link SRO
+                                    <i class="fas fa-calendar-check"></i> Link SRO and Confirm AHM
                                 </button>
                             </div>
 
@@ -69,7 +82,8 @@
                         <div>
                             <h3 class="h6 mb-1">Equipment</h3>
                             <p class="small pe-4">
-                                {{ head($form->schedule->line_item) }} ({{ array_keys($form->schedule->line_item)[0] }})
+                                {{ head($form->schedule->line_item) }}
+                                ({{ array_keys($form->schedule->line_item)[0] }})
                             </p>
                         </div>
                     </li>

@@ -202,9 +202,11 @@ class Index extends Component
     public function updatedSroNumber($value)
     {
         $this->sro_response = [];
+        $this->sro_verified = false;
         
         if(strlen($value) > 6){
-            $this->sro_response = RepairOrders::where('sro_no', $value)->first()->toArray();
+            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'state', 'zip', 'brand', 'model')->where('sro_no', $value)->first();
+            if(!empty($sro))$this->sro_response = $sro->toArray();
         }else{
             $this->sro_response = [];
         }
