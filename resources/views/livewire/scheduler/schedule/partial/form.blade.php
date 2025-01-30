@@ -95,7 +95,8 @@
                                                 aria-hidden="true"></span>
                                         </div>
                                         <hr>
-
+                                        <p class="mb-0"><Strong>Ship To</Strong>
+                                        </p>
 
                                         @if ($form->recommendedAddress)
                                             <p class="mb-0"> {{ $form->recommendedAddress['formattedAddress'] }}</p>
@@ -112,8 +113,7 @@
                                                     $form->orderInfo->shipping_info['zip'] }}
                                             </p>
                                         @endif
-                                        <p class="mb-0"><Strong>Ship To</Strong>
-                                        </p>
+
 
                                         <p class="mb-0">Shipping Instructions :
                                             {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
