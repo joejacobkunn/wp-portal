@@ -88,7 +88,11 @@
                 {{-- truck and zone end  --}}
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
-                        <h5 class="card-title">Events</h5>
+                        <h5 class="card-title">Events
+                            <div wire:loading wire:target="handleDateClick">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                        </h5>
 
                         <div class="list-group">
                             @forelse ($eventsData as $event)
@@ -153,6 +157,7 @@
                 @endif
             </x-modal>
         @endif
+        {{-- search modal --}}
         @if ($showSearchModal)
             <x-modal toggle="showSearchModal" size="md" :closeEvent="'closeSearchModal'">
                 <x-slot name="title">Search for Event</x-slot>
@@ -221,6 +226,7 @@
                 </div>
             </x-modal>
         @endif
+        {{-- search modal end --}}
     </x-slot>
 </x-page>
 
