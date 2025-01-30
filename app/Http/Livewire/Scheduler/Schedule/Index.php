@@ -306,6 +306,8 @@ class Index extends Component
                 'customer_name' => $schedule->order->customer->name,
                 'sx_customer_number' => $schedule->order->customer->sx_customer_number,
                 'shipping_info' => $schedule->order->shipping_info,
+                'truckName' => $schedule->truckSchedule->truck->truck_name,
+                'zone' => $schedule->truckSchedule->zone->name,
             ];
         })
         ->toArray();

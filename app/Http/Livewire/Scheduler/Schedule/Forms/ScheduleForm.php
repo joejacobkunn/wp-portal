@@ -151,20 +151,10 @@ class ScheduleForm extends Form
         //     $this->addError('sx_ordernumber', 'Line items not found in this order');
         //     return;
         // }
-
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
         }
-
-        //$this->serialNumbers = collect($this->getSerialNumbers($this->sx_ordernumber, $suffix));
-
-        // if(empty($this->serialNumbers) && !config('sx.mock') && strtolower($this->type) == 'at_home_maintenance')
-        // {
-        //     $this->addError('sx_ordernumber', 'No serialized line items found');
-        //     return;
-        // }
-
 
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
         $this->getDistance();

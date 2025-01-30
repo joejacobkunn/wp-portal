@@ -43,7 +43,7 @@
             <div class="col-3">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
 
-
+                {{-- truck and zone --}}
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
                         <h5 class="card-title">Active Trucks and Zones</h5>
@@ -85,7 +85,7 @@
                     </div>
 
                 </div>
-
+                {{-- truck and zone end  --}}
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
                         <h5 class="card-title">Events</h5>
@@ -115,6 +115,14 @@
                                             </span>
                                         </small>
                                     </div>
+                                    <p>
+                                        <span class="badge bg-light-primary"><i
+                                                class="fas fa-globe"></i>
+                                            {{ $event['zone'] }}</span>
+                                        =>
+                                        <span class="badge bg-light-secondary"><i
+                                                class="fas fa-truck"></i>{{ $event['truckName'] }}</span>
+                                   </p>
                                     <p class="mb-1">
                                         {{ $event['customer_name'] }} - CustNo
                                         #{{ $event['sx_customer_number'] }}
@@ -131,6 +139,7 @@
 
                     </div>
                 </div>
+                {{-- events end --}}
             </div>
         </div>
         @if ($showModal || $isEdit)
