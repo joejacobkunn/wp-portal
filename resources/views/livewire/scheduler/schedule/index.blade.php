@@ -232,7 +232,7 @@
                     themeSystem: 'bootstrap5',
                     initialView: 'dayGridMonth',
                     height: 'auto',
-                    contentHeight: auto,
+                    contentHeight: 'auto',
                     headerToolbar: {
                         left: 'prev,next today searchBtn',
                         center: 'title',
