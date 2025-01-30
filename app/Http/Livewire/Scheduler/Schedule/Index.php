@@ -465,15 +465,24 @@ class Index extends Component
         }
         $this->resetValidation('searchKey');
 
-        $query = Schedule::query()->with('truckSchedule');
+        $query = Schedule::with([
+            'truckSchedule' => function($query) {
+                $query->select('id', 'start_time', 'end_time');
+            },
+            'order' => function($query) {
+                $query->select('id', 'order_number', 'sx_customer_number', 'shipping_info')
+                    ->with(['customer' => function($query) {
+                        $query->select('id', 'name', 'email', 'phone', 'sx_customer_number');
+                    }]);
+            }
+        ]);
         if (is_numeric($this->searchKey)) {
             $length = strlen($this->searchKey);
             if ($length === 8) {
-                $query->where('sx_ordernumber', 'like', '%' . $this->searchKey . '%');
+                $query->where('sx_ordernumber', $this->searchKey);
             } elseif ($length === 10) {
-
                 $query->whereHas('order.customer', function ($subQuery) use ($value) {
-                    $subQuery->where('phone', 'like', '%' . $value . '%');
+                    $subQuery->where('phone', $value );
                 });
             } else {
                 $this->searchData = [];
@@ -482,12 +491,12 @@ class Index extends Component
         } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
 
             $query->whereHas('order.customer', function ($subQuery) use ($value) {
-                $subQuery->where('email', 'like', '%' . $value . '%');
+                $subQuery->where('email',  $value);
             });
         } elseif (Str::length($this->searchKey) >= 4) {
 
             $query->whereHas('order.customer', function ($subQuery) use ($value) {
-                $subQuery->where('name', 'like', '%' . $value . '%');
+                $subQuery->where('name', 'like', $value . '%');
             });
         } else {
             $this->searchData = [];
