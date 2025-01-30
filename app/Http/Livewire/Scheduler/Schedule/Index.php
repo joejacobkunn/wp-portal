@@ -8,10 +8,12 @@ use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
+use App\Models\Product\Product;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Truck;
 use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\Zones;
+use App\Models\SRO\RepairOrders;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +48,10 @@ class Index extends Component
     public $activeWarehouseId;
     public $searchKey;
     public $searchData;
+    public $scheduledLineItem;
+    public $sro_number;
+    public $sro_verified = false;
+    public $sro_response;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -193,6 +199,13 @@ class Index extends Component
         ]);
     }
 
+    public function updatedSroNumber($value)
+    {
+        if(strlen($value) == 6){
+            $this->sro_response = RepairOrders::where('sro_no', $value)->first()->toArray();
+        }
+    }
+
     public function typeCheck($field, $value)
     {
         $this->form->type = $value;
@@ -235,6 +248,7 @@ class Index extends Component
     {
         $this->form->init($schedule);
         $this->orderInfoStrng = uniqid();
+        $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
         $this->showModal = true;
         $this->isEdit = true;
         $this->showView = true;
@@ -498,14 +512,14 @@ class Index extends Component
 
     public function getSchedules()
     {
-        $whse = $this->activeWarehouse?->short;
+        $whse = $this->activeWarehouse;
         $query = Schedule::with('order.customer');
         if($this->activeType && $this->activeType != '') {
             $query->where('type', $this->activeType);
         }
         $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('order', function ($query) use ($whse) {
-            $query->where('whse', strtolower($whse));
+        ->whereHas('truckSchedule', function ($query) use ($whse) {
+            $query->whereIn('truck_id', Truck::where('whse', $whse->id)->pluck('id')->toArray());
         });
 
         if(!empty($this->activeZone)) {
