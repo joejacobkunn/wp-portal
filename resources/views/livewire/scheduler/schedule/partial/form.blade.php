@@ -47,7 +47,7 @@
                                     </p>
                                 </div>
                             @endif
-                            <div class="col-md-12 mb-2">
+                            {{-- <div class="col-md-12 mb-2">
                                 <x-forms.html-editor label="Service Address" :value="$form->service_address" model="form.service_address"
                                 :key="'service-address'.$form->addressKey" />
                                 <a href="#" wire:click.prevent="showAdrress()"
@@ -58,17 +58,16 @@
                                     <span class="spinner-border spinner-border-sm" role="status"
                                         aria-hidden="true"></span>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
                                 <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
                                     <div class="alert alert-light-primary color-primary" role="alert">
                                         <span class="badge bg-light-warning float-end"><a target="_blank"
-                                                href="{{route('core.customer.show', $form->orderInfo->customer->id)}}"><i class="fas fa-external-link-alt"></i> CustNo
+                                                href=""><i class="fas fa-external-link-alt"></i> CustNo
                                                 #{{ $form->orderInfo?->sx_customer_number }}</a></span>
-                                                <p class="mb-0"><Strong>Ship To</Strong>
-                                                </p>
-                                        {{-- <h4 class="alert-heading">Service Address</h4>
+
+                                        <h4 class="alert-heading">Service Address</h4>
                                         <p>
                                         <address class="ms-1">
                                             <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
@@ -85,16 +84,16 @@
                                             {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
 
                                         </address>
-                                        </p> --}}
+                                        </p>
 
-                                        {{-- <a href="#" wire:click.prevent="showAdrress()"
+                                        <a href="#" wire:click.prevent="showAdrress()"
                                             class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
                                             Use recommended address
-                                        </a> --}}
-                                        {{-- <div wire:loading wire:target="showAdrress">
+                                        </a>
+                                        <div wire:loading wire:target="showAdrress">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
-                                        </div> --}}
+                                        </div>
                                         <hr>
 
 
@@ -113,7 +112,8 @@
                                                     $form->orderInfo->shipping_info['zip'] }}
                                             </p>
                                         @endif
-
+                                        <p class="mb-0"><Strong>Ship To</Strong>
+                                        </p>
 
                                         <p class="mb-0">Shipping Instructions :
                                             {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
