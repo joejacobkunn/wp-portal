@@ -148,16 +148,16 @@
             <x-modal toggle="showSearchModal" size="md" :closeEvent="'closeSearchModal'">
                 <x-slot name="title">Search for Event</x-slot>
                 <div class="row w-100">
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-12">
                         <div class="form-group">
-                            <x-forms.input type="text" label="Search Schedule" model="searchKey" :live="true"
+                            <x-forms.input type="text" label="Search Schedule" model="searchKey"
                                 hint="Search by order number, name, email or phone" lazy />
                         </div>
                     </div>
                 </div>
                 <div class="row w-100">
-                    <div class="col-md-12 mb-2">
-                        <div wire:loading wire:target="searchKey" class="mb-3">
+                    <div wire:loading wire:target="searchKey" >
+                        <div class="col-md-12 mb-2">
                             <span class="spinner-border spinner-border-sm mr-2" role="status"
                                 aria-hidden="true"></span>
                             <span>Please wait, looking for schedules...</span>
@@ -166,8 +166,10 @@
                     <div class="col-md-12 mb-3">
                         <div class="list-group " wire:loading.remove wire:target="searchKey">
                             @if ($searchData)
-                                <div class="alert alert-light-success color-warning"><i class="fas fa-check-circle"></i>
-                                    Showing results for {{ $searchKey }}</div>
+                                @if (count($searchData)>0)
+                                    <div class="alert alert-light-success color-warning"><i class="fas fa-check-circle"></i>
+                                        Showing results for {{ $searchKey }}</div>
+                                @endif
                                 @forelse ($searchData as $event)
                                     <a h ref="#" class="list-group-item list-group-item-action"
                                         wire:click.prevent="handleEventClick({{ $event['id'] }})">
@@ -230,6 +232,7 @@
                     themeSystem: 'bootstrap5',
                     initialView: 'dayGridMonth',
                     height: 'auto',
+                    contentHeight: auto,
                     headerToolbar: {
                         left: 'prev,next today searchBtn',
                         center: 'title',

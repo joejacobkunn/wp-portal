@@ -385,6 +385,7 @@ class Index extends Component
     public function closeSearchModal()
     {
         $this->showSearchModal = false;
+        $this->resetValidation('searchKey');
         $this->reset(['searchKey', 'searchData']);
     }
 
@@ -447,27 +448,52 @@ class Index extends Component
             return;
         }
         $this->resetValidation('searchKey');
-        $this->searchData = Schedule::where('sx_ordernumber', 'like', '%' . $this->searchKey . '%')
-        ->orWhereHas('order.customer', function ($query) {
-            $query->where('name', 'like', '%' . $this->searchKey . '%')
-                  ->orWhere('email', 'like', '%' . $this->searchKey . '%')
-                  ->orWhere('phone', 'like', '%' . $this->searchKey . '%');
-        })
-        ->get()
-        ->map(function ($schedule) {
+
+        $query = Schedule::query()->with('truckSchedule');
+        if (is_numeric($this->searchKey)) {
+            $length = strlen($this->searchKey);
+            if ($length === 8) {
+                $query->where('sx_ordernumber', 'like', '%' . $this->searchKey . '%');
+            } elseif ($length === 10) {
+
+                $query->whereHas('order.customer', function ($subQuery) use ($value) {
+                    $subQuery->where('phone', 'like', '%' . $value . '%');
+                });
+            } else {
+                $this->searchData = [];
+                return;
+            }
+        } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
+
+            $query->whereHas('order.customer', function ($subQuery) use ($value) {
+                $subQuery->where('email', 'like', '%' . $value . '%');
+            });
+        } elseif (Str::length($this->searchKey) >= 4) {
+
+            $query->whereHas('order.customer', function ($subQuery) use ($value) {
+                $subQuery->where('name', 'like', '%' . $value . '%');
+            });
+        } else {
+            $this->searchData = [];
+            return;
+        }
+
+        $this->searchData = $query->get()->map(function ($schedule) {
             return [
                 'id' => $schedule->id,
-                'schedule_date' => $schedule->schedule_date->toFormattedDayDateString(),
-                'schedule_time' => $schedule->truckSchedule->start_time. ' - ' .$schedule->truckSchedule->start_time,
+                'schedule_date' => optional($schedule->schedule_date)->toFormattedDayDateString(),
+                'schedule_time' => optional($schedule->truckSchedule)->start_time
+                                   . ' - ' . optional($schedule->truckSchedule)->end_time,
                 'sx_ordernumber' => $schedule->sx_ordernumber,
                 'order_number_suffix' => $schedule->order_number_suffix,
                 'type' => $schedule->type,
-                'customer' => $schedule->order->customer->name,
-                'sx_customer_number' => $schedule->order->customer->sx_customer_number,
-                'shipping_info' => $schedule->order?->shipping_info,
+                'customer' => optional($schedule->order->customer)->name,
+                'sx_customer_number' => optional($schedule->order->customer)->sx_customer_number,
+                'shipping_info' => optional($schedule->order)->shipping_info,
             ];
-        })
-        ->toArray();
+        });
+
+
     }
 
     public function getSchedules()

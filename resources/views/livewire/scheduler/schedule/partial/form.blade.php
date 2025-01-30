@@ -169,6 +169,7 @@
                                 </div>
                             @endif
 
+                            {{-- schedule date field --}}
                             <div class="col-md-6 {{ !$showTypeLoader && $form->scheduleType ? '' : 'd-none' }}">
                                 <div class="form-group">
                                     <label for="datepicker" class="form-label">Select Date</label>
@@ -227,6 +228,8 @@
                                     </div>
                                 </div>
                             </div>
+                            {{-- schedule date end --}}
+
                             {{-- timeslots listing --}}
                             <div wire:loading.remove wire:target="updateFormScheduleDate" class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }}">
                                 <label class="form-label">Available Time Slots on
@@ -237,7 +240,7 @@
                                     <a href="javascript:void(0)" wire:click.prevent="selectSlot({{ $schedule->id }})"
                                         class="list-group-item list-group-item-action
                                             @if($schedule->schedule_count >= $schedule->slots) disabled text-muted time-slot-full @endif">
-                                        <div class="p-3 bg-light rounded border @if($schedule->id == $form->schedule_time) border-primary @endif">
+                                        <div class="p-3 bg-light rounded border @if($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                             {{ $schedule->start_time . ' - ' . $schedule->end_time }}
                                             <span class="badge bg-secondary badge-pill badge-round ms-1 float-end">
                                                 {{ $schedule->schedule_count }} / {{ $schedule->slots }}
