@@ -43,7 +43,7 @@
             <div class="col-3">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
 
-
+                {{-- truck and zone --}}
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
                         <h5 class="card-title">Active Trucks and Zones</h5>
@@ -85,10 +85,14 @@
                     </div>
 
                 </div>
-
+                {{-- truck and zone end  --}}
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
-                        <h5 class="card-title">Events</h5>
+                        <h5 class="card-title">Events
+                            <div wire:loading wire:target="handleDateClick">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                        </h5>
 
                         <div class="list-group">
                             @forelse ($eventsData as $event)
@@ -115,6 +119,14 @@
                                             </span>
                                         </small>
                                     </div>
+                                    <p>
+                                        <span class="badge bg-light-primary"><i
+                                                class="fas fa-globe"></i>
+                                            {{ $event['zone'] }}</span>
+                                        =>
+                                        <span class="badge bg-light-secondary"><i
+                                                class="fas fa-truck"></i>{{ $event['truckName'] }}</span>
+                                   </p>
                                     <p class="mb-1">
                                         {{ $event['customer_name'] }} - CustNo
                                         #{{ $event['sx_customer_number'] }}
@@ -131,6 +143,7 @@
 
                     </div>
                 </div>
+                {{-- events end --}}
             </div>
         </div>
         @if ($showModal || $isEdit)
@@ -144,20 +157,21 @@
                 @endif
             </x-modal>
         @endif
+        {{-- search modal --}}
         @if ($showSearchModal)
             <x-modal toggle="showSearchModal" size="md" :closeEvent="'closeSearchModal'">
                 <x-slot name="title">Search for Event</x-slot>
                 <div class="row w-100">
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-12">
                         <div class="form-group">
-                            <x-forms.input type="text" label="Search Schedule" model="searchKey" :live="true"
+                            <x-forms.input type="text" label="Search Schedule" model="searchKey"
                                 hint="Search by order number, name, email or phone" lazy />
                         </div>
                     </div>
                 </div>
                 <div class="row w-100">
-                    <div class="col-md-12 mb-2">
-                        <div wire:loading wire:target="searchKey" class="mb-3">
+                    <div wire:loading wire:target="searchKey" >
+                        <div class="col-md-12 mb-2">
                             <span class="spinner-border spinner-border-sm mr-2" role="status"
                                 aria-hidden="true"></span>
                             <span>Please wait, looking for schedules...</span>
@@ -166,8 +180,10 @@
                     <div class="col-md-12 mb-3">
                         <div class="list-group " wire:loading.remove wire:target="searchKey">
                             @if ($searchData)
-                                <div class="alert alert-light-success color-warning"><i class="fas fa-check-circle"></i>
-                                    Showing results for {{ $searchKey }}</div>
+                                @if (count($searchData)>0)
+                                    <div class="alert alert-light-success color-warning"><i class="fas fa-check-circle"></i>
+                                        Showing results for {{ $searchKey }}</div>
+                                @endif
                                 @forelse ($searchData as $event)
                                     <a h ref="#" class="list-group-item list-group-item-action"
                                         wire:click.prevent="handleEventClick({{ $event['id'] }})">
@@ -210,6 +226,7 @@
                 </div>
             </x-modal>
         @endif
+        {{-- search modal end --}}
     </x-slot>
 </x-page>
 
@@ -230,6 +247,7 @@
                     themeSystem: 'bootstrap5',
                     initialView: 'dayGridMonth',
                     height: 'auto',
+                    contentHeight: 'auto',
                     headerToolbar: {
                         left: 'prev,next today searchBtn',
                         center: 'title',
