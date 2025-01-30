@@ -205,11 +205,31 @@ class Index extends Component
         $this->sro_verified = false;
         
         if(strlen($value) > 6){
-            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'state', 'zip', 'brand', 'model')->where('sro_no', $value)->first();
-            if(!empty($sro))$this->sro_response = $sro->toArray();
+            if(config('sx.mock'))
+            {
+                $faker = \Faker\Factory::create();
+                $this->sro_response = [
+                    'first_name' => $faker->name(),
+                    'last_name' => $faker->lastName(),
+                    'address' => $faker->streetAddress(),
+                    'state' => $faker->state(),
+                    'city' => $faker->city(),
+                    'zip' => $faker->postcode(),
+                    'brand' => 'Toro',
+                    'model' => 'ghd567df'
+                ];
+            }else{
+                $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model')->where('sro_no', $value)->first();
+                if(!empty($sro))$this->sro_response = $sro->toArray();    
+            }
         }else{
             $this->sro_response = [];
         }
+    }
+
+    public function linkSRO()
+    {
+        //update status to Confirmed and update sro_number to schedule
     }
 
     public function typeCheck($field, $value)
