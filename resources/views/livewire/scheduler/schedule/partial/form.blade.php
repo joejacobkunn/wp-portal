@@ -162,7 +162,7 @@
                                             'next_avail' => 'Next Available Date',
                                             'one_year' => 'One Year from Now',
                                         ]" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
-                                        default-option-label="- None -" :selected="$form->scheduleType" :key="'schedule-' . now()" />
+                                        default-option-label="- None -" :selected="$form->scheduleType" :key="'scheduleTypeKey'" />
                                 </div>
                             </div>
                             @if ($showTypeLoader)
@@ -178,7 +178,7 @@
                                 <div class="form-group">
                                     <label for="datepicker" class="form-label">Select Date</label>
                                     <div wire:ignore>
-                                        <input type="text" id="datepicker" class="form-control"
+                                        <input type="text" wire:key="scheduleDateKey" id="datepicker" class="form-control"
                                             wire:model.defer="form.schedule_date" x-data="{
                                                 enabledDates: @js($form->enabledDates ?? []),
                                                 flatpickrInstance: null
