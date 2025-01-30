@@ -45,8 +45,10 @@ class ScheduleForm extends Form
     public $scheduleType;
     public $ServiceStatus = false;
     public $serialNumbers;
-    public $line_items;
+    public $line_item;
     public $notes;
+    public $addressKey = '1232234';
+    public $service_address;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -68,7 +70,8 @@ class ScheduleForm extends Form
         'schedule_time' => 'Time Slot',
         'suffix' => 'Order Suffix',
         'notes' => 'Notes',
-        'line_items' => 'Line item',
+        'line_item' => 'Line item',
+        'service_address' => 'Service Address',
     ];
 
     protected function rules()
@@ -93,8 +96,9 @@ class ScheduleForm extends Form
                 'required',
                 new ValidateSlotsforSchedule()
             ],
-            'line_items' =>'required',
+            'line_item' =>'required',
             'notes' =>'nullable',
+            'service_address' =>'required',
         ];
 
     }
@@ -145,12 +149,22 @@ class ScheduleForm extends Form
             return;
         }
 
+        $this->service_address = "<address class='ms-1'>" . ($this->orderInfo?->shipping_info['line'] ?? '') . "<br>";
 
+            if (!empty($this->orderInfo?->shipping_info['line2'])) {
+                $this->service_address .= $this->orderInfo?->customer->address2 . "<br>";
+            }
+
+            $this->service_address .= $this->orderInfo?->shipping_info['city'] . ", " .
+                $this->orderInfo?->shipping_info['state'] . " " .
+                $this->orderInfo?->shipping_info['zip'] . "<br> </address>";
+            $this->service_address = trim($this->service_address);
 
         // if(empty($this->orderInfo->line_items['line_items'])) {
         //     $this->addError('sx_ordernumber', 'Line items not found in this order');
         //     return;
         // }
+
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
@@ -208,12 +222,10 @@ class ScheduleForm extends Form
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['schedule_type'] = $this->scheduleType;
-        if($this->saveRecommented) {
-            $validatedData['recommended_address'] = array_intersect_key(
-                $this->recommendedAddress,
-                array_flip(['postalAddress', 'formattedAddress'])
-            );
-        }
+        $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
+
+        $validatedData['line_item'] = [$this->line_item=>$itemDesc];
+
         $schedule = Schedule::create($validatedData);
         return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created'];
     }
@@ -223,6 +235,7 @@ class ScheduleForm extends Form
         $this->schedule = $schedule;
         $this->schedule_time = $schedule->truck_schedule_id;
         $this->fill($schedule->toArray());
+        $this->line_item =key($schedule->line_item);
         $this->schedule_date = Carbon::parse($schedule->schedule_date)->format('Y-m-d');
         $this->suffix = $schedule->order_number_suffix;
         $this->scheduleType = $schedule->schedule_type;
@@ -238,15 +251,10 @@ class ScheduleForm extends Form
         }
         $validatedData['order_suffix_number'] = $this->suffix;
         $validatedData['schedule_type'] = $this->scheduleType;
-        if($this->saveRecommented) {
-            $validatedData['recommended_address'] =
-            array_intersect_key(
-                $this->recommendedAddress,
-                array_flip(['postalAddress', 'formattedAddress'])
-            );
-        }
-
         $validatedData['truck_schedule_id'] = $this->schedule_time;
+        $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
+
+        $validatedData['lineitem'] = [$this->line_item=>$itemDesc];
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
@@ -284,7 +292,8 @@ class ScheduleForm extends Form
 
     public function setAddress()
     {
-        $this->saveRecommented = true;
+        $this->service_address = $this->recommendedAddress['formattedAddress'];
+        $this->addressKey = uniqid();
     }
 
     public function getDistance()

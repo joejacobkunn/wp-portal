@@ -47,15 +47,28 @@
                                     </p>
                                 </div>
                             @endif
-
+                            <div class="col-md-12 mb-2">
+                                <x-forms.html-editor label="Service Address" :value="$form->service_address" model="form.service_address"
+                                :key="'service-address'.$form->addressKey" />
+                                <a href="#" wire:click.prevent="showAdrress()"
+                                    class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
+                                    Use recommended address
+                                </a>
+                                <div wire:loading wire:target="showAdrress">
+                                    <span class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
+                                </div>
+                            </div>
 
                             @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
                                 <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
                                     <div class="alert alert-light-primary color-primary" role="alert">
                                         <span class="badge bg-light-warning float-end"><a target="_blank"
-                                                href=""><i class="fas fa-external-link-alt"></i> CustNo
+                                                href="{{route('core.customer.show', $form->orderInfo->customer->id)}}"><i class="fas fa-external-link-alt"></i> CustNo
                                                 #{{ $form->orderInfo?->sx_customer_number }}</a></span>
-                                        <h4 class="alert-heading">Service Address</h4>
+                                                <p class="mb-0"><Strong>Ship To</Strong>
+                                                </p>
+                                        {{-- <h4 class="alert-heading">Service Address</h4>
                                         <p>
                                         <address class="ms-1">
                                             <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
@@ -72,20 +85,19 @@
                                             {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
 
                                         </address>
-                                        </p>
+                                        </p> --}}
 
-                                        <a href="#" wire:click.prevent="showAdrress()"
+                                        {{-- <a href="#" wire:click.prevent="showAdrress()"
                                             class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
                                             Use recommended address
-                                        </a>
-                                        <div wire:loading wire:target="showAdrress">
+                                        </a> --}}
+                                        {{-- <div wire:loading wire:target="showAdrress">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
-                                        </div>
+                                        </div> --}}
                                         <hr>
 
-                                        <p class="mb-0"><Strong>Ship To</Strong>
-                                        </p>
+
                                         @if ($form->recommendedAddress)
                                             <p class="mb-0"> {{ $form->recommendedAddress['formattedAddress'] }}</p>
                                         @else
@@ -131,13 +143,9 @@
                                         </li>
                                         @foreach ($form->orderInfo->line_items['line_items'] as $item)
                                             <li class="list-group-item">
-                                                <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitems'" :value="$item['shipprod']"
-                                                    :model="'form.line_items'" />
-                                                {{-- <p>{{ $item['descrip'] . '(' . $item['shipprod'] . ')' }} @if ($form->serialNumbers->where('prod', $item['shipprod'])->first())
-                                                        <span class="badge bg-light-secondary float-end"> SN :
-                                                            {{ $form->serialNumbers->where('prod', $item['shipprod'])->first()->serialno }}</span>
-                                                    @endif
-                                                </p> --}}
+                                                <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
+                                                    :model="'form.line_item'" />
+
                                             </li>
                                         @endforeach
                                     </ul>
@@ -375,15 +383,10 @@
                     <h6 class="text-primary">Current Address</h6>
                     <p>
                     <address class="ms-1">
-                        <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
                         {{ $form->orderInfo?->customer->address }}<br>
                         {{ $form->orderInfo?->customer->address2 }}<br>
                         {{ $form->orderInfo?->customer->city }}, {{ $form->orderInfo?->customer->state }}
-                        {{ $form->orderInfo?->customer->zip }}<br>
-                        <i class="fa-solid fa-phone"></i>
-                        {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
-                        <i class="fa-solid fa-envelope"></i>
-                        {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
+                        {{ $form->orderInfo?->customer->zip }}
 
                     </address>
                     </p>
@@ -393,13 +396,7 @@
                     <h6 class="text-success">Recommended Address</h6>
                     <p>
                     <address class="ms-1">
-                        <Strong>{{ $form->orderInfo?->customer->name }}</Strong> <br>
-                        {{ $form->recommendedAddress['formattedAddress'] }}<br>
-                        <i class="fa-solid fa-phone"></i>
-                        {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
-                        <i class="fa-solid fa-envelope"></i>
-                        {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
-
+                        {{ $form->recommendedAddress['formattedAddress'] }}
                     </address>
                     </p>
                 </div>

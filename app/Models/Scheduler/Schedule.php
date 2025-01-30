@@ -19,17 +19,17 @@ class Schedule extends Model
         'order_number_suffix',
         'schedule_date',
         'truck_schedule_id',
-        'line_items',
+        'line_item',
         'status',
-        'recommended_address',
+        'service_address',
         'created_by',
         'schedule_type',
-        'notes'
+        'notes',
     ];
 
     protected $casts = [
         'schedule_date' => 'date',
-        'recommended_address' => 'array',
+        'line_item' => 'array',
     ];
 
     public function user()
