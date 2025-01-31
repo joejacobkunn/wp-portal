@@ -101,7 +101,7 @@
                                     wire:loading.attr="disabled"
                                     wire:target="handleEventClick({{ $event['id'] }})">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h5><span class="badge bg-secondary">Order
+                                        <h5><span class="badge bg-{{$event['status_color']}}">Order
                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
                                                 <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
                                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -179,7 +179,7 @@
                     </div>
                     <div class="col-md-12 mb-3">
                         <div class="list-group " wire:loading.remove wire:target="searchKey">
-                            @if ($searchData)
+                            @if ($searchData !== null)
                                 @if (count($searchData)>0)
                                     <div class="alert alert-light-success color-warning"><i class="fas fa-check-circle"></i>
                                         Showing results for {{ $searchKey }}</div>
@@ -243,6 +243,24 @@
                     warehouse: '{{ $this->activeWarehouse->title }}',
                     zone: 'All Zones',
                 };
+
+                // Create loader function
+                const createLoader = (className) => {
+                    const loader = document.createElement('div');
+                    loader.className = `loader-overlay ${className}`;
+                    loader.innerHTML = `
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    `;
+                    return loader;
+                };
+
+                // Create and add loader
+                const loader = createLoader('schedule-tab-viewport-loader');
+                document.body.appendChild(loader);
+                loader.style.display = 'none';
+
                 let calendar = new FullCalendar.Calendar(calendarEl, {
                     themeSystem: 'bootstrap5',
                     initialView: 'dayGridMonth',
@@ -451,6 +469,7 @@
                         $wire.handleDateClick(info.dateStr);
                     },
                     eventClick: function(info) {
+                        loader.style.display = 'flex';
 
                         if (info.event.extendedProps.description == 'holiday') {
                             return;
@@ -485,6 +504,9 @@
                     warehouseButton.textContent = text;
                     warehouseButton.prepend(icon);
                 }
+                Livewire.on('modalContentLoaded', () => {
+                    loader.style.display = 'none';
+                });
 
                 Livewire.on('calendar-needs-update', (activeWarehouse) => {
                     calendar.removeAllEvents();

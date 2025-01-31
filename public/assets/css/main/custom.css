@@ -971,6 +971,21 @@
     pointer-events: none;
     opacity: 0.6;
 }
+.schedule-tab-viewport-loader {
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1050;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+.schedule-edit-icon {
+    font-size: 0.8em;
+}
 
 .scheduler-driver-img-thumbnail {
     height: 100px;

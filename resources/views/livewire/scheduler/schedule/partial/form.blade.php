@@ -47,18 +47,6 @@
                                     </p>
                                 </div>
                             @endif
-                            {{-- <div class="col-md-12 mb-2">
-                                <x-forms.html-editor label="Service Address" :value="$form->service_address" model="form.service_address"
-                                :key="'service-address'.$form->addressKey" />
-                                <a href="#" wire:click.prevent="showAdrress()"
-                                    class="btn btn-link text-primary fw-semibold d-inline-flex align-items-center">
-                                    Use recommended address
-                                </a>
-                                <div wire:loading wire:target="showAdrress">
-                                    <span class="spinner-border spinner-border-sm" role="status"
-                                        aria-hidden="true"></span>
-                                </div>
-                            </div> --}}
 
                             @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
                                 <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
@@ -67,17 +55,12 @@
                                                 href=""><i class="fas fa-external-link-alt"></i> CustNo
                                                 #{{ $form->orderInfo?->sx_customer_number }}</a></span>
 
-                                        <h4 class="alert-heading">Service Address</h4>
+                                        <h4 class="alert-heading">Service Address  <a href="javascript:void(0)"  wire:click="showAddressModal"><i class="fas fa-edit schedule-edit-icon" ></i></a></h4>
                                         <p>
                                         <address class="ms-1">
                                             <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
-                                            {{ $form->orderInfo?->shipping_info['line'] }}<br>
-                                            @if ($form->orderInfo?->shipping_info['line2'])
-                                                {{ $form->orderInfo?->customer->address2 }} <br>
-                                            @endif
-                                            {{ $form->orderInfo?->shipping_info['city'] }},
-                                            {{ $form->orderInfo?->shipping_info['state'] }}
-                                            {{ $form->orderInfo?->shipping_info['zip'] }}<br>
+                                                {{$form->service_address}}
+                                            <br>
                                             <i class="fa-solid fa-phone"></i>
                                             {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
                                             <i class="fa-solid fa-envelope"></i>
@@ -382,13 +365,7 @@
                 <div class="mb-4">
                     <h6 class="text-primary">Current Address</h6>
                     <p>
-                    <address class="ms-1">
-                        {{ $form->orderInfo?->customer->address }}<br>
-                        {{ $form->orderInfo?->customer->address2 }}<br>
-                        {{ $form->orderInfo?->customer->city }}, {{ $form->orderInfo?->customer->state }}
-                        {{ $form->orderInfo?->customer->zip }}
-
-                    </address>
+                        {{ $form->service_address }}
                     </p>
                 </div>
                 <hr>
@@ -406,6 +383,26 @@
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
                         Use Recommended Address
+                    </button>
+                </div>
+            </x-modal>
+        @endif
+        @if ($serviceAddressModal)
+            <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
+                <x-slot name="title">Update Address </x-slot>
+                <div class="col-md-12 mb-2">
+                    <div class="form-group">
+                        <x-forms.textarea label="Service Address"  model="form.service_address"
+                            :key="'service-address'.$form->addressKey" />
+                    </div>
+                </div>
+                <hr>
+                <div class="mt-2 float-start">
+                    <button type="submit" class="btn btn-primary" wire:click="updateAddress">
+                        <div wire:loading wire:target="updateAddress">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Update Address
                     </button>
                 </div>
             </x-modal>
