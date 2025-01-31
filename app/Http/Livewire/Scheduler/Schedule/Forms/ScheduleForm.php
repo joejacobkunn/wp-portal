@@ -149,15 +149,15 @@ class ScheduleForm extends Form
             return;
         }
 
-        $this->service_address = "<address class='ms-1'>" . ($this->orderInfo?->shipping_info['line'] ?? '') . "<br>";
+        $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
             if (!empty($this->orderInfo?->shipping_info['line2'])) {
-                $this->service_address .= $this->orderInfo?->customer->address2 . "<br>";
+                $this->service_address .= $this->orderInfo?->customer->address2.', ';
             }
 
             $this->service_address .= $this->orderInfo?->shipping_info['city'] . ", " .
                 $this->orderInfo?->shipping_info['state'] . " " .
-                $this->orderInfo?->shipping_info['zip'] . "<br> </address>";
+                $this->orderInfo?->shipping_info['zip'];
             $this->service_address = trim($this->service_address);
 
         // if(empty($this->orderInfo->line_items['line_items'])) {
@@ -227,7 +227,7 @@ class ScheduleForm extends Form
         $validatedData['line_item'] = [$this->line_item=>$itemDesc];
 
         $schedule = Schedule::create($validatedData);
-        return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created'];
+        return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
 
     public function init(Schedule $schedule)
@@ -258,7 +258,7 @@ class ScheduleForm extends Form
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
-        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated'];
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
 
     public function delete()
@@ -290,10 +290,13 @@ class ScheduleForm extends Form
         return ['holidays' => $holidays];
     }
 
-    public function setAddress()
+    public function setAddress($status = null)
     {
-        $this->service_address = $this->recommendedAddress['formattedAddress'];
         $this->addressKey = uniqid();
+        if(!$status) {
+            $this->service_address = $this->recommendedAddress['formattedAddress'];
+            return;
+        }
     }
 
     public function getDistance()
@@ -316,11 +319,11 @@ class ScheduleForm extends Form
     {
         $google = app(DistanceInterface::class);
 
-        $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
-        .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
+        // $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
+        // .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
         $address=[
             'regionCode' => 'US',
-            'addressLines' => $shipto,
+            'addressLines' => $this->service_address,
             'zip' => $this->orderInfo->shipping_info['zip']
         ];
 
@@ -411,4 +414,10 @@ class ScheduleForm extends Form
         return DB::connection('sx')->select("select s.prod,s.serialno from pub.icets s where s.cono = ? and s.ordertype = 'o' and s.orderno = ? and s.ordersuf = ? with(nolock)",[10, $orderno, $suffix]);
     }
 
+    public function linkSRONumber($sro)
+    {
+        $this->schedule->sro_number = $sro;
+        $this->schedule->status = 'Confirmed';
+        $this->schedule->save();
+    }
 }

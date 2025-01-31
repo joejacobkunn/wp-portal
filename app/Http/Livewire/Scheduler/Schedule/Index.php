@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
+use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleViewForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
@@ -25,6 +26,7 @@ class Index extends Component
     use LivewireAlert;
 
     public ScheduleForm $form;
+    public ScheduleViewForm $viewForm;
 
     public $showModal;
     public $schedules;
@@ -52,6 +54,7 @@ class Index extends Component
     public $sro_number;
     public $sro_verified = false;
     public $sro_response;
+    public $serviceAddressModal = false;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -172,8 +175,7 @@ class Index extends Component
         }
 
         $this->alert($response['class'], $response['message']);
-
-        return redirect()->route('schedule.index');
+        $this->handleEventClick($response['schedule']);
     }
 
     public function updatedFormSuffix($value)
@@ -203,13 +205,15 @@ class Index extends Component
     {
         $this->sro_response = [];
         $this->sro_verified = false;
-        
-        if(strlen($value) > 6){
-            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'state', 'zip', 'brand', 'model')->where('sro_no', $value)->first();
-            if(!empty($sro))$this->sro_response = $sro->toArray();
-        }else{
-            $this->sro_response = [];
-        }
+
+        $this->sro_response = strlen($value) > 6 ? $this->getSROInfo($value) : [];
+
+    }
+
+    public function linkSRO()
+    {
+        $this->form->linkSRONumber($this->sro_number);
+        $this->alert('success', 'SRO number successfully linked');
     }
 
     public function typeCheck($field, $value)
@@ -232,38 +236,32 @@ class Index extends Component
                 'title' => 'Order #' . $schedule->sx_ordernumber,
                 'start' => $schedule->schedule_date->format('Y-m-d'),
                 'description' => 'schedule',
+                'color' => $schedule->status_color,
                 'icon' => $icon,
             ];
         });
     }
 
-    public function edit()
-    {
-        $this->showView = false;
-    }
-
-    public function delete()
-    {
-        $this->authorize('delete', $this->form->schedule);
-        $this->form->delete();
-        $this->alert('success', 'Record Deleted!');
-        return redirect()->route('schedule.index');
-    }
 
     public function handleEventClick(Schedule $schedule)
     {
         $this->form->init($schedule);
+        $this->viewForm->init($schedule);
         $this->orderInfoStrng = uniqid();
         $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
         $this->showModal = true;
         $this->isEdit = true;
         $this->showView = true;
-        $this->updatedFormSuffix($schedule->order_number_suffix);
+        $this->sro_number = $schedule->sro_number;
+        if($this->sro_number) {
+            $this->sro_verified = true;
+            $this->sro_response = $this->getSROInfo($this->sro_number);
+        }
         if($this->showSearchModal) {
             $this->closeSearchModal();
             $this->dispatch('jump-to-date', activeDay: $schedule->schedule_date->format('Y-m-d'));
-
         }
+        $this->dispatch('modalContentLoaded');
     }
 
     public function showAdrress()
@@ -281,6 +279,13 @@ class Index extends Component
     {
         $this->form->setAddress();
         $this->closeAddress();
+    }
+
+    public function updateAddress()
+    {
+        $this->form->setAddress(true);
+        $this->closeServiceAddressModal();
+
     }
 
     public function changeWarehouse($wsheID)
@@ -314,6 +319,7 @@ class Index extends Component
                 'shipping_info' => $schedule->order->shipping_info,
                 'truckName' => $schedule->truckSchedule->truck->truck_name,
                 'zone' => $schedule->truckSchedule->zone->name,
+                'status_color' => $schedule->status_color_class,
             ];
         })
         ->toArray();
@@ -557,4 +563,42 @@ class Index extends Component
         return $query;
     }
 
+    public function showAddressModal()
+    {
+        $this->serviceAddressModal = true;
+    }
+
+    public function closeServiceAddressModal()
+    {
+        $this->serviceAddressModal = false;
+    }
+
+    public function cancelSchedule()
+    {
+        $this->viewForm->update();
+    }
+
+    public function getSROInfo($sro)
+    {
+        if(config('sx.mock'))
+        {
+            $faker = \Faker\Factory::create();
+            return [
+                'first_name' => $faker->name(),
+                'last_name' => $faker->lastName(),
+                'address' => $faker->streetAddress(),
+                'state' => $faker->state(),
+                'city' => $faker->city(),
+                'zip' => $faker->postcode(),
+                'brand' => 'Toro',
+                'model' => 'ghd567df'
+            ];
+        }else{
+            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model')->where('sro_no', $sro)->first();
+            if(!empty($sro)) {
+                return $sro->toArray();
+            }
+            return null;
+        }
+    }
 }
