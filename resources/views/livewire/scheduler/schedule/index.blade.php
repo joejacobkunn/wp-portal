@@ -179,7 +179,7 @@
                     </div>
                     <div class="col-md-12 mb-3">
                         <div class="list-group " wire:loading.remove wire:target="searchKey">
-                            @if ($searchData)
+                            @if ($searchData !== null)
                                 @if (count($searchData)>0)
                                     <div class="alert alert-light-success color-warning"><i class="fas fa-check-circle"></i>
                                         Showing results for {{ $searchKey }}</div>
