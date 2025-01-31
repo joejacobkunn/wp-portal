@@ -213,6 +213,7 @@ class Index extends Component
     public function linkSRO()
     {
         $this->form->linkSRONumber($this->sro_number);
+        $this->alert('success', 'SRO number successfully linked');
     }
 
     public function typeCheck($field, $value)
