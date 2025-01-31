@@ -355,11 +355,16 @@ class ScheduleForm extends Form
     {
 
         $this->truckSchedules = DB::table('truck_schedules')
+        ->whereNull('truck_schedules.deleted_at')
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
         ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+        ->whereNull('scheduler_zipcodes.deleted_at')
         ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
+        ->whereNull('zones.deleted_at')
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
+        ->whereNull('trucks.deleted_at')
         ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
+        ->whereNull('orders.deleted_at')
         ->where('orders.order_number', '=', $this->sx_ordernumber)
         ->where('truck_schedules.schedule_date', '=', $this->schedule_date)
         ->select(
@@ -369,8 +374,9 @@ class ScheduleForm extends Form
             'trucks.id as truck_id',
             'trucks.truck_name',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
-            )
+        )
         ->get();
+
     }
 
     public function calendarInit()
@@ -382,15 +388,18 @@ class ScheduleForm extends Form
     public function getEnabledDates()
     {
         $schedules = DB::table('truck_schedules')
+        ->whereNull('truck_schedules.deleted_at')
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
         ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+        ->whereNull('scheduler_zipcodes.deleted_at')
         ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
+        ->whereNull('orders.deleted_at')
         ->where('orders.order_number', '=', $this->sx_ordernumber)
         ->select(
             'truck_schedules.*',
             'orders.id as order_id',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
-            )
+        )
         ->get();
         $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
     }

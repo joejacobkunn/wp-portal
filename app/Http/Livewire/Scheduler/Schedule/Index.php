@@ -479,19 +479,25 @@ class Index extends Component
 
         $query = Schedule::with([
             'truckSchedule' => function($query) {
-                $query->select('id', 'start_time', 'end_time');
+                $query->whereNull('deleted_at')
+                    ->select('id', 'start_time', 'end_time');
             },
             'order' => function($query) {
-                $query->select('id', 'order_number', 'sx_customer_number', 'shipping_info')
+                $query->whereNull('deleted_at')
+                    ->select('id', 'order_number', 'sx_customer_number', 'shipping_info')
                     ->with(['customer' => function($query) {
-                        $query->select('id', 'name', 'email', 'phone', 'sx_customer_number');
+                        $query->whereNull('deleted_at')
+                            ->select('id', 'name', 'email', 'phone', 'sx_customer_number');
                     }]);
             }
-        ])
-        ->join('truck_schedules', 'truck_schedules.id', '=', 'schedules.truck_schedule_id')
-        ->join('orders', 'orders.order_number', '=', 'schedules.sx_ordernumber')
-        ->join('customers', 'orders.sx_customer_number', '=', 'customers.sx_customer_number')
-        ->select(
+         ])
+         ->join('truck_schedules', 'truck_schedules.id', '=', 'schedules.truck_schedule_id')
+         ->whereNull('truck_schedules.deleted_at')
+         ->join('orders', 'orders.order_number', '=', 'schedules.sx_ordernumber')
+         ->whereNull('orders.deleted_at')
+         ->join('customers', 'orders.sx_customer_number', '=', 'customers.sx_customer_number')
+         ->whereNull('customers.deleted_at')
+         ->select(
             'schedules.id',
             'schedules.schedule_date',
             'schedules.sx_ordernumber',
@@ -499,9 +505,9 @@ class Index extends Component
             'schedules.order_number_suffix',
             'schedules.sx_ordernumber',
             'schedules.truck_schedule_id'
-        )
-        ->groupBy('schedules.id')
-        ->limit(100);
+         )
+         ->groupBy('schedules.id')
+         ->limit(100);
 
 
         if (is_numeric($this->searchKey)) {
