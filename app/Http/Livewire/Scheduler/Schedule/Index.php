@@ -270,6 +270,7 @@ class Index extends Component
             $this->closeSearchModal();
             $this->dispatch('jump-to-date', activeDay: $schedule->schedule_date->format('Y-m-d'));
         }
+        $this->dispatch('modalContentLoaded');
     }
 
     public function showAdrress()

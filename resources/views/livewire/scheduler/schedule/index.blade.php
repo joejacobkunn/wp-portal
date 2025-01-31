@@ -243,6 +243,24 @@
                     warehouse: '{{ $this->activeWarehouse->title }}',
                     zone: 'All Zones',
                 };
+
+                // Create loader function
+                const createLoader = (className) => {
+                    const loader = document.createElement('div');
+                    loader.className = `loader-overlay ${className}`;
+                    loader.innerHTML = `
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    `;
+                    return loader;
+                };
+
+                // Create and add loader
+                const loader = createLoader('schedule-tab-viewport-loader');
+                document.body.appendChild(loader);
+                loader.style.display = 'none';
+
                 let calendar = new FullCalendar.Calendar(calendarEl, {
                     themeSystem: 'bootstrap5',
                     initialView: 'dayGridMonth',
@@ -451,6 +469,7 @@
                         $wire.handleDateClick(info.dateStr);
                     },
                     eventClick: function(info) {
+                        loader.style.display = 'flex';
 
                         if (info.event.extendedProps.description == 'holiday') {
                             return;
@@ -485,6 +504,9 @@
                     warehouseButton.textContent = text;
                     warehouseButton.prepend(icon);
                 }
+                Livewire.on('modalContentLoaded', () => {
+                    loader.style.display = 'none';
+                });
 
                 Livewire.on('calendar-needs-update', (activeWarehouse) => {
                     calendar.removeAllEvents();
