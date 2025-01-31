@@ -16,4 +16,9 @@ class RepairOrders extends Model
     protected $casts = [
         'job_created_date' => 'date',
     ];
+
+    public function equipment()
+    {
+        return $this->hasOne(Equipment::class, 'equipment_id');
+    }
 }
