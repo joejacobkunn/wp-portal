@@ -414,4 +414,10 @@ class ScheduleForm extends Form
         return DB::connection('sx')->select("select s.prod,s.serialno from pub.icets s where s.cono = ? and s.ordertype = 'o' and s.orderno = ? and s.ordersuf = ? with(nolock)",[10, $orderno, $suffix]);
     }
 
+    public function linkSRONumber($sro)
+    {
+        $this->schedule->sro_number = $sro;
+        $this->schedule->status = 'Confirmed';
+        $this->schedule->save();
+    }
 }

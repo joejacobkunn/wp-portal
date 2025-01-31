@@ -206,32 +206,13 @@ class Index extends Component
         $this->sro_response = [];
         $this->sro_verified = false;
 
-        if(strlen($value) > 6){
-            if(config('sx.mock'))
-            {
-                $faker = \Faker\Factory::create();
-                $this->sro_response = [
-                    'first_name' => $faker->name(),
-                    'last_name' => $faker->lastName(),
-                    'address' => $faker->streetAddress(),
-                    'state' => $faker->state(),
-                    'city' => $faker->city(),
-                    'zip' => $faker->postcode(),
-                    'brand' => 'Toro',
-                    'model' => 'ghd567df'
-                ];
-            }else{
-                $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model')->where('sro_no', $value)->first();
-                if(!empty($sro))$this->sro_response = $sro->toArray();
-            }
-        }else{
-            $this->sro_response = [];
-        }
+        $this->sro_response = strlen($value) > 6 ? $this->getSROInfo($value) : [];
+
     }
 
     public function linkSRO()
     {
-        //update status to Confirmed and update sro_number to schedule
+        $this->form->linkSRONumber($this->sro_number);
     }
 
     public function typeCheck($field, $value)
@@ -270,6 +251,11 @@ class Index extends Component
         $this->showModal = true;
         $this->isEdit = true;
         $this->showView = true;
+        $this->sro_number = $schedule->sro_number;
+        if($this->sro_number) {
+            $this->sro_verified = true;
+            $this->sro_response = $this->getSROInfo($this->sro_number);
+        }
         if($this->showSearchModal) {
             $this->closeSearchModal();
             $this->dispatch('jump-to-date', activeDay: $schedule->schedule_date->format('Y-m-d'));
@@ -591,5 +577,27 @@ class Index extends Component
         $this->viewForm->update();
     }
 
-
+    public function getSROInfo($sro)
+    {
+        if(config('sx.mock'))
+        {
+            $faker = \Faker\Factory::create();
+            return [
+                'first_name' => $faker->name(),
+                'last_name' => $faker->lastName(),
+                'address' => $faker->streetAddress(),
+                'state' => $faker->state(),
+                'city' => $faker->city(),
+                'zip' => $faker->postcode(),
+                'brand' => 'Toro',
+                'model' => 'ghd567df'
+            ];
+        }else{
+            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model')->where('sro_no', $sro)->first();
+            if(!empty($sro)) {
+                return $sro->toArray();
+            }
+            return null;
+        }
+    }
 }

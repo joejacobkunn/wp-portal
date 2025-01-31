@@ -55,13 +55,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse" id="cancelCollapse" data-bs-parent=".collapse-container" wire:ignore.self>
+                    <div class="collapse @if($viewForm->schedule->status == 'Cancelled') show @endif" id="cancelCollapse" data-bs-parent=".collapse-container" wire:ignore.self>
                         <div class="card card-body">
                             @if ( $viewForm->schedule->status == 'Cancelled')
                                 <div class="alert alert-light-danger">
-                                    <h4 class="alert-heading"><i class="far fa-calendar-times"></i>
-                                        Schedule  is cancelled</h4>
-                                    <p> {{$viewForm->schedule->cancel_reason }}</p>
+                                    <p><i class="far fa-calendar-times"></i>
+                                        Schedule is cancelled ({{$viewForm->schedule->cancel_reason }})</p>
                                 </div>
                             @else
                                 You are cancelling this schedule. Provide a reason in below field
