@@ -254,6 +254,7 @@ class Index extends Component
                 'title' => 'Order #' . $schedule->sx_ordernumber,
                 'start' => $schedule->schedule_date->format('Y-m-d'),
                 'description' => 'schedule',
+                'color' => $schedule->status_color,
                 'icon' => $icon,
             ];
         });
@@ -331,6 +332,7 @@ class Index extends Component
                 'shipping_info' => $schedule->order->shipping_info,
                 'truckName' => $schedule->truckSchedule->truck->truck_name,
                 'zone' => $schedule->truckSchedule->zone->name,
+                'status_color' => $schedule->status_color_class,
             ];
         })
         ->toArray();

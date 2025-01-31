@@ -101,7 +101,7 @@
                                     wire:loading.attr="disabled"
                                     wire:target="handleEventClick({{ $event['id'] }})">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h5><span class="badge bg-secondary">Order
+                                        <h5><span class="badge bg-{{$event['status_color']}}">Order
                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
                                                 <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
                                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

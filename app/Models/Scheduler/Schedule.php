@@ -3,6 +3,7 @@
 namespace App\Models\Scheduler;
 
 use App\Enums\Scheduler\ScheduleEnum;
+use App\Enums\Scheduler\ScheduleStatusEnum;
 use App\Models\Core\User;
 use App\Models\Order\Order;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -55,4 +56,15 @@ class Schedule extends Model
         $unique_id = 1000000 + $this->id;
         return strtoupper(substr($this->truckSchedule->truck->warehouse->short,0,1)).$unique_id;
     }
+
+    public function getStatusColorAttribute(): string
+    {
+        return ScheduleStatusEnum::from($this->status)->color();
+    }
+
+    public function getStatusColorClassAttribute(): string
+    {
+        return ScheduleStatusEnum::from($this->status)->colorClass();
+    }
+
 }
