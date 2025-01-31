@@ -55,7 +55,7 @@
                                                 href=""><i class="fas fa-external-link-alt"></i> CustNo
                                                 #{{ $form->orderInfo?->sx_customer_number }}</a></span>
 
-                                        <h4 class="alert-heading">Service Address  <a href="javascript:void(0)"  wire:click="showAddressModal"><i class="fas fa-edit" style="font-size: 0.8em;"></i></a></h4>
+                                        <h4 class="alert-heading">Service Address  <a href="javascript:void(0)"  wire:click="showAddressModal"><i class="fas fa-edit schedule-edit-icon" ></i></a></h4>
                                         <p>
                                         <address class="ms-1">
                                             <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>

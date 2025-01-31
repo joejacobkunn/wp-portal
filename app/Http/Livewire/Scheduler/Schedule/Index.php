@@ -173,8 +173,7 @@ class Index extends Component
         }
 
         $this->alert($response['class'], $response['message']);
-
-        return redirect()->route('schedule.index');
+        $this->handleEventClick($response['schedule']);
     }
 
     public function updatedFormSuffix($value)
@@ -204,7 +203,7 @@ class Index extends Component
     {
         $this->sro_response = [];
         $this->sro_verified = false;
-        
+
         if(strlen($value) > 6){
             if(config('sx.mock'))
             {
@@ -221,7 +220,7 @@ class Index extends Component
                 ];
             }else{
                 $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model')->where('sro_no', $value)->first();
-                if(!empty($sro))$this->sro_response = $sro->toArray();    
+                if(!empty($sro))$this->sro_response = $sro->toArray();
             }
         }else{
             $this->sro_response = [];
@@ -258,18 +257,6 @@ class Index extends Component
         });
     }
 
-    public function edit()
-    {
-        $this->showView = false;
-    }
-
-    public function delete()
-    {
-        $this->authorize('delete', $this->form->schedule);
-        $this->form->delete();
-        $this->alert('success', 'Record Deleted!');
-        return redirect()->route('schedule.index');
-    }
 
     public function handleEventClick(Schedule $schedule)
     {
@@ -279,11 +266,9 @@ class Index extends Component
         $this->showModal = true;
         $this->isEdit = true;
         $this->showView = true;
-        $this->updatedFormSuffix($schedule->order_number_suffix);
         if($this->showSearchModal) {
             $this->closeSearchModal();
             $this->dispatch('jump-to-date', activeDay: $schedule->schedule_date->format('Y-m-d'));
-
         }
     }
 

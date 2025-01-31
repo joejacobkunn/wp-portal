@@ -227,7 +227,7 @@ class ScheduleForm extends Form
         $validatedData['line_item'] = [$this->line_item=>$itemDesc];
 
         $schedule = Schedule::create($validatedData);
-        return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created'];
+        return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
 
     public function init(Schedule $schedule)
@@ -258,7 +258,7 @@ class ScheduleForm extends Form
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
-        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated'];
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
 
     public function delete()
