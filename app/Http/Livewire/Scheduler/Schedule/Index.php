@@ -52,6 +52,7 @@ class Index extends Component
     public $sro_number;
     public $sro_verified = false;
     public $sro_response;
+    public $serviceAddressModal = false;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -275,6 +276,13 @@ class Index extends Component
     {
         $this->form->setAddress();
         $this->closeAddress();
+    }
+
+    public function updateAddress()
+    {
+        $this->form->setAddress(true);
+        $this->closeServiceAddressModal();
+
     }
 
     public function changeWarehouse($wsheID)
@@ -550,5 +558,16 @@ class Index extends Component
 
         return $query;
     }
+
+    public function showAddressModal()
+    {
+        $this->serviceAddressModal = true;
+    }
+
+    public function closeServiceAddressModal()
+    {
+        $this->serviceAddressModal = false;
+    }
+
 
 }
