@@ -25,6 +25,9 @@ class Schedule extends Model
         'created_by',
         'schedule_type',
         'notes',
+        'cancel_reason',
+        'reschedule_reason',
+        'sro_number',
     ];
 
     protected $casts = [

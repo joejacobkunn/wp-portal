@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
+use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleViewForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
@@ -25,6 +26,7 @@ class Index extends Component
     use LivewireAlert;
 
     public ScheduleForm $form;
+    public ScheduleViewForm $viewForm;
 
     public $showModal;
     public $schedules;
@@ -261,6 +263,7 @@ class Index extends Component
     public function handleEventClick(Schedule $schedule)
     {
         $this->form->init($schedule);
+        $this->viewForm->init($schedule);
         $this->orderInfoStrng = uniqid();
         $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
         $this->showModal = true;
@@ -579,6 +582,11 @@ class Index extends Component
     public function closeServiceAddressModal()
     {
         $this->serviceAddressModal = false;
+    }
+
+    public function cancelSchedule()
+    {
+        $this->viewForm->update();
     }
 
 

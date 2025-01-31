@@ -6,7 +6,9 @@
 
                 <div class="alert alert-light-secondary color-secondary"> Actions
                     <div class="btn-group mt-n1 mb-3 float-end" role="group" aria-label="Basic example">
-                        <button type="button" class="btn btn-sm btn-danger"><i class="far fa-calendar-times"></i>
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="collapse"
+                            data-bs-target="#cancelCollapse" aria-expanded="false" aria-controls="cancelCollapse"><i
+                                class="far fa-calendar-times"></i>
                             Cancel</button>
 
                         <button type="button" class="btn btn-sm btn-warning"><i class="fas fa-redo"></i>
@@ -18,38 +20,67 @@
                     </div>
 
                 </div>
+                <div class="collapse-container">
+                    <div class="collapse @if ($sro_number) show @endif" id="confirmCollapse" data-bs-parent=".collapse-container">
+                        <div class="card card-body">
+                            Confirm this schedule by linking the correct SRO# and click confirm below. Click on confirm
+                            again to cancel
+                            <div class="col-md-12 mt-3">
+                                <x-forms.input label="SRO Number" model="sro_number" live />
+                                @if (!empty($sro_response))
+                                    <div class="alert alert-secondary">
+                                        <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
+                                            {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
+                                        <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
+                                                {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
+                                        <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
+                                                {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
+                                                {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
+                                    </div>
 
-                <div class="collapse @if ($sro_number) show @endif" id="confirmCollapse">
-                    <div class="card card-body">
-                        Confirm this schedule by linking the correct SRO# and click confirm below. Click on confirm
-                        again to cancel
-                        <div class="col-md-12 mt-3">
-                            <x-forms.input label="SRO Number" model="sro_number" live />
-                            @if (!empty($sro_response))
-                                <div class="alert alert-secondary">
-                                    <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
-                                        {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
-                                    <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
-                                            {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
-                                    <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
-                                            {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
-                                            {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
+                                    <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
+                                        name="sro_verified" :value="1" model="sro_verified" />
+                                @endif
+                                <div class="mt-4 float-start">
+                                    <button @if (!$sro_verified) disabled @endif wire:click="linkSRO"
+                                        class="btn btn-sm btn-success">
+                                        <div wire:loading>
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
+                                        </div>
+                                        <i class="fas fa-calendar-check"></i> Link SRO and Confirm AHM
+                                    </button>
                                 </div>
 
-                                <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
-                                    name="sro_verified" :value="1" model="sro_verified" />
-                            @endif
-                            <div class="mt-4 float-start">
-                                <button @if (!$sro_verified) disabled @endif wire:click="linkSRO"
-                                    class="btn btn-sm btn-success">
-                                    <div wire:loading>
-                                        <span class="spinner-border spinner-border-sm" role="status"
-                                            aria-hidden="true"></span>
-                                    </div>
-                                    <i class="fas fa-calendar-check"></i> Link SRO and Confirm AHM
-                                </button>
                             </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="cancelCollapse" data-bs-parent=".collapse-container" wire:ignore.self>
+                        <div class="card card-body">
+                            @if ( $viewForm->schedule->status == 'Cancelled')
+                                <div class="alert alert-light-danger">
+                                    <h4 class="alert-heading"><i class="far fa-calendar-times"></i>
+                                        Schedule  is cancelled</h4>
+                                    <p> {{$viewForm->schedule->cancel_reason }}</p>
+                                </div>
+                            @else
+                                You are cancelling this schedule. Provide a reason in below field
+                                <div class="col-md-12 mt-3">
+                                    <x-forms.input label="Reason" model="viewForm.cancel_reason" />
 
+                                    <div class="mt-4 float-start">
+                                        <button  wire:click="cancelSchedule"
+                                            class="btn btn-sm btn-danger">
+                                            <div wire:loading wire:target="cancelSchedule">
+                                                <span class="spinner-border spinner-border-sm" role="status"
+                                                    aria-hidden="true"></span>
+                                            </div>
+                                            <i class="far fa-calendar-times"></i> Cancel Schedule
+                                        </button>
+                                    </div>
+
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
