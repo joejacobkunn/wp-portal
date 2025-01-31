@@ -972,6 +972,10 @@
     opacity: 0.6;
 }
 
+.schedule-edit-icon {
+    font-size: 0.8em;
+}
+
 .scheduler-driver-img-thumbnail {
     height: 100px;
     width: 100px;
