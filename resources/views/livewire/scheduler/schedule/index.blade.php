@@ -512,7 +512,19 @@
                         calendar.addEvent(eventData.newEvent);
                     }
                 });
+                Livewire.on('add-event-calendar', (eventData) => {
+                    if (eventData.newEvent) {
+                        let existingEvent = calendar.getEventById(eventData.newEvent.id);
 
+                        if (!existingEvent) {
+                            calendar.addEvent(eventData.newEvent);
+                        }
+                    }
+                });
+                Livewire.on('remove-event-calendar', (schedule) => {
+                    let event = calendar.getEventById(schedule.eventId);
+                    event.remove();
+                });
                 Livewire.on('calendar-needs-update', (activeWarehouse) => {
                     calendar.removeAllEvents();
                     calendar.addEventSource($wire.schedules);

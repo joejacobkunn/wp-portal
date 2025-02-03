@@ -29,6 +29,8 @@ class Schedule extends Model
         'cancel_reason',
         'reschedule_reason',
         'sro_number',
+        'cancelled_by',
+        'cancelled_at'
     ];
 
     protected $casts = [
