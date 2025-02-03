@@ -507,6 +507,11 @@
                 Livewire.on('modalContentLoaded', () => {
                     loader.style.display = 'none';
                 });
+                Livewire.on('add-event-calendar', (eventData) => {
+                    if (eventData.newEvent) {
+                        calendar.addEvent(eventData.newEvent);
+                    }
+                });
 
                 Livewire.on('calendar-needs-update', (activeWarehouse) => {
                     calendar.removeAllEvents();
