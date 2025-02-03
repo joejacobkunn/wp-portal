@@ -429,4 +429,11 @@ class ScheduleForm extends Form
         $this->schedule->status = 'Confirmed';
         $this->schedule->save();
     }
+
+    public function unlinkSRO()
+    {
+        $this->schedule->sro_number = null;
+        $this->schedule->status = 'Scheduled';
+        $this->schedule->save();
+    }
 }

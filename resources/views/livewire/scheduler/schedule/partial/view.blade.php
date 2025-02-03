@@ -13,10 +13,18 @@
 
                         <button type="button" class="btn btn-sm btn-warning"><i class="fas fa-redo"></i>
                             Reschedule</button>
-                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse"
-                            data-bs-target="#confirmCollapse" aria-expanded="false" aria-controls="confirmCollapse"><i
-                                class="fas fa-check-double"></i>
-                            Confirm</button>
+                         @if ($form->schedule->status == 'Scheduled')
+                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse"
+                             data-bs-target="#confirmCollapse" aria-expanded="false" aria-controls="confirmCollapse"><i
+                                 class="fas fa-check-double"></i>
+                             Confirm</button>
+                         @endif
+                         @if ($form->schedule->status == 'Confirmed')
+                         <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="collapse"
+                             data-bs-target="#unconfirmCollapse" aria-expanded="false" aria-controls="unconfirmCollapse"><i
+                                 class="fas fa-solid fa-xmark"></i>
+                             Unconfirm</button>
+                         @endif
                     </div>
 
                 </div>
@@ -48,34 +56,28 @@
                             @endif
                         </div>
                     </div>
-                    <div class="collapse @if ($sro_number) show @endif p-2" id="confirmCollapse" data-bs-parent=".collapse-container">
+                    <div class="collapse p-2" id="confirmCollapse" data-bs-parent=".collapse-container" wire:ignore.self>
                         <div class="card card-body mb-0 p-0">
                             @if ($form->schedule->status == 'Scheduled' )
                                 Confirm this schedule by linking the correct SRO# and click confirm below. Click on confirm
                                 again to cancel
-                            @endif
-                            <div class="col-md-12 mt-3">
-                                @if ($form->schedule->status == 'Scheduled' )
+                                <div class="col-md-12 mt-3">
                                     <x-forms.input label="SRO Number" model="sro_number" live />
-                                @endif
-                                @if (!empty($sro_response))
-                                    <div class="alert alert-secondary">
-                                        <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
-                                            {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
-                                        <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
-                                                {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
-                                        <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
-                                                {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
-                                                {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
-                                    </div>
-                                    @if ($form->schedule->status == 'Scheduled' )
-                                        <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
-                                            name="sro_verified" :value="1" model="sro_verified" />
+                                    @if (!empty($sro_response))
+                                        <div class="alert alert-secondary">
+                                            <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
+                                                {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
+                                            <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
+                                                    {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
+                                            <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
+                                                    {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
+                                                    {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
+                                        </div>
+                                            <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
+                                                name="sro_verified" :value="1" model="sro_verified" />
                                     @endif
-                                @endif
 
-                                <div class="mt-4 float-start">
-                                    @if ($form->schedule->status == 'Scheduled' )
+                                    <div class="mt-4 float-start">
                                         <button @if (!$sro_verified) disabled @endif wire:click="linkSRO"
                                             class="btn btn-sm btn-success">
                                             <div wire:loading>
@@ -84,9 +86,26 @@
                                             </div>
                                             <i class="fas fa-calendar-check"></i> Link SRO and Confirm AHM
                                         </button>
-                                    @endif
-                                </div>
+                                    </div>
 
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="collapse p-2" id="unconfirmCollapse" data-bs-parent=".collapse-container">
+                        <div class="card card-body mb-0 p-0">
+                            Unconfirm this schedule and unlink the SRO# by clicking unconfirm below.
+                            <div class="col-md-12">
+                                <div class="mt-4 float-start">
+                                    <button  wire:click="cancelConfirm"
+                                        class="btn btn-sm btn-danger">
+                                        <div wire:loading wire:target="cancelConfirm">
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
+                                        </div>
+                                        <i class="far fa-calendar-times"></i> Unconfirm
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -106,6 +125,18 @@
                             {{ $form->schedule->truckSchedule->zone->name }}</span>
                         on this day</p>
                 </div>
+
+                @if (!empty($sro_response) && $form->schedule->status != 'Scheduled' )
+                    <div class="alert alert-secondary">
+                        <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
+                            {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
+                        <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
+                                {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
+                        <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
+                                {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
+                                {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
+                    </div>
+                @endif
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>

@@ -155,6 +155,11 @@ class Index extends Component
         $this->isEdit = false;
         $this->resetValidation();
         $this->form->reset();
+        $this->reset([
+            'sro_number',
+            'sro_verified',
+            'sro_response'
+        ]);
     }
 
     public function render()
@@ -611,5 +616,16 @@ class Index extends Component
             }
             return null;
         }
+    }
+
+    public function cancelConfirm()
+    {
+        $this->form->unlinkSRO();
+        $this->reset([
+            'sro_number',
+            'sro_verified',
+            'sro_response'
+        ]);
+        $this->alert('success', 'Schedule Unconfirmed');
     }
 }
