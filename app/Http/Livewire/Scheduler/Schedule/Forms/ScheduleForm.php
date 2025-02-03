@@ -80,7 +80,7 @@ class ScheduleForm extends Form
             'type' => 'required',
             'sx_ordernumber' => [
                 'required',
-                Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at')->ignore($this->getScheduledId()),
+                Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at'),
                 Rule::exists('orders', 'order_number')
                 ->where(function ($query) {
                     $query->where('order_number_suffix', $this->suffix);

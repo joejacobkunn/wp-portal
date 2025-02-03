@@ -164,36 +164,30 @@ class Index extends Component
 
     public function submit()
     {
-        if( $this->isEdit ) {
 
-            $this->authorize('update', $this->form->schedule);
-            $response = $this->form->update();
-
-        } else {
-            $this->authorize('store', Schedule::class);
-            $response = $this->form->store();
-            $type = Str::title(str_replace('_', ' ', $response['schedule']->type));
-            $enumInstance = ScheduleEnum::tryFrom($type);
-            $icon = $enumInstance ? $enumInstance->icon() : null;
-            $event = [
-                'id' => $response['schedule']->id,
-                'title' => 'Order #' . $response['schedule']->sx_ordernumber,
-                'start' => $response['schedule']->schedule_date->format('Y-m-d'),
-                'description' => 'schedule',
-                'color' => $response['schedule']->status_color,
-                'icon' => $icon,
-            ];
-            $this->dispatch('add-event-calendar', newEvent: $event);
-        }
-
+        $this->authorize('store', Schedule::class);
+        $response = $this->form->store();
+        $type = Str::title(str_replace('_', ' ', $response['schedule']->type));
+        $enumInstance = ScheduleEnum::tryFrom($type);
+        $icon = $enumInstance ? $enumInstance->icon() : null;
+        $event = [
+            'id' => $response['schedule']->id,
+            'title' => 'Order #' . $response['schedule']->sx_ordernumber,
+            'start' => $response['schedule']->schedule_date->format('Y-m-d'),
+            'description' => 'schedule',
+            'color' => $response['schedule']->status_color,
+            'icon' => $icon,
+        ];
         $this->alert($response['class'], $response['message']);
         $this->handleEventClick($response['schedule']);
+        $this->dispatch('add-event-calendar', newEvent: $event);
     }
 
     public function updatedFormSuffix($value)
     {
         if(is_numeric($value))
         {
+            $this->validateOnly('form.sx_ordernumber');
             $this->form->getOrderInfo($value, $this->activeWarehouse->short);
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
         }
@@ -207,7 +201,6 @@ class Index extends Component
             'zipcodeInfo',
             'scheduleType',
             'schedule_date',
-            'shiftMsg',
             'schedule_time',
             'line_items'
         ]);
