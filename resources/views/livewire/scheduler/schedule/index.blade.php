@@ -289,7 +289,7 @@
                     headerToolbar: {
                         left: 'prev,next today searchBtn',
                         center: 'title',
-                        right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
+                        right: 'exportBtn warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
                     titleFormat: {
                         month: 'short',
@@ -415,6 +415,28 @@
                                 }
                                 e.stopPropagation();
                             }
+                        },
+                        exportBtn: {
+                            text: 'Export',
+                            click: function(e) {
+                                let loaderIcon = document.createElement('i');
+                                loaderIcon.className = 'fa fa-spinner fa-spin loader ms-2';
+                                loaderIcon.style.display = 'none';
+
+                                let btn = e.target;
+                                btn.appendChild(loaderIcon);
+                                if (loaderIcon) {
+                                    loaderIcon.style.display = 'inline-block';
+                                }
+                                btn.setAttribute("disabled", true);
+
+                                $wire.exportSchedules().then(() => {
+                                    setTimeout(() => {
+                                        btn.removeAttribute('disabled');
+                                        btn.querySelector('i').remove();
+                                    }, 200)
+                                })
+                            }
                         }
                     },
                     eventSources: [{
@@ -449,7 +471,7 @@
                     },
                     datesSet: function(info) {
 
-                        $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {
+                        $wire.onDateRangeChanges(info.startStr, info.endStr, info.view.title).then(() => {
                             calendar.removeAllEvents();
                             calendar.addEventSource($wire.schedules);
                             calendar.addEventSource($wire.holidays);

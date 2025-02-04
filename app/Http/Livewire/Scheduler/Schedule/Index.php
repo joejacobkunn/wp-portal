@@ -2,6 +2,8 @@
 
 namespace App\Http\Livewire\Scheduler\Schedule;
 
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
@@ -9,19 +11,17 @@ use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleViewForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\User;
 use App\Models\Core\Warehouse;
-use App\Models\Order\Order;
 use App\Models\Product\Product;
-use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Truck;
-use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\Zones;
 use App\Models\SRO\RepairOrders;
-use Carbon\Carbon;
+use App\Models\Scheduler\Schedule;
+use App\Exports\Scheduler\OrderScheduleExport;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Scheduler\TruckSchedule;
 use Illuminate\Support\Facades\Validator;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Illuminate\Support\Str;
 
 class Index extends Component
 {
@@ -41,6 +41,7 @@ class Index extends Component
     public $holidays;
     public $eventStart;
     public $eventEnd;
+    public $monthTitle;
     public $activeType;
     public $activeZone = [];
     public $truckInfo = [];
@@ -352,10 +353,11 @@ class Index extends Component
         $this->filteredSchedules = $this->getTrucks();
     }
 
-    public function onDateRangeChanges($start, $end)
+    public function onDateRangeChanges($start, $end, $monthTitle)
     {
         $this->eventStart = Carbon::parse($start);
         $this->eventEnd = Carbon::parse($end);
+        $this->monthTitle = $monthTitle;
         $this->getEvents();
         $this->getTruckData();
     }
@@ -750,5 +752,43 @@ class Index extends Component
     {
         $this->showDriverModal = false;
         $this->filteredSchedules = $this->getTrucks();
+    }
+
+    public function exportSchedules()
+    {
+        $selectedMonth = Carbon::parse($this->monthTitle);
+        $schedulQuery = $this->getSchedules()
+            ->whereBetween('schedule_date', [$selectedMonth->startOfMonth()->toDateString(), $selectedMonth->endOfMonth()->toDateString()])
+            ->limit(500);
+
+        $schedules =  $schedulQuery->get()
+            ->map(function ($schedule) {
+                $type = Str::title(str_replace('_', ' ', $schedule->type));
+                $enumInstance = ScheduleEnum::tryFrom($type);
+
+                return [
+                    'id' => $schedule->id,
+                    'sx_ordernumber' => $schedule->sx_ordernumber,
+                    'schedule_date' => $schedule->schedule_date?->format('Y-m-d'),
+                    'type' => $enumInstance?->label(),
+                    'zone' => $schedule->truckSchedule?->zone?->name,
+                    'truckName' => $schedule->truckSchedule?->truck?->truck_name,
+                    'status' => $schedule->status,
+                    'customer_name' => $schedule->order?->customer->name,
+                    'sx_customer_number' => $schedule->order?->customer->sx_customer_number,
+                    'shipping_address_1' => $schedule->order?->shipping_info['line'] ?? '',
+                    'shipping_address_2' => $schedule->order?->shipping_info['line2'] ?? '',
+                    'shipping_city' => $schedule->order?->shipping_info['city'] ?? '',
+                    'shipping_state' => $schedule->order?->shipping_info['state'] ?? '',
+                    'shipping_zip' => $schedule->order?->shipping_info['zip'] ?? '',
+                ];
+            })
+            ->toArray();
+        $this->alert('info', 'Initializing Export!');
+
+        return Excel::download(
+            new OrderScheduleExport($schedules),
+            'Schedule Report - '. $this->monthTitle.'.csv'
+        );
     }
 }
