@@ -941,6 +941,10 @@
     box-shadow: none !important;
     transition: background-color 0.3s ease;
 }
+.schedule-tab .fc-exportBtn-button:disabled {
+    opacity: 1;
+    cursor: progress;
+}
 
 .schedule-tab .fc-warehouseBtn-button:hover {
     background-color: #3788d8 !important;
