@@ -34,7 +34,7 @@
             <div wire:loading wire:target="asignDrivers">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             </div>
-            Asign Drivers
+            Assign Drivers
         </button>
     </x-slot>
 

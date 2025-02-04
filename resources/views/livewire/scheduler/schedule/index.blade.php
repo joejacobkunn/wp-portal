@@ -44,8 +44,8 @@
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
                 @if (collect($this->filteredSchedules)->contains('driver_id', null))
                     <div class="alert alert-light-warning color-warning"><i
-                        class="bi bi-exclamation-triangle"></i>Drivers not asigned
-                        <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Asign Driver</button>
+                        class="bi bi-exclamation-triangle"></i>Drivers not assigned
+                        <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Assign Driver</button>
                     </div>
                 @endif
                 {{-- truck and zone --}}
@@ -170,7 +170,7 @@
         @endif
         @if ($showDriverModal)
             <x-modal toggle="showDriverModal" size="md" :closeEvent="'closeDriverModal'">
-                <x-slot name="title"> Asign drivers to trucks # {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</x-slot>
+                <x-slot name="title"> Assign drivers to trucks # {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</x-slot>
                 @include('livewire.scheduler.schedule.partial.drivers_form')
             </x-modal>
         @endif
@@ -637,12 +637,13 @@
                         if(driverNotAssigned) {
 
                             let driverAssignedSpan = document.createElement('span');
-                            driverAssignedSpan.classList.add('badge', 'bg-danger', 'driver-assigned-span');
-                            driverAssignedSpan.style.fontSize = 'x-small';
-                            driverAssignedSpan.innerHTML = `
-                                <i class="fa-solid fa-user"></i> => <i class="fas fa-truck"></i>
-                            `;
-                            dayCell.insertBefore(driverAssignedSpan, dayCell.lastChild);
+                            driverAssignedSpan.classList.add('driver-assigned-span' , 'float-end');
+                            driverAssignedSpan.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-danger"></i>`;
+                            dayCell.insertBefore(driverAssignedSpan, dayCell.firstChild);
+                            let zoneSpan = dayCell.querySelector('.zoneinfo-span');
+                            if (zoneSpan) {
+                            zoneSpan.insertAdjacentElement('afterbegin', driverAssignedSpan);
+                            }
                         }
                     });
                 }
