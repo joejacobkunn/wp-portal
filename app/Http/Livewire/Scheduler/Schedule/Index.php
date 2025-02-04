@@ -54,6 +54,7 @@ class Index extends Component
     public $sro_number;
     public $sro_verified = false;
     public $sro_response;
+    public $viewScheduleTypeCollapse = false;
     public $serviceAddressModal = false;
 
     protected $listeners = [
@@ -155,6 +156,12 @@ class Index extends Component
         $this->isEdit = false;
         $this->resetValidation();
         $this->form->reset();
+        $this->reset([
+            'sro_number',
+            'sro_verified',
+            'sro_response',
+            'viewScheduleTypeCollapse'
+        ]);
     }
 
     public function render()
@@ -164,24 +171,30 @@ class Index extends Component
 
     public function submit()
     {
-        if( $this->isEdit ) {
 
-            $this->authorize('update', $this->form->schedule);
-            $response = $this->form->update();
-
-        } else {
-            $this->authorize('store', Schedule::class);
-            $response = $this->form->store();
-        }
-
+        $this->authorize('store', Schedule::class);
+        $response = $this->form->store();
+        $type = Str::title(str_replace('_', ' ', $response['schedule']->type));
+        $enumInstance = ScheduleEnum::tryFrom($type);
+        $icon = $enumInstance ? $enumInstance->icon() : null;
+        $event = [
+            'id' => $response['schedule']->id,
+            'title' => 'Order #' . $response['schedule']->sx_ordernumber,
+            'start' => $response['schedule']->schedule_date->format('Y-m-d'),
+            'description' => 'schedule',
+            'color' => $response['schedule']->status_color,
+            'icon' => $icon,
+        ];
         $this->alert($response['class'], $response['message']);
         $this->handleEventClick($response['schedule']);
+        $this->dispatch('add-event-calendar', newEvent: $event);
     }
 
     public function updatedFormSuffix($value)
     {
         if(is_numeric($value))
         {
+            $this->validateOnly('form.sx_ordernumber');
             $this->form->getOrderInfo($value, $this->activeWarehouse->short);
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
         }
@@ -195,7 +208,6 @@ class Index extends Component
             'zipcodeInfo',
             'scheduleType',
             'schedule_date',
-            'shiftMsg',
             'schedule_time',
             'line_items'
         ]);
@@ -434,6 +446,9 @@ class Index extends Component
     public function scheduleTypeChange($field, $value)
     {
         $this->showTypeLoader = true;
+        if(isset($this->form->Schedule)) {
+            $this->viewScheduleTypeCollapse = true;
+        }
         $this->form->scheduleType = $value;
         $this->dispatch('scheduleTypeDispatch');
 
@@ -581,7 +596,7 @@ class Index extends Component
 
     public function cancelSchedule()
     {
-        $this->viewForm->update();
+        $this->form->cancelSchedule();
     }
 
     public function getSROInfo($sro)
@@ -606,5 +621,66 @@ class Index extends Component
             }
             return null;
         }
+    }
+
+    public function cancelConfirm()
+    {
+        $this->form->unlinkSRO();
+        $this->reset([
+            'sro_number',
+            'sro_verified',
+            'sro_response'
+        ]);
+        $this->alert('success', 'Schedule Unconfirmed');
+    }
+
+    public function scheduleDateInitiate()
+    {
+        $this->viewScheduleTypeCollapse = !$this->viewScheduleTypeCollapse;
+    }
+    public function getEnabledDates()
+    {
+        if(empty($this->form->enabledDates)) {
+            $this->form->getEnabledDates();
+        }
+        return $this->form->enabledDates;
+    }
+
+    public function save()
+    {
+        $this->authorize('update', $this->form->schedule);
+        $response = $this->form->update();
+        $this->viewScheduleTypeCollapse = false;
+        $this->EventUpdate($response);
+    }
+
+    public function undoCancel()
+    {
+        $this->authorize('update', $this->form->schedule);
+        $response = $this->form->undoCancel();
+        $this->EventUpdate($response);
+    }
+
+    public function hideScheduleSection()
+    {
+        $this->viewScheduleTypeCollapse = false;
+    }
+
+    public function EventUpdate($response)
+    {
+        $type = Str::title(str_replace('_', ' ', $response['schedule']->type));
+        $enumInstance = ScheduleEnum::tryFrom($type);
+        $icon = $enumInstance ? $enumInstance->icon() : null;
+        $event = [
+            'id' => $response['schedule']->id,
+            'title' => 'Order #' . $response['schedule']->sx_ordernumber,
+            'start' => $response['schedule']->schedule_date->format('Y-m-d'),
+            'description' => 'schedule',
+            'color' => $response['schedule']->status_color,
+            'icon' => $icon,
+        ];
+        $this->alert($response['class'], $response['message']);
+        $this->dispatch('remove-event-calendar', eventId: $response['schedule']->id);
+        $this->dispatch('add-event-calendar', newEvent: $event);
     }
 }

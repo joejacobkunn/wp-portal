@@ -49,6 +49,8 @@ class ScheduleForm extends Form
     public $notes;
     public $addressKey = '1232234';
     public $service_address;
+    public $cancel_reason;
+    public $reschedule_reason;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -72,6 +74,7 @@ class ScheduleForm extends Form
         'notes' => 'Notes',
         'line_item' => 'Line item',
         'service_address' => 'Service Address',
+        'cancel_reason' => 'Reason',
     ];
 
     protected function rules()
@@ -80,7 +83,7 @@ class ScheduleForm extends Form
             'type' => 'required',
             'sx_ordernumber' => [
                 'required',
-                Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at')->ignore($this->getScheduledId()),
+                Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at'),
                 Rule::exists('orders', 'order_number')
                 ->where(function ($query) {
                     $query->where('order_number_suffix', $this->suffix);
@@ -99,6 +102,8 @@ class ScheduleForm extends Form
             'line_item' =>'required',
             'notes' =>'nullable',
             'service_address' =>'required',
+            'reschedule_reason' =>'nullable|string|max:225',
+            'cancel_reason' => 'required|string|max:220'
         ];
 
     }
@@ -212,7 +217,17 @@ class ScheduleForm extends Form
 
     public function store()
     {
-        $validatedData = $this->validate();
+        $validatedData = $this->validate(collect($this->rules())->only([
+            'type',
+            'sx_ordernumber',
+            'suffix',
+            'notes',
+            'line_item',
+            'service_address',
+            'scheduleType',
+            'schedule_date',
+            'schedule_time',
+        ])->toArray());
         if(!$this->ServiceStatus) {
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
@@ -245,16 +260,13 @@ class ScheduleForm extends Form
 
     public function update()
     {
-        $validatedData = $this->validate();
-        if(!$this->ServiceStatus) {
-            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
-        }
-        $validatedData['order_suffix_number'] = $this->suffix;
-        $validatedData['schedule_type'] = $this->scheduleType;
-        $validatedData['truck_schedule_id'] = $this->schedule_time;
-        $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
+        $validatedData = $this->validate(collect($this->rules())->only([
+            'scheduleType',
+            'schedule_date',
+            'schedule_time',
+            'reschedule_reason'
+        ])->toArray());
 
-        $validatedData['lineitem'] = [$this->line_item=>$itemDesc];
         $this->schedule->fill($validatedData);
 
         $this->schedule->save();
@@ -428,5 +440,31 @@ class ScheduleForm extends Form
         $this->schedule->sro_number = $sro;
         $this->schedule->status = 'Confirmed';
         $this->schedule->save();
+    }
+
+    public function unlinkSRO()
+    {
+        $this->schedule->sro_number = null;
+        $this->schedule->status = 'Scheduled';
+        $this->schedule->save();
+    }
+
+    public function cancelSchedule()
+    {
+        $this->validateOnly('cancel_reason');
+        $this->schedule->status = 'Cancelled';
+        $this->schedule->cancel_reason = $this->cancel_reason;
+        $this->schedule->cancelled_at = Carbon::now();
+        $this->schedule->cancelled_by = Auth::user()->id;
+        $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule cancelled', 'schedule' => $this->schedule];
+    }
+    public function undoCancel()
+    {
+        $this->schedule->status = 'Scheduled';
+        $this->schedule->cancel_reason = null;
+        $this->schedule->save();
+        $this->fill($this->schedule);
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule Uncancelled', 'schedule' => $this->schedule];
     }
 }
