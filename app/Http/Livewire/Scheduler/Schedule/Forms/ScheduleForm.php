@@ -439,6 +439,8 @@ class ScheduleForm extends Form
     {
         $this->schedule->sro_number = $sro;
         $this->schedule->status = 'Confirmed';
+        $this->schedule->confirmed_at = Carbon::now();
+        $this->schedule->confirmed_by = Auth::user()->id;
         $this->schedule->save();
     }
 
@@ -459,6 +461,7 @@ class ScheduleForm extends Form
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule cancelled', 'schedule' => $this->schedule];
     }
+
     public function undoCancel()
     {
         $this->schedule->status = 'Scheduled';
@@ -466,5 +469,15 @@ class ScheduleForm extends Form
         $this->schedule->save();
         $this->fill($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule Uncancelled', 'schedule' => $this->schedule];
+    }
+
+    public function completeSchedule()
+    {
+        $this->schedule->status = 'Completed';
+        $this->schedule->completed_at = Carbon::now();
+        $this->schedule->completed_by = Auth::user()->id;
+        $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule completed', 'schedule' => $this->schedule];
+
     }
 }

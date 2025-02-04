@@ -7,6 +7,7 @@ use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleViewForm;
 use App\Models\Core\CalendarHoliday;
+use App\Models\Core\User;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Models\Product\Product;
@@ -18,6 +19,7 @@ use App\Models\SRO\RepairOrders;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Illuminate\Support\Str;
 
@@ -56,6 +58,8 @@ class Index extends Component
     public $sro_response;
     public $viewScheduleTypeCollapse = false;
     public $serviceAddressModal = false;
+    public $showDriverModal = false;
+    public $drivers = [];
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -68,6 +72,7 @@ class Index extends Component
         'closeSearchModal' => 'closeSearchModal',
         'scheduleTypeChange' => 'scheduleTypeChange',
         'scheduleTypeDispatch' => 'scheduleTypeDispatch',
+        'closeDriverModal' => 'closeDriverModal',
     ];
 
     public $actionButtons = [
@@ -114,6 +119,15 @@ class Index extends Component
                 'description' => 'holiday',
             ];
         })->toArray();
+
+        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])->get()
+        ->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+            ];
+        })
+        ->toArray();
 
        $this->handleDateClick(Carbon::now());
     }
@@ -413,6 +427,8 @@ class Index extends Component
                 'end_time' => $truck->end_time,
                 'slots' => $truck->slots,
                 'scheduled_count' => $truck->schedule_count,
+                'driver_id' => $truck->driver_id,
+                'driverName' => $truck->driver?->name,
             ];
         })->toArray();
     }
@@ -661,6 +677,13 @@ class Index extends Component
         $this->EventUpdate($response);
     }
 
+    public function completeSchedule()
+    {
+        $this->authorize('update', $this->form->schedule);
+        $response = $this->form->completeSchedule();
+        $this->EventUpdate($response);
+    }
+
     public function hideScheduleSection()
     {
         $this->viewScheduleTypeCollapse = false;
@@ -682,5 +705,50 @@ class Index extends Component
         $this->alert($response['class'], $response['message']);
         $this->dispatch('remove-event-calendar', eventId: $response['schedule']->id);
         $this->dispatch('add-event-calendar', newEvent: $event);
+    }
+
+    public function openDriverModal()
+    {
+        $this->showDriverModal = true;
+    }
+
+    public function asignDrivers()
+    {
+        $validator = Validator::make(
+            ['schedules' => $this->filteredSchedules],
+            [
+                'schedules'                   => 'required|array|min:1',
+                'schedules.*.driver_id'       => 'required|exists:users,id',
+            ]
+        );
+
+        // Check validation
+        if ($validator->fails()) {
+            $this->addError('asignDrivers', 'Invalid data provided for driver assignment.');
+            return;
+        }
+        $truckSchedules = TruckSchedule::whereIn('id', collect($this->filteredSchedules)->pluck('id'))->get()->keyBy('id');
+        foreach ($this->filteredSchedules as $schedule) {
+            if (isset($truckSchedules[$schedule['id']])) {
+                $truckSchedules[$schedule['id']]->driver_id = $schedule['driver_id'];
+                $truckSchedules[$schedule['id']]->save();
+                foreach ($this->truckInfo as $key => $truck) {
+                    if ($truck['id'] == $schedule['id']) {
+                        $this->truckInfo[$key]['driver_id'] = $schedule['driver_id'];
+                        $this->truckInfo[$key]['driverName'] = $truckSchedules[$schedule['id']]->driver->name;
+                        break;
+                    }
+                }
+            }
+        }
+        $date = $this->filteredSchedules[0]['schedule_date'];
+        $this->dispatch('calender-remove-driver-span', date: $date);
+        $this->closeDriverModal();
+    }
+
+    public function closeDriverModal()
+    {
+        $this->showDriverModal = false;
+        $this->filteredSchedules = $this->getTrucks();
     }
 }
