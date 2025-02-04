@@ -661,6 +661,13 @@ class Index extends Component
         $this->EventUpdate($response);
     }
 
+    public function completeSchedule()
+    {
+        $this->authorize('update', $this->form->schedule);
+        $response = $this->form->completeSchedule();
+        $this->EventUpdate($response);
+    }
+
     public function hideScheduleSection()
     {
         $this->viewScheduleTypeCollapse = false;

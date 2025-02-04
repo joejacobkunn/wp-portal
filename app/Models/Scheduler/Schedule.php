@@ -30,7 +30,11 @@ class Schedule extends Model
         'reschedule_reason',
         'sro_number',
         'cancelled_by',
-        'cancelled_at'
+        'cancelled_at',
+        'completed_at',
+        'completed_by',
+        'confirmed_by',
+        'confirmed_at'
     ];
 
     protected $casts = [
@@ -67,6 +71,21 @@ class Schedule extends Model
     public function getStatusColorClassAttribute(): string
     {
         return ScheduleStatusEnum::from($this->status)->colorClass();
+    }
+
+    public function cancelledUser()
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    public function completedUser()
+    {
+        return $this->belongsTo(User::class, 'completed_by');
+    }
+
+    public function confirmedUser()
+    {
+        return $this->belongsTo(User::class, 'confirmed_by');
     }
 
 }
