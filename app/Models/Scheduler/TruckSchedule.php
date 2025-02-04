@@ -2,6 +2,7 @@
 
 namespace App\Models\Scheduler;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,6 +18,7 @@ class TruckSchedule extends Model
         'slots',
         'start_time',
         'end_time',
+        'driver_id',
     ];
 
     public function truck()
@@ -37,6 +39,11 @@ class TruckSchedule extends Model
     public function getScheduleCountAttribute()
     {
         return $this->orderSchedule()->count();
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(User::class, 'driver_id');
     }
 
 }
