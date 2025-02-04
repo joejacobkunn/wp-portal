@@ -80,24 +80,17 @@
                                         <hr>
                                         <p class="mb-0"><Strong>Ship To</Strong>
                                         </p>
-
-                                        @if ($form->recommendedAddress)
-                                            <p class="mb-0"> {{ $form->recommendedAddress['formattedAddress'] }}</p>
-                                        @else
-                                            <p class="mb-0">
-                                                {{ $form->orderInfo->shipping_info['line'] .
-                                                    ', ' .
-                                                    $form->orderInfo->shipping_info['line2'] .
-                                                    ', ' .
-                                                    $form->orderInfo->shipping_info['city'] .
-                                                    ', ' .
-                                                    $form->orderInfo->shipping_info['state'] .
-                                                    ', ' .
-                                                    $form->orderInfo->shipping_info['zip'] }}
-                                            </p>
-                                        @endif
-
-
+                                        <p class="mb-0">
+                                            {{ $form->orderInfo->shipping_info['line'] .
+                                                ', ' .
+                                                $form->orderInfo->shipping_info['line2'] .
+                                                ', ' .
+                                                $form->orderInfo->shipping_info['city'] .
+                                                ', ' .
+                                                $form->orderInfo->shipping_info['state'] .
+                                                ', ' .
+                                                $form->orderInfo->shipping_info['zip'] }}
+                                        </p>
                                         <p class="mb-0">Shipping Instructions :
                                             {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
                                     </div>
