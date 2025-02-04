@@ -42,7 +42,12 @@
             </div>
             <div class="col-3">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
-
+                @if (collect($this->filteredSchedules)->contains('driver_id', null))
+                    <div class="alert alert-light-warning color-warning"><i
+                        class="bi bi-exclamation-triangle"></i>Drivers not asigned
+                        <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Asign Driver</button>
+                    </div>
+                @endif
                 {{-- truck and zone --}}
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
@@ -69,6 +74,12 @@
                                                     -
                                                     {{ $truck['end_time'] }}
                                                 </span>
+                                                @if($truck['driver_id'] && $truck['driverName'])
+                                                    <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
+                                                            class="fa-solid fa-user"></i>
+                                                            {{ $truck['driverName'] }}
+                                                    </p>
+                                                @endif
                                             </div>
                                             <span class="badge bg-primary rounded-pill">{{ $truck['scheduled_count'] }}
                                                 /
@@ -155,6 +166,12 @@
                 @else
                     @include('livewire.scheduler.schedule.partial.view')
                 @endif
+            </x-modal>
+        @endif
+        @if ($showDriverModal)
+            <x-modal toggle="showDriverModal" size="md" :closeEvent="'closeDriverModal'">
+                <x-slot name="title"> Asign drivers to trucks # {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</x-slot>
+                @include('livewire.scheduler.schedule.partial.drivers_form')
             </x-modal>
         @endif
         {{-- search modal --}}
@@ -574,15 +591,30 @@
                     });
 
                 });
+                Livewire.on('calender-remove-driver-span', date => {
+                    const cell = document.querySelector(`[data-date="${date.date}"]`);
+
+                    if (cell) {
+                        const span = cell.querySelector('.driver-assigned-span');
+                        if (span) {
+                            span.remove();
+                        }
+                    }
+                });
 
                 function setZoneInDayCells() {
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
+                        span.remove();
+                    });
+                    document.querySelectorAll('.driver-assigned-span').forEach(span => {
                         span.remove();
                     });
                     document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
                         let truckinfo = $wire.truckInfo
                         let cellDate = dayCell.getAttribute('data-date');
                         let cellDateObj = new Date(cellDate);
+                        let driverNotAssigned = false;
+
                         truckinfo.forEach(truckData => {
                             let truckDateObj = new Date(truckData.schedule_date);
                             if (cellDateObj.toISOString().split('T')[0] === truckDateObj
@@ -595,8 +627,23 @@
                                     <i class="fas fa-globe"></i> ${truckData.spanText}
                                 `;
                                 dayCell.insertBefore(span, dayCell.firstChild);
+
+                                // for driver span
+                                if (truckData.driver_id === null) {
+                                    driverNotAssigned = true;
+                                }
                             }
                         });
+                        if(driverNotAssigned) {
+
+                            let driverAssignedSpan = document.createElement('span');
+                            driverAssignedSpan.classList.add('badge', 'bg-danger', 'driver-assigned-span');
+                            driverAssignedSpan.style.fontSize = 'x-small';
+                            driverAssignedSpan.innerHTML = `
+                                <i class="fa-solid fa-user"></i> => <i class="fas fa-truck"></i>
+                            `;
+                            dayCell.insertBefore(driverAssignedSpan, dayCell.lastChild);
+                        }
                     });
                 }
                 // Add click outside listener to close dropdown
