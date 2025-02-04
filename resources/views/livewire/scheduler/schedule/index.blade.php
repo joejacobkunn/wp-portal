@@ -43,9 +43,10 @@
             <div class="col-3">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
                 @if (collect($this->filteredSchedules)->contains('driver_id', null))
-                    <div class="alert alert-light-warning color-warning"><i
-                        class="bi bi-exclamation-triangle"></i>Drivers not assigned
-                        <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Assign Driver</button>
+                    <div class="alert alert-light-warning color-warning"><i class="fas fa-exclamation-triangle"></i>
+                        Drivers not assigned
+                        <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Assign
+                            Driver</button>
                     </div>
                 @endif
                 {{-- truck and zone --}}
@@ -74,10 +75,10 @@
                                                     -
                                                     {{ $truck['end_time'] }}
                                                 </span>
-                                                @if($truck['driver_id'] && $truck['driverName'])
+                                                @if ($truck['driver_id'] && $truck['driverName'])
                                                     <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
                                                             class="fa-solid fa-user"></i>
-                                                            {{ $truck['driverName'] }}
+                                                        {{ $truck['driverName'] }}
                                                     </p>
                                                 @endif
                                             </div>
@@ -109,14 +110,14 @@
                             @forelse ($eventsData as $event)
                                 <a href="#" class="list-group-item list-group-item-action"
                                     wire:click.prevent="handleEventClick({{ $event['id'] }})"
-                                    wire:loading.attr="disabled"
-                                    wire:target="handleEventClick({{ $event['id'] }})">
+                                    wire:loading.attr="disabled" wire:target="handleEventClick({{ $event['id'] }})">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h5><span class="badge bg-{{$event['status_color']}}">Order
+                                        <h5><span class="badge bg-{{ $event['status_color'] }}">Order
                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
-                                                <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
-                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                </div>
+                                            <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
+                                                <span class="spinner-border spinner-border-sm" role="status"
+                                                    aria-hidden="true"></span>
+                                            </div>
                                         </h5>
                                         <small>
                                             <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
@@ -131,13 +132,12 @@
                                         </small>
                                     </div>
                                     <p>
-                                        <span class="badge bg-light-primary"><i
-                                                class="fas fa-globe"></i>
+                                        <span class="badge bg-light-primary"><i class="fas fa-globe"></i>
                                             {{ $event['zone'] }}</span>
                                         =>
                                         <span class="badge bg-light-secondary"><i
                                                 class="fas fa-truck"></i>{{ $event['truckName'] }}</span>
-                                   </p>
+                                    </p>
                                     <p class="mb-1">
                                         {{ $event['customer_name'] }} - CustNo
                                         #{{ $event['sx_customer_number'] }}
@@ -170,7 +170,8 @@
         @endif
         @if ($showDriverModal)
             <x-modal toggle="showDriverModal" size="md" :closeEvent="'closeDriverModal'">
-                <x-slot name="title"> Assign drivers to trucks # {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</x-slot>
+                <x-slot name="title"> Assign drivers for
+                    {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</x-slot>
                 @include('livewire.scheduler.schedule.partial.drivers_form')
             </x-modal>
         @endif
@@ -187,7 +188,7 @@
                     </div>
                 </div>
                 <div class="row w-100">
-                    <div wire:loading wire:target="searchKey" >
+                    <div wire:loading wire:target="searchKey">
                         <div class="col-md-12 mb-2">
                             <span class="spinner-border spinner-border-sm mr-2" role="status"
                                 aria-hidden="true"></span>
@@ -197,8 +198,9 @@
                     <div class="col-md-12 mb-3">
                         <div class="list-group " wire:loading.remove wire:target="searchKey">
                             @if ($searchData !== null)
-                                @if (count($searchData)>0)
-                                    <div class="alert alert-light-success color-warning"><i class="fas fa-check-circle"></i>
+                                @if (count($searchData) > 0)
+                                    <div class="alert alert-light-success color-warning"><i
+                                            class="fas fa-check-circle"></i>
                                         Showing results for {{ $searchKey }}</div>
                                 @endif
                                 @forelse ($searchData as $event)
@@ -208,7 +210,8 @@
                                             <h5 class="mb-1">Order
                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}
                                                 <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
-                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                    <span class="spinner-border spinner-border-sm" role="status"
+                                                        aria-hidden="true"></span>
                                                 </div>
                                             </h5>
                                             <small>
@@ -224,8 +227,8 @@
                                                 </span>
                                             </small>
                                         </div>
-                                        <small><i class="fas fa-clock fa-xs"></i> {{$event['schedule_date']}}
-                                            , {{$event['schedule_time']}}</small>
+                                        <small><i class="fas fa-clock fa-xs"></i> {{ $event['schedule_date'] }}
+                                            , {{ $event['schedule_time'] }}</small>
                                         <p class="mb-1">
                                             {{ $event['customer'] }} - SX#
                                             {{ $event['sx_customer_number'] }}
@@ -328,7 +331,7 @@
                             }
                         },
                         warehouseBtn: {
-                            text:  currentButtonTexts.warehouse,
+                            text: currentButtonTexts.warehouse,
                             click: function(e) {
                                 const button = e.currentTarget;
                                 const buttonRect = button.getBoundingClientRect();
@@ -357,7 +360,7 @@
                             }
                         },
                         scheduleBtn: {
-                            text:  currentButtonTexts.schedule,
+                            text: currentButtonTexts.schedule,
                             click: function(e) {
                                 const button = e.currentTarget;
                                 const buttonRect = button.getBoundingClientRect();
@@ -451,12 +454,14 @@
                             calendar.addEventSource($wire.schedules);
                             calendar.addEventSource($wire.holidays);
                             setZoneInDayCells();
-                            const scheduleButton = document.querySelector('.fc-scheduleBtn-button');
+                            const scheduleButton = document.querySelector(
+                                '.fc-scheduleBtn-button');
                             const zoneButton = document.querySelector('.fc-zoneBtn-button');
-                            const warehouseButton = document.querySelector('.fc-warehouseBtn-button');
-                            scheduleButton.innerHTML=currentButtonTexts.schedule;
-                            zoneButton.textContent=currentButtonTexts.zone;
-                            warehouseButton.textContent=currentButtonTexts.warehouse;
+                            const warehouseButton = document.querySelector(
+                                '.fc-warehouseBtn-button');
+                            scheduleButton.innerHTML = currentButtonTexts.schedule;
+                            zoneButton.textContent = currentButtonTexts.zone;
+                            warehouseButton.textContent = currentButtonTexts.warehouse;
                             if (warehouseButton) {
                                 const icon = document.createElement('i');
                                 icon.className = 'fas fa-map-marker-alt';
@@ -634,15 +639,16 @@
                                 }
                             }
                         });
-                        if(driverNotAssigned) {
+                        if (driverNotAssigned) {
 
                             let driverAssignedSpan = document.createElement('span');
-                            driverAssignedSpan.classList.add('driver-assigned-span' , 'float-end');
-                            driverAssignedSpan.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-danger"></i>`;
+                            driverAssignedSpan.classList.add('driver-assigned-span', 'float-end');
+                            driverAssignedSpan.innerHTML =
+                                `<i class="fa-solid fa-triangle-exclamation text-danger"></i>`;
                             dayCell.insertBefore(driverAssignedSpan, dayCell.firstChild);
                             let zoneSpan = dayCell.querySelector('.zoneinfo-span');
                             if (zoneSpan) {
-                            zoneSpan.insertAdjacentElement('afterbegin', driverAssignedSpan);
+                                zoneSpan.insertAdjacentElement('afterbegin', driverAssignedSpan);
                             }
                         }
                     });
