@@ -267,8 +267,8 @@ class ScheduleForm extends Form
             'reschedule_reason'
         ])->toArray());
 
+        $validatedData['truck_schedule_id'] = $this->schedule_time;
         $this->schedule->fill($validatedData);
-
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
