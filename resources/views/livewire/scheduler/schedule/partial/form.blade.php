@@ -125,7 +125,7 @@
                                             </li>
                                         @endforeach
                                     </ul>
-                                    @error('form.line_items')
+                                    @error('form.line_item')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
