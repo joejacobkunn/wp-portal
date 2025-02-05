@@ -247,6 +247,31 @@
             </x-modal>
         @endif
         {{-- search modal end --}}
+
+
+        @if ($exportModal)
+            <x-modal toggle="exportModal">
+                <x-slot name="title">Export Schedules</x-slot>
+                <div>
+                    <x-forms.datepicker
+                        label="From Date"
+                        model="exportFromDate" />
+
+                    <x-forms.datepicker
+                        label="To Date"
+                        model="exportToDate" />
+                </div>
+
+                <x-slot name="footer">
+                    <x-button-submit
+                        class="btn-primary"
+                        method="exportSchedules"
+                        icon="fa-cloud-download-alt"
+                        text="Download"
+                    />
+                </x-slot>
+            </x-modal>
+        @endif
     </x-slot>
 </x-page>
 
@@ -430,7 +455,7 @@
                                 }
                                 btn.setAttribute("disabled", true);
 
-                                $wire.exportSchedules().then(() => {
+                                $wire.showExportModal().then(() => {
                                     setTimeout(() => {
                                         btn.removeAttribute('disabled');
                                         btn.querySelector('i').remove();
@@ -471,7 +496,7 @@
                     },
                     datesSet: function(info) {
 
-                        $wire.onDateRangeChanges(info.startStr, info.endStr, info.view.title).then(() => {
+                        $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {
                             calendar.removeAllEvents();
                             calendar.addEventSource($wire.schedules);
                             calendar.addEventSource($wire.holidays);
