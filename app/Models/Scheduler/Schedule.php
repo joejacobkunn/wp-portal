@@ -27,7 +27,6 @@ class Schedule extends Model
         'service_address',
         'created_by',
         'schedule_type',
-        'notes',
         'cancel_reason',
         'reschedule_reason',
         'sro_number',
