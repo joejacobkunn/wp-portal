@@ -2,7 +2,7 @@
         @foreach ($filteredSchedules as $key => $schedule)
             <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
-                    <x-forms.select :label="'Driver for ' . $schedule['truck_name']" :model="'filteredSchedules.' . $key . '.driver_id'" :options="$drivers" :label-index="'name'"
+                    <x-forms.select :label="'Driver for ' . $schedule['truck_name']" :model="'filteredSchedules.' . $key . '.driver_id'" :options="$drivers" :label-index="'name_title'"
                         :value-index="'id'" default-option-label="- None -" :selected="$filteredSchedules[$key]['driver_id']" :key="'schedule-' . now()"
                         :hint="'Zone ' .
                             $schedule['zone'] .

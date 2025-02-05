@@ -107,11 +107,17 @@
                 let calendarEl = document.getElementById('calendar');
                 let calendar = new FullCalendar.Calendar(calendarEl, {
                     themeSystem: 'bootstrap5',
-                    initialView: 'multiMonthYear',
+                    initialView: 'grid',
+                    views: {
+                        grid: {
+                        type: 'multiMonth',
+                        duration: { months: 2 }
+                        }
+                    },
                     headerToolbar: {
                         left: 'prev,next',
                         center: 'title',
-                        right: 'dayGridMonth,multiMonthYear'
+                        right: 'dayGridMonth,grid'
                     },
                     height: 'auto',
                     datesSet: function(info) {

@@ -6,42 +6,56 @@
                 @if ($form->schedule->status != 'Completed')
                     <div class="alert alert-light-secondary color-secondary"> Actions
                         <div class="btn-group mt-n1 mb-3 float-end" role="group" aria-label="Basic example">
-                            @if ($form->schedule->status != 'Cancelled' && $form->schedule->status != 'Completed')
-                                <button type="button" class="btn btn-sm btn-danger" wire:click="hideScheduleSection"
-                                    data-bs-toggle="collapse" data-bs-target="#cancelCollapse" aria-expanded="false"
-                                    aria-controls="cancelCollapse"><i class="far fa-calendar-times"></i>
-                                    Cancel</button>
-                            @endif
-                            @if ($form->schedule->status == 'Cancelled')
-                                <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
-                                    data-bs-toggle="collapse" data-bs-target="#undoCancelCollapse" aria-expanded="false"
-                                    aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
-                                    Uncancel</button>
-                            @endif
-                            @if ($form->schedule->status == 'Scheduled')
-                                <button type="button" class="btn btn-sm btn-warning" wire:click="scheduleDateInitiate"
-                                    data-bs-toggle="collapse" data-bs-target="#rescheduleCollapse" aria-expanded="false"
-                                    aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
-                                    Reschedule</button>
-                            @endif
-                            @if ($form->schedule->status == 'Scheduled')
-                                <button type="button" class="btn btn-sm btn-primary" wire:click="hideScheduleSection"
-                                    data-bs-toggle="collapse" data-bs-target="#confirmCollapse" aria-expanded="false"
-                                    aria-controls="confirmCollapse"><i class="fas fa-check-double"></i>
-                                    Confirm</button>
-                            @endif
-                            @if ($form->schedule->status == 'Confirmed')
-                                <button type="button" class="btn btn-sm btn-secondary" wire:click="hideScheduleSection"
-                                    data-bs-toggle="collapse" data-bs-target="#unconfirmCollapse" aria-expanded="false"
-                                    aria-controls="unconfirmCollapse"><i class="fas fa-solid fa-xmark"></i>
-                                    Unconfirm</button>
-                            @endif
-                            @if ($form->schedule->status == 'Confirmed')
-                                <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
-                                    data-bs-toggle="collapse" data-bs-target="#completeCollapse" aria-expanded="false"
-                                    aria-controls="completeCollapse"><i class="fas fa-check-circle"></i>
-                                    Complete</button>
-                            @endif
+                            @can('scheduler.schedule.manage')
+                                @if ($form->schedule->status != 'Cancelled' && $form->schedule->status != 'Completed')
+                                    <button type="button" class="btn btn-sm btn-danger" wire:click="hideScheduleSection"
+                                        data-bs-toggle="collapse" data-bs-target="#cancelCollapse" aria-expanded="false"
+                                        aria-controls="cancelCollapse"><i class="far fa-calendar-times"></i>
+                                        Cancel</button>
+                                @endif
+
+                                @if ($form->schedule->status == 'Cancelled')
+                                    <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
+                                        data-bs-toggle="collapse" data-bs-target="#undoCancelCollapse" aria-expanded="false"
+                                        aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
+                                        Uncancel</button>
+                                @endif
+                                @if ($form->schedule->status == 'Scheduled')
+                                    <button type="button" class="btn btn-sm btn-warning" wire:click="scheduleDateInitiate"
+                                        data-bs-toggle="collapse" data-bs-target="#rescheduleCollapse" aria-expanded="false"
+                                        aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
+                                        Reschedule</button>
+                                @endif
+                                @if ($form->schedule->status == 'Scheduled')
+                                    <button type="button" class="btn btn-sm btn-primary" wire:click="hideScheduleSection"
+                                        data-bs-toggle="collapse" data-bs-target="#confirmCollapse" aria-expanded="false"
+                                        aria-controls="confirmCollapse"><i class="fas fa-check-double"></i>
+                                        Confirm</button>
+                                @endif
+                                @if ($form->schedule->status == 'Confirmed')
+                                    <button type="button" class="btn btn-sm btn-secondary" wire:click="hideScheduleSection"
+                                        data-bs-toggle="collapse" data-bs-target="#unconfirmCollapse" aria-expanded="false"
+                                        aria-controls="unconfirmCollapse"><i class="fas fa-solid fa-xmark"></i>
+                                        Unconfirm</button>
+                                @endif
+                            @endcan
+                            @can('scheduler.driver')
+                                @if ($form->schedule->status == 'Confirmed')
+                                    <button type="button" class="btn btn-sm btn-warning"
+                                        data-bs-toggle="collapse" data-bs-target="#startScheduleCollapse" aria-expanded="false"
+                                        aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
+                                        Start</button>
+                                @endif
+                            @endcan
+                            @canany(['scheduler.driver', 'scheduler.schedule.manage'])
+                                @if ($form->schedule->status == 'Out for Delivery')
+                                    <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
+                                        data-bs-toggle="collapse" data-bs-target="#completeCollapse" aria-expanded="false"
+                                        aria-controls="completeCollapse"><i class="fas fa-check-circle"></i>
+                                        Complete</button>
+                                @endif
+                            @endcan
+
                         </div>
 
                     </div>
@@ -150,6 +164,23 @@
                                                 aria-hidden="true"></span>
                                         </div>
                                         <i class="far fa-calendar-times"></i> Unconfirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse p-4" id="startScheduleCollapse" data-bs-parent=".collapse-container"
+                        wire:ignore.self>
+                        <div class="card card-body mb-0 p-0">
+                            Click on the Start button below to Start the Delivery Process.
+                            <div class="col-md-12">
+                                <div class="mt-4 float-start">
+                                    <button wire:click="startSchedule" class="btn btn-sm btn-warning">
+                                        <div wire:loading wire:target="startSchedule">
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
+                                        </div>
+                                        <i class="far fa-check-circle"></i> Start
                                     </button>
                                 </div>
                             </div>
@@ -351,7 +382,14 @@
                             is serving <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
-                            on this day</p>
+                            on this day.
+                             @if($form->schedule->truckSchedule->driver_id)
+                             Driver
+                            <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                <i class="fa-solid fa-user-secret"></i>
+                                {{ $form->schedule->truckSchedule->driver?->name  }}</span>
+                            @endif
+                        </p>
                     @endif
                     @if ($form->schedule->status == 'Completed')
                         <p><i class="far fa-calendar-check"></i> AHM is Completed
@@ -363,6 +401,25 @@
                             Completed at <span class="badge bg-{{ $form->schedule->status_color_class }}">
                                 {{ \Carbon\Carbon::parse($form->schedule->completed_at)->toFormattedDayDateString() }}
                             </span>
+                        </p>
+                    @endif
+                    @if ($form->schedule->status == 'Out for Delivery')
+                        <p><i class="far fa-calendar-check"></i> Delivery Process initiated
+                        </p>
+                        <hr>
+                        <p class="mb-0"><span class="badge bg-{{ $form->schedule->status_color_class }}"><i
+                                    class="fas fa-truck"></i>
+                                {{ $form->schedule->truckSchedule->truck->truck_name }}</span>
+                            is serving <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
+                                    class="fas fa-globe"></i>
+                                {{ $form->schedule->truckSchedule->zone->name }}</span>
+                            on this day.
+                            @if($form->schedule->truckSchedule->driver_id)
+                            Driver
+                            <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                <i class="fa-solid fa-user-secret"></i>
+                                {{ $form->schedule->truckSchedule->driver?->name  }}</span>
+                            @endif
                         </p>
                     @endif
                 </div>
@@ -482,5 +539,12 @@
                 </ul>
             </div>
         </div>
+        <x-tabs :tabs="$tabs" tabId="schedule-comment-tabs" activeTabIndex="active">
+            <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'comments' . time()">
+            </x-slot>
+
+            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" recordType="floor-model" :key="'activity-' . time()">
+            </x-slot>
+        </x-tabs>
     </div>
 </div>

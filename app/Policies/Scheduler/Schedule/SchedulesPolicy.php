@@ -47,4 +47,9 @@ class SchedulesPolicy
     {
         return $user->can('scheduler.schedule.manage');
     }
+
+    public function startSchedule(User $user, Schedule $schedule): bool
+    {
+        return $user->can('scheduler.driver');
+    }
 }
