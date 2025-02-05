@@ -41,8 +41,8 @@
                             @endcan
                             @can('scheduler.driver')
                                 @if ($form->schedule->status == 'Confirmed')
-                                    <button type="button" class="btn btn-sm btn-warning"
-                                        data-bs-toggle="collapse" data-bs-target="#startScheduleCollapse" aria-expanded="false"
+                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="collapse"
+                                        data-bs-target="#startScheduleCollapse" aria-expanded="false"
                                         aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
                                         Start</button>
                                 @endif
@@ -383,11 +383,11 @@
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
                             on this day.
-                             @if($form->schedule->truckSchedule->driver_id)
-                             Driver
-                            <span class="badge bg-{{ $form->schedule->status_color_class }}">
-                                <i class="fa-solid fa-user-secret"></i>
-                                {{ $form->schedule->truckSchedule->driver?->name  }}</span>
+                            @if ($form->schedule->truckSchedule->driver_id)
+                                Driven by
+                                <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                    <i class="fas fa-user-tag"></i>
+                                    {{ $form->schedule->truckSchedule->driver?->name }}</span>
                             @endif
                         </p>
                     @endif
@@ -414,11 +414,11 @@
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
                             on this day.
-                            @if($form->schedule->truckSchedule->driver_id)
-                            Driver
-                            <span class="badge bg-{{ $form->schedule->status_color_class }}">
-                                <i class="fa-solid fa-user-secret"></i>
-                                {{ $form->schedule->truckSchedule->driver?->name  }}</span>
+                            @if ($form->schedule->truckSchedule->driver_id)
+                                Driven by
+                                <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                    <i class="fas fa-user-tag"></i>
+                                    {{ $form->schedule->truckSchedule->driver?->name }}</span>
                             @endif
                         </p>
                     @endif
@@ -515,19 +515,25 @@
                                 {{ $form->schedule->order->customer->name }}</p>
                         </div>
                     </li>
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div>
-                            <h3 class="h6 mb-1">Phone</h3>
-                            <p class="small pe-4">{{ $form->schedule->order->customer->phone }}</p>
-                        </div>
-                    </li>
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div>
-                            <h3 class="h6 mb-1">Email</h3>
-                            <p class="small pe-4">
-                                {{ $form->schedule->order->customer->email }}</p>
-                        </div>
-                    </li>
+                    @if (!empty($form->schedule->order->customer->phone))
+                        <li
+                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                            <div>
+                                <h3 class="h6 mb-1">Phone</h3>
+                                <p class="small pe-4">{{ format_phone($form->schedule->order->customer->phone) }}</p>
+                            </div>
+                        </li>
+                    @endif
+                    @if (!empty($form->schedule->order->customer->email))
+                        <li
+                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                            <div>
+                                <h3 class="h6 mb-1">Email</h3>
+                                <p class="small pe-4">
+                                    {{ $form->schedule->order->customer->email }}</p>
+                            </div>
+                        </li>
+                    @endif
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Address</h3>
@@ -543,7 +549,8 @@
             <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'comments' . time()">
             </x-slot>
 
-            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" recordType="floor-model" :key="'activity-' . time()">
+            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" recordType="floor-model"
+                :key="'activity-' . time()">
             </x-slot>
         </x-tabs>
     </div>
