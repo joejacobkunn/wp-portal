@@ -699,6 +699,12 @@ class Index extends Component
         $response = $this->form->undoCancel();
         $this->EventUpdate($response);
     }
+    public function startSchedule()
+    {
+        $this->authorize('startSchedule', $this->form->schedule);
+        $response = $this->form->startSchedule();
+        $this->EventUpdate($response);
+    }
 
     public function completeSchedule()
     {

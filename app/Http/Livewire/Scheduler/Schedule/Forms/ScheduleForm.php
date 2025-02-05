@@ -479,6 +479,14 @@ class ScheduleForm extends Form
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule Uncancelled', 'schedule' => $this->schedule];
     }
 
+    public function startSchedule()
+    {
+        $this->schedule->status = 'Out for Delivery';
+        $this->schedule->save();
+        $this->fill($this->schedule);
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Delivery initiated', 'schedule' => $this->schedule];
+    }
+
     public function completeSchedule()
     {
         $this->schedule->status = 'Completed';
