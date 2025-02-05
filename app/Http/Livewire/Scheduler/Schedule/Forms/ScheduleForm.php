@@ -242,6 +242,12 @@ class ScheduleForm extends Form
         $validatedData['line_item'] = [$this->line_item=>$itemDesc];
 
         $schedule = Schedule::create($validatedData);
+        if($this->notes) {
+            $schedule->comments()->create([
+                'comment' => $this->notes,
+                'user_id' => Auth::user()->id
+            ]);
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
 
@@ -442,6 +448,7 @@ class ScheduleForm extends Form
         $this->schedule->confirmed_at = Carbon::now();
         $this->schedule->confirmed_by = Auth::user()->id;
         $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'SRO number successfully linked', 'schedule' => $this->schedule];
     }
 
     public function unlinkSRO()
@@ -449,6 +456,7 @@ class ScheduleForm extends Form
         $this->schedule->sro_number = null;
         $this->schedule->status = 'Scheduled';
         $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule Unconfirmed', 'schedule' => $this->schedule];
     }
 
     public function cancelSchedule()

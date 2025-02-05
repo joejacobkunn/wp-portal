@@ -489,5 +489,12 @@
                 </ul>
             </div>
         </div>
+        <x-tabs :tabs="$tabs" tabId="schedule-comment-tabs" activeTabIndex="active">
+            <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'comments' . time()">
+            </x-slot>
+
+            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" recordType="floor-model" :key="'activity-' . time()">
+            </x-slot>
+        </x-tabs>
     </div>
 </div>

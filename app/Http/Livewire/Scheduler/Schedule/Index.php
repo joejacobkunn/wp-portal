@@ -20,12 +20,13 @@ use App\Exports\Scheduler\OrderScheduleExport;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Scheduler\TruckSchedule;
+use App\Traits\HasTabs;
 use Illuminate\Support\Facades\Validator;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
 {
-    use LivewireAlert;
+    use LivewireAlert, HasTabs;
 
     public ScheduleForm $form;
     public ScheduleViewForm $viewForm;
@@ -88,6 +89,16 @@ class Index extends Component
             'confirm' => true,
             'confirm_header' => 'Confirm Delete',
             'listener' => 'deleteRecord',
+        ],
+    ];
+
+    public $tabs = [
+        'schedule-comment-tabs' => [
+            'active' => 'comments',
+            'links' => [
+                'comments' => 'Comments',
+                'activity' => 'Activity',
+            ],
         ],
     ];
 
@@ -241,8 +252,9 @@ class Index extends Component
 
     public function linkSRO()
     {
-        $this->form->linkSRONumber($this->sro_number);
-        $this->alert('success', 'SRO number successfully linked');
+        $response = $this->form->linkSRONumber($this->sro_number);
+        $this->alert($response['class'], $response['message']);
+        $this->EventUpdate($response);
     }
 
     public function typeCheck($field, $value)
@@ -651,13 +663,14 @@ class Index extends Component
 
     public function cancelConfirm()
     {
-        $this->form->unlinkSRO();
+        $response = $this->form->unlinkSRO();
         $this->reset([
             'sro_number',
             'sro_verified',
             'sro_response'
         ]);
-        $this->alert('success', 'Schedule Unconfirmed');
+        $this->alert($response['class'], $response['message']);
+        $this->EventUpdate($response);
     }
 
     public function scheduleDateInitiate()

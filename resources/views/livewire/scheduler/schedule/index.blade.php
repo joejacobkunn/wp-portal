@@ -492,7 +492,6 @@
 
                             const today = new Date();
 
-                            // Function to format date as "YYYY-MM-DD" without time
                             function formatDate(date) {
                                 let year = date.getFullYear();
                                 let month = String(date.getMonth() + 1).padStart(2, '0');
@@ -589,6 +588,7 @@
                 Livewire.on('add-event-calendar', (eventData) => {
                     if (eventData.newEvent) {
                         calendar.addEvent(eventData.newEvent);
+                        calendar.render();
                     }
                 });
                 Livewire.on('add-event-calendar', (eventData) => {
