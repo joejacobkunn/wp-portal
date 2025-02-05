@@ -42,13 +42,22 @@
             </div>
             <div class="col-3">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
-                @if (collect($this->filteredSchedules)->contains('driver_id', null))
-                    <div class="alert alert-light-warning color-warning"><i class="fas fa-exclamation-triangle"></i>
-                        Drivers not assigned
-                        <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Assign
-                            Driver</button>
-                    </div>
+                @if(!empty($this->filteredSchedules))
+                    @if (collect($this->filteredSchedules)->contains('driver_id', null))
+                        <div class="alert alert-light-warning color-warning"><i class="fas fa-exclamation-triangle"></i>
+                            Drivers not assigned
+                            <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Assign
+                                Driver</button>
+                        </div>
+                    @else
+                        <div class="alert alert-light-success color-success"><i class="fas fa-check-circle"></i>
+                            Drivers are assigned
+                            <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Update
+                                Driver</button>
+                        </div>
+                    @endif
                 @endif
+
                 {{-- truck and zone --}}
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
@@ -476,6 +485,31 @@
                             calendar.addEventSource($wire.schedules);
                             calendar.addEventSource($wire.holidays);
                             setZoneInDayCells();
+                            let currentMonth = info.view.currentStart.getMonth();
+                            let currentYear = info.view.currentStart.getFullYear();
+                            let firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+
+                            const today = new Date();
+
+                            // Function to format date as "YYYY-MM-DD" without time
+                            function formatDate(date) {
+                                let year = date.getFullYear();
+                                let month = String(date.getMonth() + 1).padStart(2, '0');
+                                let day = String(date.getDate()).padStart(2, '0');
+                                return `${year}-${month}-${day}`;
+                            }
+
+                            if (today.getMonth() === currentMonth && today.getFullYear() === currentYear) {
+                                $wire.handleDateClick(formatDate(today));
+                            } else {
+                                let formattedDate = formatDate(firstDayOfMonth);
+                                const clickedDateCell = document.querySelector(`[data-date="${formattedDate}"]`);
+
+                                if (clickedDateCell) {
+                                    clickedDateCell.classList.add('highlighted-date');
+                                }
+                                $wire.handleDateClick(formatDate(firstDayOfMonth));
+                            }
                             const scheduleButton = document.querySelector(
                                 '.fc-scheduleBtn-button');
                             const zoneButton = document.querySelector('.fc-zoneBtn-button');

@@ -48,7 +48,7 @@ class Index extends Component
     public $filteredSchedules = [];
     public $showSearchModal = false;
     public $availableZones;
-    public $eventsData;
+    public $eventsData = [];
     public $showTypeLoader =false;
     public $activeWarehouseId;
     public $searchKey;
@@ -128,9 +128,9 @@ class Index extends Component
                 'name' => $user->name,
             ];
         })
+        ->sortBy('name')
         ->toArray();
 
-       $this->handleDateClick(Carbon::now());
     }
 
     public function getWarehousesProperty()
@@ -387,7 +387,7 @@ class Index extends Component
         $start = $this->eventStart;
         $end = $this->eventEnd;
         $spanText = '';
-        $query = TruckSchedule::whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
+        $query = TruckSchedule::with('driver')->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
                 ->whereHas('truck', function($query) use ($start, $end, $type) {
                     $query->where('whse', $this->activeWarehouse->id);
                 });
