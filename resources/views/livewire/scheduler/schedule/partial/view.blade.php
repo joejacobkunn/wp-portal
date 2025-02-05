@@ -351,7 +351,14 @@
                             is serving <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
-                            on this day</p>
+                            on this day.
+                             @if($form->schedule->truckSchedule->driver_id)
+                             Driver
+                            <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                <i class="fa-solid fa-user-secret"></i>
+                                {{ $form->schedule->truckSchedule->driver?->name  }}</span>
+                            @endif
+                        </p>
                     @endif
                     @if ($form->schedule->status == 'Completed')
                         <p><i class="far fa-calendar-check"></i> AHM is Completed
