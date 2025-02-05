@@ -134,19 +134,7 @@ class Index extends Component
             ];
         })->toArray();
 
-        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])
-        ->where('office_location', $this->activeWarehouse->title)
-        ->get()
-        ->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'title' => $user->title,
-                'name_title' => $user->name.' ('. $user->title . ')'
-            ];
-        })
-        ->sortBy('name')
-        ->toArray();
+
 
     }
 
@@ -168,6 +156,21 @@ class Index extends Component
     public function setActiveWarehouse($warehouseId)
     {
         $this->activeWarehouseId = $warehouseId;
+        
+        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])
+        ->where('office_location', $this->activeWarehouse->title)
+        ->get()
+        ->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'title' => $user->title,
+                'name_title' => $user->name.' ('. $user->title . ')'
+            ];
+        })
+        ->sortBy('name')
+        ->toArray();
+
     }
 
     public function create($type)
@@ -823,8 +826,7 @@ class Index extends Component
         }
         
         $schedulQuery = $this->getSchedules()
-            ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->limit(500);
+            ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()]);
 
         $schedules =  $schedulQuery->get()
             ->map(function ($schedule) {
@@ -832,9 +834,10 @@ class Index extends Component
                 $enumInstance = ScheduleEnum::tryFrom($type);
 
                 return [
-                    'id' => $schedule->id,
+                    'schedule_id' => $schedule->scheduleId(),
                     'sx_ordernumber' => $schedule->sx_ordernumber,
                     'schedule_date' => $schedule->schedule_date?->format('Y-m-d'),
+                    'time_slot' => $schedule->truckSchedule->start_time.' '.$schedule->truckSchedule->end_time,
                     'type' => $enumInstance?->label(),
                     'zone' => $schedule->truckSchedule?->zone?->name,
                     'truckName' => $schedule->truckSchedule?->truck?->truck_name,

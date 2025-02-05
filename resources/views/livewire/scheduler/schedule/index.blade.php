@@ -315,9 +315,9 @@
                     height: 'auto',
                     contentHeight: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today searchBtn',
+                        left: 'prev,next today exportBtn searchBtn',
                         center: 'title',
-                        right: 'exportBtn warehouseBtn scheduleBtn zoneBtn dropdownButton'
+                        right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
                     titleFormat: {
                         month: 'short',
@@ -445,17 +445,17 @@
                             }
                         },
                         exportBtn: {
-                            text: 'Export',
+                            text: '',
                             click: function(e) {
-                                let loaderIcon = document.createElement('i');
-                                loaderIcon.className = 'fa fa-spinner fa-spin loader ms-2';
-                                loaderIcon.style.display = 'none';
+                                //let loaderIcon = document.createElement('i');
+                                //loaderIcon.className = 'fa fa-spinner fa-spin loader ms-2';
+                                //loaderIcon.style.display = 'none';
 
                                 let btn = e.target;
-                                btn.appendChild(loaderIcon);
-                                if (loaderIcon) {
-                                    loaderIcon.style.display = 'inline-block';
-                                }
+                                //btn.appendChild(loaderIcon);
+                                // if (loaderIcon) {
+                                //     loaderIcon.style.display = 'inline-block';
+                                // }
                                 btn.setAttribute("disabled", true);
 
                                 $wire.showExportModal().then(() => {
@@ -583,6 +583,13 @@
                     icon.className = 'fas fa-search';
                     searchButton.appendChild(icon);
                 }
+                const exportButton = document.querySelector('.fc-exportBtn-button');
+                if (exportButton) {
+                    const icon = document.createElement('i');
+                    icon.className = 'bi bi-download';
+                    exportButton.appendChild(icon);
+                }
+
                 const scheduleButton = document.querySelector('.fc-dropdownButton-button');
                 if (scheduleButton) {
                     const icon = document.createElement('i');
