@@ -242,6 +242,12 @@ class ScheduleForm extends Form
         $validatedData['line_item'] = [$this->line_item=>$itemDesc];
 
         $schedule = Schedule::create($validatedData);
+        if($this->notes) {
+            $schedule->comments()->create([
+                'comment' => $this->notes,
+                'user_id' => Auth::user()->id
+            ]);
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
 
@@ -267,8 +273,8 @@ class ScheduleForm extends Form
             'reschedule_reason'
         ])->toArray());
 
+        $validatedData['truck_schedule_id'] = $this->schedule_time;
         $this->schedule->fill($validatedData);
-
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
@@ -442,6 +448,7 @@ class ScheduleForm extends Form
         $this->schedule->confirmed_at = Carbon::now();
         $this->schedule->confirmed_by = Auth::user()->id;
         $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'SRO number successfully linked', 'schedule' => $this->schedule];
     }
 
     public function unlinkSRO()
@@ -449,6 +456,7 @@ class ScheduleForm extends Form
         $this->schedule->sro_number = null;
         $this->schedule->status = 'Scheduled';
         $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule Unconfirmed', 'schedule' => $this->schedule];
     }
 
     public function cancelSchedule()
@@ -469,6 +477,14 @@ class ScheduleForm extends Form
         $this->schedule->save();
         $this->fill($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule Uncancelled', 'schedule' => $this->schedule];
+    }
+
+    public function startSchedule()
+    {
+        $this->schedule->status = 'Out for Delivery';
+        $this->schedule->save();
+        $this->fill($this->schedule);
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Delivery initiated', 'schedule' => $this->schedule];
     }
 
     public function completeSchedule()

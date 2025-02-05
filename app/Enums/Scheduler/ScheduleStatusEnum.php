@@ -10,6 +10,7 @@ enum ScheduleStatusEnum: string
     case Confirmed = 'Confirmed';
     case Completed = 'Completed';
     case Cancelled = 'Cancelled';
+    case Out_for_Delivery = 'Out for Delivery';
 
     public function label(): string
     {
@@ -32,6 +33,7 @@ enum ScheduleStatusEnum: string
             self::Confirmed => 'Confirmed',
             self::Completed => 'Completed',
             self::Cancelled => 'Cancelled',
+            self::Out_for_Delivery => 'Out for Delivery',
             default => '-'
         };
     }
@@ -43,6 +45,7 @@ enum ScheduleStatusEnum: string
             self::Confirmed => 'blue',
             self::Completed => 'green',
             self::Cancelled => 'red',
+            self::Out_for_Delivery => 'cyan',
             default => '-'
         };
     }
@@ -54,6 +57,7 @@ enum ScheduleStatusEnum: string
             self::Confirmed => 'primary',
             self::Completed => 'success',
             self::Cancelled => 'danger',
+            self::Out_for_Delivery => 'info',
             default => '-'
         };
     }

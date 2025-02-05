@@ -46,14 +46,9 @@
                 "description": "User can manage schedule Email Template"
             },
             {
-                "name": "scheduler.shift.view",
-                "label": "View Schedule Shifts",
-                "description": "User can view schedule Shifts"
-            },
-            {
-                "name": "scheduler.shift.manage",
-                "label": "Manage Schedule Shifts",
-                "description": "User can manage schedule Shifts"
+                "name": "scheduler.driver",
+                "label": "Scheduler Driver manage",
+                "description": "Drivers can change status of schedule"
             }
         ]
     }
