@@ -253,8 +253,10 @@ class Index extends Component
     {
 
         $query = $this->getSchedules();
-        $this->schedules =  $query->get()
-        ->map(function ($schedule) {
+        $this->schedules =  $query
+        ->orderBy('schedules.created_at', 'asc')
+        ->get()
+        ->map(function ($schedule, $index) {
             $type = Str::title(str_replace('_', ' ', $schedule->type));
             $enumInstance = ScheduleEnum::tryFrom($type);
             $icon = $enumInstance ? $enumInstance->icon() : null;
@@ -265,6 +267,7 @@ class Index extends Component
                 'description' => 'schedule',
                 'color' => $schedule->status_color,
                 'icon' => $icon,
+                'sortIndex' => $index
             ];
         });
     }
@@ -332,6 +335,7 @@ class Index extends Component
         $query = $this->getSchedules();
 
         $this->eventsData = $query->where('schedule_Date', $date)
+        ->orderBy('created_at', 'asc')
         ->get()
         ->map(function($schedule){
             return [
@@ -412,7 +416,9 @@ class Index extends Component
             });
         }
 
-        $this->truckInfo  = $query->get()
+        $this->truckInfo  = $query
+        ->orderBy('created_at', 'asc')
+        ->get()
         ->map(function ($truck) {
             return [
                 'id' => $truck->id,

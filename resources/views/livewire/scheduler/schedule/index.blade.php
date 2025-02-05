@@ -291,6 +291,7 @@
                 loader.style.display = 'none';
 
                 let calendar = new FullCalendar.Calendar(calendarEl, {
+                    eventOrder: 'sortIndex',
                     themeSystem: 'bootstrap5',
                     initialView: 'dayGridMonth',
                     height: 'auto',
