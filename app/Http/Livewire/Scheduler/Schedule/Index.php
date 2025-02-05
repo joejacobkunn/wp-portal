@@ -132,7 +132,9 @@ class Index extends Component
             ];
         })->toArray();
 
-        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])->get()
+        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])
+        ->where('office_location', $this->activeWarehouse->title)
+        ->get()
         ->map(function ($user) {
             return [
                 'id' => $user->id,
