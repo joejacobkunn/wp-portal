@@ -42,7 +42,6 @@ class Index extends Component
     public $holidays;
     public $eventStart;
     public $eventEnd;
-    public $monthTitle;
     public $activeType;
     public $activeZone = [];
     public $truckInfo = [];
@@ -62,6 +61,9 @@ class Index extends Component
     public $serviceAddressModal = false;
     public $showDriverModal = false;
     public $drivers = [];
+    public $exportModal = false;
+    public $exportFromDate;
+    public $exportToDate;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -132,7 +134,9 @@ class Index extends Component
             ];
         })->toArray();
 
-        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])->get()
+        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])
+        ->where('office_location', $this->activeWarehouse->title)
+        ->get()
         ->map(function ($user) {
             return [
                 'id' => $user->id,
@@ -371,11 +375,10 @@ class Index extends Component
         $this->filteredSchedules = $this->getTrucks();
     }
 
-    public function onDateRangeChanges($start, $end, $monthTitle)
+    public function onDateRangeChanges($start, $end)
     {
         $this->eventStart = Carbon::parse($start);
         $this->eventEnd = Carbon::parse($end);
-        $this->monthTitle = $monthTitle;
         $this->getEvents();
         $this->getTruckData();
     }
@@ -782,11 +785,45 @@ class Index extends Component
         $this->filteredSchedules = $this->getTrucks();
     }
 
+    public function showExportModal()
+    {
+        $this->exportModal = true;
+        $this->reset(
+            'exportFromDate',
+            'exportToDate',
+        );
+    }
+
     public function exportSchedules()
     {
-        $selectedMonth = Carbon::parse($this->monthTitle);
+        $errorFlag = 0;
+        $this->clearValidation();
+        if (! $this->exportFromDate) {
+            $this->addError('exportFromDate', 'From date field can\'t be empty');
+            $errorFlag = 1;
+        }
+
+        if (! $this->exportToDate) {
+            $this->addError('exportToDate', 'From date field can\'t be empty');
+            $errorFlag = 1;
+        }
+
+        if (! $errorFlag) {
+            $startDate = Carbon::parse($this->exportFromDate);
+            $endDate = Carbon::parse($this->exportToDate);
+
+            if ($startDate->diffInDays($endDate) > 365) {
+                $this->addError('exportToDate', 'Date range must be under 1 year.');
+                $errorFlag = 1;
+            }
+        }
+
+        if ($errorFlag) {
+            return;
+        }
+        
         $schedulQuery = $this->getSchedules()
-            ->whereBetween('schedule_date', [$selectedMonth->startOfMonth()->toDateString(), $selectedMonth->endOfMonth()->toDateString()])
+            ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()])
             ->limit(500);
 
         $schedules =  $schedulQuery->get()
@@ -813,10 +850,11 @@ class Index extends Component
             })
             ->toArray();
         $this->alert('info', 'Initializing Export!');
+        $this->exportModal = false;
 
         return Excel::download(
             new OrderScheduleExport($schedules),
-            'Schedule Report - '. $this->monthTitle.'.csv'
+            'Schedule Report '. $startDate->format('d-M-Y') . ' to '. $endDate->format('d-M-Y').'.csv'
         );
     }
 }
