@@ -20,12 +20,13 @@ use App\Exports\Scheduler\OrderScheduleExport;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Scheduler\TruckSchedule;
+use App\Traits\HasTabs;
 use Illuminate\Support\Facades\Validator;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
 {
-    use LivewireAlert;
+    use LivewireAlert, HasTabs;
 
     public ScheduleForm $form;
     public ScheduleViewForm $viewForm;
@@ -47,7 +48,7 @@ class Index extends Component
     public $filteredSchedules = [];
     public $showSearchModal = false;
     public $availableZones;
-    public $eventsData;
+    public $eventsData = [];
     public $showTypeLoader =false;
     public $activeWarehouseId;
     public $searchKey;
@@ -93,6 +94,16 @@ class Index extends Component
         ],
     ];
 
+    public $tabs = [
+        'schedule-comment-tabs' => [
+            'active' => 'comments',
+            'links' => [
+                'comments' => 'Comments',
+                'activity' => 'Activity',
+            ],
+        ],
+    ];
+
     public function mount()
     {
         $this->authorize('viewAny', Schedule::class);
@@ -123,16 +134,20 @@ class Index extends Component
             ];
         })->toArray();
 
-        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])->get()
+        $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])
+        ->where('office_location', $this->activeWarehouse->title)
+        ->get()
         ->map(function ($user) {
             return [
                 'id' => $user->id,
                 'name' => $user->name,
+                'title' => $user->title,
+                'name_title' => $user->name.' ('. $user->title . ')'
             ];
         })
+        ->sortBy('name')
         ->toArray();
 
-       $this->handleDateClick(Carbon::now());
     }
 
     public function getWarehousesProperty()
@@ -241,8 +256,9 @@ class Index extends Component
 
     public function linkSRO()
     {
-        $this->form->linkSRONumber($this->sro_number);
-        $this->alert('success', 'SRO number successfully linked');
+        $response = $this->form->linkSRONumber($this->sro_number);
+        $this->alert($response['class'], $response['message']);
+        $this->EventUpdate($response);
     }
 
     public function typeCheck($field, $value)
@@ -255,8 +271,10 @@ class Index extends Component
     {
 
         $query = $this->getSchedules();
-        $this->schedules =  $query->get()
-        ->map(function ($schedule) {
+        $this->schedules =  $query
+        ->orderBy('schedules.created_at', 'asc')
+        ->get()
+        ->map(function ($schedule, $index) {
             $type = Str::title(str_replace('_', ' ', $schedule->type));
             $enumInstance = ScheduleEnum::tryFrom($type);
             $icon = $enumInstance ? $enumInstance->icon() : null;
@@ -267,6 +285,7 @@ class Index extends Component
                 'description' => 'schedule',
                 'color' => $schedule->status_color,
                 'icon' => $icon,
+                'sortIndex' => $index
             ];
         });
     }
@@ -334,6 +353,7 @@ class Index extends Component
         $query = $this->getSchedules();
 
         $this->eventsData = $query->where('schedule_Date', $date)
+        ->orderBy('created_at', 'asc')
         ->get()
         ->map(function($schedule){
             return [
@@ -388,7 +408,7 @@ class Index extends Component
         $start = $this->eventStart;
         $end = $this->eventEnd;
         $spanText = '';
-        $query = TruckSchedule::whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
+        $query = TruckSchedule::with('driver')->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
                 ->whereHas('truck', function($query) use ($start, $end, $type) {
                     $query->where('whse', $this->activeWarehouse->id);
                 });
@@ -413,7 +433,9 @@ class Index extends Component
             });
         }
 
-        $this->truckInfo  = $query->get()
+        $this->truckInfo  = $query
+        ->orderBy('created_at', 'asc')
+        ->get()
         ->map(function ($truck) {
             return [
                 'id' => $truck->id,
@@ -431,7 +453,7 @@ class Index extends Component
                 'slots' => $truck->slots,
                 'scheduled_count' => $truck->schedule_count,
                 'driver_id' => $truck->driver_id,
-                'driverName' => $truck->driver?->name,
+                'driverName' => $truck->driver?->name.' ('.$truck->driver?->title. ')',
             ];
         })->toArray();
     }
@@ -644,13 +666,14 @@ class Index extends Component
 
     public function cancelConfirm()
     {
-        $this->form->unlinkSRO();
+        $response = $this->form->unlinkSRO();
         $this->reset([
             'sro_number',
             'sro_verified',
             'sro_response'
         ]);
-        $this->alert('success', 'Schedule Unconfirmed');
+        $this->alert($response['class'], $response['message']);
+        $this->EventUpdate($response);
     }
 
     public function scheduleDateInitiate()
@@ -677,6 +700,12 @@ class Index extends Component
     {
         $this->authorize('update', $this->form->schedule);
         $response = $this->form->undoCancel();
+        $this->EventUpdate($response);
+    }
+    public function startSchedule()
+    {
+        $this->authorize('startSchedule', $this->form->schedule);
+        $response = $this->form->startSchedule();
         $this->EventUpdate($response);
     }
 
@@ -738,7 +767,8 @@ class Index extends Component
                 foreach ($this->truckInfo as $key => $truck) {
                     if ($truck['id'] == $schedule['id']) {
                         $this->truckInfo[$key]['driver_id'] = $schedule['driver_id'];
-                        $this->truckInfo[$key]['driverName'] = $truckSchedules[$schedule['id']]->driver->name;
+                        $this->truckInfo[$key]['driverName'] = $truckSchedules[$schedule['id']]->driver->name.' ('
+                        .$truckSchedules[$schedule['id']]->driver->title.')';
                         break;
                     }
                 }
