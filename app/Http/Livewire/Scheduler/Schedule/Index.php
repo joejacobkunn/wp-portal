@@ -126,6 +126,8 @@ class Index extends Component
             return [
                 'id' => $user->id,
                 'name' => $user->name,
+                'title' => $user->title,
+                'name_title' => $user->name.' ('. $user->title . ')'
             ];
         })
         ->sortBy('name')
@@ -436,7 +438,7 @@ class Index extends Component
                 'slots' => $truck->slots,
                 'scheduled_count' => $truck->schedule_count,
                 'driver_id' => $truck->driver_id,
-                'driverName' => $truck->driver?->name,
+                'driverName' => $truck->driver?->name.' ('.$truck->driver?->title. ')',
             ];
         })->toArray();
     }
@@ -743,7 +745,8 @@ class Index extends Component
                 foreach ($this->truckInfo as $key => $truck) {
                     if ($truck['id'] == $schedule['id']) {
                         $this->truckInfo[$key]['driver_id'] = $schedule['driver_id'];
-                        $this->truckInfo[$key]['driverName'] = $truckSchedules[$schedule['id']]->driver->name;
+                        $this->truckInfo[$key]['driverName'] = $truckSchedules[$schedule['id']]->driver->name.' ('
+                        .$truckSchedules[$schedule['id']]->driver->title.')';
                         break;
                     }
                 }
