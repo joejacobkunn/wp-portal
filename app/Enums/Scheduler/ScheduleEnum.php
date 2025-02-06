@@ -43,4 +43,14 @@ enum ScheduleEnum: string
         };
 
     }
+
+    public static function getArray($type = '')
+    {
+        $statuses = [];
+
+        foreach(self::cases() as $status) {
+            $statuses[$status->value] = $status->label();
+        }
+        return $statuses;
+    }
 }
