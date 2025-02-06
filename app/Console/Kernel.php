@@ -69,8 +69,7 @@ class Kernel extends ConsoleKernel
 
         //cron to find routes for scheduler trucks
         $schedule->command('app:route-finder')
-        ->dailyAt('07:30')
-        ->withoutOverlapping();
+        ->timezone('America/New_York')->dailyAt('07:30');
     }
 
     /**
