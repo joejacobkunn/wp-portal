@@ -60,7 +60,7 @@
 
                 {{-- truck and zone --}}
                 <div class="card border-light shadow-sm schedule-tab">
-                    <div class="card-body">
+                    <div class="card-body" wire:key="{{$this->ActiveWarehouse->short.'-'.$this->dateSelected.'trucks'}}">
                         <h5 class="card-title">Active Trucks and Zones</h5>
                         @if (count($this->filteredSchedules) > 0)
                             <div class="list-group">
@@ -115,7 +115,7 @@
                             </div>
                         </h5>
 
-                        <div class="list-group">
+                        <div class="list-group"  wire:key="{{$this->ActiveWarehouse->short.$this->dateSelected}}">
                             @forelse ($eventsData as $event)
                                 <a href="#" class="list-group-item list-group-item-action"
                                     wire:click.prevent="handleEventClick({{ $event['id'] }})"
