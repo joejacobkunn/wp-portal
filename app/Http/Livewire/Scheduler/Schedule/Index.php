@@ -156,7 +156,7 @@ class Index extends Component
     public function setActiveWarehouse($warehouseId)
     {
         $this->activeWarehouseId = $warehouseId;
-        
+
         $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])
         ->where('office_location', $this->activeWarehouse->title)
         ->get()
@@ -343,8 +343,8 @@ class Index extends Component
     {
         $this->setActiveWarehouse($wsheID);
         $this->getEvents();
-        $this->handleDateClick(Carbon::now());
         $this->getTruckData();
+        $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-needs-update',  $this->activeWarehouse->title);
     }
 
@@ -391,6 +391,7 @@ class Index extends Component
         $this->activeType = $type;
         $this->getEvents();
         $this->getTruckData();
+        $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Services' );
 
     }
@@ -523,6 +524,7 @@ class Index extends Component
 
         $this->getEvents();
         $this->getTruckData();
+        $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-zone-update', !empty($this->activeZone) ? $this->activeZone['name'] : 'All Zones' );
     }
 
@@ -824,7 +826,7 @@ class Index extends Component
         if ($errorFlag) {
             return;
         }
-        
+
         $schedulQuery = $this->getSchedules()
             ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()]);
 
