@@ -35,7 +35,9 @@ class Schedule extends Model
         'completed_at',
         'completed_by',
         'confirmed_by',
-        'confirmed_at'
+        'confirmed_at',
+        'expected_arrival_time',
+        'travel_prio_number'
     ];
 
     protected $casts = [

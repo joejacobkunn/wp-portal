@@ -156,7 +156,7 @@ class Index extends Component
     public function setActiveWarehouse($warehouseId)
     {
         $this->activeWarehouseId = $warehouseId;
-        
+
         $this->drivers = User::whereIn('title', ['Driver', 'Service Technician'])
         ->where('office_location', $this->activeWarehouse->title)
         ->get()
@@ -275,6 +275,8 @@ class Index extends Component
 
         $query = $this->getSchedules();
         $this->schedules =  $query
+        ->orderByRaw('COALESCE(schedules.travel_prio_number, 9999) asc')
+        ->orderByRaw('STR_TO_DATE(schedules.expected_arrival_time, "%h:%i %p") asc')
         ->orderBy('schedules.created_at', 'asc')
         ->get()
         ->map(function ($schedule, $index) {
@@ -343,8 +345,8 @@ class Index extends Component
     {
         $this->setActiveWarehouse($wsheID);
         $this->getEvents();
-        $this->handleDateClick(Carbon::now());
         $this->getTruckData();
+        $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-needs-update',  $this->activeWarehouse->title);
     }
 
@@ -356,6 +358,8 @@ class Index extends Component
         $query = $this->getSchedules();
 
         $this->eventsData = $query->where('schedule_Date', $date)
+        ->orderByRaw('COALESCE(travel_prio_number, 9999) asc')
+        ->orderByRaw('STR_TO_DATE(schedules.expected_arrival_time, "%h:%i %p") asc')
         ->orderBy('created_at', 'asc')
         ->get()
         ->map(function($schedule){
@@ -372,6 +376,8 @@ class Index extends Component
                 'truckName' => $schedule->truckSchedule->truck->truck_name,
                 'zone' => $schedule->truckSchedule->zone->name,
                 'status_color' => $schedule->status_color_class,
+                'expected_time' => $schedule->expected_arrival_time,
+                'travel_prio_number' => $schedule->travel_prio_number,
             ];
         })
         ->toArray();
@@ -391,6 +397,7 @@ class Index extends Component
         $this->activeType = $type;
         $this->getEvents();
         $this->getTruckData();
+        $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Services' );
 
     }
@@ -523,6 +530,7 @@ class Index extends Component
 
         $this->getEvents();
         $this->getTruckData();
+        $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-zone-update', !empty($this->activeZone) ? $this->activeZone['name'] : 'All Zones' );
     }
 
@@ -824,7 +832,7 @@ class Index extends Component
         if ($errorFlag) {
             return;
         }
-        
+
         $schedulQuery = $this->getSchedules()
             ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()]);
 

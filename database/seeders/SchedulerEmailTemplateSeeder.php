@@ -41,7 +41,16 @@ class SchedulerEmailTemplateSeeder extends Seeder
             'slug' => 'ahm-complete',
             'description' => 'Email/SMS customer when technician has completed maintenance'
         ],
-
+        6 => [
+            'name' => 'AHM Rescheduled',
+            'slug' => 'ahm-rescheduled',
+            'description' => 'Email/SMS customer when rescheduled'
+        ],
+        7 => [
+            'name' => 'AHM Cancelled',
+            'slug' => 'ahm-cancelled',
+            'description' => 'Email/SMS customer when schedule cancelled'
+        ],
     ];
 
     /**

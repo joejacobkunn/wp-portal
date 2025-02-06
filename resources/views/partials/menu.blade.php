@@ -183,7 +183,7 @@
                     <ul class="submenu-group">
                         @canany(['scheduler.schedule.view'])
                             <li class="submenu-item  ">
-                                <a href="{{ route('schedule.index') }}" wire:navigate class="submenu-link">Schedule</a>
+                                <a href="{{ route('schedule.calendar.index') }}" wire:navigate class="submenu-link">Schedule</a>
                             </li>
                         @endcan
                         @can('scheduler.serice-area.view')
@@ -203,12 +203,6 @@
                                 <a href="{{ route('schedule.driver.index') }}" wire:navigate class="submenu-link">Drivers</a>
                             </li>
                         @endcan
-
-                        <li class="submenu-item">
-                            <a href="" wire:navigate>
-                                <span>Surveys</span>
-                            </a>
-                        </li>
                         @canany(['scheduler.template.view'])
                             <li class="submenu-item">
                                 <a href="{{ route('schedule.email-template.index') }}" wire:navigate>
@@ -216,7 +210,6 @@
                                 </a>
                             </li>
                         @endcan
-
                     </ul>
                 </div>
             </div>
