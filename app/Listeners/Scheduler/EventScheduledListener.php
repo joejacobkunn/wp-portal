@@ -55,7 +55,7 @@ class EventScheduledListener
     public function populateTemplate($slug ,Schedule $schedule)
     {
         $template = NotificationTemplate::where('slug', $slug)->first();
-        $email_subject = $this->fillTemplateVariables($template->subject, $schedule);
+        $email_subject = $this->fillTemplateVariables($template->email_subject, $schedule);
         $email_body = $this->fillTemplateVariables($template->email_content, $schedule);
         $sms = $this->fillTemplateVariables($template->sms_content, $schedule);
 
