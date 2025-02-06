@@ -69,8 +69,9 @@
 
                 {{-- truck and zone --}}
                 <div class="card border-light shadow-sm schedule-tab">
-                    <div class="card-body">
+                    <div class="card-body" wire:key="{{$this->activeWarehouse->short.'-'.$this->dateSelected.'trucks'}}">
                         <h5 class="card-title">Active Trucks and Zones</h5>
+
                         @if (count($this->filteredSchedules) > 0)
                             <div class="list-group">
                                 <ul class="list-group">
@@ -119,13 +120,17 @@
                 {{-- truck and zone end  --}}
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
-                        <h5 class="card-title">Events
+                        <h5 class="card-title mb-4">Events
+                            @if (!collect($eventsData)->contains('travel_prio_number', null))
+
+                                <span class="badge bg-light-info float-end"> Ordered by distance</span>
+                            @endif
                             <div wire:loading wire:target="handleDateClick">
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             </div>
                         </h5>
 
-                        <div class="list-group">
+                        <div class="list-group"  wire:key="{{$this->activeWarehouse->short.'-'.$this->dateSelected}}">
                             @forelse ($eventsData as $event)
                                 <a href="#" class="list-group-item list-group-item-action"
                                     wire:click.prevent="handleEventClick({{ $event['id'] }})"
@@ -162,6 +167,9 @@
                                         #{{ $event['sx_customer_number'] }}
                                     </p>
                                     <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                    @if ($event['travel_prio_number'])
+                                        <p class="font-small"><span class="badge bg-light-info"> expected delivery time : {{$event['expected_time']}}</span></p>
+                                    @endif
                                 </a>
                             @empty
                                 <div class="alert alert-light-warning color-warning"><i
