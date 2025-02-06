@@ -183,7 +183,7 @@
                     <ul class="submenu-group">
                         @canany(['scheduler.schedule.view'])
                             <li class="submenu-item  ">
-                                <a href="{{ route('schedule.index') }}" wire:navigate class="submenu-link">Schedule</a>
+                                <a href="{{ route('schedule.calendar.index') }}" wire:navigate class="submenu-link">Schedule</a>
                             </li>
                         @endcan
                         @can('scheduler.serice-area.view')
