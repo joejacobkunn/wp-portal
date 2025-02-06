@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
 
         //task to refresh open orders
         $schedule->command('sx:update-open-orders')->everyThirtyMinutes();
-        
+
         //task to fetch sx operators
         $schedule->command('sx:fetch-operators')->wednesdays();
 
@@ -46,7 +46,7 @@ class Kernel extends ConsoleKernel
 
         //purge old auth logs that are more than a year old
         $schedule->command('authentication-log:purge')->monthly();
-        
+
         //Product Seeders
         $schedule->command('db:seed --class=ProductMetaSeeder')->daily();
         $schedule->command('db:seed --class=ProductSeeder')->daily();
@@ -67,6 +67,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('activitylog:clean')->daily();
 
+        //cron to find routes for scheduler trucks
+        $schedule->command('app:route-finder')
+        ->dailyAt('07:30')
+        ->withoutOverlapping();
     }
 
     /**

@@ -275,6 +275,8 @@ class Index extends Component
 
         $query = $this->getSchedules();
         $this->schedules =  $query
+        ->orderByRaw('COALESCE(schedules.travel_prio_number, 9999) asc')
+        ->orderByRaw('STR_TO_DATE(schedules.expected_arrival_time, "%h:%i %p") asc')
         ->orderBy('schedules.created_at', 'asc')
         ->get()
         ->map(function ($schedule, $index) {
@@ -356,6 +358,8 @@ class Index extends Component
         $query = $this->getSchedules();
 
         $this->eventsData = $query->where('schedule_Date', $date)
+        ->orderByRaw('COALESCE(travel_prio_number, 9999) asc')
+        ->orderByRaw('STR_TO_DATE(schedules.expected_arrival_time, "%h:%i %p") asc')
         ->orderBy('created_at', 'asc')
         ->get()
         ->map(function($schedule){
@@ -372,6 +376,8 @@ class Index extends Component
                 'truckName' => $schedule->truckSchedule->truck->truck_name,
                 'zone' => $schedule->truckSchedule->zone->name,
                 'status_color' => $schedule->status_color_class,
+                'expected_time' => $schedule->expected_arrival_time,
+                'travel_prio_number' => $schedule->travel_prio_number,
             ];
         })
         ->toArray();
