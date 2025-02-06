@@ -41,6 +41,7 @@ class EmailNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
+                    ->from('system@weingartz.com', 'Weingartz')
                     ->subject($this->subject)
                     ->line(new HtmlString($this->body));
     }
