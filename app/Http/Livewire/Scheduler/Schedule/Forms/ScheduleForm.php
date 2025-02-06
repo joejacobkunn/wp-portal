@@ -3,9 +3,11 @@
 
 use App\Classes\SX;
 use App\Contracts\DistanceInterface;
+use App\Events\Scheduler\EventScheduled;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
+use App\Models\Scheduler\NotificationTemplate;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\TruckSchedule;
@@ -248,6 +250,9 @@ class ScheduleForm extends Form
                 'user_id' => Auth::user()->id
             ]);
         }
+
+        EventScheduled::dispatch($schedule);
+        
         return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
 
@@ -496,4 +501,5 @@ class ScheduleForm extends Form
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule completed', 'schedule' => $this->schedule];
 
     }
+
 }

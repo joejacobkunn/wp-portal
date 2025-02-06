@@ -30,11 +30,14 @@
                             <span class="list-group-item"><mark>[CustomerName]</mark> =>Customer Name</span>
                             <span class="list-group-item"><mark>[ServiceAddress]</mark> =>Service Address</span>
                             <span class="list-group-item"><mark>[Warehouse]</mark> => Warehouse</span>
+                            <span class="list-group-item"><mark>[WarehouseNumber]</mark> => Warehouse Phone
+                                Number</span>
+                            <span class="list-group-item"><mark>[WarehouseAddress]</mark> => Warehouse Address</span>
                             <span class="list-group-item"><mark>[OrderNumber]</mark> => Order Number</span>
-                            <span class="list-group-item"><mark>[LineItems]</mark> => Line Items</span>
                             <span class="list-group-item"><mark>[ScheduledDate]</mark> => Scheduled Date</span>
                             <span class="list-group-item"><mark>[TimeSlot]</mark> => Time Slot</span>
                             <span class="list-group-item"><mark>[ServiceEquipment]</mark> => Service Equipment</span>
+                            <span class="list-group-item"><mark>[DriverName]</mark> => Driver Name</span>
                         </div>
                     </div>
                 </div>
