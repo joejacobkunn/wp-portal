@@ -456,21 +456,21 @@
                         exportBtn: {
                             text: '',
                             click: function(e) {
-                                //let loaderIcon = document.createElement('i');
-                                //loaderIcon.className = 'fa fa-spinner fa-spin loader ms-2';
-                                //loaderIcon.style.display = 'none';
 
                                 let btn = e.target;
-                                //btn.appendChild(loaderIcon);
-                                // if (loaderIcon) {
-                                //     loaderIcon.style.display = 'inline-block';
-                                // }
+                                if (e.target.matches('i')) {
+                                    btn = e.target.closest('button')
+                                }
+
+                                btn.querySelector('i').classList.remove('bi', 'bi-download')
+                                btn.querySelector('i').classList.add('fa', 'fa-spinner', 'fa-spin')
                                 btn.setAttribute("disabled", true);
 
                                 $wire.showExportModal().then(() => {
                                     setTimeout(() => {
                                         btn.removeAttribute('disabled');
-                                        btn.querySelector('i').remove();
+                                        btn.querySelector('i').classList.remove('fa', 'fa-spinner', 'fa-spin')
+                                        btn.querySelector('i').classList.add('bi', 'bi-download')
                                     }, 200)
                                 })
                             }
