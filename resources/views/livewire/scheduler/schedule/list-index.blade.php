@@ -25,10 +25,11 @@
 
                         <x-tabs
                             tabId="schedule-list-index-tabs"
-                            class="mb-5">
+                            class="mb-5"
+                            :key="'wh'. $activeWarehouseId">
                             <x-slot:content
                                 component="scheduler.schedule.table"
-                                whse="$activeWarehouseId"
+                                :whse="$activeWarehouseId"
                                 :activeTab="$tabs['schedule-list-index-tabs']['active']">
                             </x-slot>
 

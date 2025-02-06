@@ -98,7 +98,7 @@ class Table extends DataTableComponent
 
     public function getTrucksProperty()
     {
-        return Truck::select('id', 'truck_name')->limit(100)->pluck('truck_name', 'id')->toArray();
+        return Truck::select('id', 'truck_name', 'whse')->limit(100)->get();
     }
 
     public function getZonesProperty()
@@ -119,7 +119,7 @@ class Table extends DataTableComponent
 
             SelectFilter::make('Truck', 'truck')
                 ->options(
-                    $this->trucks
+                    $this->trucks->pluck('truck_name', 'id')->toArray()
                 )
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('truck_schedules.truck_id', $value);
@@ -191,7 +191,7 @@ class Table extends DataTableComponent
         }
 
         if (!empty($this->whse)) {
-            $scheduleQuery->where('truck_schedules.zone_id', $this->whse);
+            $scheduleQuery->whereIn('truck_schedules.truck_id', $this->trucks->where('whse', $this->whse)->pluck('id')->toArray());
         }
 
         return $scheduleQuery;
