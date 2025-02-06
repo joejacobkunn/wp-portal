@@ -39,7 +39,7 @@
                                         Unconfirm</button>
                                 @endif
                             @endcan
-                            @can('scheduler.driver')
+                            @canany(['scheduler.can-start-event', 'scheduler.schedule.manage'])
                                 @if ($form->schedule->status == 'Confirmed')
                                     <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="collapse"
                                         data-bs-target="#startScheduleCollapse" aria-expanded="false"
@@ -47,7 +47,7 @@
                                         Start</button>
                                 @endif
                             @endcan
-                            @canany(['scheduler.driver', 'scheduler.schedule.manage'])
+                            @canany(['scheduler.can-complete-event', 'scheduler.schedule.manage'])
                                 @if ($form->schedule->status == 'Out for Delivery')
                                     <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
                                         data-bs-toggle="collapse" data-bs-target="#completeCollapse" aria-expanded="false"

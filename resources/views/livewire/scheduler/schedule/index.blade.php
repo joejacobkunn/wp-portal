@@ -1,6 +1,15 @@
 <x-page :breadcrumbs="$breadcrumbs">
     <x-slot:title>Schedule</x-slot>
     <x-slot:content>
+        <ul class="nav nav-pills mb-2">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#"><i class="far fa-calendar-alt"></i>
+                    Calendar View</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-list"></i> List View</a>
+            </li>
+        </ul>
         <div class="row">
             <div class="col-9">
                 <div class="card border-light shadow-sm schedule-tab">
