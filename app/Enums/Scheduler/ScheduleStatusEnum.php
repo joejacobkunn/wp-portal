@@ -41,13 +41,14 @@ enum ScheduleStatusEnum: string
     public static function getColor(self $value): string
     {
         return match ($value) {
-            self::Scheduled => 'gray',
-            self::Confirmed => 'blue',
-            self::Completed => 'green',
-            self::Cancelled => 'red',
+            self::Scheduled => '#a5aaae',
+            self::Confirmed => '#435cbe',
+            self::Completed => '#43aa48',
+            self::Cancelled => '#bb2d3b',
             self::Out_for_Delivery => 'cyan',
             default => '-'
         };
+
     }
 
     public static function getColorClass(self $value): string

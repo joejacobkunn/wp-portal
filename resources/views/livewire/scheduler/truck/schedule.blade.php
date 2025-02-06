@@ -128,7 +128,7 @@
                             const existingSpans = cell.querySelectorAll('.zoneinfo-span');
                             existingSpans.forEach(span => span.remove());
                         });
-                        $wire.onDateRangeChanges(info.startStr, info.endStr, info.view.title).then(() => {});
+                        $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {});
 
 
                     },

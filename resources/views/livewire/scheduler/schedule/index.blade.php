@@ -1,6 +1,15 @@
 <x-page :breadcrumbs="$breadcrumbs">
     <x-slot:title>Schedule</x-slot>
     <x-slot:content>
+        <ul class="nav nav-pills mb-2">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#"><i class="far fa-calendar-alt"></i>
+                    Calendar View</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-list"></i> List View</a>
+            </li>
+        </ul>
         <div class="row">
             <div class="col-9">
                 <div class="card border-light shadow-sm schedule-tab">
@@ -42,7 +51,7 @@
             </div>
             <div class="col-3">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
-                @if(!empty($this->filteredSchedules))
+                @if (!empty($this->filteredSchedules))
                     @if (collect($this->filteredSchedules)->contains('driver_id', null))
                         <div class="alert alert-light-warning color-warning"><i class="fas fa-exclamation-triangle"></i>
                             Drivers not assigned
@@ -76,16 +85,17 @@
                                                     => <a
                                                         href="{{ route('scheduler.truck.show', ['truck' => $truck['truck_id']]) }}">
                                                         <span class="badge bg-light-secondary"><i
-                                                                class="fas fa-truck"></i>{{ $truck['truck_name'] }}</span>
+                                                                class="fas fa-truck"></i>
+                                                            {{ $truck['truck_name'] }}</span>
                                                     </a></div>
-                                                <span class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
+                                                <span class="me-2 text-muted" style="font-size: smaller;"><i
                                                         class="far fa-clock"></i>
                                                     {{ $truck['start_time'] }}
                                                     -
                                                     {{ $truck['end_time'] }}
                                                 </span>
                                                 @if ($truck['driver_id'] && $truck['driverName'])
-                                                    <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
+                                                    <p class="me-2 text-muted" style="font-size: smaller;"><i
                                                             class="fa-solid fa-user"></i>
                                                         {{ $truck['driverName'] }}
                                                     </p>
@@ -256,6 +266,23 @@
             </x-modal>
         @endif
         {{-- search modal end --}}
+
+
+        @if ($exportModal)
+            <x-modal toggle="exportModal">
+                <x-slot name="title">Export Schedules</x-slot>
+                <div>
+                    <x-forms.datepicker label="From Date" model="exportFromDate" />
+
+                    <x-forms.datepicker label="To Date" model="exportToDate" />
+                </div>
+
+                <x-slot name="footer">
+                    <x-button-submit class="btn-primary" method="exportSchedules" icon="fa-cloud-download-alt"
+                        text="Download" />
+                </x-slot>
+            </x-modal>
+        @endif
     </x-slot>
 </x-page>
 
@@ -297,9 +324,9 @@
                     height: 'auto',
                     contentHeight: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today searchBtn',
+                        left: 'prev,next today exportBtn searchBtn',
                         center: 'title',
-                        right: 'exportBtn warehouseBtn scheduleBtn zoneBtn dropdownButton'
+                        right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
                     titleFormat: {
                         month: 'short',
@@ -427,20 +454,20 @@
                             }
                         },
                         exportBtn: {
-                            text: 'Export',
+                            text: '',
                             click: function(e) {
-                                let loaderIcon = document.createElement('i');
-                                loaderIcon.className = 'fa fa-spinner fa-spin loader ms-2';
-                                loaderIcon.style.display = 'none';
+                                //let loaderIcon = document.createElement('i');
+                                //loaderIcon.className = 'fa fa-spinner fa-spin loader ms-2';
+                                //loaderIcon.style.display = 'none';
 
                                 let btn = e.target;
-                                btn.appendChild(loaderIcon);
-                                if (loaderIcon) {
-                                    loaderIcon.style.display = 'inline-block';
-                                }
+                                //btn.appendChild(loaderIcon);
+                                // if (loaderIcon) {
+                                //     loaderIcon.style.display = 'inline-block';
+                                // }
                                 btn.setAttribute("disabled", true);
 
-                                $wire.exportSchedules().then(() => {
+                                $wire.showExportModal().then(() => {
                                     setTimeout(() => {
                                         btn.removeAttribute('disabled');
                                         btn.querySelector('i').remove();
@@ -481,7 +508,7 @@
                     },
                     datesSet: function(info) {
 
-                        $wire.onDateRangeChanges(info.startStr, info.endStr, info.view.title).then(() => {
+                        $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {
                             calendar.removeAllEvents();
                             calendar.addEventSource($wire.schedules);
                             calendar.addEventSource($wire.holidays);
@@ -499,11 +526,13 @@
                                 return `${year}-${month}-${day}`;
                             }
 
-                            if (today.getMonth() === currentMonth && today.getFullYear() === currentYear) {
+                            if (today.getMonth() === currentMonth && today.getFullYear() ===
+                                currentYear) {
                                 $wire.handleDateClick(formatDate(today));
                             } else {
                                 let formattedDate = formatDate(firstDayOfMonth);
-                                const clickedDateCell = document.querySelector(`[data-date="${formattedDate}"]`);
+                                const clickedDateCell = document.querySelector(
+                                    `[data-date="${formattedDate}"]`);
 
                                 if (clickedDateCell) {
                                     clickedDateCell.classList.add('highlighted-date');
@@ -563,6 +592,13 @@
                     icon.className = 'fas fa-search';
                     searchButton.appendChild(icon);
                 }
+                const exportButton = document.querySelector('.fc-exportBtn-button');
+                if (exportButton) {
+                    const icon = document.createElement('i');
+                    icon.className = 'bi bi-download';
+                    exportButton.appendChild(icon);
+                }
+
                 const scheduleButton = document.querySelector('.fc-dropdownButton-button');
                 if (scheduleButton) {
                     const icon = document.createElement('i');

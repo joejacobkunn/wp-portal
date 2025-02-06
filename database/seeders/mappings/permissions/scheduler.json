@@ -46,9 +46,14 @@
                 "description": "User can manage schedule Email Template"
             },
             {
-                "name": "scheduler.driver",
-                "label": "Scheduler Driver manage",
-                "description": "Drivers can change status of schedule"
+                "name": "scheduler.can-start-event",
+                "label": "Start Scheduled Event",
+                "description": "User can start a scheduled event"
+            },
+            {
+                "name": "scheduler.can-complete-event",
+                "label": "Complete Scheduled Event",
+                "description": "User can complete a scheduled event"
             }
         ]
     }

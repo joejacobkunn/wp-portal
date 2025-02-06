@@ -26,6 +26,7 @@ class OrderScheduleExport implements FromArray, WithHeadings
             'ID',
             'SX Order No',
             'Schedule Date',
+            'Time Slot',
             'Type',
             'Zone',
             'Truck',
