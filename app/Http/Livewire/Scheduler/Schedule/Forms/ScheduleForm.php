@@ -391,7 +391,7 @@ class ScheduleForm extends Form
             'zones.name as zone_name',
             'trucks.id as truck_id',
             'trucks.truck_name',
-            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
+            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "Cancelled") as schedule_count')
         )
         ->get();
 
@@ -416,7 +416,7 @@ class ScheduleForm extends Form
         ->select(
             'truck_schedules.*',
             'orders.id as order_id',
-            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id) as schedule_count')
+            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "Cancelled") as schedule_count')
         )
         ->get();
         $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
