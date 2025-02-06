@@ -14,12 +14,22 @@
             <div class="col-12">
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
+                        <div class="float-end">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ $this->activeWarehouse?->title }}</button>
+                            <ul class="dropdown-menu" style="">
+                                @foreach ($this->warehouses as $whse)
+                                <li><a class="dropdown-item" href="javascript:;" wire:click="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}</a></li>
+                                @endforeach
+                            </ul>
+                        </div>
+
                         <x-tabs
                             tabId="schedule-list-index-tabs"
                             class="mb-5">
                             <x-slot:content
                                 component="scheduler.schedule.table"
-                                :status="$tabs['schedule-list-index-tabs']['active']">
+                                whse="$activeWarehouseId"
+                                :activeTab="$tabs['schedule-list-index-tabs']['active']">
                             </x-slot>
 
                         </x-tabs>

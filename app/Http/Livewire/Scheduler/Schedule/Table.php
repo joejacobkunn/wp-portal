@@ -16,7 +16,9 @@ use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class Table extends DataTableComponent
 {
-    public $status;
+    public $activeTab;
+
+    public $whse;
 
     public function configure(): void
     {
@@ -178,13 +180,18 @@ class Table extends DataTableComponent
          ->leftJoin('customers', 'orders.sx_customer_number', '=', 'customers.sx_customer_number')
          ->whereNull('customers.deleted_at');
 
-        $dbStatusList = ['scheduled', 'confirmed', 'cancelled', 'completed'];
-        if (!empty($this->status)) {
-            if (in_array($this->status, $dbStatusList)) {
-                $scheduleQuery->where('schedules.status', $this->status);
-            } elseif ($this->status == 'unconfirmed') {
-                $scheduleQuery->where('schedules.status', '!=', $this->status);
+        if (!empty($this->activeTab)) {
+            if ($this->activeTab == 'today') {
+                $scheduleQuery->whereDate('schedules.schedule_date', Carbon::now()->toDateString());
+            } elseif ($this->activeTab == 'tomorrow') {
+                $scheduleQuery->whereDate('schedules.schedule_date', Carbon::now()->addDay()->toDateString());
+            }  elseif ($this->activeTab == 'confirmed') {
+                $scheduleQuery->where('schedules.status', 'confirmed');
             }
+        }
+
+        if (!empty($this->whse)) {
+            $scheduleQuery->where('truck_schedules.zone_id', $this->whse);
         }
 
         return $scheduleQuery;
