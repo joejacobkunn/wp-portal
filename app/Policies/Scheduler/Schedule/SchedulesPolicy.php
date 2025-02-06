@@ -50,6 +50,6 @@ class SchedulesPolicy
 
     public function startSchedule(User $user, Schedule $schedule): bool
     {
-        return $user->can('scheduler.driver');
+        return $user->can('scheduler.schedule.manage') || $user->can('scheduler.can-start-event');
     }
 }

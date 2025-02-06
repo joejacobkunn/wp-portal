@@ -117,7 +117,8 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('scheduler/zones/{zone}/show', \App\Http\Livewire\Scheduler\ServiceArea\Zones\Show::class)->name('service-area.zones.show');
         Route::get('scheduler/zip-codes/{zipcode}/show', \App\Http\Livewire\Scheduler\ServiceArea\ZipCode\Show::class)->name('service-area.zipcode.show');
 
-        Route::get('scheduler/schedule', \App\Http\Livewire\Scheduler\Schedule\Index::class)->name('schedule.index');
+        Route::get('scheduler/schedule', \App\Http\Livewire\Scheduler\Schedule\Index::class)->name('schedule.calendar.index');
+        Route::get('scheduler/schedule-list', \App\Http\Livewire\Scheduler\Schedule\ListIndex::class)->name('schedule.list.index');
 
         Route::get('scheduler/drivers', \App\Http\Livewire\Scheduler\Drivers\Index::class)->name('schedule.driver.index');
         Route::get('scheduler/drivers/{user}/show', \App\Http\Livewire\Scheduler\Drivers\Show::class)->name('schedule.driver.show');
