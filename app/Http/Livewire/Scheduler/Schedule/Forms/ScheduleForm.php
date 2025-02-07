@@ -544,18 +544,27 @@ class ScheduleForm extends Form
 
         $recom =  $google->addressValidation($address);
         if($recom->status() != 200) {
+
               return [
                 'status' => false,
                 'message' => 'Failed to Validate Address'
               ];
         }
+        $zipParts = explode('-', $recom['result']['address']['postalAddress']['postalCode']);
+        $zipcode =  $zipParts[0] ?? null;
+
         if (isset($recom['result']['address']['unconfirmedComponentTypes'])) {
             // Filter out "country" from the array
             $tempArray = array_filter($recom['result']['address']['unconfirmedComponentTypes'], function ($value) {
                 return $value !== 'country';
             });
-
             $tempArray = array_values($tempArray);
+        }
+
+            if($zipcode != $zip) {
+
+                $tempArray[] = 'postal-code';
+            }
             if (!empty($tempArray)) {
                 $this->unconfirmedAddressTypes = $tempArray;
                 $this->showAddressModal = true;
@@ -566,8 +575,6 @@ class ScheduleForm extends Form
                     'message' => 'Service Address is not complete'
                 ];
             }
-        }
-
         $this->reset([
             'unconfirmedAddressTypes'
         ]);
