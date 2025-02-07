@@ -57,6 +57,7 @@ class ScheduleForm extends Form
     public $unconfirmedAddressTypes;
     public $showAddressModal;
     public $showAddressBox;
+    public $via_weingartz;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -105,11 +106,12 @@ class ScheduleForm extends Form
                 'required',
                 new ValidateSlotsforSchedule()
             ],
-            'line_item' =>'required',
+            'line_item' => $this->via_weingartz ? 'required' : 'nullable',
             'notes' =>'nullable',
             'service_address' =>'required',
             'reschedule_reason' =>'nullable|string|max:225',
-            'cancel_reason' => 'required|string|max:220'
+            'cancel_reason' => 'required|string|max:220',
+            'via_weingartz' => 'nullable'
         ];
 
     }
@@ -238,6 +240,7 @@ class ScheduleForm extends Form
             'scheduleType',
             'schedule_date',
             'schedule_time',
+            'via_weingartz',
         ])->toArray());
         if(!$this->ServiceStatus) {
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
@@ -248,9 +251,13 @@ class ScheduleForm extends Form
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['schedule_type'] = $this->scheduleType;
-        $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
+        if(!$this->via_weingartz) {
+            $validatedData['line_item'] = null;
+        } else {
+            $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
+            $validatedData['line_item'] = [$this->line_item=>$itemDesc];
+        }
 
-        $validatedData['line_item'] = [$this->line_item=>$itemDesc];
 
         $schedule = Schedule::create($validatedData);
         if($this->notes) {
@@ -270,7 +277,7 @@ class ScheduleForm extends Form
         $this->schedule = $schedule;
         $this->schedule_time = $schedule->truck_schedule_id;
         $this->fill($schedule->toArray());
-        $this->line_item =key($schedule->line_item);
+        $this->line_item = $schedule->line_item ? key($schedule->line_item): null;
         $this->schedule_date = Carbon::parse($schedule->schedule_date)->format('Y-m-d');
         $this->suffix = $schedule->order_number_suffix;
         $this->scheduleType = $schedule->schedule_type;

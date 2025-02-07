@@ -99,7 +99,9 @@
                                     </div>
                                 @endif
                             @endif
-
+                            <div class="col-md-12 mb-4">
+                                <x-forms.checkbox model="form.via_weingartz" label="Equipment not purchased via Weingartz" />
+                            </div>
                             {{-- line items --}}
                             @if ($form->orderInfo?->line_items)
                                 <div class="col-md-12 mb-2">
