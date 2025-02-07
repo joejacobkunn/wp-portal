@@ -17,6 +17,7 @@ use App\Models\Scheduler\Zones;
 use App\Models\SRO\RepairOrders;
 use App\Models\Scheduler\Schedule;
 use App\Exports\Scheduler\OrderScheduleExport;
+use App\Models\Scheduler\NotificationTemplate;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Scheduler\TruckSchedule;
@@ -77,6 +78,7 @@ class Index extends Component
         'scheduleTypeChange' => 'scheduleTypeChange',
         'scheduleTypeDispatch' => 'scheduleTypeDispatch',
         'closeDriverModal' => 'closeDriverModal',
+        'closeAddressValidation' => 'closeAddressValidation',
     ];
 
     public $actionButtons = [
@@ -229,6 +231,16 @@ class Index extends Component
     {
         if(is_numeric($value))
         {
+            $this->form->reset([
+                'orderInfo',
+                'zipcodeInfo',
+                'scheduleType',
+                'schedule_date',
+                'schedule_time',
+                'line_item',
+                'alertConfig',
+                'ServiceStatus'
+            ]);
             $this->validateOnly('form.sx_ordernumber');
             $this->form->getOrderInfo($value, $this->activeWarehouse->short);
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
@@ -244,7 +256,9 @@ class Index extends Component
             'scheduleType',
             'schedule_date',
             'schedule_time',
-            'line_items'
+            'line_item',
+            'alertConfig',
+            'ServiceStatus'
         ]);
     }
 
@@ -868,4 +882,38 @@ class Index extends Component
             'Schedule Report '. $startDate->format('d-M-Y') . ' to '. $endDate->format('d-M-Y').'.csv'
         );
     }
+
+    public function updatedFormServiceAddress($value)
+    {
+        $this->form->service_address = $value;
+        $this->form->updatedAddress();
+    }
+
+    public function closeAddressValidation()
+    {
+        $this->useCurrentAddress();
+    }
+
+    public function fixAddress()
+    {
+        $this->form->showAddressBox = true;
+    }
+
+    public function useRecommended()
+    {
+        $this->form->serviceZip = $this->form->extractZipCode($this->form->recommendedAddress);
+        $this->form->validateAddress($this->form->recommendedAddress, $this->form->serviceZip);
+    }
+    public function useCurrentAddress()
+    {
+        $this->form->serviceZip = $this->form->extractZipCode($this->form->service_address);
+        $this->form->showAddressModal = false;
+        $this->form->reset([
+            'recommendedAddress',
+            'showAddressModal',
+            'showAddressBox'
+        ]);
+        $this->form->checkZipcode();
+    }
+
 }

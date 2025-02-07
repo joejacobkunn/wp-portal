@@ -55,10 +55,9 @@ class EventServiceProvider extends ServiceProvider
             \App\Listeners\Floormodel\InventoryDeletedListener::class
         ],
 
-
-
-
-
+        \App\Events\Scheduler\EventScheduled::class => [
+            \App\Listeners\Scheduler\EventScheduledListener::class
+        ],
         
     ];
 

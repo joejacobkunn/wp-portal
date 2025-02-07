@@ -448,10 +448,12 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Equipment</h3>
-                            <p class="small pe-4">
-                                {{ head($form->schedule->line_item) }}
-                                ({{ array_keys($form->schedule->line_item)[0] }})
-                            </p>
+                            @if($form->schedule->line_item)
+                                <p class="small pe-4">
+                                    {{ head($form->schedule->line_item) }}
+                                    ({{ array_keys($form->schedule->line_item)[0] }})
+                                </p>
+                            @endif
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
