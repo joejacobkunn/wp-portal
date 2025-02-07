@@ -78,6 +78,7 @@ class Index extends Component
         'scheduleTypeChange' => 'scheduleTypeChange',
         'scheduleTypeDispatch' => 'scheduleTypeDispatch',
         'closeDriverModal' => 'closeDriverModal',
+        'closeAddressValidation' => 'closeAddressValidation',
     ];
 
     public $actionButtons = [
@@ -230,6 +231,16 @@ class Index extends Component
     {
         if(is_numeric($value))
         {
+            $this->form->reset([
+                'orderInfo',
+                'zipcodeInfo',
+                'scheduleType',
+                'schedule_date',
+                'schedule_time',
+                'line_item',
+                'alertConfig',
+                'ServiceStatus'
+            ]);
             $this->validateOnly('form.sx_ordernumber');
             $this->form->getOrderInfo($value, $this->activeWarehouse->short);
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
@@ -245,7 +256,9 @@ class Index extends Component
             'scheduleType',
             'schedule_date',
             'schedule_time',
-            'line_items'
+            'line_item',
+            'alertConfig',
+            'ServiceStatus'
         ]);
     }
 
@@ -870,6 +883,37 @@ class Index extends Component
         );
     }
 
+    public function updatedFormServiceAddress($value)
+    {
+        $this->form->service_address = $value;
+        $this->form->updatedAddress();
+    }
 
+    public function closeAddressValidation()
+    {
+        $this->useCurrentAddress();
+    }
+
+    public function fixAddress()
+    {
+        $this->form->showAddressBox = true;
+    }
+
+    public function useRecommended()
+    {
+        $this->form->serviceZip = $this->form->extractZipCode($this->form->recommendedAddress);
+        $this->form->validateAddress($this->form->recommendedAddress, $this->form->serviceZip);
+    }
+    public function useCurrentAddress()
+    {
+        $this->form->serviceZip = $this->form->extractZipCode($this->form->service_address);
+        $this->form->showAddressModal = false;
+        $this->form->reset([
+            'recommendedAddress',
+            'showAddressModal',
+            'showAddressBox'
+        ]);
+        $this->form->checkZipcode();
+    }
 
 }
