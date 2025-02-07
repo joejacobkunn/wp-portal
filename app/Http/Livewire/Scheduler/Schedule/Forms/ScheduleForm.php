@@ -534,6 +534,7 @@ class ScheduleForm extends Form
 
     public function validateAddress($address, $zip)
     {
+        $addressString = $address;
         $google = app(DistanceInterface::class);
         $address=[
             'regionCode' => 'US',
@@ -572,7 +573,7 @@ class ScheduleForm extends Form
         ]);
         $this->showAddressModal = false;
         $this->showAddressBox = false;
-        $this->service_address = $address;
+        $this->service_address = $addressString;
         $this->checkZipcode();
     }
 }
