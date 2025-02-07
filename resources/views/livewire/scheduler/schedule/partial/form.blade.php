@@ -103,7 +103,7 @@
                                 <x-forms.checkbox model="form.via_weingartz" label="Equipment not purchased via Weingartz" />
                             </div>
                             {{-- line items --}}
-                            @if ($form->orderInfo?->line_items)
+                            @if ($form->orderInfo?->line_items && !$form->via_weingartz)
                                 <div class="col-md-12 mb-2">
                                     <ul class="list-group">
                                         <li class="list-group-item list-group-item-primary">
