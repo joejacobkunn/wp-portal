@@ -375,7 +375,7 @@
         {{-- address validation modal --}}
         @if ($form->showAddressModal)
             <x-modal toggle="form.showAddressModal" size="md" :closeEvent="'closeAddressValidation'">
-                <x-slot name="title"> We couldn't Verify the Address </x-slot>
+                <x-slot name="title"> We couldn't verify the address </x-slot>
                 <div class="mb-4">
                     <h6 class="text-primary">Current Address</h6>
                     <ul class="list-group">
