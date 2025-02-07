@@ -48,11 +48,15 @@ class ScheduleForm extends Form
     public $ServiceStatus = false;
     public $serialNumbers;
     public $line_item;
+    public $serviceZip;
     public $notes;
     public $addressKey = '1232234';
     public $service_address;
     public $cancel_reason;
     public $reschedule_reason;
+    public $unconfirmedAddressTypes;
+    public $showAddressModal;
+    public $showAddressBox;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -119,8 +123,6 @@ class ScheduleForm extends Form
 
     public function getOrderInfo($suffix, $aciveWarehouse)
     {
-        $google = app(DistanceInterface::class);
-        $this->saveRecommented = false;
         $this->resetValidation(['sx_ordernumber', 'suffix']);
         $this->alertConfig['status'] = false;
         if(!$this->sx_ordernumber) {
@@ -155,31 +157,38 @@ class ScheduleForm extends Form
             ]);
             return;
         }
-
-        $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
-
-            if (!empty($this->orderInfo?->shipping_info['line2'])) {
-                $this->service_address .= $this->orderInfo?->customer->address2.', ';
-            }
-
-            $this->service_address .= $this->orderInfo?->shipping_info['city'] . ", " .
-                $this->orderInfo?->shipping_info['state'] . " " .
-                $this->orderInfo?->shipping_info['zip'];
-            $this->service_address = trim($this->service_address);
-
-        // if(empty($this->orderInfo->line_items['line_items'])) {
-        //     $this->addError('sx_ordernumber', 'Line items not found in this order');
-        //     return;
-        // }
+        $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
 
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
         }
 
-        $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
+
+        $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
+
+        if (!empty($this->orderInfo?->shipping_info['line2'])) {
+            $this->service_address .= $this->orderInfo?->customer->address2.', ';
+        }
+
+        $this->service_address .= $this->orderInfo?->shipping_info['city'] . ", " .
+            $this->orderInfo?->shipping_info['state'] . " " .$this->orderInfo?->shipping_info['zip'];
+
+        $this->service_address = trim($this->service_address);
+        $this->serviceZip = $this->orderInfo?->shipping_info['zip'];
+
+        $this->validateAddress($this->service_address, $this->serviceZip);
+    }
+
+    public function checkZipcode()
+    {
+        if(empty($this->orderInfo->line_items['line_items'])) {
+            $this->addError('sx_ordernumber', 'Line items not found in this order');
+            return;
+        }
+
         $this->getDistance();
-        $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->orderInfo?->shipping_info['zip'])->first();
+        $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->serviceZip)->first();
         $this->reset('alertConfig');
         $this->alertConfig['status'] = true;
         if(!$this->zipcodeInfo) {
@@ -190,11 +199,11 @@ class ScheduleForm extends Form
             $this->alertConfig['urlText'] = 'Configure ZIP';
             $this->alertConfig['url'] = 'service-area.index';
             $this->alertConfig['params'] = 'tab=zip_code';
+            $this->reset(['schedule_date', 'schedule_time', 'scheduleType', 'ServiceStatus']);
             return;
         }
         $this->checkServiceValidity();
         $this->getEnabledDates();
-
     }
 
     public function checkServiceAVailability($value)
@@ -252,7 +261,7 @@ class ScheduleForm extends Form
         }
 
         EventScheduled::dispatch($schedule);
-        
+
         return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
 
@@ -326,10 +335,8 @@ class ScheduleForm extends Form
     {
         $google = app(DistanceInterface::class);
         $warehouse = Warehouse::where('short' , $this->orderInfo->whse)->first();
-        $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
-        .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
 
-        $distance = $google->findDistance($warehouse->address, $shipto);
+        $distance = $google->findDistance($warehouse->address, $this->service_address);
 
         if ($distance['status'] === 'OK') {
             $elements = $distance['rows'][0]['elements'][0] ?? null;
@@ -341,13 +348,11 @@ class ScheduleForm extends Form
     public function getRecomAddress()
     {
         $google = app(DistanceInterface::class);
-
-        // $shipto = $this->orderInfo->shipping_info['line'].', ' .$this->orderInfo->shipping_info['line2'].', '
-        // .$this->orderInfo->shipping_info['city'].', '.$this->orderInfo->shipping_info['state'].', '.$this->orderInfo->shipping_info['zip'];
+        $this->serviceZip = $this->extractZipCode($this->service_address);
         $address=[
             'regionCode' => 'US',
             'addressLines' => $this->service_address,
-            'zip' => $this->orderInfo->shipping_info['zip']
+            'zip' => $this->serviceZip
         ];
 
         $recom =  $google->addressValidation($address);
@@ -386,13 +391,10 @@ class ScheduleForm extends Form
         ->whereNull('zones.deleted_at')
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
         ->whereNull('trucks.deleted_at')
-        ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
-        ->whereNull('orders.deleted_at')
-        ->where('orders.order_number', '=', $this->sx_ordernumber)
+        ->where('scheduler_zipcodes.zip_code', $this->serviceZip)
         ->where('truck_schedules.schedule_date', '=', $this->schedule_date)
         ->select(
             'truck_schedules.*',
-            'orders.id as order_id',
             'zones.name as zone_name',
             'trucks.id as truck_id',
             'trucks.truck_name',
@@ -415,14 +417,11 @@ class ScheduleForm extends Form
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
         ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
         ->whereNull('scheduler_zipcodes.deleted_at')
-        ->join('orders', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(orders.shipping_info, '$.zip'))"), '=', 'scheduler_zipcodes.zip_code')
-        ->whereNull('orders.deleted_at')
-        ->where('orders.order_number', '=', $this->sx_ordernumber)
         ->select(
             'truck_schedules.*',
-            'orders.id as order_id',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "Cancelled") as schedule_count')
         )
+        ->where('scheduler_zipcodes.zip_code', $this->serviceZip)
         ->get();
         $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
     }
@@ -502,4 +501,68 @@ class ScheduleForm extends Form
 
     }
 
+    public function updatedAddress()
+    {
+        $this->serviceZip = $this->extractZipCode($this->service_address);
+        $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->serviceZip)->first();
+        $this->reset('alertConfig');
+        $this->alertConfig['status'] = true;
+        if(!$this->zipcodeInfo) {
+            $this->alertConfig['message'] = 'ZIP Code not configured';
+            $this->alertConfig['icon'] = 'fa-times-circle';
+            $this->alertConfig['class'] = 'danger';
+            $this->alertConfig['show_url'] = true;
+            $this->alertConfig['urlText'] = 'Configure ZIP';
+            $this->alertConfig['url'] = 'service-area.index';
+            $this->alertConfig['params'] = 'tab=zip_code';
+            $this->reset(['schedule_date', 'schedule_time', 'scheduleType', 'ServiceStatus']);
+            return;
+        }
+        $this->getDistance();
+        $this->checkServiceValidity();
+        $this->getEnabledDates();
+    }
+
+    public function extractZipCode($address)
+    {
+        // Match ZIP codes (5-digit or ZIP+4 format)
+        preg_match('/\b[A-Z]{2}\s+(\d{5}(-\d{4})?)\b/', $address, $matches);
+        return $matches[1] ?? null;
+    }
+
+    public function validateAddress($address, $zip)
+    {
+        $google = app(DistanceInterface::class);
+        $address=[
+            'regionCode' => 'US',
+            'addressLines' => $address,
+            'zip' => $zip
+        ];
+
+        $recom =  $google->addressValidation($address);
+        if($recom->status() != 200) {
+              return [
+                'status' => false,
+                'message' => 'Failed to Validate Address'
+              ];
+        }
+
+        if(isset($recom['result']['address']['unconfirmedComponentTypes'])) {
+            $this->unconfirmedAddressTypes = $recom['result']['address']['unconfirmedComponentTypes'];
+            $this->showAddressModal = true;
+            $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
+            return [
+                'status' => false,
+                'message' => 'Service Address is not complete'
+              ];
+        }
+        $this->reset([
+            'unconfirmedAddressTypes'
+        ]);
+        $this->showAddressModal = false;
+        $this->showAddressBox = false;
+        $this->service_address = $this->recommendedAddress;
+        $this->serviceZip = $this->extractZipCode($this->service_address);
+        $this->checkZipcode();
+    }
 }
