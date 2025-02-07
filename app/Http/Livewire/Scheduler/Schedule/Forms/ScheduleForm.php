@@ -184,11 +184,6 @@ class ScheduleForm extends Form
 
     public function checkZipcode()
     {
-        if(empty($this->orderInfo->line_items['line_items'])) {
-            $this->addError('sx_ordernumber', 'Line items not found in this order');
-            return;
-        }
-
         $this->getDistance();
         $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->serviceZip)->first();
         $this->reset('alertConfig');
@@ -532,8 +527,8 @@ class ScheduleForm extends Form
 
     public function extractZipCode($address)
     {
-        // Match ZIP codes (5-digit or ZIP+4 format)
-        preg_match('/\b[A-Z]{2}\s+(\d{5}(-\d{4})?)\b/', $address, $matches);
+        preg_match('/\b[A-Z]{2}\s+(\d{5})\b/', $address, $matches);
+
         return $matches[1] ?? null;
     }
 
@@ -553,23 +548,31 @@ class ScheduleForm extends Form
                 'message' => 'Failed to Validate Address'
               ];
         }
+        if (isset($recom['result']['address']['unconfirmedComponentTypes'])) {
+            // Filter out "country" from the array
+            $tempArray = array_filter($recom['result']['address']['unconfirmedComponentTypes'], function ($value) {
+                return $value !== 'country';
+            });
 
-        if(isset($recom['result']['address']['unconfirmedComponentTypes'])) {
-            $this->unconfirmedAddressTypes = $recom['result']['address']['unconfirmedComponentTypes'];
-            $this->showAddressModal = true;
-            $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
-            return [
-                'status' => false,
-                'message' => 'Service Address is not complete'
-              ];
+            $tempArray = array_values($tempArray);
+            if (!empty($tempArray)) {
+                $this->unconfirmedAddressTypes = $tempArray;
+                $this->showAddressModal = true;
+                $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
+
+                return [
+                    'status' => false,
+                    'message' => 'Service Address is not complete'
+                ];
+            }
         }
+
         $this->reset([
             'unconfirmedAddressTypes'
         ]);
         $this->showAddressModal = false;
         $this->showAddressBox = false;
-        $this->service_address = $this->recommendedAddress;
-        $this->serviceZip = $this->extractZipCode($this->service_address);
+        $this->service_address = $address;
         $this->checkZipcode();
     }
 }
