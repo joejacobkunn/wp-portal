@@ -78,7 +78,7 @@
 
     @assets
         <script
-        src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_places.api_key') }}&libraries=places&v=weekly"
+        src="https://maps.googleapis.com/maps/api/js?key={{ config('google.api_key') }}&libraries=places&v=weekly"
         defer
         ></script>
     @endassets
