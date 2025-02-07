@@ -10,6 +10,7 @@
         'class' => 'form-control ' . ($errors->has($model) ? 'is-invalid' : '') . ' ' .($class ?? ''), 
         'placeholder' => ($placeholder ?? ''), 
         'rows' => ($rows ?? 2),
+        "id" => $id,
         'wire:model.' . (!empty($lazy) ? 'lazy': 'debounce.500ms') => $model ?? '',
         ]) !!}
 

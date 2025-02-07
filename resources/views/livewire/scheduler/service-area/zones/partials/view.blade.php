@@ -42,6 +42,27 @@
             </div>
         </div>
 
+        <div class="card border-light shadow-sm mb-4">
+            <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                <h3 class="h5 mb-0"><i class="fas fa-map-marker-alt me-1"></i> Zip Codes</h3>
+            </div>
+
+            <div class="card-body">
+                @php
+                    $zipcodes = $zone->zipcodes->sortBy('zip_code');
+                @endphp
+
+                @if($zipcodes->count())
+                <div class="row">
+                    @foreach($zipcodes as $zipcode)
+                        <div class="col-sm-4"><strong>{{ $zipcode->zip_code }}</strong></div>
+                    @endforeach
+                </div>
+                @else
+                    <p>No zip codes configured in this zone</p>
+                @endif
+            </div>
+        </div>
 
     </div>
     <div class="col-12 col-md-4 col-xxl-4">

@@ -380,7 +380,6 @@
                 </div>
             </x-modal>
         @endif
-        @if ($serviceAddressModal)
             <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
                 <x-slot name="title">Update Address </x-slot>
                 <div class="col-md-12 mb-2">
@@ -399,8 +398,39 @@
                     </button>
                 </div>
             </x-modal>
-        @endif
 
     </div>
     {{-- end of sidebar --}}
 </div>
+
+@script
+    <script>
+        (function () {
+            let autocomplete;
+            let addressField;
+
+            function initAutocomplete() {
+                addressField = document.getElementById("form.service_address_textarea-field");
+                
+                autocomplete = new google.maps.places.Autocomplete(addressField, {
+                    componentRestrictions: { country: ["us", "ca"] },
+                    fields: ["address_components", "geometry"],
+                    types: ["address"],
+                });
+                
+                autocomplete.addListener("place_changed", fillInAddress);
+            }
+
+            if (typeof(google) != 'undefined') {
+                initAutocomplete();
+            } else {
+                loadScript('https://maps.googleapis.com/maps/api/js?key={{ config('google.api_key') }}&libraries=places&v=weekly', initAutocomplete)
+            }
+
+            function fillInAddress() {
+                let place = autocomplete.getPlace();
+                $wire.set('form.service_address', document.getElementById("form.service_address_textarea-field").value);
+            }
+        })();
+    </script> 
+@endscript
