@@ -431,7 +431,7 @@
                 <x-slot name="title">Update Address </x-slot>
                 <div class="col-md-12 mb-2">
                     <div class="form-group">
-                        <x-forms.textarea label="Service Address"  model="form.service_address"
+                        <x-forms.textarea label="Service Address"  model="form.service_address_temp"
                             :key="'service-address'.$form->addressKey" />
                     </div>
                 </div>
@@ -457,7 +457,7 @@
             let addressField;
 
             function initAutocomplete() {
-                addressField = document.getElementById("form.service_address_textarea-field");
+                addressField = document.getElementById("form.service_address_temp_textarea-field");
                 
                 autocomplete = new google.maps.places.Autocomplete(addressField, {
                     componentRestrictions: { country: ["us", "ca"] },
@@ -476,7 +476,7 @@
 
             function fillInAddress() {
                 let place = autocomplete.getPlace();
-                $wire.set('form.service_address', document.getElementById("form.service_address_textarea-field").value);
+                $wire.set('form.service_address_temp', document.getElementById("form.service_address_temp_textarea-field").value);
             }
         })();
     </script> 

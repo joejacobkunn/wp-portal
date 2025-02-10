@@ -52,6 +52,7 @@ class ScheduleForm extends Form
     public $notes;
     public $addressKey = '1232234';
     public $service_address;
+    public $service_address_temp; //used for updating address
     public $cancel_reason;
     public $reschedule_reason;
     public $unconfirmedAddressTypes;
