@@ -58,7 +58,7 @@ class ScheduleForm extends Form
     public $unconfirmedAddressTypes;
     public $showAddressModal;
     public $showAddressBox;
-    public $via_weingartz;
+    public $not_purchased_via_weingartz;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -107,12 +107,12 @@ class ScheduleForm extends Form
                 'required',
                 new ValidateSlotsforSchedule()
             ],
-            'line_item' => $this->via_weingartz ? 'required' : 'nullable',
+            'line_item' => $this->not_purchased_via_weingartz ? 'nullable' : 'required',
             'notes' =>'nullable',
             'service_address' =>'required',
             'reschedule_reason' =>'nullable|string|max:225',
             'cancel_reason' => 'required|string|max:220',
-            'via_weingartz' => 'nullable'
+            'not_purchased_via_weingartz' => 'nullable'
         ];
 
     }
@@ -154,14 +154,13 @@ class ScheduleForm extends Form
                 'enabledDates' ,
                 'truckSchedules',
                 'scheduleType',
-                'line_items',
+                'line_item',
                 'orderInfo'
 
             ]);
             return;
         }
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
-
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
@@ -171,7 +170,7 @@ class ScheduleForm extends Form
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
         if (!empty($this->orderInfo?->shipping_info['line2'])) {
-            $this->service_address .= $this->orderInfo?->customer->address2.', ';
+            $this->service_address .= $this->orderInfo?->customer?->address2.', ';
         }
 
         $this->service_address .= $this->orderInfo?->shipping_info['city'] . ", " .
@@ -185,11 +184,6 @@ class ScheduleForm extends Form
 
     public function checkZipcode()
     {
-        if(empty($this->orderInfo->line_items['line_items'])) {
-            $this->addError('sx_ordernumber', 'Line items not found in this order');
-            return;
-        }
-
         $this->getDistance();
         $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->serviceZip)->first();
         $this->reset('alertConfig');
@@ -241,7 +235,7 @@ class ScheduleForm extends Form
             'scheduleType',
             'schedule_date',
             'schedule_time',
-            'via_weingartz',
+            'not_purchased_via_weingartz',
         ])->toArray());
         if(!$this->ServiceStatus) {
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
@@ -252,11 +246,12 @@ class ScheduleForm extends Form
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['schedule_type'] = $this->scheduleType;
-        if(!$this->via_weingartz) {
+        if($this->not_purchased_via_weingartz) {
             $validatedData['line_item'] = null;
         } else {
             $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
             $validatedData['line_item'] = [$this->line_item=>$itemDesc];
+            $validatedData['not_purchased_via_weingartz'] = 0;
         }
 
 
@@ -533,13 +528,14 @@ class ScheduleForm extends Form
 
     public function extractZipCode($address)
     {
-        // Match ZIP codes (5-digit or ZIP+4 format)
-        preg_match('/\b[A-Z]{2}\s+(\d{5}(-\d{4})?)\b/', $address, $matches);
+        preg_match('/\b[A-Z]{2}\s+(\d{5})\b/', $address, $matches);
+
         return $matches[1] ?? null;
     }
 
     public function validateAddress($address, $zip)
     {
+        $addressString = $address;
         $google = app(DistanceInterface::class);
         $address=[
             'regionCode' => 'US',
@@ -549,28 +545,43 @@ class ScheduleForm extends Form
 
         $recom =  $google->addressValidation($address);
         if($recom->status() != 200) {
+
               return [
                 'status' => false,
                 'message' => 'Failed to Validate Address'
               ];
         }
+        $zipParts = explode('-', $recom['result']['address']['postalAddress']['postalCode']);
+        $zipcode =  $zipParts[0] ?? null;
 
-        if(isset($recom['result']['address']['unconfirmedComponentTypes'])) {
-            $this->unconfirmedAddressTypes = $recom['result']['address']['unconfirmedComponentTypes'];
-            $this->showAddressModal = true;
-            $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
-            return [
-                'status' => false,
-                'message' => 'Service Address is not complete'
-              ];
+        if (isset($recom['result']['address']['unconfirmedComponentTypes'])) {
+            // Filter out "country" from the array
+            $tempArray = array_filter($recom['result']['address']['unconfirmedComponentTypes'], function ($value) {
+                return $value !== 'country';
+            });
+            $tempArray = array_values($tempArray);
         }
+
+            if($zipcode != $zip) {
+
+                $tempArray[] = 'postal-code';
+            }
+            if (!empty($tempArray)) {
+                $this->unconfirmedAddressTypes = $tempArray;
+                $this->showAddressModal = true;
+                $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
+
+                return [
+                    'status' => false,
+                    'message' => 'Service Address is not complete'
+                ];
+            }
         $this->reset([
             'unconfirmedAddressTypes'
         ]);
         $this->showAddressModal = false;
         $this->showAddressBox = false;
-        $this->service_address = $this->recommendedAddress;
-        $this->serviceZip = $this->extractZipCode($this->service_address);
+        $this->service_address = $addressString;
         $this->checkZipcode();
     }
 }
