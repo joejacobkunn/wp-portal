@@ -32,14 +32,12 @@ class ScheduleForm extends Form
     public $suffix;
     public $schedule_date;
     public $schedule_time;
-    public $allItems = [];
     public $status;
     public $orderInfo;
     protected $SXOrderInfo;
     public $zipcodeInfo;
     public $created_by;
     public $shipping;
-    public $saveRecommented = false;
     public $orderTotal;
     public $disabledDates;
     public $truckSchedules = [];
@@ -58,6 +56,7 @@ class ScheduleForm extends Form
     public $showAddressModal;
     public $showAddressBox;
     public $not_purchased_via_weingartz = true;
+    public $addressVerified = false;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -325,13 +324,9 @@ class ScheduleForm extends Form
         return ['holidays' => $holidays];
     }
 
-    public function setAddress($status = null)
+    public function setAddress()
     {
         $this->addressKey = uniqid();
-        if(!$status) {
-            $this->service_address = $this->recommendedAddress['formattedAddress'];
-            return;
-        }
     }
 
     public function getDistance()
@@ -520,6 +515,8 @@ class ScheduleForm extends Form
 
     public function validateAddress($address, $zip)
     {
+        $this->addressVerified = false;
+
         $addressString = $address;
         $google = app(DistanceInterface::class);
         $address=[
@@ -547,26 +544,29 @@ class ScheduleForm extends Form
             $tempArray = array_values($tempArray);
         }
 
-            if($zipcode != $zip) {
+        if($zipcode != $zip) {
 
-                $tempArray[] = 'postal-code';
-            }
-            if (!empty($tempArray)) {
-                $this->unconfirmedAddressTypes = $tempArray;
-                $this->showAddressModal = true;
-                $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
+            $tempArray[] = 'postal-code';
+        }
 
-                return [
-                    'status' => false,
-                    'message' => 'Service Address is not complete'
-                ];
-            }
+        if (!empty($tempArray)) {
+            $this->unconfirmedAddressTypes = $tempArray;
+            $this->showAddressModal = true;
+            $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
+
+            return [
+                'status' => false,
+                'message' => 'Service Address is not complete'
+            ];
+        }
+
         $this->reset([
             'unconfirmedAddressTypes'
         ]);
         $this->showAddressModal = false;
         $this->showAddressBox = false;
         $this->service_address = $addressString;
+        $this->addressVerified =true;
         $this->checkZipcode();
     }
 }

@@ -90,6 +90,11 @@
                                         {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
                                 </div>
                             </div>
+                            @if ($form->addressVerified)
+                                <p class="text-success"><i class="fas fa-check-circle"></i>
+                                    This address is verified by google
+                                </p>
+                            @endif
                             @if ($form->zipcodeInfo)
                                 @if (isset($form->shipping))
                                     <div class="col-md-12 mb-1">
@@ -102,6 +107,7 @@
                                     </div>
                                 @endif
                             @endif
+
                             <div class="col-md-12 mb-4">
                                 <x-forms.checkbox model="form.not_purchased_via_weingartz"
                                     label="Equipment not purchased via Weingartz" />
@@ -350,36 +356,6 @@
                     </li>
                 @endforeach
             </ul>
-        @endif
-
-        {{-- address modal --}}
-        @if ($addressModal)
-            <x-modal toggle="addressModal" size="md" :closeEvent="'closeAddress'">
-                <x-slot name="title">Recommended Address </x-slot>
-                <div class="mb-4">
-                    <h6 class="text-primary">Current Address</h6>
-                    <p>
-                        {{ $form->service_address }}
-                    </p>
-                </div>
-                <hr>
-                <div>
-                    <h6 class="text-success">Recommended Address</h6>
-                    <p>
-                    <address class="ms-1">
-                        {{ $form->recommendedAddress['formattedAddress'] }}
-                    </address>
-                    </p>
-                </div>
-                <div class="mt-2 float-start">
-                    <button type="submit" class="btn btn-primary" wire:click="setAddress">
-                        <div wire:loading wire:target="setAddress">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-                        Use Recommended Address
-                    </button>
-                </div>
-            </x-modal>
         @endif
 
         {{-- address validation modal --}}

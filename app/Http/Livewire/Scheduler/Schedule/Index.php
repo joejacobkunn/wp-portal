@@ -71,7 +71,6 @@ class Index extends Component
         'edit' => 'edit',
         'deleteRecord' => 'delete',
         'typeCheck' => 'typeCheck',
-        'closeAddress' => 'closeAddress',
         'setScheduleTimes' => 'setScheduleTimes',
         'closeTimeSlot' => 'closeTimeSlot',
         'closeSearchModal' => 'closeSearchModal',
@@ -331,26 +330,11 @@ class Index extends Component
         $this->dispatch('modalContentLoaded');
     }
 
-    public function showAdrress()
-    {
-        $this->form->getRecomAddress();
-        $this->addressModal = true;
-    }
 
-    public function closeAddress()
-    {
-        $this->addressModal = false;
-    }
-
-    public function setAddress()
-    {
-        $this->form->setAddress();
-        $this->closeAddress();
-    }
 
     public function updateAddress()
     {
-        $this->form->setAddress(true);
+        $this->form->setAddress();
         $this->closeServiceAddressModal();
 
     }
@@ -440,57 +424,73 @@ class Index extends Component
     public function getTruckData()
     {
         $type = $this->activeType;
-        $start = $this->eventStart;
-        $end = $this->eventEnd;
-        $spanText = '';
-        $query = TruckSchedule::with('driver')->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-                ->whereHas('truck', function($query) use ($start, $end, $type) {
-                    $query->where('whse', $this->activeWarehouse->id);
-                });
+        $truckScheduleQuery = TruckSchedule::query()
+            ->select([
+                'truck_schedules.id',
+                'truck_schedules.schedule_date',
+                'truck_schedules.start_time',
+                'truck_schedules.end_time',
+                'truck_schedules.slots',
+                'truck_schedules.driver_id',
+                'truck_schedules.zone_id',
+                'truck_schedules.truck_id',
+                'trucks.id as truck_table_id',
+                'trucks.service_type',
+                'trucks.truck_name',
+                'trucks.vin_number',
+                'trucks.whse',
+                'zones.name as zone_name',
+                'users.name as driver_name',
+                'users.title as driver_title'
+            ])
+            ->with('orderSchedule')
+            ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
+            ->join('zones', 'truck_schedules.zone_id', '=', 'zones.id')
+            ->join('users', 'truck_schedules.driver_id', '=', 'users.id')
+            ->whereNull('truck_schedules.deleted_at')
+            ->whereNull('trucks.deleted_at')
+            ->whereNull('zones.deleted_at')
+            ->whereNull('users.deleted_at')
+            ->whereBetween('truck_schedules.schedule_date', [$this->eventStart, $this->eventEnd])
+            ->where('trucks.whse', $this->activeWarehouse->id);
 
-        if(!empty($this->activeZone)) {
-            $query = $query->where('zone_id', $this->activeZone['id']);
-        }
-        if($type == 'at_home_maintenance') {
-            $query = $query->whereHas('truck', function($query) use ($start, $end, $type) {
-                $query->where('service_type', 'AHM');
-            });
+        if (!empty($this->activeZone)) {
+            $truckScheduleQuery->where('truck_schedules.zone_id', $this->activeZone['id']);
         }
 
-        if($type == 'delivery' || $type == 'pickup') {
-            $query = $query->whereHas('truck', function($query) use ($start, $end, $type) {
-                $query->where('service_type', 'Delivery / Pickup');
-            });
-        }
-        if($type == 'setup_install') {
-            $query = $query->whereHas('truck', function($query) use ($start, $end, $type) {
-                $query->where('service_type', 'setup_install');
-            });
+        if ($type == 'at_home_maintenance') {
+            $truckScheduleQuery->where('trucks.service_type', 'AHM');
+        } elseif ($type == 'delivery' || $type == 'pickup') {
+            $truckScheduleQuery->where('trucks.service_type', 'Delivery / Pickup');
+        } elseif ($type == 'setup_install') {
+            $truckScheduleQuery->where('trucks.service_type', 'setup_install');
         }
 
-        $this->truckInfo  = $query
-        ->orderBy('created_at', 'asc')
-        ->get()
-        ->map(function ($truck) {
-            return [
-                'id' => $truck->id,
-                'schedule_date' => $truck->schedule_date,
-                'service_type' => $truck->truck->service_type,
-                'truck_name' => $truck->truck->truck_name,
-                'truck_id' => $truck->truck->id,
-                'vin_number' => $truck->truck->vin_number,
-                'spanText' => $truck->zone?->name. ' - '.$truck->truck->truck_name,
-                'whse' => $truck->truck->whse,
-                'zone' => $truck->zone?->name,
-                'zone_id' => $truck->zone_id,
-                'start_time' => $truck->start_time,
-                'end_time' => $truck->end_time,
-                'slots' => $truck->slots,
-                'scheduled_count' => $truck->schedule_count,
-                'driver_id' => $truck->driver_id,
-                'driverName' => $truck->driver?->name.' ('.$truck->driver?->title. ')',
-            ];
-        })->toArray();
+        $this->truckInfo = $truckScheduleQuery
+            ->orderBy('truck_schedules.created_at', 'asc')
+            ->get()
+            ->map(function ($truck) {
+                return [
+                    'id' => $truck->id,
+                    'schedule_date' => $truck->schedule_date,
+                    'service_type' => $truck->service_type,
+                    'truck_name' => $truck->truck_name,
+                    'truck_id' => $truck->truck_id,
+                    'vin_number' => $truck->vin_number,
+                    'spanText' => $truck->zone_name . ' - ' . $truck->truck_name,
+                    'whse' => $truck->whse,
+                    'zone' => $truck->zone_name,
+                    'zone_id' => $truck->zone_id,
+                    'start_time' => $truck->start_time,
+                    'end_time' => $truck->end_time,
+                    'slots' => $truck->slots,
+                    'scheduled_count' => $truck->schedule_count,
+                    'driver_id' => $truck->driver_id,
+                    'driverName' => $truck->driver_name ? $truck->driver_name . ' (' . $truck->driver_title . ')' : null,
+                ];
+            })->toArray();
+
+        return $this->truckInfo;
     }
 
     public function showSearchModalForm()
@@ -547,10 +547,9 @@ class Index extends Component
 
     public function changeZone($zoneId)
     {
+        $this->activeZone = [];
         if($zoneId && $zoneId != '') {
             $this->activeZone = Zones::find($zoneId)->toArray();
-        } else {
-            $this->activeZone = [];
         }
 
         $this->getEvents();
