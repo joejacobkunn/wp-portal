@@ -32,67 +32,70 @@
 
                     </div>
 
-                        <div class="row w-100" wire:loading.remove wire:target="form.suffix">
-                            @if ($form->alertConfig['status'])
-                                <div class="col-md-12 mb-1">
-                                    <p class="text-{{ $form->alertConfig['class'] }}"><i
-                                            class="far {{ $form->alertConfig['icon'] }}"></i> {!! $form->alertConfig['message'] !!}
-                                        @if ($form->alertConfig['show_url'])
-                                            <a class="float-end" target="_blank"
-                                                href="{{ route($form->alertConfig['url']) }}?{{ $form->alertConfig['params'] }}"
-                                                target="_blank"> {{ $form->alertConfig['urlText'] }} <i
-                                                    class="fas fa-external-link-alt"></i></a>
-                                        @endif
+                    <div class="row w-100" wire:loading.remove wire:target="form.suffix">
+                        @if ($form->alertConfig['status'])
+                            <div class="col-md-12 mb-1">
+                                <p class="text-{{ $form->alertConfig['class'] }}"><i
+                                        class="far {{ $form->alertConfig['icon'] }}"></i> {!! $form->alertConfig['message'] !!}
+                                    @if ($form->alertConfig['show_url'])
+                                        <a class="float-end" target="_blank"
+                                            href="{{ route($form->alertConfig['url']) }}?{{ $form->alertConfig['params'] }}"
+                                            target="_blank"> {{ $form->alertConfig['urlText'] }} <i
+                                                class="fas fa-external-link-alt"></i></a>
+                                    @endif
+                                </p>
+                            </div>
+                        @endif
+                        @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
+                            <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
+                                <div class="alert alert-light-primary color-primary" role="alert">
+                                    <span class="badge bg-light-warning float-end"><a target="_blank" href=""><i
+                                                class="fas fa-external-link-alt"></i> CustNo
+                                            #{{ $form->orderInfo?->sx_customer_number }}</a></span>
+
+                                    <h4 class="alert-heading">Service Address <a href="javascript:void(0)"
+                                            wire:click="showAddressModal"><i
+                                                class="fas fa-edit schedule-edit-icon"></i></a></h4>
+                                    <p>
+                                    <address class="ms-1">
+                                        <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
+                                        {{ $form->service_address }}
+                                        <br>
+                                        <i class="fa-solid fa-phone"></i>
+                                        {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
+                                        <i class="fa-solid fa-envelope"></i>
+                                        {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
+
+                                    </address>
                                     </p>
-                                </div>
-                            @endif
-                            @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
-                                <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
-                                    <div class="alert alert-light-primary color-primary" role="alert">
-                                        <span class="badge bg-light-warning float-end"><a target="_blank"
-                                                href=""><i class="fas fa-external-link-alt"></i> CustNo
-                                                #{{ $form->orderInfo?->sx_customer_number }}</a></span>
-
-                                        <h4 class="alert-heading">Service Address  <a href="javascript:void(0)"  wire:click="showAddressModal"><i class="fas fa-edit schedule-edit-icon" ></i></a></h4>
-                                        <p>
-                                        <address class="ms-1">
-                                            <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
-                                                {{$form->service_address}}
-                                            <br>
-                                            <i class="fa-solid fa-phone"></i>
-                                            {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
-                                            <i class="fa-solid fa-envelope"></i>
-                                            {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
-
-                                        </address>
-                                        </p>
-                                        <div wire:loading wire:target="showAdrress">
-                                            <span class="spinner-border spinner-border-sm" role="status"
-                                                aria-hidden="true"></span>
-                                        </div>
-                                        <hr>
-                                        <p class="mb-0"><Strong>Ship To</Strong>
-                                        </p>
-                                        <p class="mb-0">
-                                            {{ $form->orderInfo->shipping_info['line'] .
-                                                ', ' .
-                                                $form->orderInfo->shipping_info['line2'] .
-                                                ', ' .
-                                                $form->orderInfo->shipping_info['city'] .
-                                                ', ' .
-                                                $form->orderInfo->shipping_info['state'] .
-                                                ', ' .
-                                                $form->orderInfo->shipping_info['zip'] }}
-                                        </p>
-                                        <p class="mb-0">Shipping Instructions :
-                                            {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
+                                    <div wire:loading wire:target="showAdrress">
+                                        <span class="spinner-border spinner-border-sm" role="status"
+                                            aria-hidden="true"></span>
                                     </div>
+                                    <hr>
+                                    <p class="mb-0"><Strong>Ship To</Strong>
+                                    </p>
+                                    <p class="mb-0">
+                                        {{ $form->orderInfo->shipping_info['line'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['line2'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['city'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['state'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['zip'] }}
+                                    </p>
+                                    <p class="mb-0">Shipping Instructions :
+                                        {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
                                 </div>
+                            </div>
                             @if ($form->zipcodeInfo)
-                                @if(isset($form->shipping))
+                                @if (isset($form->shipping))
                                     <div class="col-md-12 mb-1">
                                         <p class="text-success"><i class="fas fa-truck"></i>
-                                            Per google, the driving distance is {{ $form->shipping['distance'] }} and takes
+                                            Per google, the driving distance is {{ $form->shipping['distance'] }} and
+                                            takes
                                             roughly
                                             {{ $form->shipping['duration'] }}
                                         </p>
@@ -100,7 +103,8 @@
                                 @endif
                             @endif
                             <div class="col-md-12 mb-4">
-                                <x-forms.checkbox model="form.via_weingartz" label="Equipment not purchased via Weingartz" />
+                                <x-forms.checkbox model="form.via_weingartz"
+                                    label="Equipment not purchased via Weingartz" />
                             </div>
                             {{-- line items --}}
                             @if ($form->orderInfo?->line_items && !$form->via_weingartz)
@@ -123,7 +127,7 @@
                                 </div>
                             @endif
                             {{-- end of line items --}}
-                            @if($form->ServiceStatus)
+                            @if ($form->ServiceStatus)
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <x-forms.select label="Scheduling Priority" model="form.scheduleType"
@@ -146,12 +150,12 @@
                                     <div class="form-group">
                                         <label for="datepicker" class="form-label">Select Date</label>
                                         <div wire:ignore>
-                                            <input type="text" wire:key="scheduleDateKey" id="datepicker" class="form-control"
-                                                wire:model.defer="form.schedule_date" x-data="{
+                                            <input type="text" wire:key="scheduleDateKey" id="datepicker"
+                                                class="form-control" wire:model.defer="form.schedule_date"
+                                                x-data="{
                                                     enabledDates: @js($form->enabledDates ?? []),
                                                     flatpickrInstance: null
-                                                }"
-                                                x-init="flatpickrInstance = flatpickr($el, {
+                                                }" x-init="flatpickrInstance = flatpickr($el, {
                                                     inline: true,
                                                     dateFormat: 'Y-m-d',
                                                     defaultDate: '{{ $form->schedule_date }}',
@@ -216,11 +220,12 @@
                                                 <div
                                                     class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                     {{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                                    <span class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                                    <span
+                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">
                                                         {{ $schedule->schedule_count }} / {{ $schedule->slots }}
                                                     </span>
-                                                    <p class="me-2 fst-italic text-muted" style="font-size: smaller;"><i
-                                                            class="fas fa-globe"></i>
+                                                    <p class="me-2 fst-italic text-muted" style="font-size: smaller;">
+                                                        <i class="fas fa-globe"></i>
                                                         {{ $schedule->zone_name }} => <i
                                                             class="fas fa-truck"></i>{{ $schedule->truck_name }}
                                                     </p>
@@ -228,7 +233,8 @@
                                             </a>
                                         @empty
                                             <div class="p-3 bg-light rounded border">
-                                                <button type="button" class="list-group-item list-group-item-action">No
+                                                <button type="button"
+                                                    class="list-group-item list-group-item-action">No
                                                     Slots
                                                     Available</button>
                                             </div>
@@ -244,8 +250,8 @@
                                 @enderror
                             @endif
 
-                            @endif
-                        </div>
+                        @endif
+                    </div>
                     <div class="row w-100">
                         <div class="col-md-12">
                             <x-forms.textarea label="Notes" model="form.notes" lazy />
@@ -377,7 +383,7 @@
         {{-- address validation modal --}}
         @if ($form->showAddressModal)
             <x-modal toggle="form.showAddressModal" size="md" :closeEvent="'closeAddressValidation'">
-                <x-slot name="title"> We couldn't verify the address </x-slot>
+                <x-slot name="title"> Address Verification Failed </x-slot>
                 <div class="mb-4">
                     <h6 class="text-primary">Current Address</h6>
                     <ul class="list-group">
@@ -387,64 +393,75 @@
                     </ul>
 
                 </div>
+                <div class="mb-4">
+                    <h6 class="text-primary">Verified Address</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            {{ $form->recommendedAddress }}
+                        </li>
+                    </ul>
+
+                </div>
+
                 <div>
-                    <h6 class="text-success">Issues Found</h6>
+                    <h6 class="text-danger">Issues Found via Google</h6>
                     <div class="alert alert-light-warning color-warning">
                         @foreach ($form->unconfirmedAddressTypes as $type)
-                            <p> <i class="bi bi-exclamation-triangle"></i><strong> {{ Str::title(str_replace('_', ' ', $type)) }}
-                            </strong> is Missing/Incorrect</p>
+                            <p> <i class="bi bi-exclamation-triangle"></i><strong>
+                                    {{ Str::title(str_replace('_', ' ', $type)) }}
+                                </strong> is Missing/Incorrect</p>
                         @endforeach
                     </div>
                     @if ($form->showAddressBox)
                         <div class="form-group">
-                            <x-forms.textarea label="Service Address"  model="form.recommendedAddress"
-                                :hint="'currently showing is the suggestion from google. Make neccessary changes and verify'"
-                                :key="'fix-service-address'" />
+                            <x-forms.textarea label="Service Address" model="form.recommendedAddress"
+                                :hint="'Showing verified address from google.Make necessary changes and verify'" :key="'fix-service-address'" />
                         </div>
                     @endif
 
                 </div>
                 <x-slot name="footer">
-                    <button type="submit" class="btn btn-light-warning" wire:click="useCurrentAddress">
+                    <button type="submit" class="btn btn-light-secondary" wire:click="useCurrentAddress">
                         <div wire:loading wire:target="useCurrentAddress">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        Use current Address
+                        Use Current Address
                     </button>
-                    <button type="submit" class="btn btn-primary {{!$form->showAddressBox ? 'd-none' : '' }}" wire:click.prevent="useRecommended">
+                    <button type="submit" class="btn btn-primary {{ !$form->showAddressBox ? 'd-none' : '' }}"
+                        wire:click.prevent="useRecommended">
                         <div wire:loading wire:target="useRecommended">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        Verify Address
+                        Use Verified Address
                     </button>
-                    <button type="submit" class="btn btn-primary {{$form->showAddressBox ? 'd-none' : '' }}" wire:click="fixAddress">
+                    <button type="submit" class="btn btn-primary {{ $form->showAddressBox ? 'd-none' : '' }}"
+                        wire:click="fixAddress">
                         <div wire:loading wire:target="fixAddress">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        Make Changes
+                        Review Verified Address
                     </button>
                 </x-slot>
             </x-modal>
         @endif
-        
-            <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
-                <x-slot name="title">Update Address </x-slot>
-                <div class="col-md-12 mb-2">
-                    <div class="form-group">
-                        <x-forms.textarea label="Service Address"  model="form.service_address"
-                            :key="'service-address'.$form->addressKey" />
+
+        <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
+            <x-slot name="title">Update Address </x-slot>
+            <div class="col-md-12 mb-2">
+                <div class="form-group">
+                    <x-forms.textarea label="Service Address" model="form.service_address" :key="'service-address' . $form->addressKey" />
+                </div>
+            </div>
+            <hr>
+            <div class="mt-2 float-start">
+                <button type="submit" class="btn btn-primary" wire:click="updateAddress">
+                    <div wire:loading wire:target="updateAddress">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>
-                </div>
-                <hr>
-                <div class="mt-2 float-start">
-                    <button type="submit" class="btn btn-primary" wire:click="updateAddress">
-                        <div wire:loading wire:target="updateAddress">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-                        Update Address
-                    </button>
-                </div>
-            </x-modal>
+                    Update Address
+                </button>
+            </div>
+        </x-modal>
 
     </div>
     {{-- end of sidebar --}}
@@ -452,26 +469,30 @@
 
 @script
     <script>
-        (function () {
+        (function() {
             let autocomplete;
             let addressField;
 
             function initAutocomplete() {
                 addressField = document.getElementById("form.service_address_textarea-field");
-                
+
                 autocomplete = new google.maps.places.Autocomplete(addressField, {
-                    componentRestrictions: { country: ["us", "ca"] },
+                    componentRestrictions: {
+                        country: ["us", "ca"]
+                    },
                     fields: ["address_components", "geometry"],
                     types: ["address"],
                 });
-                
+
                 autocomplete.addListener("place_changed", fillInAddress);
             }
 
             if (typeof(google) != 'undefined') {
                 initAutocomplete();
             } else {
-                loadScript('https://maps.googleapis.com/maps/api/js?key={{ config('google.api_key') }}&libraries=places&v=weekly', initAutocomplete)
+                loadScript(
+                    'https://maps.googleapis.com/maps/api/js?key={{ config('google.api_key') }}&libraries=places&v=weekly',
+                    initAutocomplete)
             }
 
             function fillInAddress() {
@@ -479,5 +500,5 @@
                 $wire.set('form.service_address', document.getElementById("form.service_address_textarea-field").value);
             }
         })();
-    </script> 
+    </script>
 @endscript
