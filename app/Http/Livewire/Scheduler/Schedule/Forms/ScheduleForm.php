@@ -56,7 +56,7 @@ class ScheduleForm extends Form
     public $unconfirmedAddressTypes;
     public $showAddressModal;
     public $showAddressBox;
-    public $not_purchased_via_weingartz = true;
+    public $not_purchased_via_weingartz;
     public $addressVerified = false;
 
     public $recommendedAddress;
@@ -126,6 +126,7 @@ class ScheduleForm extends Form
     public function getOrderInfo($suffix, $aciveWarehouse)
     {
         $this->resetValidation(['sx_ordernumber', 'suffix']);
+        $this->reset('not_purchased_via_weingartz');
         $this->alertConfig['status'] = false;
         if(!$this->sx_ordernumber) {
             $this->addError('sx_ordernumber', 'Order Number is required');
@@ -164,7 +165,9 @@ class ScheduleForm extends Form
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
         }
-
+        if(empty($this->orderInfo->line_items['line_items'])) {
+            $this->not_purchased_via_weingartz = true;
+        }
 
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
