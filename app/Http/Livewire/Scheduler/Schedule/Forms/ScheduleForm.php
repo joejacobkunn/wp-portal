@@ -32,14 +32,12 @@ class ScheduleForm extends Form
     public $suffix;
     public $schedule_date;
     public $schedule_time;
-    public $allItems = [];
     public $status;
     public $orderInfo;
     protected $SXOrderInfo;
     public $zipcodeInfo;
     public $created_by;
     public $shipping;
-    public $saveRecommented = false;
     public $orderTotal;
     public $disabledDates;
     public $truckSchedules = [];
@@ -52,12 +50,14 @@ class ScheduleForm extends Form
     public $notes;
     public $addressKey = '1232234';
     public $service_address;
+    public $service_address_temp; //used for updating address
     public $cancel_reason;
     public $reschedule_reason;
     public $unconfirmedAddressTypes;
     public $showAddressModal;
     public $showAddressBox;
-    public $via_weingartz;
+    public $not_purchased_via_weingartz = true;
+    public $addressVerified = false;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -106,12 +106,12 @@ class ScheduleForm extends Form
                 'required',
                 new ValidateSlotsforSchedule()
             ],
-            'line_item' => $this->via_weingartz ? 'required' : 'nullable',
+            'line_item' => $this->not_purchased_via_weingartz ? 'nullable' : 'required',
             'notes' =>'nullable',
             'service_address' =>'required',
             'reschedule_reason' =>'nullable|string|max:225',
             'cancel_reason' => 'required|string|max:220',
-            'via_weingartz' => 'nullable'
+            'not_purchased_via_weingartz' => 'nullable'
         ];
 
     }
@@ -153,14 +153,13 @@ class ScheduleForm extends Form
                 'enabledDates' ,
                 'truckSchedules',
                 'scheduleType',
-                'line_items',
+                'line_item',
                 'orderInfo'
 
             ]);
             return;
         }
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
-
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
@@ -170,7 +169,7 @@ class ScheduleForm extends Form
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
         if (!empty($this->orderInfo?->shipping_info['line2'])) {
-            $this->service_address .= $this->orderInfo?->customer->address2.', ';
+            $this->service_address .= $this->orderInfo?->customer?->address2.', ';
         }
 
         $this->service_address .= $this->orderInfo?->shipping_info['city'] . ", " .
@@ -235,7 +234,7 @@ class ScheduleForm extends Form
             'scheduleType',
             'schedule_date',
             'schedule_time',
-            'via_weingartz',
+            'not_purchased_via_weingartz',
         ])->toArray());
         if(!$this->ServiceStatus) {
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
@@ -246,11 +245,12 @@ class ScheduleForm extends Form
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['schedule_type'] = $this->scheduleType;
-        if(!$this->via_weingartz) {
+        if($this->not_purchased_via_weingartz) {
             $validatedData['line_item'] = null;
         } else {
             $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
             $validatedData['line_item'] = [$this->line_item=>$itemDesc];
+            $validatedData['not_purchased_via_weingartz'] = 0;
         }
 
 
@@ -276,7 +276,8 @@ class ScheduleForm extends Form
         $this->schedule_date = Carbon::parse($schedule->schedule_date)->format('Y-m-d');
         $this->suffix = $schedule->order_number_suffix;
         $this->scheduleType = $schedule->schedule_type;
-        $this->recommendedAddress =  $this->schedule->recommended_address;
+        $this->serviceZip = $this->extractZipCode($this->service_address);
+
         $this->getTruckSchedules();
     }
 
@@ -324,15 +325,6 @@ class ScheduleForm extends Form
         return ['holidays' => $holidays];
     }
 
-    public function setAddress($status = null)
-    {
-        $this->addressKey = uniqid();
-        if(!$status) {
-            $this->service_address = $this->recommendedAddress['formattedAddress'];
-            return;
-        }
-    }
-
     public function getDistance()
     {
         $google = app(DistanceInterface::class);
@@ -347,21 +339,6 @@ class ScheduleForm extends Form
         }
     }
 
-    public function getRecomAddress()
-    {
-        $google = app(DistanceInterface::class);
-        $this->serviceZip = $this->extractZipCode($this->service_address);
-        $address=[
-            'regionCode' => 'US',
-            'addressLines' => $this->service_address,
-            'zip' => $this->serviceZip
-        ];
-
-        $recom =  $google->addressValidation($address);
-        if($recom->status() == 200) {
-              $this->recommendedAddress = $recom['result']['address'];
-        }
-    }
 
     public function checkServiceValidity()
     {
@@ -505,6 +482,7 @@ class ScheduleForm extends Form
 
     public function updatedAddress()
     {
+        $this->addressKey = uniqid();
         $this->serviceZip = $this->extractZipCode($this->service_address);
         $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->serviceZip)->first();
         $this->reset('alertConfig');
@@ -534,6 +512,8 @@ class ScheduleForm extends Form
 
     public function validateAddress($address, $zip)
     {
+        $this->addressVerified = false;
+
         $addressString = $address;
         $google = app(DistanceInterface::class);
         $address=[
@@ -561,26 +541,29 @@ class ScheduleForm extends Form
             $tempArray = array_values($tempArray);
         }
 
-            if($zipcode != $zip) {
+        if($zipcode != $zip) {
 
-                $tempArray[] = 'postal-code';
-            }
-            if (!empty($tempArray)) {
-                $this->unconfirmedAddressTypes = $tempArray;
-                $this->showAddressModal = true;
-                $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
+            $tempArray[] = 'postal-code';
+        }
 
-                return [
-                    'status' => false,
-                    'message' => 'Service Address is not complete'
-                ];
-            }
+        if (!empty($tempArray)) {
+            $this->unconfirmedAddressTypes = $tempArray;
+            $this->showAddressModal = true;
+            $this->recommendedAddress = $recom['result']['address']['formattedAddress'];
+
+            return [
+                'status' => false,
+                'message' => 'Service Address is not complete'
+            ];
+        }
+
         $this->reset([
             'unconfirmedAddressTypes'
         ]);
         $this->showAddressModal = false;
         $this->showAddressBox = false;
         $this->service_address = $addressString;
+        $this->addressVerified =true;
         $this->checkZipcode();
     }
 }

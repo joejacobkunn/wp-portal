@@ -38,7 +38,7 @@ class Schedule extends Model
         'confirmed_at',
         'expected_arrival_time',
         'travel_prio_number',
-        'via_weingartz'
+        'not_purchased_via_weingartz'
     ];
 
     protected $casts = [
@@ -98,6 +98,9 @@ class Schedule extends Model
         ],
         'confirmed_at' => [
             'field_label' => 'Confirmed At',
+        ],
+        'not_purchased_via_weingartz' => [
+            'field_label' => 'Not purchased via Weingartz',
         ],
     ];
 

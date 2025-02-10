@@ -504,7 +504,7 @@
         <div class="card border rounded shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">
                 <span class="badge bg-light-info float-end">CustNo
-                    #{{ $form->schedule->order->customer->sx_customer_number }}</span>
+                    #{{ $form->schedule->order->customer?->sx_customer_number }}</span>
                 <h3 class="h5 mb-0">Customer Info</h3>
             </div>
 
@@ -514,7 +514,7 @@
                         <div>
                             <h3 class="h6 mb-1">Name</h3>
                             <p class="small pe-4">
-                                {{ $form->schedule->order->customer->name }}</p>
+                                {{ $form->schedule->order->customer?->name }}</p>
                         </div>
                     </li>
                     @if (!empty($form->schedule->order->customer->phone))
@@ -540,7 +540,7 @@
                         <div>
                             <h3 class="h6 mb-1">Address</h3>
                             <p class="small pe-4">
-                                {{ $form->schedule->order->customer->getFullAddress() }}</p>
+                                {{ $form->schedule->order->customer?->getFullAddress() }}</p>
                         </div>
                     </li>
 

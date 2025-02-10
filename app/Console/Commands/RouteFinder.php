@@ -11,12 +11,13 @@ use Illuminate\Console\Command;
 class RouteFinder extends Command
 {
     public $scheduleId;
+    public $schedule_date;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:route-finder {--schedule=}';
+    protected $signature = 'app:route-finder {--schedule=} {--schedule_date=}';
 
     /**
      * The console command description.
@@ -31,6 +32,12 @@ class RouteFinder extends Command
     public function handle()
     {
         $this->scheduleId = $this->option('schedule');
+        $this->schedule_date = $this->option('schedule_date');
+
+        if(!$this->schedule_date) {
+            $this->schedule_date = Carbon::now()->format('Y-m-d');
+        }
+
         $this->info('Starting process...');
         try {
             $result = $this->processData();
@@ -51,8 +58,11 @@ class RouteFinder extends Command
         if($this->scheduleId) {
             $query = $query->where('id', $this->scheduleId);
         } else {
-            $query = $query->where('schedule_date', Carbon::now()->format('Y-m-d'));
+            $query = $query->where('schedule_date', $this->schedule_date);
         }
+
+        $query = $query->orderByRaw('STR_TO_DATE(start_time, "%h:%i %p") asc');
+
 
         // Group truck schedules by truck_id and schedule_date
         $groupedSchedules = $query->get()->groupBy(function($schedule) {
@@ -80,38 +90,64 @@ class RouteFinder extends Command
             $firstSchedule->schedule_date
         ));
 
-        // Collect all confirmed orders from all schedules
-        $allConfirmedOrders = collect();
+        $lastAddress = $firstSchedule->truck->warehouse->address;
+        $currentTime = null;
+
+        // Process each schedule separately
         foreach ($schedules as $schedule) {
+            // Get confirmed orders for current schedule only
             $confirmedOrders = $schedule->orderSchedule()
                 ->where('status', 'Confirmed')
                 ->get();
-            $allConfirmedOrders = $allConfirmedOrders->concat($confirmedOrders);
+
+            if ($confirmedOrders->isEmpty()) {
+                $this->warn(sprintf('No confirmed orders found for Schedule ID: %d', $schedule->id));
+                continue;
+            }
+
+            // Set starting time for first schedule or use previous schedule's end time
+            if (is_null($currentTime)) {
+                $currentTime = Carbon::parse($schedule->schedule_date . ' ' . '08:45 AM');
+            }
+
+            // Prepare input data starting from last known address
+            $dataInput = [$lastAddress];
+            $destinations = $confirmedOrders->pluck('service_address')->toArray();
+            $dataInput = array_merge($dataInput, $destinations);
+
+            // Remove duplicates if any
+            $dataInput = array_unique($dataInput);
+            $response = $this->getDistance($dataInput);
+            if(isset($response['error'])) {
+                $this->info(sprintf($response['message']));
+                continue;
+            }
+            // Update the schedule with optimized route
+            $lastExpectedTime = $this->updateSchedulePriorities(
+                collect([$schedule]),
+                $confirmedOrders,
+                $response,
+                $dataInput,
+                $currentTime
+            );
+
+            // Update the last address and time for next schedule
+            $optimalRoute = $response['optimal_route'];
+            $lastAddress = end($optimalRoute);
+            // Calculate final time after last stop
+            $lastOrderIndex = array_key_last($optimalRoute);
+            if ($lastOrderIndex > 0) {
+                $finalTravelTime = $this->calculateTravelTime(
+                    $lastOrderIndex - 1,
+                    $lastOrderIndex,
+                    $response['durations']
+                );
+
+            $currentTime = $lastExpectedTime->copy();
+
+            }
         }
-
-        if ($allConfirmedOrders->isEmpty()) {
-            $this->warn(sprintf('No confirmed schedules found for Truck ID: %d', $firstSchedule->truck_id));
-            return;
-        }
-
-        // Get warehouse address and all service addresses
-        $warehouse = $firstSchedule->truck->warehouse;
-        $dataInput = [$warehouse->address];
-        $destinations = $allConfirmedOrders->pluck('service_address')->toArray();
-        $dataInput = array_merge($dataInput, $destinations);
-
-        // Remove duplicates if any
-        $dataInput = array_unique($dataInput);
-
-        $response = $this->getDistance($dataInput);
-        if(isset($response['error'])) {
-            $this->info(sprintf($response['message']));
-            return 0;
-        }
-        $this->updateSchedulePriorities($schedules, $allConfirmedOrders, $response, $dataInput);
-
     }
-
 
     private function getDistance($dataInput)
     {
@@ -184,21 +220,18 @@ class RouteFinder extends Command
     }
 
 
-    private function updateSchedulePriorities($schedules, $allConfirmedOrders, $routeData, $addresses)
+    private function updateSchedulePriorities($schedules, $confirmedOrders, $routeData, $addresses, $startTime)
     {
         $optimalRoute = $routeData['optimal_route'];
         $durations = $routeData['durations'];
-        $firstSchedule = $schedules->first();
-        $expectedTime = Carbon::parse($firstSchedule->schedule_date . ' ' . '08:45 AM');
+        $expectedTime = clone $startTime;
 
-        $orderMap = $allConfirmedOrders->keyBy('service_address');
-
+        $orderMap = $confirmedOrders->keyBy('service_address');
         $priority = 1;
 
         foreach (array_slice($optimalRoute, 1) as $address) {
             if (isset($orderMap[$address])) {
                 $order = $orderMap[$address];
-
                 // Calculate expected arrival time
                 $travelTime = $this->calculateTravelTime(
                     array_search($address, $optimalRoute) - 1,
@@ -206,15 +239,19 @@ class RouteFinder extends Command
                     $durations
                 );
                 $expectedTime->addMinutes($travelTime);
-                $expectedTime->addMinutes(20); // delay time added
+
                 $order->update([
                     'travel_prio_number' => $priority,
-                    'expected_arrival_time' => $expectedTime->format('H:i:s')
+                    'expected_arrival_time' => $expectedTime->format('H:i A')
                 ]);
 
                 $this->info("Updated Schedule ID: {$order->id} with priority: {$priority} and expected time: {$expectedTime->format('H:i:s')}");
+
+                $expectedTime->addHour(); //add service time
                 $priority++;
+
             }
         }
+        return $expectedTime;
     }
 }
