@@ -166,7 +166,9 @@
                                         {{ $event['customer_name'] }} - CustNo
                                         #{{ $event['sx_customer_number'] }}
                                     </p>
-                                    <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                    @if (isset($event['shipping_info']))
+                                        <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                    @endif
                                     @if ($event['travel_prio_number'])
                                         <p class="font-small"><span class="badge bg-light-info"> expected delivery time : {{$event['expected_time']}}</span></p>
                                     @endif
