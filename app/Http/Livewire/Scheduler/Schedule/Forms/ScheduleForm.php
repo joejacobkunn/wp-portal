@@ -57,7 +57,7 @@ class ScheduleForm extends Form
     public $unconfirmedAddressTypes;
     public $showAddressModal;
     public $showAddressBox;
-    public $not_purchased_via_weingartz;
+    public $not_purchased_via_weingartz = true;
 
     public $recommendedAddress;
     public $alertConfig = [
