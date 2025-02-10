@@ -65,6 +65,7 @@ class Index extends Component
     public $exportModal = false;
     public $exportFromDate;
     public $exportToDate;
+    public $scheduledTruckInfo = [];
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -516,6 +517,11 @@ class Index extends Component
     {
         $schedule = TruckSchedule::find($scheduleId);
         $this->form->schedule_time = $schedule->id;
+        $this->scheduledTruckInfo = [
+            'truck_name' => $schedule->truck->truck_name,
+            'vin_number' => $schedule->truck->vin_number,
+            'driver_name' => $schedule->driver?->name,
+        ];
         $this->resetValidation(['form.schedule_time']);
     }
 

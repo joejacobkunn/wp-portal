@@ -357,6 +357,19 @@
                 @endforeach
             </ul>
         @endif
+        @if (!empty($scheduledTruckInfo))
+            <ul class="list-group mb-3">
+                <li class="list-group-item list-group-item-primary">
+                    Truck Info
+                </li>
+                <li class="list-group-item"><strong>Truck Name</strong> <span
+                    class="float-end">{{ $scheduledTruckInfo['truck_name'] }}</span></li>
+                <li class="list-group-item"><strong>Vin Number</strong> <span
+                    class="float-end">{{ $scheduledTruckInfo['vin_number'] }}</span></li>
+                <li class="list-group-item"><strong>Driver Name</strong> <span
+                    class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
+            </ul>
+        @endif
 
         {{-- address validation modal --}}
         @if ($form->showAddressModal)
