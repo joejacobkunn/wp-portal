@@ -347,21 +347,6 @@ class ScheduleForm extends Form
         }
     }
 
-    public function getRecomAddress()
-    {
-        $google = app(DistanceInterface::class);
-        $this->serviceZip = $this->extractZipCode($this->service_address);
-        $address=[
-            'regionCode' => 'US',
-            'addressLines' => $this->service_address,
-            'zip' => $this->serviceZip
-        ];
-
-        $recom =  $google->addressValidation($address);
-        if($recom->status() == 200) {
-              $this->recommendedAddress = $recom['result']['address'];
-        }
-    }
 
     public function checkServiceValidity()
     {
