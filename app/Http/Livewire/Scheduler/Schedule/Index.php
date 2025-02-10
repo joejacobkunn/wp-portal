@@ -392,6 +392,7 @@ class Index extends Component
                 'status_color' => $schedule->status_color_class,
                 'expected_time' => $schedule->expected_arrival_time,
                 'travel_prio_number' => $schedule->travel_prio_number,
+                'truck_schedule_id' => $schedule->truck_schedule_id,
             ];
         })
         ->toArray();
@@ -422,8 +423,18 @@ class Index extends Component
         $filteredData = array_filter($this->truckInfo, function ($item) use ( $date) {
             return $item['schedule_date'] === $date;
         });
+
         $filteredData = array_values($filteredData);
-        return $filteredData;
+        $events = $this->eventsData;
+        $schedules = collect($filteredData)->map(function ($schedule) use ($events) {
+            $schedule['events'] = collect($events)
+                ->where('truck_schedule_id', $schedule['id'])
+                ->values()
+                ->toArray();
+            return $schedule;
+        })->toArray();
+        return $schedules;
+
     }
 
     public function getTruckData()

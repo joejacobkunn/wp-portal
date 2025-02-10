@@ -76,7 +76,7 @@
                             <div class="list-group">
                                 <ul class="list-group">
                                     @foreach ($this->filteredSchedules as $truck)
-                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-start bg-light-primary">
                                             <div class="ms-2 me-auto">
                                                 <div class="fw-bold"><a
                                                         href="{{ route('service-area.zones.show', ['zone' => $truck['zone_id']]) }}">
@@ -106,6 +106,51 @@
                                                 /
                                                 {{ $truck['slots'] }}</span>
                                         </li>
+                                        @foreach ($truck['events'] as $event)
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                <a href="#" class="text-black"
+                                                    wire:click.prevent="handleEventClick({{ $event['id'] }})"
+                                                    wire:loading.attr="disabled" wire:target="handleEventClick({{ $event['id'] }})">
+                                                    <div class="d-flex w-100 justify-content-between">
+                                                        <h5><span class="badge bg-{{ $event['status_color'] }}">Order
+                                                                #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
+                                                            <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
+                                                                <span class="spinner-border spinner-border-sm" role="status"
+                                                                    aria-hidden="true"></span>
+                                                            </div>
+                                                        </h5>
+                                                        <small>
+                                                            <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
+                                                                @if ($event['type'] == 'at_home_maintenance')
+                                                                    AHM
+                                                                @elseif($event['type'] == 'pickup' || $event['type'] == 'delivery')
+                                                                    P / D
+                                                                @else
+                                                                    N/A
+                                                                @endif
+                                                            </span>
+                                                        </small>
+                                                    </div>
+                                                    <p>
+                                                        <span class="badge bg-light-primary"><i class="fas fa-globe"></i>
+                                                            {{ $event['zone'] }}</span>
+                                                        =>
+                                                        <span class="badge bg-light-secondary"><i
+                                                                class="fas fa-truck"></i>{{ $event['truckName'] }}</span>
+                                                    </p>
+                                                    <p class="mb-1">
+                                                        {{ $event['customer_name'] }} - CustNo
+                                                        #{{ $event['sx_customer_number'] }}
+                                                    </p>
+                                                    @if (isset($event['shipping_info']))
+                                                        <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                                    @endif
+                                                    @if ($event['travel_prio_number'])
+                                                        <p class="font-small"><span class="badge bg-light-info"> expected delivery time : {{$event['expected_time']}}</span></p>
+                                                    @endif
+                                                </a>
+                                            </li>
+                                        @endforeach
                                     @endforeach
                                 </ul>
                             </div>
@@ -117,73 +162,6 @@
                     </div>
 
                 </div>
-                {{-- truck and zone end  --}}
-                <div class="card border-light shadow-sm schedule-tab">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4">Events
-                            @if (!collect($eventsData)->contains('travel_prio_number', null))
-
-                                <span class="badge bg-light-info float-end"> Ordered by distance</span>
-                            @endif
-                            <div wire:loading wire:target="handleDateClick">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </div>
-                        </h5>
-
-                        <div class="list-group"  wire:key="{{$this->activeWarehouse->short.'-'.$this->dateSelected}}">
-                            @forelse ($eventsData as $event)
-                                <a href="#" class="list-group-item list-group-item-action"
-                                    wire:click.prevent="handleEventClick({{ $event['id'] }})"
-                                    wire:loading.attr="disabled" wire:target="handleEventClick({{ $event['id'] }})">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5><span class="badge bg-{{ $event['status_color'] }}">Order
-                                                #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
-                                            <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
-                                                <span class="spinner-border spinner-border-sm" role="status"
-                                                    aria-hidden="true"></span>
-                                            </div>
-                                        </h5>
-                                        <small>
-                                            <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
-                                                @if ($event['type'] == 'at_home_maintenance')
-                                                    AHM
-                                                @elseif($event['type'] == 'pickup' || $event['type'] == 'delivery')
-                                                    P / D
-                                                @else
-                                                    N/A
-                                                @endif
-                                            </span>
-                                        </small>
-                                    </div>
-                                    <p>
-                                        <span class="badge bg-light-primary"><i class="fas fa-globe"></i>
-                                            {{ $event['zone'] }}</span>
-                                        =>
-                                        <span class="badge bg-light-secondary"><i
-                                                class="fas fa-truck"></i>{{ $event['truckName'] }}</span>
-                                    </p>
-                                    <p class="mb-1">
-                                        {{ $event['customer_name'] }} - CustNo
-                                        #{{ $event['sx_customer_number'] }}
-                                    </p>
-                                    @if (isset($event['shipping_info']))
-                                        <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
-                                    @endif
-                                    @if ($event['travel_prio_number'])
-                                        <p class="font-small"><span class="badge bg-light-info"> expected delivery time : {{$event['expected_time']}}</span></p>
-                                    @endif
-                                </a>
-                            @empty
-                                <div class="alert alert-light-warning color-warning"><i
-                                        class="bi bi-exclamation-triangle"></i>
-                                    No events for today</div>
-                            @endforelse
-
-                        </div>
-
-                    </div>
-                </div>
-                {{-- events end --}}
             </div>
         </div>
         @if ($showModal || $isEdit)
