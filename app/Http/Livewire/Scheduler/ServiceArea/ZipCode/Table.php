@@ -88,7 +88,7 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $query = Zipcode::with('generalZipcode')->where('scheduler_zipcodes.whse_id', $this->whseId);
+        $query = Zipcode::with(['generalZipcode', 'zones'])->where('scheduler_zipcodes.whse_id', $this->whseId);
         return $query;
     }
 }
