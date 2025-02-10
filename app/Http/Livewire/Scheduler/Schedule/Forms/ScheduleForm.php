@@ -57,7 +57,7 @@ class ScheduleForm extends Form
     public $unconfirmedAddressTypes;
     public $showAddressModal;
     public $showAddressBox;
-    public $via_weingartz;
+    public $not_purchased_via_weingartz;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -106,12 +106,12 @@ class ScheduleForm extends Form
                 'required',
                 new ValidateSlotsforSchedule()
             ],
-            'line_item' => $this->via_weingartz ? 'required' : 'nullable',
+            'line_item' => $this->not_purchased_via_weingartz ? 'nullable' : 'required',
             'notes' =>'nullable',
             'service_address' =>'required',
             'reschedule_reason' =>'nullable|string|max:225',
             'cancel_reason' => 'required|string|max:220',
-            'via_weingartz' => 'nullable'
+            'not_purchased_via_weingartz' => 'nullable'
         ];
 
     }
@@ -153,14 +153,13 @@ class ScheduleForm extends Form
                 'enabledDates' ,
                 'truckSchedules',
                 'scheduleType',
-                'line_items',
+                'line_item',
                 'orderInfo'
 
             ]);
             return;
         }
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
-
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
@@ -170,7 +169,7 @@ class ScheduleForm extends Form
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
         if (!empty($this->orderInfo?->shipping_info['line2'])) {
-            $this->service_address .= $this->orderInfo?->customer->address2.', ';
+            $this->service_address .= $this->orderInfo?->customer?->address2.', ';
         }
 
         $this->service_address .= $this->orderInfo?->shipping_info['city'] . ", " .
@@ -235,7 +234,7 @@ class ScheduleForm extends Form
             'scheduleType',
             'schedule_date',
             'schedule_time',
-            'via_weingartz',
+            'not_purchased_via_weingartz',
         ])->toArray());
         if(!$this->ServiceStatus) {
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
@@ -246,11 +245,12 @@ class ScheduleForm extends Form
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['schedule_type'] = $this->scheduleType;
-        if(!$this->via_weingartz) {
+        if($this->not_purchased_via_weingartz) {
             $validatedData['line_item'] = null;
         } else {
             $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
             $validatedData['line_item'] = [$this->line_item=>$itemDesc];
+            $validatedData['not_purchased_via_weingartz'] = 0;
         }
 
 

@@ -62,9 +62,9 @@
                                         {{ $form->service_address }}
                                         <br>
                                         <i class="fa-solid fa-phone"></i>
-                                        {{ $form->orderInfo?->customer->phone ? $form->orderInfo?->customer->phone : 'n/a' }}
+                                        {{ $form->orderInfo?->customer?->phone ? $form->orderInfo?->customer?->phone : 'n/a' }}
                                         <i class="fa-solid fa-envelope"></i>
-                                        {{ $form->orderInfo?->customer->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
+                                        {{ $form->orderInfo?->customer?->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
 
                                     </address>
                                     </p>
@@ -103,17 +103,17 @@
                                 @endif
                             @endif
                             <div class="col-md-12 mb-4">
-                                <x-forms.checkbox model="form.via_weingartz"
+                                <x-forms.checkbox model="form.not_purchased_via_weingartz"
                                     label="Equipment not purchased via Weingartz" />
                             </div>
                             {{-- line items --}}
-                            @if ($form->orderInfo?->line_items && !$form->via_weingartz)
+                            @if (!empty($form->orderInfo?->line_items['line_items']) && !$form->not_purchased_via_weingartz)
                                 <div class="col-md-12 mb-2">
                                     <ul class="list-group">
                                         <li class="list-group-item list-group-item-primary">
                                             Line Items
                                         </li>
-                                        @foreach ($form->orderInfo->line_items['line_items'] as $item)
+                                        @foreach ($form->orderInfo->line_items['line_items'] ?? [] as $item)
                                             <li class="list-group-item">
                                                 <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
                                                     :model="'form.line_item'" />
@@ -121,11 +121,13 @@
                                             </li>
                                         @endforeach
                                     </ul>
-                                    @error('form.line_item')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
                                 </div>
                             @endif
+                            @error('form.line_item')
+                                <div class="col-md-12 mb-2">
+                                    <span class="text-danger">{{ $message }}</span>
+                                </div>
+                            @enderror
                             {{-- end of line items --}}
                             @if ($form->ServiceStatus)
                                 <div class="col-md-12">
