@@ -107,7 +107,7 @@ class RouteFinder extends Command
 
             // Set starting time for first schedule or use previous schedule's end time
             if (is_null($currentTime)) {
-                $currentTime = Carbon::parse($schedule->schedule_date . ' ' . $schedule->start_time);
+                $currentTime = Carbon::parse($schedule->schedule_date . ' ' . '08:45 AM');
             }
 
             // Prepare input data starting from last known address
@@ -117,15 +117,13 @@ class RouteFinder extends Command
 
             // Remove duplicates if any
             $dataInput = array_unique($dataInput);
-
             $response = $this->getDistance($dataInput);
             if(isset($response['error'])) {
                 $this->info(sprintf($response['message']));
                 continue;
             }
-
             // Update the schedule with optimized route
-            $this->updateSchedulePriorities(
+            $lastExpectedTime = $this->updateSchedulePriorities(
                 collect([$schedule]),
                 $confirmedOrders,
                 $response,
@@ -136,7 +134,6 @@ class RouteFinder extends Command
             // Update the last address and time for next schedule
             $optimalRoute = $response['optimal_route'];
             $lastAddress = end($optimalRoute);
-
             // Calculate final time after last stop
             $lastOrderIndex = array_key_last($optimalRoute);
             if ($lastOrderIndex > 0) {
@@ -145,8 +142,9 @@ class RouteFinder extends Command
                     $lastOrderIndex,
                     $response['durations']
                 );
-                $currentTime->addMinutes($finalTravelTime);
-                $currentTime->addHour(); // service time for last stop
+
+            $currentTime = $lastExpectedTime->copy();
+
             }
         }
     }
@@ -229,13 +227,11 @@ class RouteFinder extends Command
         $expectedTime = clone $startTime;
 
         $orderMap = $confirmedOrders->keyBy('service_address');
-
         $priority = 1;
 
         foreach (array_slice($optimalRoute, 1) as $address) {
             if (isset($orderMap[$address])) {
                 $order = $orderMap[$address];
-
                 // Calculate expected arrival time
                 $travelTime = $this->calculateTravelTime(
                     array_search($address, $optimalRoute) - 1,
@@ -253,7 +249,9 @@ class RouteFinder extends Command
 
                 $expectedTime->addHour(); //add service time
                 $priority++;
+
             }
         }
+        return $expectedTime;
     }
 }

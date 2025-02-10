@@ -276,7 +276,8 @@ class ScheduleForm extends Form
         $this->schedule_date = Carbon::parse($schedule->schedule_date)->format('Y-m-d');
         $this->suffix = $schedule->order_number_suffix;
         $this->scheduleType = $schedule->schedule_type;
-        $this->recommendedAddress =  $this->schedule->recommended_address;
+        $this->serviceZip = $this->extractZipCode($this->service_address);
+
         $this->getTruckSchedules();
     }
 
