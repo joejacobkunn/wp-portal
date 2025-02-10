@@ -241,6 +241,7 @@ class Index extends Component
                 'alertConfig',
                 'ServiceStatus'
             ]);
+            $this->reset('scheduledTruckInfo');
             $this->validateOnly('form.sx_ordernumber');
             $this->form->getOrderInfo($value, $this->activeWarehouse->short);
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
@@ -260,6 +261,7 @@ class Index extends Component
             'alertConfig',
             'ServiceStatus'
         ]);
+        $this->reset('scheduledTruckInfo');
     }
 
     public function updatedSroNumber($value)
@@ -282,6 +284,9 @@ class Index extends Component
     {
         $this->form->type = $value;
         $this->form->checkServiceValidity($value);
+        if(!$this->form->ServiceStatus) {
+            $this->reset('scheduledTruckInfo');
+        }
     }
 
     public function getEvents()
@@ -336,7 +341,7 @@ class Index extends Component
     public function updateAddress()
     {
         $this->form->service_address = $this->form->service_address_temp;
-        $this->form->setAddress();
+        $this->form->updatedAddress();
         $this->closeServiceAddressModal();
     }
 

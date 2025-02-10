@@ -325,11 +325,6 @@ class ScheduleForm extends Form
         return ['holidays' => $holidays];
     }
 
-    public function setAddress()
-    {
-        $this->addressKey = uniqid();
-    }
-
     public function getDistance()
     {
         $google = app(DistanceInterface::class);
@@ -487,6 +482,7 @@ class ScheduleForm extends Form
 
     public function updatedAddress()
     {
+        $this->addressKey = uniqid();
         $this->serviceZip = $this->extractZipCode($this->service_address);
         $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->serviceZip)->first();
         $this->reset('alertConfig');
