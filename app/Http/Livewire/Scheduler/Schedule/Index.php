@@ -336,7 +336,7 @@ class Index extends Component
     public function updateAddress()
     {
         $this->form->service_address = $this->form->service_address_temp;
-        $this->form->setAddress(true);
+        $this->form->setAddress();
         $this->closeServiceAddressModal();
     }
 
