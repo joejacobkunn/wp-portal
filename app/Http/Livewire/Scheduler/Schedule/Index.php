@@ -369,6 +369,7 @@ class Index extends Component
         ->map(function($schedule){
             return [
                 'id' => $schedule->id,
+                'schedule_id' => $schedule->scheduleId(),
                 'type' => $schedule->type,
                 'sx_ordernumber' => $schedule->sx_ordernumber,
                 'schedule_date' => $schedule->schedule_date,

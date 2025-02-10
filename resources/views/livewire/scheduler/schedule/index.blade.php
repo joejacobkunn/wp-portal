@@ -7,7 +7,8 @@
                     Calendar View</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('schedule.list.index') }}" wire:navigate><i class="fas fa-list"></i> List View</a>
+                <a class="nav-link" href="{{ route('schedule.list.index') }}" wire:navigate><i class="fas fa-list"></i>
+                    List View</a>
             </li>
         </ul>
         <div class="row">
@@ -67,77 +68,57 @@
                     @endif
                 @endif
 
-                {{-- truck and zone --}}
-                <div class="card border-light shadow-sm schedule-tab">
-                    <div class="card-body" wire:key="{{$this->activeWarehouse->short.'-'.$this->dateSelected.'trucks'}}">
-                        <h5 class="card-title">Active Trucks and Zones</h5>
+                <h5 class="card-title mb-2">Active Trucks and Zones</h5>
 
-                        @if (count($this->filteredSchedules) > 0)
-                            <div class="list-group">
-                                <ul class="list-group">
-                                    @foreach ($this->filteredSchedules as $truck)
-                                        <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-start bg-light-primary">
-                                            <div class="ms-2 me-auto">
-                                                <div class="fw-bold"><a
-                                                        href="{{ route('service-area.zones.show', ['zone' => $truck['zone_id']]) }}">
-                                                        <span class="badge bg-light-primary"><i
-                                                                class="fas fa-globe"></i>
-                                                            {{ $truck['zone'] }}</span></a>
-                                                    => <a
-                                                        href="{{ route('scheduler.truck.show', ['truck' => $truck['truck_id']]) }}">
-                                                        <span class="badge bg-light-secondary"><i
-                                                                class="fas fa-truck"></i>
-                                                            {{ $truck['truck_name'] }}</span>
-                                                    </a></div>
-                                                <span class="me-2 text-muted" style="font-size: smaller;"><i
-                                                        class="far fa-clock"></i>
-                                                    {{ $truck['start_time'] }}
-                                                    -
-                                                    {{ $truck['end_time'] }}
-                                                </span>
-                                                @if ($truck['driver_id'] && $truck['driverName'])
-                                                    <p class="me-2 text-muted" style="font-size: smaller;"><i
-                                                            class="fa-solid fa-user"></i>
-                                                        {{ $truck['driverName'] }}
-                                                    </p>
-                                                @endif
-                                            </div>
-                                            <span class="badge bg-primary rounded-pill">{{ $truck['scheduled_count'] }}
-                                                /
-                                                {{ $truck['slots'] }}</span>
-                                        </li>
+                @if (count($this->filteredSchedules) > 0)
+                    @foreach ($this->filteredSchedules as $truck)
+                        <div class="card border-light shadow-sm schedule-tab">
+                            <div class="card-body">
+                                <p class="fs-6 fw-bold" style="margin;margin-bottom: 3px;">
+                                    <span
+                                        class="badge bg-primary rounded-pill float-end">{{ $truck['scheduled_count'] }}
+                                        /
+                                        {{ $truck['slots'] }}</span>
+                                    <i class="fas fa-globe"></i> {{ $truck['zone'] }} =>
+                                    <i class="fas fa-truck"></i> {{ $truck['truck_name'] }}
+                                </p>
+
+                                <span class="text-muted" style="font-size: smaller;"><i class="far fa-clock"></i>
+                                    {{ $truck['start_time'] }}
+                                    -
+                                    {{ $truck['end_time'] }}
+                                </span> =>
+                                <span class="text-muted" style="font-size: smaller;">
+                                    <i class="fa-solid fa-user"></i>
+                                    {!! $truck['driverName'] ?? '<span class="text-warning">Not Assigned</span>' !!}
+                                </span>
+                                <div class="list-group mt-2">
+                                    <ul class="list-group">
+
                                         @foreach ($truck['events'] as $event)
-                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <li
+                                                class="list-group-item d-flex justify-content-between align-items-start">
                                                 <a href="#" class="text-black"
                                                     wire:click.prevent="handleEventClick({{ $event['id'] }})"
-                                                    wire:loading.attr="disabled" wire:target="handleEventClick({{ $event['id'] }})">
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="handleEventClick({{ $event['id'] }})">
+
                                                     <div class="d-flex w-100 justify-content-between">
-                                                        <h5><span class="badge bg-{{ $event['status_color'] }}">Order
+                                                        <h6>
+                                                            <span
+                                                                class="badge bg-{{ $event['status_color'] }}">ScheduleID
+                                                                #{{ $event['schedule_id'] }} - Order
                                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
-                                                            <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
-                                                                <span class="spinner-border spinner-border-sm" role="status"
-                                                                    aria-hidden="true"></span>
+                                                            <div wire:loading
+                                                                wire:target="handleEventClick({{ $event['id'] }})">
+                                                                <span class="spinner-border spinner-border-sm"
+                                                                    role="status" aria-hidden="true"></span>
                                                             </div>
-                                                        </h5>
+                                                        </h6>
                                                         <small>
-                                                            <span class="badge bg-light-primary badge-pill badge-round ms-1 float-end">
-                                                                @if ($event['type'] == 'at_home_maintenance')
-                                                                    AHM
-                                                                @elseif($event['type'] == 'pickup' || $event['type'] == 'delivery')
-                                                                    P / D
-                                                                @else
-                                                                    N/A
-                                                                @endif
-                                                            </span>
+
                                                         </small>
                                                     </div>
-                                                    <p>
-                                                        <span class="badge bg-light-primary"><i class="fas fa-globe"></i>
-                                                            {{ $event['zone'] }}</span>
-                                                        =>
-                                                        <span class="badge bg-light-secondary"><i
-                                                                class="fas fa-truck"></i>{{ $event['truckName'] }}</span>
-                                                    </p>
                                                     <p class="mb-1">
                                                         {{ $event['customer_name'] }} - CustNo
                                                         #{{ $event['sx_customer_number'] }}
@@ -146,22 +127,21 @@
                                                         <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
                                                     @endif
                                                     @if ($event['travel_prio_number'])
-                                                        <p class="font-small"><span class="badge bg-light-info"> expected delivery time : {{$event['expected_time']}}</span></p>
+                                                        <p class="font-small"><span class="badge bg-light-info">
+                                                                expected delivery time :
+                                                                {{ $event['expected_time'] }}</span></p>
                                                     @endif
                                                 </a>
                                             </li>
                                         @endforeach
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @else
-                            <div class="alert alert-light-warning color-warning"><i
-                                    class="bi bi-exclamation-triangle"></i> No active trucks or zones
-                            </div>
-                        @endif
-                    </div>
 
-                </div>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
             </div>
         </div>
         @if ($showModal || $isEdit)
@@ -457,8 +437,10 @@
                                 $wire.showExportModal().then(() => {
                                     setTimeout(() => {
                                         btn.removeAttribute('disabled');
-                                        btn.querySelector('i').classList.remove('fa', 'fa-spinner', 'fa-spin')
-                                        btn.querySelector('i').classList.add('bi', 'bi-download')
+                                        btn.querySelector('i').classList.remove('fa',
+                                            'fa-spinner', 'fa-spin')
+                                        btn.querySelector('i').classList.add('bi',
+                                            'bi-download')
                                     }, 200)
                                 })
                             }
