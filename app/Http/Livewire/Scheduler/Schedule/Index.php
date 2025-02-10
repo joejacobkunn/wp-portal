@@ -452,7 +452,7 @@ class Index extends Component
             ->with('orderSchedule')
             ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
             ->join('zones', 'truck_schedules.zone_id', '=', 'zones.id')
-            ->join('users', 'truck_schedules.driver_id', '=', 'users.id')
+            ->leftjoin('users', 'truck_schedules.driver_id', '=', 'users.id')
             ->whereNull('truck_schedules.deleted_at')
             ->whereNull('trucks.deleted_at')
             ->whereNull('zones.deleted_at')
@@ -495,7 +495,6 @@ class Index extends Component
                     'driverName' => $truck->driver_name ? $truck->driver_name . ' (' . $truck->driver_title . ')' : null,
                 ];
             })->toArray();
-
         return $this->truckInfo;
     }
 
