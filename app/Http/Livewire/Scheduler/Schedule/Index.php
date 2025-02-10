@@ -335,9 +335,9 @@ class Index extends Component
 
     public function updateAddress()
     {
-        $this->form->setAddress();
+        $this->form->service_address = $this->form->service_address_temp;
+        $this->form->setAddress(true);
         $this->closeServiceAddressModal();
-
     }
 
     public function changeWarehouse($wsheID)
@@ -668,6 +668,7 @@ class Index extends Component
 
     public function showAddressModal()
     {
+        $this->form->service_address_temp = $this->form->service_address;
         $this->serviceAddressModal = true;
     }
 
