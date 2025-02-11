@@ -77,7 +77,7 @@ return [
 
     'timezone' => 'UTC',
 
-    'default_date_format' => 'M j Y',
+    'default_date_format' => 'M j, Y',
 
     'default_datetime_format' => 'M jS Y H:i',
 
