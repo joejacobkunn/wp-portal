@@ -7,7 +7,6 @@ use Illuminate\Support\Str;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
-use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleViewForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\User;
 use App\Models\Core\Warehouse;
@@ -30,8 +29,6 @@ class Index extends Component
     use LivewireAlert, HasTabs;
 
     public ScheduleForm $form;
-    public ScheduleViewForm $viewForm;
-
     public $showModal;
     public $schedules;
     public $isEdit;
@@ -318,7 +315,6 @@ class Index extends Component
     public function handleEventClick(Schedule $schedule)
     {
         $this->form->init($schedule);
-        $this->viewForm->init($schedule);
         $this->orderInfoStrng = uniqid();
         $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
         $this->showModal = true;
@@ -343,6 +339,10 @@ class Index extends Component
         $this->form->service_address = $this->form->service_address_temp;
         $this->form->updatedAddress();
         $this->closeServiceAddressModal();
+    }
+    public function revertAddress()
+    {
+        $this->form->service_address_temp = $this->form->addressFromOrder;
     }
 
     public function changeWarehouse($wsheID)

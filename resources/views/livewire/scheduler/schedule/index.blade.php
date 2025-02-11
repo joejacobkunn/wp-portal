@@ -98,15 +98,15 @@
                                         @foreach ($truck['events'] as $event)
                                             <li
                                                 class="list-group-item d-flex justify-content-between align-items-start">
-                                                <a href="#" class="text-black"
+                                                <a href="#" class="text-black w-100"
                                                     wire:click.prevent="handleEventClick({{ $event['id'] }})"
                                                     wire:loading.attr="disabled"
                                                     wire:target="handleEventClick({{ $event['id'] }})">
 
                                                     <div class="d-flex w-100 justify-content-between">
-                                                        <h6>
+                                                        <h6 class="text-break">
                                                             <span
-                                                                class="badge bg-{{ $event['status_color'] }}">ScheduleID
+                                                                class=" d-inline-block text-wrap badge bg-{{ $event['status_color'] }}">ScheduleID
                                                                 #{{ $event['schedule_id'] }} - Order
                                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
                                                             <div wire:loading
@@ -115,9 +115,7 @@
                                                                     role="status" aria-hidden="true"></span>
                                                             </div>
                                                         </h6>
-                                                        <small>
 
-                                                        </small>
                                                     </div>
                                                     <p class="mb-1">
                                                         {{ $event['customer_name'] }} - CustNo
@@ -141,6 +139,10 @@
                             </div>
                         </div>
                     @endforeach
+                @else
+                <div class="alert alert-light-warning color-warning"><i
+                        class="bi bi-exclamation-triangle"></i> No active trucks and zones
+                </div>
                 @endif
             </div>
         </div>
