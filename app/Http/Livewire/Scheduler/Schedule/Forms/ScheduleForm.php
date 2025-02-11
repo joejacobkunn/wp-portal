@@ -245,7 +245,7 @@ class ScheduleForm extends Form
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
 
-        $validatedData['status'] = 'Scheduled';
+        $validatedData['status'] = 'scheduled';
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
@@ -382,7 +382,7 @@ class ScheduleForm extends Form
             'zones.name as zone_name',
             'trucks.id as truck_id',
             'trucks.truck_name',
-            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "Cancelled") as schedule_count')
+            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
         )
         ->get();
 
@@ -403,7 +403,7 @@ class ScheduleForm extends Form
         ->whereNull('scheduler_zipcodes.deleted_at')
         ->select(
             'truck_schedules.*',
-            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "Cancelled") as schedule_count')
+            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
         )
         ->where('scheduler_zipcodes.zip_code', $this->serviceZip)
         ->get();
@@ -432,7 +432,7 @@ class ScheduleForm extends Form
     public function linkSRONumber($sro)
     {
         $this->schedule->sro_number = $sro;
-        $this->schedule->status = 'Confirmed';
+        $this->schedule->status = 'confirmed';
         $this->schedule->confirmed_at = Carbon::now();
         $this->schedule->confirmed_by = Auth::user()->id;
         $this->schedule->save();
@@ -442,7 +442,7 @@ class ScheduleForm extends Form
     public function unlinkSRO()
     {
         $this->schedule->sro_number = null;
-        $this->schedule->status = 'Scheduled';
+        $this->schedule->status = 'scheduled';
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule Unconfirmed', 'schedule' => $this->schedule];
     }
@@ -450,7 +450,7 @@ class ScheduleForm extends Form
     public function cancelSchedule()
     {
         $this->validateOnly('cancel_reason');
-        $this->schedule->status = 'Cancelled';
+        $this->schedule->status = 'cancelled';
         $this->schedule->cancel_reason = $this->cancel_reason;
         $this->schedule->cancelled_at = Carbon::now();
         $this->schedule->cancelled_by = Auth::user()->id;
@@ -460,7 +460,7 @@ class ScheduleForm extends Form
 
     public function undoCancel()
     {
-        $this->schedule->status = 'Scheduled';
+        $this->schedule->status = 'scheduled';
         $this->schedule->cancel_reason = null;
         $this->schedule->save();
         $this->fill($this->schedule);
@@ -469,7 +469,7 @@ class ScheduleForm extends Form
 
     public function startSchedule()
     {
-        $this->schedule->status = 'Out for Delivery';
+        $this->schedule->status = 'out_for_delivery';
         $this->schedule->save();
         $this->fill($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'Delivery initiated', 'schedule' => $this->schedule];
@@ -477,7 +477,7 @@ class ScheduleForm extends Form
 
     public function completeSchedule()
     {
-        $this->schedule->status = 'Completed';
+        $this->schedule->status = 'completed';
         $this->schedule->completed_at = Carbon::now();
         $this->schedule->completed_by = Auth::user()->id;
         $this->schedule->save();

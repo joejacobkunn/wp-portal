@@ -1,38 +1,37 @@
 <div class="row">
     <div class="col-8 col-md-8 col-xxl-8">
         <div class="card border rounded shadow-sm mb-4">
-
             <div class="card-body">
-                @if ($form->schedule->status != 'Completed')
+                @if ($form->schedule->status != 'completed')
                     <div class="alert alert-light-secondary color-secondary"> Actions
                         <div class="btn-group mt-n1 mb-3 float-end" role="group" aria-label="Basic example">
                             @can('scheduler.schedule.manage')
-                                @if ($form->schedule->status != 'Cancelled' && $form->schedule->status != 'Completed')
+                                @if ($form->schedule->status != 'cancelled' && $form->schedule->status != 'completed')
                                     <button type="button" class="btn btn-sm btn-danger" wire:click="hideScheduleSection"
                                         data-bs-toggle="collapse" data-bs-target="#cancelCollapse" aria-expanded="false"
                                         aria-controls="cancelCollapse"><i class="far fa-calendar-times"></i>
                                         Cancel</button>
                                 @endif
 
-                                @if ($form->schedule->status == 'Cancelled')
+                                @if ($form->schedule->status == 'cancelled')
                                     <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
                                         data-bs-toggle="collapse" data-bs-target="#undoCancelCollapse" aria-expanded="false"
                                         aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
                                         Uncancel</button>
                                 @endif
-                                @if ($form->schedule->status == 'Scheduled')
+                                @if ($form->schedule->status == 'scheduled')
                                     <button type="button" class="btn btn-sm btn-warning" wire:click="scheduleDateInitiate"
                                         data-bs-toggle="collapse" data-bs-target="#rescheduleCollapse" aria-expanded="false"
                                         aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
                                         Reschedule</button>
                                 @endif
-                                @if ($form->schedule->status == 'Scheduled')
+                                @if ($form->schedule->status == 'scheduled')
                                     <button type="button" class="btn btn-sm btn-primary" wire:click="hideScheduleSection"
                                         data-bs-toggle="collapse" data-bs-target="#confirmCollapse" aria-expanded="false"
                                         aria-controls="confirmCollapse"><i class="fas fa-check-double"></i>
                                         Confirm</button>
                                 @endif
-                                @if ($form->schedule->status == 'Confirmed')
+                                @if ($form->schedule->status == 'confirmed')
                                     <button type="button" class="btn btn-sm btn-secondary" wire:click="hideScheduleSection"
                                         data-bs-toggle="collapse" data-bs-target="#unconfirmCollapse" aria-expanded="false"
                                         aria-controls="unconfirmCollapse"><i class="fas fa-solid fa-xmark"></i>
@@ -40,7 +39,7 @@
                                 @endif
                             @endcan
                             @canany(['scheduler.can-start-event', 'scheduler.schedule.manage'])
-                                @if ($form->schedule->status == 'Confirmed')
+                                @if ($form->schedule->status == 'confirmed')
                                     <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="collapse"
                                         data-bs-target="#startScheduleCollapse" aria-expanded="false"
                                         aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
@@ -48,7 +47,7 @@
                                 @endif
                             @endcan
                             @canany(['scheduler.can-complete-event', 'scheduler.schedule.manage'])
-                                @if ($form->schedule->status == 'Out for Delivery')
+                                @if ($form->schedule->status == 'out_for_delivery')
                                     <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
                                         data-bs-toggle="collapse" data-bs-target="#completeCollapse" aria-expanded="false"
                                         aria-controls="completeCollapse"><i class="fas fa-check-circle"></i>
@@ -62,7 +61,7 @@
                 @endif
                 <div class="collapse-container" wire:key="actionArea-{{ $form->schedule->status }}">
                     <div class="collapse p-4" id="cancelCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status != 'Cancelled' ? 'wire:ignore.self' : '' !!} wire:key="cancel-section-{{ $form->schedule->status }}">
+                        {!! $form->schedule->status != 'cancelled' ? 'wire:ignore.self' : '' !!} wire:key="cancel-section-{{ $form->schedule->status }}">
                         <div class="card card-body mb-0 p-0">
                             You are cancelling this schedule. Provide a reason in below field
                             <div class="col-md-12 mt-3">
@@ -80,7 +79,7 @@
                         </div>
                     </div>
                     <div class="collapse p-4" id="undoCancelCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status == 'Cancelled' ? 'wire:ignore.self' : '' !!}>
+                        {!! $form->schedule->status == 'cancelled' ? 'wire:ignore.self' : '' !!}>
                         <div class="card card-body mb-0 p-0">
                             You are reinstating this schedule. Please ensure to confirm the SRO afterward.
                             <div class="col-md-12 mt-3">
@@ -97,7 +96,7 @@
                         </div>
                     </div>
                     <div class="collapse p-4" id="completeCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status != 'Completed' ? 'wire:ignore.self' : '' !!}>
+                        {!! $form->schedule->status != 'completed' ? 'wire:ignore.self' : '' !!}>
                         <div class="card card-body mb-0 p-0">
                             Click the Complete button below to mark the schedule as complete.
                             <div class="col-md-12 mt-3">
@@ -116,7 +115,7 @@
                     <div class="collapse p-4" id="confirmCollapse" data-bs-parent=".collapse-container"
                         wire:ignore.self>
                         <div class="card card-body mb-0 p-0">
-                            @if ($form->schedule->status == 'Scheduled')
+                            @if ($form->schedule->status == 'scheduled')
                                 Confirm this schedule by linking the correct SRO# and click confirm below. Click on
                                 confirm
                                 again to cancel
@@ -359,7 +358,7 @@
                 <div class="alert alert-light-{{ $form->schedule->status_color_class }} color-{{ $form->schedule->status_color_class }}"
                     role="alert">
                     <h4 class="alert-heading">Schedule #{{ $form->schedule->scheduleId() }}</h4>
-                    @if ($form->schedule->status == 'Cancelled')
+                    @if ($form->schedule->status == 'cancelled')
                         <p><i class="far fa-calendar-check"></i> AHM was <strong>Cancelled</strong> by
                             {{ $form->schedule->cancelledUser->name }} at
                             {{ \Carbon\Carbon::parse($form->schedule->cancelled_at)->toFormattedDayDateString() }}
@@ -369,7 +368,7 @@
                             {{ $form->schedule->cancel_reason }}
                         </p>
                     @endif
-                    @if ($form->schedule->status == 'Scheduled' || $form->schedule->status == 'Confirmed')
+                    @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'confirmed')
                         <p><i class="far fa-calendar-check"></i> AHM is {{ $form->schedule->status }} for
                             <strong>{{ $form->schedule->schedule_date->toFormattedDayDateString() }}</strong> between
                             <strong>{{ $form->schedule->truckSchedule->start_time }} and
@@ -391,7 +390,7 @@
                             @endif
                         </p>
                     @endif
-                    @if ($form->schedule->status == 'Completed')
+                    @if ($form->schedule->status == 'completed')
                         <p><i class="far fa-calendar-check"></i> AHM is Completed
                         </p>
                         <hr>
@@ -403,7 +402,7 @@
                             </span>
                         </p>
                     @endif
-                    @if ($form->schedule->status == 'Out for Delivery')
+                    @if ($form->schedule->status == 'out_for_delivery')
                         <p><i class="far fa-calendar-check"></i> Delivery Process initiated
                         </p>
                         <hr>
@@ -424,7 +423,7 @@
                     @endif
                 </div>
 
-                @if (!empty($sro_response) && $form->schedule->status != 'Scheduled')
+                @if (!empty($sro_response) && $form->schedule->status != 'scheduled')
                     <div class="alert alert-secondary">
                         <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
                             {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
@@ -467,7 +466,7 @@
                         <div>
                             <h3 class="h6 mb-1">SRO Number</h3>
                             <p class="small pe-4">
-                                @if ($form->schedule->status == 'Scheduled')
+                                @if ($form->schedule->status == 'scheduled')
                                     <span class="bg-warning text-dark">Confirm
                                         schedule to view SRO Info</span>
                                 @else

@@ -97,7 +97,7 @@ class RouteFinder extends Command
         foreach ($schedules as $schedule) {
             // Get confirmed orders for current schedule only
             $confirmedOrders = $schedule->orderSchedule()
-                ->where('status', 'Confirmed')
+                ->where('status', 'confirmed')
                 ->get();
 
             if ($confirmedOrders->isEmpty()) {
