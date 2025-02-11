@@ -48,7 +48,7 @@ class Table extends DataTableComponent
                 ->searchable()
                 ->html(),
 
-            Column::make('type', 'type')
+            Column::make('Type', 'type')
                 ->sortable()
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)

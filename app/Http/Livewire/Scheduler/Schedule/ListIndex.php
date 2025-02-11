@@ -84,6 +84,6 @@ class ListIndex extends Component
         $this->tabCounts['today'] = $this->queryByDate(Carbon::now()->toDateString())->where('orders.whse', $this->activeWarehouseId)->count();
         $this->tabCounts['tomorrow'] = $this->queryByDate(Carbon::now()->addDay()->toDateString())->where('orders.whse', $this->activeWarehouseId)->count();
         $this->tabCounts['unconfirmed'] = $this->queryByStatus('unconfirmed')->where('orders.whse', $this->activeWarehouseId)->count();
-        $this->tabCounts['all'] = $this->scheduleBaseQuery()->count();
+        $this->tabCounts['all'] = $this->scheduleBaseQuery()->where('orders.whse', $this->activeWarehouseId)->count();
     }
 }
