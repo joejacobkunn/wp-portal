@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('schedules', function (Blueprint $table) {
-            $table->renameColumn('via_weingartz', 'not_purchased_via_weingartz');
-        });
-        Schema::table('schedules', function (Blueprint $table) {
-            $table->boolean('not_purchased_via_weingartz')->nullable()->default(false)->change();
+            $table->dropColumn('via_weingartz');
+            $table->boolean('not_purchased_via_weingartz')->nullable()->default(false);
         });
     }
 
@@ -25,10 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('schedules', function (Blueprint $table) {
-            $table->boolean('not_purchased_via_weingartz')->nullable(false)->default(false)->change();
-        });
-        Schema::table('schedules', function (Blueprint $table) {
-            $table->renameColumn('not_purchased_via_weingartz', 'via_weingartz');
+            $table->dropColumn('not_purchased_via_weingartz');
+            $table->boolean('via_weingartz')->nullable()->default(false);
         });
     }
 };
