@@ -444,14 +444,20 @@
                 </div>
             </div>
             <hr>
-            <div class="mt-2 float-start">
+            <x-slot name="footer">
                 <button type="submit" class="btn btn-primary" wire:click="updateAddress">
                     <div wire:loading wire:target="updateAddress">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>
                     Update Address
                 </button>
-            </div>
+                <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif wire:click="revertAddress">
+                    <div wire:loading wire:target="revertAddress">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </div>
+                    Reset Address
+                </button>
+            </x-slot>
         </x-modal>
 
     </div>
@@ -466,7 +472,7 @@
 
             function initAutocomplete() {
                 addressField = document.getElementById("form.service_address_temp_textarea-field");
-                
+
                 autocomplete = new google.maps.places.Autocomplete(addressField, {
                     componentRestrictions: {
                         country: ["us", "ca"]

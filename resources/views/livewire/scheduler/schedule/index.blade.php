@@ -115,9 +115,7 @@
                                                                     role="status" aria-hidden="true"></span>
                                                             </div>
                                                         </h6>
-                                                        <small>
 
-                                                        </small>
                                                     </div>
                                                     <p class="mb-1">
                                                         {{ $event['customer_name'] }} - CustNo

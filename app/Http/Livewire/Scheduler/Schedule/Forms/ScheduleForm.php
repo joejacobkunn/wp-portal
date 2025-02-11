@@ -58,6 +58,7 @@ class ScheduleForm extends Form
     public $showAddressBox;
     public $not_purchased_via_weingartz;
     public $addressVerified = false;
+    public $addressFromOrder;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -180,6 +181,7 @@ class ScheduleForm extends Form
 
         $this->service_address = trim($this->service_address);
         $this->serviceZip = $this->orderInfo?->shipping_info['zip'];
+        $this->addressFromOrder = $this->service_address;
 
         $this->validateAddress($this->service_address, $this->serviceZip);
     }
@@ -533,6 +535,7 @@ class ScheduleForm extends Form
                 'message' => 'Failed to Validate Address'
               ];
         }
+
         $zipParts = explode('-', $recom['result']['address']['postalAddress']['postalCode']);
         $zipcode =  $zipParts[0] ?? null;
 
