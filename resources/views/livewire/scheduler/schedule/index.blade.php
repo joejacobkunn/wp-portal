@@ -127,7 +127,7 @@
                                                     @if ($event['travel_prio_number'])
                                                         <p class="font-small"><span class="badge bg-light-info">
                                                                 ETA :
-                                                                {{ Carbon\Carbon::parse($event['expected_time'])->toDayDateTimeString() }}</span></p>
+                                                                {{ Carbon\Carbon::parse($event['expected_time'])->format('H:i') }}</span></p>
                                                     @endif
                                                 </a>
                                             </li>
