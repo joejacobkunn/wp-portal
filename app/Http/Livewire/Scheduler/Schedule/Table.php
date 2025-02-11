@@ -62,7 +62,7 @@ class Table extends DataTableComponent
                 ->format(function ($value, $row) {
                     if ($value) {
                         $dateObj = Carbon::parse($value);
-                        $dateStr = $dateObj->toDateString();
+                        $dateStr = $dateObj->format(config('app.default_date_format'));
 
                         if ($this->activeTab == 'unconfirmed') {
                             $dateStr .= ' (' . $dateObj->diffForHumans(). ')';
@@ -212,7 +212,7 @@ class Table extends DataTableComponent
         if (!empty($this->whse)) {
             //@TODO update after schedule whse update
             $scheduleQuery->whereIn('truck_schedules.truck_id', $this->trucks->where('whse', $this->whse)->pluck('id')->toArray());
-            
+
             //$scheduleQuery->where('orders.whse', $this->whse);
         }
 
