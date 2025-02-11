@@ -27,6 +27,12 @@
                             tabId="schedule-list-index-tabs"
                             class="mb-5"
                             :key="'wh'. $activeWarehouseId">
+
+                            <x-slot:tab_header_today>Today <span class="badge badge-lg {{ $tabs['schedule-list-index-tabs']['active'] == 'today' ? 'text-primary bg-white ml-2' : 'bg-primary' }} ms-2 ml-2">{{ $tabCounts['today'] ?? '0' }}</span></x-slot>
+                            <x-slot:tab_header_tomorrow>Tomorrow <span class="badge badge-lg {{ $tabs['schedule-list-index-tabs']['active'] == 'tomorrow' ? 'text-primary bg-white ml-2' : 'bg-primary' }} ms-2 ml-2">{{ $tabCounts['tomorrow'] ?? '0' }}</span></x-slot>
+                            <x-slot:tab_header_unconfirmed>Unconfirmed <span class="badge badge-lg {{ $tabs['schedule-list-index-tabs']['active'] == 'unconfirmed' ? 'text-primary bg-white ml-2' : 'bg-primary' }} ms-2 ml-2">{{ $tabCounts['unconfirmed'] ?? '0' }}</span></x-slot>
+                            <x-slot:tab_header_all>All <span class="badge badge-lg {{ $tabs['schedule-list-index-tabs']['active'] == 'all' ? 'text-primary bg-white ml-2' : 'bg-primary' }} ms-2 ml-2">{{ $tabCounts['all'] ?? '0' }}</span></x-slot>
+              
                             <x-slot:content
                                 component="scheduler.schedule.table"
                                 :whse="$activeWarehouseId"

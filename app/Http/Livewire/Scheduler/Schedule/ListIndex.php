@@ -2,15 +2,18 @@
 
 namespace App\Http\Livewire\Scheduler\Schedule;
 
-use App\Http\Livewire\Component\Component;
+use Carbon\Carbon;
+use App\Traits\HasTabs;
 use App\Models\Core\Warehouse;
 use App\Models\Scheduler\Schedule;
-use App\Traits\HasTabs;
+use App\Http\Livewire\Component\Component;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Http\Livewire\Scheduler\Schedule\Traits\ScheduleData;
+use App\Models\Scheduler\Truck;
 
 class ListIndex extends Component
 {
-    use LivewireAlert, HasTabs;
+    use LivewireAlert, HasTabs, ScheduleData;
 
     public $tabs = [
         'schedule-list-index-tabs' => [
@@ -18,7 +21,7 @@ class ListIndex extends Component
             'links' => [
                 'today' => 'Today',
                 'tomorrow' => 'Tomorrow',
-                'confirmed' => 'Confirmed',
+                'unconfirmed' => 'Unconfirmed',
                 'all' => 'All',
             ],
         ]
@@ -28,6 +31,12 @@ class ListIndex extends Component
         'tabs.schedule-list-index-tabs.active' => ['except' => '', 'as' => 'tab'],
         'activeWarehouseId' => ['except' => '', 'as' => 'whse'],
     ];
+
+    protected $listeners = [
+        'schedule-list-index-tabs:tab:changed' => 'indexActiveTabChange',
+    ];
+
+    public $tabCounts = [];
 
     public $activeWarehouseId;
 
@@ -57,11 +66,33 @@ class ListIndex extends Component
 
     public function render()
     {
+        $this->updateTabCounts();
         return $this->renderView('livewire.scheduler.schedule.list-index');
     }
 
     public function changeWarehouse($wsheID)
     {
         $this->activeWarehouseId = $wsheID;
+    }
+
+    public function getTrucksProperty()
+    {
+        return Truck::select('id', 'truck_name', 'whse')->limit(100)->get();
+    }
+
+    public function indexActiveTabChange($activeTab)
+    {
+        $this->updateTabCounts();
+    }
+
+    public function updateTabCounts()
+    {
+        //@TODO update after schedule whse update
+        $truckList = $this->trucks->where('whse', $this->activeWarehouseId)->pluck('id')->toArray();
+        
+        $this->tabCounts['today'] = $this->queryByDate(Carbon::now()->toDateString())->whereIn('truck_schedules.truck_id', $truckList)->count();
+        $this->tabCounts['tomorrow'] = $this->queryByDate(Carbon::now()->addDay()->toDateString())->whereIn('truck_schedules.truck_id', $truckList)->count();
+        $this->tabCounts['unconfirmed'] = $this->queryByStatus('unconfirmed')->whereIn('truck_schedules.truck_id', $truckList)->count();
+        $this->tabCounts['all'] = $this->scheduleBaseQuery()->whereIn('truck_schedules.truck_id', $truckList)->count();
     }
 }
