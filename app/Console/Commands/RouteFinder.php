@@ -91,13 +91,12 @@ class RouteFinder extends Command
         ));
 
         $lastAddress = $firstSchedule->truck->warehouse->address;
-        $currentTime = null;
+        $currentTime = Carbon::parse($firstSchedule->schedule_date . ' ' . '08:45 AM');
 
-        // Process each schedule separately
         foreach ($schedules as $schedule) {
             // Get confirmed orders for current schedule only
             $confirmedOrders = $schedule->orderSchedule()
-                ->where('status', 'Confirmed')
+                ->where('status', 'confirmed')
                 ->get();
 
             if ($confirmedOrders->isEmpty()) {
@@ -105,9 +104,9 @@ class RouteFinder extends Command
                 continue;
             }
 
-            // Set starting time for first schedule or use previous schedule's end time
-            if (is_null($currentTime)) {
-                $currentTime = Carbon::parse($schedule->schedule_date . ' ' . '08:45 AM');
+            $schedule_time = Carbon::parse($schedule->schedule_date . ' ' . $schedule->start_time);
+            if ($currentTime != Carbon::parse($schedule->schedule_date . ' ' . '08:45 AM') && $schedule_time > $currentTime) {
+                $currentTime = $schedule_time;
             }
 
             // Prepare input data starting from last known address
@@ -117,6 +116,7 @@ class RouteFinder extends Command
 
             // Remove duplicates if any
             $dataInput = array_unique($dataInput);
+
             $response = $this->getDistance($dataInput);
             if(isset($response['error'])) {
                 $this->info(sprintf($response['message']));
@@ -137,14 +137,7 @@ class RouteFinder extends Command
             // Calculate final time after last stop
             $lastOrderIndex = array_key_last($optimalRoute);
             if ($lastOrderIndex > 0) {
-                $finalTravelTime = $this->calculateTravelTime(
-                    $lastOrderIndex - 1,
-                    $lastOrderIndex,
-                    $response['durations']
-                );
-
-            $currentTime = $lastExpectedTime->copy();
-
+                $currentTime = $lastExpectedTime->copy();
             }
         }
     }
@@ -242,7 +235,7 @@ class RouteFinder extends Command
 
                 $order->update([
                     'travel_prio_number' => $priority,
-                    'expected_arrival_time' => $expectedTime->format('H:i A')
+                    'expected_arrival_time' => $expectedTime->format('H:i:s')
                 ]);
 
                 $this->info("Updated Schedule ID: {$order->id} with priority: {$priority} and expected time: {$expectedTime->format('H:i:s')}");

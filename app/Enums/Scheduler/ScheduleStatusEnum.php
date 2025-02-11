@@ -6,11 +6,11 @@ use App\Traits\Enum\StatusEnumTrait;
 
 enum ScheduleStatusEnum: string
 {
-    case Scheduled =  'Scheduled';
-    case Confirmed = 'Confirmed';
-    case Completed = 'Completed';
-    case Cancelled = 'Cancelled';
-    case Out_for_Delivery = 'Out for Delivery';
+    case scheduled =  'scheduled';
+    case confirmed = 'confirmed';
+    case completed = 'completed';
+    case cancelled = 'cancelled';
+    case out_for_delivery = 'out_for_delivery';
 
     public function label(): string
     {
@@ -29,11 +29,11 @@ enum ScheduleStatusEnum: string
     public static function getLabel(self $value): string
     {
         return match ($value) {
-            self::Scheduled => 'Scheduled',
-            self::Confirmed => 'Confirmed',
-            self::Completed => 'Completed',
-            self::Cancelled => 'Cancelled',
-            self::Out_for_Delivery => 'Out for Delivery',
+            self::scheduled => 'Scheduled',
+            self::confirmed => 'Confirmed',
+            self::completed => 'Completed',
+            self::cancelled => 'Cancelled',
+            self::out_for_delivery => 'Out for Delivery',
             default => '-'
         };
     }
@@ -41,11 +41,11 @@ enum ScheduleStatusEnum: string
     public static function getColor(self $value): string
     {
         return match ($value) {
-            self::Scheduled => '#a5aaae',
-            self::Confirmed => '#435cbe',
-            self::Completed => '#43aa48',
-            self::Cancelled => '#bb2d3b',
-            self::Out_for_Delivery => 'cyan',
+            self::scheduled => '#a5aaae',
+            self::confirmed => '#435cbe',
+            self::completed => '#43aa48',
+            self::cancelled => '#bb2d3b',
+            self::out_for_delivery => 'cyan',
             default => '-'
         };
 
@@ -54,11 +54,11 @@ enum ScheduleStatusEnum: string
     public static function getColorClass(self $value): string
     {
         return match ($value) {
-            self::Scheduled => 'secondary',
-            self::Confirmed => 'primary',
-            self::Completed => 'success',
-            self::Cancelled => 'danger',
-            self::Out_for_Delivery => 'info',
+            self::scheduled => 'secondary',
+            self::confirmed => 'primary',
+            self::completed => 'success',
+            self::cancelled => 'danger',
+            self::out_for_delivery => 'info',
             default => '-'
         };
     }
