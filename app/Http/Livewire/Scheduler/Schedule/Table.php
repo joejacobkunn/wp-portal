@@ -210,7 +210,10 @@ class Table extends DataTableComponent
         ]);
 
         if (!empty($this->whse)) {
-            $scheduleQuery->where('orders.whse', $this->whse);
+            //@TODO update after schedule whse update
+            $scheduleQuery->whereIn('truck_schedules.truck_id', $this->trucks->where('whse', $this->whse)->pluck('id')->toArray());
+            
+            //$scheduleQuery->where('orders.whse', $this->whse);
         }
 
         return $scheduleQuery;

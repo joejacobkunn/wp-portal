@@ -9,6 +9,7 @@ use App\Models\Scheduler\Schedule;
 use App\Http\Livewire\Component\Component;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Http\Livewire\Scheduler\Schedule\Traits\ScheduleData;
+use App\Models\Scheduler\Truck;
 
 class ListIndex extends Component
 {
@@ -74,6 +75,11 @@ class ListIndex extends Component
         $this->activeWarehouseId = $wsheID;
     }
 
+    public function getTrucksProperty()
+    {
+        return Truck::select('id', 'truck_name', 'whse')->limit(100)->get();
+    }
+
     public function indexActiveTabChange($activeTab)
     {
         $this->updateTabCounts();
@@ -81,9 +87,12 @@ class ListIndex extends Component
 
     public function updateTabCounts()
     {
-        $this->tabCounts['today'] = $this->queryByDate(Carbon::now()->toDateString())->where('orders.whse', $this->activeWarehouseId)->count();
-        $this->tabCounts['tomorrow'] = $this->queryByDate(Carbon::now()->addDay()->toDateString())->where('orders.whse', $this->activeWarehouseId)->count();
-        $this->tabCounts['unconfirmed'] = $this->queryByStatus('unconfirmed')->where('orders.whse', $this->activeWarehouseId)->count();
-        $this->tabCounts['all'] = $this->scheduleBaseQuery()->where('orders.whse', $this->activeWarehouseId)->count();
+        //@TODO update after schedule whse update
+        $truckList = $this->trucks->where('whse', $this->activeWarehouseId)->pluck('id')->toArray();
+        
+        $this->tabCounts['today'] = $this->queryByDate(Carbon::now()->toDateString())->whereIn('truck_schedules.truck_id', $truckList)->count();
+        $this->tabCounts['tomorrow'] = $this->queryByDate(Carbon::now()->addDay()->toDateString())->whereIn('truck_schedules.truck_id', $truckList)->count();
+        $this->tabCounts['unconfirmed'] = $this->queryByStatus('unconfirmed')->whereIn('truck_schedules.truck_id', $truckList)->count();
+        $this->tabCounts['all'] = $this->scheduleBaseQuery()->whereIn('truck_schedules.truck_id', $truckList)->count();
     }
 }
