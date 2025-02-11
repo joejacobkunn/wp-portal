@@ -126,8 +126,8 @@
                                                     @endif
                                                     @if ($event['travel_prio_number'])
                                                         <p class="font-small"><span class="badge bg-light-info">
-                                                                expected delivery time :
-                                                                {{ $event['expected_time'] }}</span></p>
+                                                                ETA :
+                                                                {{ Carbon\Carbon::parse($event['expected_time'])->toDayDateTimeString() }}</span></p>
                                                     @endif
                                                 </a>
                                             </li>
