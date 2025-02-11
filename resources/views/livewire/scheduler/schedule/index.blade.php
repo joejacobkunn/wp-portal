@@ -139,6 +139,10 @@
                             </div>
                         </div>
                     @endforeach
+                @else
+                <div class="alert alert-light-warning color-warning"><i
+                        class="bi bi-exclamation-triangle"></i> No active trucks and zones
+                </div>
                 @endif
             </div>
         </div>
