@@ -9,6 +9,7 @@ use App\Enums\Scheduler\ScheduleEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
+use App\Http\Livewire\Scheduler\Schedule\Traits\ScheduleData;
 use App\Models\Scheduler\Truck;
 use Carbon\Carbon;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateFilter;
@@ -16,6 +17,8 @@ use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class Table extends DataTableComponent
 {
+    use ScheduleData;
+
     public $activeTab;
 
     public $whse;
@@ -27,12 +30,16 @@ class Table extends DataTableComponent
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
+
+        if ($this->activeTab == 'unconfirmed') {
+            $this->setDefaultSort('schedule_date', 'asc');
+        }
     }
 
 
     public function columns(): array
     {
-        return [
+        $columns = [
             Column::make('Id', 'id')
                 ->hideIf(1),
 
@@ -53,7 +60,16 @@ class Table extends DataTableComponent
             Column::make('Schedule Date', 'schedule_date')
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row) {
-                    return Carbon::parse($value)->toDateString();
+                    if ($value) {
+                        $dateObj = Carbon::parse($value);
+                        $dateStr = $dateObj->toDateString();
+
+                        if ($this->activeTab == 'unconfirmed') {
+                            $dateStr .= ' (' . $dateObj->diffForHumans(). ')';
+                        }
+
+                        return $dateStr;
+                    }
                 }),
 
             Column::make('Order No Suffix', 'order_number_suffix')
@@ -89,6 +105,15 @@ class Table extends DataTableComponent
                     return $row->truckSchedule?->zone?->name;
                 }),
             ];
+
+        if ($this->activeTab == 'today') {
+            $columns[] = Column::make('Latest Comment', 'id')
+                ->format(function ($value, $row) {
+                    return strip_tags($row->latestComment?->comment);
+                });
+        }
+
+        return $columns;
     }
 
     public function getScheduleTypesProperty()
@@ -157,7 +182,17 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $scheduleQuery = Schedule::with([
+        if ($this->activeTab == 'today') {
+            $scheduleQuery = $this->queryByDate(Carbon::now()->toDateString())->with('latestComment');
+        } elseif ($this->activeTab == 'tomorrow') {
+            $scheduleQuery = $this->queryByDate(Carbon::now()->addDay()->toDateString());
+        }  elseif ($this->activeTab == 'unconfirmed') {
+            $scheduleQuery = $this->queryByStatus('unconfirmed');
+        } else {
+            $scheduleQuery = $this->scheduleBaseQuery();
+        }
+
+        $scheduleQuery->with([
             'truckSchedule' => function($query) {
                 $query->whereNull('deleted_at')
                     ->with('zone:id,name')
@@ -172,26 +207,10 @@ class Table extends DataTableComponent
                             ->select('id', 'name', 'email', 'phone', 'sx_customer_number');
                     }]);
             }
-         ])
-         ->leftJoin('truck_schedules', 'truck_schedules.id', '=', 'schedules.truck_schedule_id')
-         ->whereNull('truck_schedules.deleted_at')
-         ->leftJoin('orders', 'orders.order_number', '=', 'schedules.sx_ordernumber')
-         ->whereNull('orders.deleted_at')
-         ->leftJoin('customers', 'orders.sx_customer_number', '=', 'customers.sx_customer_number')
-         ->whereNull('customers.deleted_at');
-
-        if (!empty($this->activeTab)) {
-            if ($this->activeTab == 'today') {
-                $scheduleQuery->whereDate('schedules.schedule_date', Carbon::now()->toDateString());
-            } elseif ($this->activeTab == 'tomorrow') {
-                $scheduleQuery->whereDate('schedules.schedule_date', Carbon::now()->addDay()->toDateString());
-            }  elseif ($this->activeTab == 'confirmed') {
-                $scheduleQuery->where('schedules.status', 'confirmed');
-            }
-        }
+        ]);
 
         if (!empty($this->whse)) {
-            $scheduleQuery->whereIn('truck_schedules.truck_id', $this->trucks->where('whse', $this->whse)->pluck('id')->toArray());
+            $scheduleQuery->where('orders.whse', $this->whse);
         }
 
         return $scheduleQuery;

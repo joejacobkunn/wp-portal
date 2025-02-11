@@ -2,15 +2,17 @@
 
 namespace App\Http\Livewire\Scheduler\Schedule;
 
-use App\Http\Livewire\Component\Component;
+use Carbon\Carbon;
+use App\Traits\HasTabs;
 use App\Models\Core\Warehouse;
 use App\Models\Scheduler\Schedule;
-use App\Traits\HasTabs;
+use App\Http\Livewire\Component\Component;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Http\Livewire\Scheduler\Schedule\Traits\ScheduleData;
 
 class ListIndex extends Component
 {
-    use LivewireAlert, HasTabs;
+    use LivewireAlert, HasTabs, ScheduleData;
 
     public $tabs = [
         'schedule-list-index-tabs' => [
@@ -18,7 +20,7 @@ class ListIndex extends Component
             'links' => [
                 'today' => 'Today',
                 'tomorrow' => 'Tomorrow',
-                'confirmed' => 'Confirmed',
+                'unconfirmed' => 'Unconfirmed',
                 'all' => 'All',
             ],
         ]
@@ -28,6 +30,12 @@ class ListIndex extends Component
         'tabs.schedule-list-index-tabs.active' => ['except' => '', 'as' => 'tab'],
         'activeWarehouseId' => ['except' => '', 'as' => 'whse'],
     ];
+
+    protected $listeners = [
+        'schedule-list-index-tabs:tab:changed' => 'indexActiveTabChange',
+    ];
+
+    public $tabCounts = [];
 
     public $activeWarehouseId;
 
@@ -57,11 +65,25 @@ class ListIndex extends Component
 
     public function render()
     {
+        $this->updateTabCounts();
         return $this->renderView('livewire.scheduler.schedule.list-index');
     }
 
     public function changeWarehouse($wsheID)
     {
         $this->activeWarehouseId = $wsheID;
+    }
+
+    public function indexActiveTabChange($activeTab)
+    {
+        $this->updateTabCounts();
+    }
+
+    public function updateTabCounts()
+    {
+        $this->tabCounts['today'] = $this->queryByDate(Carbon::now()->toDateString())->where('orders.whse', $this->activeWarehouseId)->count();
+        $this->tabCounts['tomorrow'] = $this->queryByDate(Carbon::now()->addDay()->toDateString())->where('orders.whse', $this->activeWarehouseId)->count();
+        $this->tabCounts['unconfirmed'] = $this->queryByStatus('unconfirmed')->where('orders.whse', $this->activeWarehouseId)->count();
+        $this->tabCounts['all'] = $this->scheduleBaseQuery()->count();
     }
 }
