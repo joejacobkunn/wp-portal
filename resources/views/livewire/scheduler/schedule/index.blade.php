@@ -92,6 +92,11 @@
                                     <i class="fa-solid fa-user"></i>
                                     {!! $truck['driverName'] ?? '<span class="text-warning">Not Assigned</span>' !!}
                                 </span>
+                                @if (!empty($truck['events']) && $truck['events'][0]['travel_prio_number'])
+                                    <div class="mb-1 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
+                                        Showing
+                                        optimized route for schedule via Google</div>
+                                @endif
                                 <div class="list-group mt-2">
                                     <ul class="list-group">
 
@@ -127,7 +132,8 @@
                                                     @if ($event['travel_prio_number'])
                                                         <p class="font-small"><span class="badge bg-light-info">
                                                                 ETA :
-                                                                {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}</span></p>
+                                                                {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}</span>
+                                                        </p>
                                                     @endif
                                                 </a>
                                             </li>
@@ -140,9 +146,9 @@
                         </div>
                     @endforeach
                 @else
-                <div class="alert alert-light-warning color-warning"><i
-                        class="bi bi-exclamation-triangle"></i> No active trucks and zones
-                </div>
+                    <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i> No
+                        active trucks and zones
+                    </div>
                 @endif
             </div>
         </div>
