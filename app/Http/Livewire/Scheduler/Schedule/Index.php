@@ -109,7 +109,7 @@ class Index extends Component
         $this->orderInfoStrng = uniqid();
 
         $this->scheduleOptions = collect(ScheduleEnum::cases())
-            ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->value])
+            ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->label()])
             ->toArray();
 
         if (Auth::user()->office_location) {
@@ -208,8 +208,7 @@ class Index extends Component
 
         $this->authorize('store', Schedule::class);
         $response = $this->form->store();
-        $type = Str::title(str_replace('_', ' ', $response['schedule']->type));
-        $enumInstance = ScheduleEnum::tryFrom($type);
+        $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
         $event = [
             'id' => $response['schedule']->id,
@@ -296,8 +295,7 @@ class Index extends Component
         ->orderBy('schedules.created_at', 'asc')
         ->get()
         ->map(function ($schedule, $index) {
-            $type = Str::title(str_replace('_', ' ', $schedule->type));
-            $enumInstance = ScheduleEnum::tryFrom($type);
+            $enumInstance = ScheduleEnum::tryFrom($schedule->type);
             $icon = $enumInstance ? $enumInstance->icon() : null;
             return [
                 'id' => $schedule->id,
@@ -770,8 +768,7 @@ class Index extends Component
 
     public function EventUpdate($response)
     {
-        $type = Str::title(str_replace('_', ' ', $response['schedule']->type));
-        $enumInstance = ScheduleEnum::tryFrom($type);
+        $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
         $event = [
             'id' => $response['schedule']->id,
@@ -874,8 +871,7 @@ class Index extends Component
 
         $schedules =  $schedulQuery->get()
             ->map(function ($schedule) {
-                $type = Str::title(str_replace('_', ' ', $schedule->type));
-                $enumInstance = ScheduleEnum::tryFrom($type);
+                $enumInstance = ScheduleEnum::tryFrom($schedule->type);
 
                 return [
                     'schedule_id' => $schedule->scheduleId(),

@@ -149,7 +149,7 @@
         @if ($showModal || $isEdit)
             <x-modal toggle="showModal" size="xl" :closeEvent="'closeModal'">
                 <x-slot name="title">Schedule
-                    {{ Illuminate\Support\Str::of($form->type)->replace('_', ' ')->title() }}</x-slot>
+                    {{  App\Enums\Scheduler\ScheduleEnum::tryFrom($form->type)->label() }}</x-slot>
                 @if (!$this->showView)
                     @include('livewire.scheduler.schedule.partial.form')
                 @else
@@ -222,7 +222,9 @@
                                             {{ $event['customer'] }} - SX#
                                             {{ $event['sx_customer_number'] }}
                                         </p>
-                                        <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                        @if (isset($event['shipping_info']))
+                                            <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                        @endif
                                     </a>
                                 @empty
                                     <div class="alert alert-light-warning color-warning"><i
