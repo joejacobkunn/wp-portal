@@ -6,10 +6,10 @@ use App\Traits\Enum\StatusEnumTrait;
 
 enum ScheduleEnum: string
 {
-    case at_home_maintenance =  'At Home Maintenance';
-    case delivery = 'Delivery';
-    case pickup = 'Pickup';
-    case setup_install = 'Setup/Install';
+    case at_home_maintenance =  'at_home_maintenance';
+    case delivery = 'delivery';
+    case pickup = 'pickup';
+    case setup_install = 'setup_install';
 
     public function label(): string
     {

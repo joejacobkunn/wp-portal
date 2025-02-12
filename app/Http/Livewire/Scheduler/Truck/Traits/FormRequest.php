@@ -94,8 +94,10 @@ trait FormRequest
     {
         // $this->authorize('store', Truck::class);
 
+
         $this->truck->fill([
-            'whse' => $this->whseId,
+            'whse' => $this->activeWarehouse->id,
+            'warehouse_short' => $this->whseShort,
         ]);
         $truck = $this->truck->save();
         $this->alert('success', 'Truck created successfully!');

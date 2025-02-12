@@ -95,7 +95,7 @@
                                 @if (!empty($truck['events']) && $truck['events'][0]['travel_prio_number'])
                                     <div class="mb-1 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
                                         Showing
-                                        optimized route for schedule via Google</div>
+                                        optimal route suggested by Google</div>
                                 @endif
                                 <div class="list-group mt-2">
                                     <ul class="list-group">
@@ -155,7 +155,7 @@
         @if ($showModal || $isEdit)
             <x-modal toggle="showModal" size="xl" :closeEvent="'closeModal'">
                 <x-slot name="title">Schedule
-                    {{ Illuminate\Support\Str::of($form->type)->replace('_', ' ')->title() }}</x-slot>
+                    {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($form->type)->label() }}</x-slot>
                 @if (!$this->showView)
                     @include('livewire.scheduler.schedule.partial.form')
                 @else
@@ -178,7 +178,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <x-forms.input type="text" label="Search Schedule" model="searchKey"
-                                hint="Search by order number, name, email or phone" lazy />
+                                hint="Search by order number, sro number, schedule id, name, email or phone" lazy />
                         </div>
                     </div>
                 </div>
@@ -228,7 +228,9 @@
                                             {{ $event['customer'] }} - SX#
                                             {{ $event['sx_customer_number'] }}
                                         </p>
-                                        <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                        @if (isset($event['shipping_info']))
+                                            <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                        @endif
                                     </a>
                                 @empty
                                     <div class="alert alert-light-warning color-warning"><i
