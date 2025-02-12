@@ -472,7 +472,17 @@
             let addressField;
 
             function initAutocomplete() {
+                if (typeof(google) == 'undefined') return;
+
                 addressField = document.getElementById("form.service_address_temp_textarea-field");
+
+                if (autocomplete) {
+                    google.maps.event.clearInstanceListeners(autocomplete);
+
+                    if (document.querySelector('.pac-container')) {
+                        document.querySelector('.pac-container').remove()
+                    }
+                }
 
                 autocomplete = new google.maps.places.Autocomplete(addressField, {
                     componentRestrictions: {
@@ -485,12 +495,10 @@
                 autocomplete.addListener("place_changed", fillInAddress);
             }
 
-            if (typeof(google) != 'undefined') {
-                initAutocomplete();
-            } else {
+            if (typeof(google) == 'undefined') {
                 loadScript(
                     'https://maps.googleapis.com/maps/api/js?key={{ config('google.api_key') }}&libraries=places&v=weekly',
-                    initAutocomplete)
+                    () => {})
             }
 
             function fillInAddress() {
@@ -498,6 +506,14 @@
                 $wire.set('form.service_address_temp', document.getElementById(
                     "form.service_address_temp_textarea-field").value);
             }
+
+            document.addEventListener('browser:show-edit-address', initAutocomplete);
+            document.addEventListener('livewire:navigating', unbindEvents);
+            function unbindEvents() {
+                document.removeEventListener('browser:show-edit-address', initAutocomplete);
+                document.removeEventListener('livewire:navigating', unbindEvents)
+            }
+
         })();
     </script>
 @endscript

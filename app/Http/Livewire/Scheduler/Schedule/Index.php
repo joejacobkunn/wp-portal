@@ -687,6 +687,7 @@ class Index extends Component
     {
         $this->form->service_address_temp = $this->form->service_address;
         $this->serviceAddressModal = true;
+        $this->dispatch('browser:show-edit-address');
     }
 
     public function closeServiceAddressModal()
