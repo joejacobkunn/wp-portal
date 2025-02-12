@@ -570,6 +570,8 @@ class Index extends Component
     public function updatedSearchKey($value)
     {
         $this->searchKey = $value;
+        $ScheduleIDpattern = "/^[A-Za-z]1000\d+$/";
+
         if($this->searchKey == '') {
             $this->addError('searchKey', 'search field can\'t be empty');
             $this->reset('searchData');
@@ -617,9 +619,12 @@ class Index extends Component
             } elseif ($length === 10) {
                 $query->where('customers.phone', $value);
             } else {
-                $this->searchData = [];
-                return;
+                $query->where('schedules.sro_number', $value);
             }
+        } elseif(preg_match($ScheduleIDpattern, $this->searchKey)){
+            $id =  (int) substr($this->searchKey, 4);
+            $query->where('schedules.id', $id);
+
         } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
             $query->where('customers.email',  $value);
         } elseif (Str::length($this->searchKey) >= 4) {
