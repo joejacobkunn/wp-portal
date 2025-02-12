@@ -28,7 +28,7 @@ class LocationSearchService implements DistanceInterface{
             'address' => [
                 'regionCode' => $address['regionCode'] ?? 'US',
                 'addressLines' => $address['addressLines'],
-                'postalCode' => $address['zip'],
+                //'postalCode' => $address['zip'],
             ]];
 
         $response = Http::post(config('google.validation_url'), $payload);

@@ -95,7 +95,7 @@
                                 @if (!empty($truck['events']) && $truck['events'][0]['travel_prio_number'])
                                     <div class="mb-1 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
                                         Showing
-                                        optimized route for schedule via Google</div>
+                                        optimal route suggested by Google</div>
                                 @endif
                                 <div class="list-group mt-2">
                                     <ul class="list-group">
@@ -155,7 +155,7 @@
         @if ($showModal || $isEdit)
             <x-modal toggle="showModal" size="xl" :closeEvent="'closeModal'">
                 <x-slot name="title">Schedule
-                    {{  App\Enums\Scheduler\ScheduleEnum::tryFrom($form->type)->label() }}</x-slot>
+                    {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($form->type)->label() }}</x-slot>
                 @if (!$this->showView)
                     @include('livewire.scheduler.schedule.partial.form')
                 @else

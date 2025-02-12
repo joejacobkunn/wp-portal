@@ -62,7 +62,7 @@
                                         {{ $form->service_address }}
                                         <br>
                                         <i class="fa-solid fa-phone"></i>
-                                        {{ $form->orderInfo?->customer?->phone ? $form->orderInfo?->customer?->phone : 'n/a' }}
+                                        {{ $form->orderInfo?->customer?->phone ? format_phone($form->orderInfo?->customer?->phone) : 'n/a' }}
                                         <i class="fa-solid fa-envelope"></i>
                                         {{ $form->orderInfo?->customer?->email ? $form->orderInfo?->customer->email : 'n/a' }}<br>
 
@@ -92,7 +92,7 @@
                             </div>
                             @if ($form->addressVerified)
                                 <p class="text-success"><i class="fas fa-check-circle"></i>
-                                    This address is verified by google
+                                    Service address verified and formatted by Google
                                 </p>
                             @endif
                             @if ($form->zipcodeInfo)
@@ -363,11 +363,11 @@
                     Truck Info
                 </li>
                 <li class="list-group-item"><strong>Truck Name</strong> <span
-                    class="float-end">{{ $scheduledTruckInfo['truck_name'] }}</span></li>
+                        class="float-end">{{ $scheduledTruckInfo['truck_name'] }}</span></li>
                 <li class="list-group-item"><strong>Vin Number</strong> <span
-                    class="float-end">{{ $scheduledTruckInfo['vin_number'] }}</span></li>
+                        class="float-end">{{ $scheduledTruckInfo['vin_number'] }}</span></li>
                 <li class="list-group-item"><strong>Driver Name</strong> <span
-                    class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
+                        class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
             </ul>
         @endif
 
@@ -451,7 +451,8 @@
                     </div>
                     Update Address
                 </button>
-                <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif wire:click="revertAddress">
+                <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif
+                    wire:click="revertAddress">
                     <div wire:loading wire:target="revertAddress">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>
@@ -494,7 +495,8 @@
 
             function fillInAddress() {
                 let place = autocomplete.getPlace();
-                $wire.set('form.service_address_temp', document.getElementById("form.service_address_temp_textarea-field").value);
+                $wire.set('form.service_address_temp', document.getElementById(
+                    "form.service_address_temp_textarea-field").value);
             }
         })();
     </script>
