@@ -32,7 +32,7 @@ class Table extends DataTableComponent
             {
                 return '<a  href="'.route('service-area.zipcode.show', $row->id).
                     '" wire:navigate class="text-primary text-decoration-underline">'.
-                    $value.'</a>';
+                    $row->generalZipcode->zipcode.'</a>';
             })
 
             ->excludeFromColumnSelect()
