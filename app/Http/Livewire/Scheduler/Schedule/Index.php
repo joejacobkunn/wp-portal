@@ -109,7 +109,7 @@ class Index extends Component
         $this->orderInfoStrng = uniqid();
 
         $this->scheduleOptions = collect(ScheduleEnum::cases())
-            ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->value])
+            ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->label()])
             ->toArray();
 
         if (Auth::user()->office_location) {
@@ -208,8 +208,7 @@ class Index extends Component
 
         $this->authorize('store', Schedule::class);
         $response = $this->form->store();
-        $type = Str::title(str_replace('_', ' ', $response['schedule']->type));
-        $enumInstance = ScheduleEnum::tryFrom($type);
+        $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
         $event = [
             'id' => $response['schedule']->id,
@@ -296,8 +295,7 @@ class Index extends Component
         ->orderBy('schedules.created_at', 'asc')
         ->get()
         ->map(function ($schedule, $index) {
-            $type = Str::title(str_replace('_', ' ', $schedule->type));
-            $enumInstance = ScheduleEnum::tryFrom($type);
+            $enumInstance = ScheduleEnum::tryFrom($schedule->type);
             $icon = $enumInstance ? $enumInstance->icon() : null;
             return [
                 'id' => $schedule->id,
@@ -384,10 +382,15 @@ class Index extends Component
                 'expected_time' => $schedule->expected_arrival_time,
                 'travel_prio_number' => $schedule->travel_prio_number,
                 'truck_schedule_id' => $schedule->truck_schedule_id,
+                'latest_comment' => $schedule->comments->last()
             ];
         })
         ->toArray();
         $this->filteredSchedules = $this->getTrucks();
+
+        usort($this->filteredSchedules, function ($a, $b) {
+            return count($b['events']) <=> count($a['events']);
+        });
     }
 
     public function onDateRangeChanges($start, $end)
@@ -522,6 +525,7 @@ class Index extends Component
     {
         $schedule = TruckSchedule::find($scheduleId);
         $this->form->schedule_time = $schedule->id;
+        $this->form->selectedTruckSchedule = $schedule;
         $this->scheduledTruckInfo = [
             'truck_name' => $schedule->truck->truck_name,
             'vin_number' => $schedule->truck->vin_number,
@@ -572,6 +576,7 @@ class Index extends Component
     public function updatedSearchKey($value)
     {
         $this->searchKey = $value;
+        $ScheduleIDpattern = "/^[A-Za-z]\d{7,}$/";
         if($this->searchKey == '') {
             $this->addError('searchKey', 'search field can\'t be empty');
             $this->reset('searchData');
@@ -622,8 +627,15 @@ class Index extends Component
                 $this->searchData = [];
                 return;
             }
+        } elseif(preg_match($ScheduleIDpattern, $this->searchKey)){
+            $tempId =  (int) substr($this->searchKey, 1);
+            $id = $tempId - 1000000;
+            $query->where('schedules.id', $id);
+
         } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
             $query->where('customers.email',  $value);
+        } elseif(preg_match('/^[A-Za-z0-9]+$/', $value)) {
+            $query->where('schedules.sro_number', $value);
         } elseif (Str::length($this->searchKey) >= 4) {
             $query->where('customers.name', 'like', $value . '%');
         } else {
@@ -771,8 +783,7 @@ class Index extends Component
 
     public function EventUpdate($response)
     {
-        $type = Str::title(str_replace('_', ' ', $response['schedule']->type));
-        $enumInstance = ScheduleEnum::tryFrom($type);
+        $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
         $event = [
             'id' => $response['schedule']->id,
@@ -875,8 +886,7 @@ class Index extends Component
 
         $schedules =  $schedulQuery->get()
             ->map(function ($schedule) {
-                $type = Str::title(str_replace('_', ' ', $schedule->type));
-                $enumInstance = ScheduleEnum::tryFrom($type);
+                $enumInstance = ScheduleEnum::tryFrom($schedule->type);
 
                 return [
                     'schedule_id' => $schedule->scheduleId(),

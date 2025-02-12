@@ -27,12 +27,13 @@ class Truck extends Model
         'baseline_date',
         'service_type',
         'shift_type',
+        'warehouse_short',
     ];
 
 
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class, 'whse');
+        return $this->belongsTo(Warehouse::class, 'warehouse_short', 'short');
     }
 
     public function rotations()

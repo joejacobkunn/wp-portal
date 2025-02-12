@@ -83,7 +83,6 @@ class RouteFinder extends Command
 
     private function processCombinedSchedules($schedules)
     {
-        // Get first schedule for truck and date info
         $firstSchedule = $schedules->first();
         $this->info(sprintf('Processing schedules for Truck ID: %d, Date: %s',
             $firstSchedule->truck_id,
@@ -94,9 +93,9 @@ class RouteFinder extends Command
         $currentTime = Carbon::parse($firstSchedule->schedule_date . ' ' . '08:45 AM');
 
         foreach ($schedules as $schedule) {
-            // Get confirmed orders for current schedule only
             $confirmedOrders = $schedule->orderSchedule()
                 ->where('status', 'confirmed')
+                ->orderBy('id')
                 ->get();
 
             if ($confirmedOrders->isEmpty()) {
@@ -104,44 +103,43 @@ class RouteFinder extends Command
                 continue;
             }
 
-            $schedule_time = Carbon::parse($schedule->schedule_date . ' ' . $schedule->start_time);
-            if ($currentTime != Carbon::parse($schedule->schedule_date . ' ' . '08:45 AM') && $schedule_time > $currentTime) {
-                $currentTime = $schedule_time;
+            // Group orders by address while maintaining order
+            $addressToOrders = [];
+            foreach ($confirmedOrders as $order) {
+                if (!isset($addressToOrders[$order->service_address])) {
+                    $addressToOrders[$order->service_address] = [];
+                }
+                $addressToOrders[$order->service_address][] = $order;
             }
 
             // Prepare input data starting from last known address
             $dataInput = [$lastAddress];
-            $destinations = $confirmedOrders->pluck('service_address')->toArray();
+            $destinations = array_keys($addressToOrders);
             $dataInput = array_merge($dataInput, $destinations);
-
-            // Remove duplicates if any
-            $dataInput = array_unique($dataInput);
 
             $response = $this->getDistance($dataInput);
             if(isset($response['error'])) {
                 $this->info(sprintf($response['message']));
                 continue;
             }
+
             // Update the schedule with optimized route
             $lastExpectedTime = $this->updateSchedulePriorities(
                 collect([$schedule]),
                 $confirmedOrders,
                 $response,
                 $dataInput,
-                $currentTime
+                $currentTime,
+                $addressToOrders
             );
 
-            // Update the last address and time for next schedule
             $optimalRoute = $response['optimal_route'];
             $lastAddress = end($optimalRoute);
-            // Calculate final time after last stop
-            $lastOrderIndex = array_key_last($optimalRoute);
-            if ($lastOrderIndex > 0) {
-                $currentTime = $lastExpectedTime->copy();
+            if (count($optimalRoute) > 1) {
+                $currentTime = $lastExpectedTime->addHour();
             }
         }
     }
-
     private function getDistance($dataInput)
     {
         $google = app(DistanceInterface::class);
@@ -208,41 +206,60 @@ class RouteFinder extends Command
 
     private function calculateTravelTime($currentIndex, $nextIndex, $durationMatrix)
     {
-        // Duration comes in seconds from Google API, convert to minutes
+        if ($currentIndex < 0 || $nextIndex < 0 ||
+            $currentIndex >= count($durationMatrix) ||
+            $nextIndex >= count($durationMatrix)) {
+            $this->warn("Invalid indices for travel time calculation: {$currentIndex} to {$nextIndex}");
+            return 0;
+        }
+
         return ceil($durationMatrix[$currentIndex][$nextIndex] / 60);
     }
 
 
-    private function updateSchedulePriorities($schedules, $confirmedOrders, $routeData, $addresses, $startTime)
+    private function updateSchedulePriorities($schedules, $confirmedOrders, $routeData, $addresses, $startTime, $addressToOrders)
     {
         $optimalRoute = $routeData['optimal_route'];
         $durations = $routeData['durations'];
         $expectedTime = clone $startTime;
-
-        $orderMap = $confirmedOrders->keyBy('service_address');
         $priority = 1;
+        $previousAddress = $optimalRoute[0];
 
         foreach (array_slice($optimalRoute, 1) as $address) {
-            if (isset($orderMap[$address])) {
-                $order = $orderMap[$address];
-                // Calculate expected arrival time
-                $travelTime = $this->calculateTravelTime(
-                    array_search($address, $optimalRoute) - 1,
-                    array_search($address, $optimalRoute),
-                    $durations
-                );
-                $expectedTime->addMinutes($travelTime);
+            if (isset($addressToOrders[$address])) {
+                $isFirstOrderAtAddress = true;
 
-                $order->update([
-                    'travel_prio_number' => $priority,
-                    'expected_arrival_time' => $expectedTime->format('H:i:s')
-                ]);
+                foreach ($addressToOrders[$address] as $order) {
+                    if ($isFirstOrderAtAddress) {
+                        // Calculate travel time only for the first order at this address
+                        $currentIndex = array_search($address, $optimalRoute);
+                        $previousIndex = array_search($previousAddress, $optimalRoute);
 
-                $this->info("Updated Schedule ID: {$order->id} with priority: {$priority} and expected time: {$expectedTime->format('H:i:s')}");
+                        $travelTime = $this->calculateTravelTime(
+                            $previousIndex,
+                            $currentIndex,
+                            $durations
+                        );
+                        $expectedTime->addMinutes($travelTime);
+                        $isFirstOrderAtAddress = false;
+                    }
 
-                $expectedTime->addHour(); //add service time
-                $priority++;
+                    $order->update([
+                        'travel_prio_number' => $priority,
+                        'expected_arrival_time' => $expectedTime->format('H:i:s')
+                    ]);
 
+                    $this->info(sprintf(
+                        "Updated Order ID: %d with priority: %d and expected time: %s",
+                        $order->id,
+                        $priority,
+                        $expectedTime->format('H:i:s')
+                    ));
+
+                    $expectedTime->addHour(); // Add service time for each order
+                    $priority++;
+                }
+                $previousAddress = $address;
             }
         }
         return $expectedTime;

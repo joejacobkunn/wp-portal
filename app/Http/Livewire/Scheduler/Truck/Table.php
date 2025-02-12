@@ -12,7 +12,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 class Table extends DataTableComponent
 {
     use AuthorizesRequests;
-    public $whseId;
+    public $whseShort;
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -103,7 +103,7 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Truck::query()->where('whse', $this->whseId);
+        return Truck::query()->where('warehouse_short', $this->whseShort);
     }
 
     public function fetchIcon($type)

@@ -16,7 +16,7 @@ class Index extends Component
     public $addRecord = false;
     public $warehouses;
     public $activeWarehouse;
-    public $whseId;
+    public $whseShort;
     public $breadcrumbs = [
         [
             'title' => 'Scheduler',
@@ -29,7 +29,7 @@ class Index extends Component
     ];
 
     protected $queryString = [
-        'whseId' => ['except' => '', 'as' => 'whseId'],
+        'whseShort' => ['except' => '', 'as' => 'whse'],
     ];
     public function mount()
     {
@@ -37,9 +37,8 @@ class Index extends Component
         $this->formInit();
         $this->warehouses = Warehouse::where('cono', 10)->orderBy('title')->get();
 
-        $this->whseId =  $this->whseId ? $this->whseId : Warehouse::where('title', Auth::user()->office_location)->first()->id;
-
-        $this->activeWarehouse = Warehouse::where('cono', 10)->where('id', $this->whseId)->first();
+        $this->whseShort =  $this->whseShort ? $this->whseShort : Warehouse::where('title', Auth::user()->office_location)->first()->short;
+        $this->activeWarehouse = $this->warehouses->where('short', $this->whseShort)->first();
     }
 
     public function render()
@@ -57,9 +56,9 @@ class Index extends Component
         $this->addRecord = false;
     }
 
-    public function changeWarehouse($whseId)
+    public function changeWarehouse($whseShort)
     {
-        $this->activeWarehouse = Warehouse::find($whseId);
-        $this->whseId = $this->activeWarehouse->id;
+        $this->activeWarehouse = Warehouse::where('short' , $whseShort)->first();
+        $this->whseShort = $this->activeWarehouse->short;
     }
 }

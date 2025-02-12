@@ -92,7 +92,12 @@
                                     <i class="fa-solid fa-user"></i>
                                     {!! $truck['driverName'] ?? '<span class="text-warning">Not Assigned</span>' !!}
                                 </span>
-                                <div class="list-group mt-2">
+                                @if (!empty($truck['events']) && $truck['events'][0]['travel_prio_number'])
+                                    <div class="mb-1 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
+                                        Showing
+                                        optimal route suggested by Google</div>
+                                @endif
+                                <div class="list-group mt-2 border border-3">
                                     <ul class="list-group">
 
                                         @foreach ($truck['events'] as $event)
@@ -106,8 +111,8 @@
                                                     <div class="d-flex w-100 justify-content-between">
                                                         <h6 class="text-break">
                                                             <span
-                                                                class=" d-inline-block text-wrap badge bg-{{ $event['status_color'] }}">ScheduleID
-                                                                #{{ $event['schedule_id'] }} - Order
+                                                                class=" d-inline-block text-wrap badge bg-{{ $event['status_color'] }}">
+                                                                #{{ $event['schedule_id'] }} - OE
                                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
                                                             <div wire:loading
                                                                 wire:target="handleEventClick({{ $event['id'] }})">
@@ -124,10 +129,17 @@
                                                     @if (isset($event['shipping_info']))
                                                         <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
                                                     @endif
+                                                    @if (!empty($event['latest_comment']))
+                                                        <div class="p-1 mt-2 bg-light-dark color-warning"> <i
+                                                                class="far fa-comment-dots"></i>
+                                                            {{ str($event['latest_comment']->comment)->limit(30, ' ...') }}
+                                                        </div>
+                                                    @endif
                                                     @if ($event['travel_prio_number'])
                                                         <p class="font-small"><span class="badge bg-light-info">
-                                                                expected delivery time :
-                                                                {{ $event['expected_time'] }}</span></p>
+                                                                ETA :
+                                                                {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}</span>
+                                                        </p>
                                                     @endif
                                                 </a>
                                             </li>
@@ -140,16 +152,16 @@
                         </div>
                     @endforeach
                 @else
-                <div class="alert alert-light-warning color-warning"><i
-                        class="bi bi-exclamation-triangle"></i> No active trucks and zones
-                </div>
+                    <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i> No
+                        active trucks and zones
+                    </div>
                 @endif
             </div>
         </div>
         @if ($showModal || $isEdit)
             <x-modal toggle="showModal" size="xl" :closeEvent="'closeModal'">
                 <x-slot name="title">Schedule
-                    {{ Illuminate\Support\Str::of($form->type)->replace('_', ' ')->title() }}</x-slot>
+                    {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($form->type)->label() }}</x-slot>
                 @if (!$this->showView)
                     @include('livewire.scheduler.schedule.partial.form')
                 @else
@@ -172,7 +184,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <x-forms.input type="text" label="Search Schedule" model="searchKey"
-                                hint="Search by order number, name, email or phone" lazy />
+                                hint="Search by order number, sro number, schedule id, name, email or phone" lazy />
                         </div>
                     </div>
                 </div>
@@ -222,7 +234,9 @@
                                             {{ $event['customer'] }} - SX#
                                             {{ $event['sx_customer_number'] }}
                                         </p>
-                                        <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                        @if (isset($event['shipping_info']))
+                                            <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                        @endif
                                     </a>
                                 @empty
                                     <div class="alert alert-light-warning color-warning"><i

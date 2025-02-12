@@ -13,10 +13,12 @@ use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\Zipcode;
 use App\Models\SX\Order as SXOrder;
+use App\Models\SX\OrderLineItem;
 use App\Rules\ValidateScheduleDate;
 use App\Rules\ValidateScheduleTime;
 use App\Rules\ValidateSlotsforSchedule;
 use Carbon\Carbon;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -59,6 +61,7 @@ class ScheduleForm extends Form
     public $not_purchased_via_weingartz;
     public $addressVerified = false;
     public $addressFromOrder;
+    public $selectedTruckSchedule;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -91,13 +94,11 @@ class ScheduleForm extends Form
             'type' => 'required',
             'sx_ordernumber' => [
                 'required',
+                'numeric',
+                'max_digits:9',
                 Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at'),
-                Rule::exists('orders', 'order_number')
-                ->where(function ($query) {
-                    $query->where('order_number_suffix', $this->suffix);
-                }),
             ],
-            'suffix' => 'required',
+            'suffix' => 'required|numeric|max_digits:1',
             'schedule_date' => [
                 'required',
                 new ValidateScheduleDate($this->getActiveDays())
@@ -139,11 +140,36 @@ class ScheduleForm extends Form
             return;
         }
 
+        $this->SXOrderInfo = [];
 
-        $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
+        if(!config('sx.mock'))
+        {
+            
+            $this->SXOrderInfo = SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
+
+            if(is_null($this->SXOrderInfo)) {
+                $this->addError('sx_ordernumber', 'Order not Found');
+                $this->reset([
+                    'zipcodeInfo',
+                    'scheduleDateDisable',
+                    'schedule_date',
+                    'schedule_time',
+                    'enabledDates' ,
+                    'truckSchedules',
+                    'scheduleType',
+                    'line_item',
+                    'orderInfo'
+    
+                ]);
+                return;
+            }
+
+            $this->orderInfo = $this->syncSXOrder($this->SXOrderInfo);
+    
+        }else{
+            $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
             ->first();
-
-        $this->SXOrderInfo = (config('sx.mock')) ? [] : SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
+        }
 
         if(is_null($this->orderInfo)) {
             $this->addError('sx_ordernumber', 'Order not Found');
@@ -250,6 +276,8 @@ class ScheduleForm extends Form
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['schedule_type'] = $this->scheduleType;
+        $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
+
         if($this->not_purchased_via_weingartz) {
             $validatedData['line_item'] = null;
         } else {
@@ -524,7 +552,7 @@ class ScheduleForm extends Form
         $address=[
             'regionCode' => 'US',
             'addressLines' => $address,
-            'zip' => $zip
+            //'zip' => $zip
         ];
 
         $recom =  $google->addressValidation($address);
@@ -568,8 +596,164 @@ class ScheduleForm extends Form
         ]);
         $this->showAddressModal = false;
         $this->showAddressBox = false;
-        $this->service_address = $addressString;
+        $this->service_address = $recom['result']['address']['formattedAddress'];
         $this->addressVerified =true;
         $this->checkZipcode();
     }
+
+    private function syncSXOrder($sx_order)
+    {
+        $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
+        $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
+        
+        $portal_order = Order::updateOrCreate(
+            [
+                'order_number' => $sx_order['orderno'], 
+                'order_number_suffix' => $sx_order['ordersuf'], 
+                'cono' => $sx_order['cono']
+            ],
+            [
+                'whse' => strtolower($sx_order['whse']),
+                'taken_by' => $sx_order['takenby'],
+                'order_date' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
+                'stage_code' => $sx_order['stagecd'],
+                'sx_customer_number' => $sx_order['custno'],
+                'is_sro' => $this->isSro($sx_order,$line_items->toArray()),
+                'ship_via' => strtolower($sx_order['shipviaty']),
+                'qty_ship' => $sx_order['totqtyshp'],
+                'qty_ord' => $sx_order['totqtyord'],
+                'promise_date' => $sx_order['promisedt'],
+                'line_items' => ['line_items' => $line_items->toArray() ?: []],
+                'is_sales_order' => $this->isSales($line_items->toArray()),
+                'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
+                'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
+                'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
+                'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
+                'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
+                'last_line_added_at' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
+                'status' => 'Pending Review',
+                'shipping_info' => $sx_order->constructAddress($sx_order)
+            ]
+        );
+
+        return $portal_order;
+        
+    }
+
+    private function getSxOrderLineItemsProperty($order_number, $order_suffix, $cono = 10)
+    {
+        $required_line_item_columns = [
+            'oeel.orderno',
+            'oeel.ordersuf',
+            'oeel.shipto',
+            'oeel.lineno',
+            'oeel.qtyord',
+            'oeel.proddesc',
+            'oeel.price',
+            'oeel.shipprod',
+            'oeel.statustype',
+            'oeel.prodcat',
+            'oeel.prodline',
+            'oeel.specnstype',
+            'oeel.qtyship',
+            'oeel.ordertype',
+            'oeel.netamt',
+            'oeel.orderaltno',
+            'oeel.user8',
+            'oeel.vendno',
+            'oeel.whse',
+            'oeel.stkqtyord',
+            'oeel.stkqtyship',
+            'oeel.returnfl',
+            'icsp.descrip',
+            'icsl.user3',
+            'icsl.whse',
+            'icsl.prodline',
+            'oeel.cono',
+            'oeel.enterdt',
+        ];
+    
+        return OrderLineItem::select($required_line_item_columns)
+        ->leftJoin('icsp', function (JoinClause $join) {
+            $join->on('oeel.cono','=','icsp.cono')
+            ->on('oeel.shipprod', '=', 'icsp.prod');
+                //->where('icsp.cono', $this->customer->account->sx_company_number);
+        })
+        ->leftJoin('icsl', function (JoinClause $join) {
+            $join->on('oeel.cono','=','icsl.cono')
+                ->on('oeel.whse', '=', 'icsl.whse')
+                ->on('oeel.vendno', '=', 'icsl.vendno')
+                ->on('oeel.prodline', '=', 'icsl.prodline');
+        })
+        ->where('oeel.orderno', $order_number)->where('oeel.ordersuf', $order_suffix)
+        ->where('oeel.cono', $cono)
+        ->orderBy('oeel.lineno', 'asc')
+        ->get();
+    }
+
+    private function isSales($line_items)
+    {
+        foreach($line_items as $line_item)
+        {
+            if(!str_contains($line_item['prodline'], 'LR-E') && str_contains($line_item['prodline'], '-E'))
+            {
+                return true;
+            } 
+        }
+
+        return false;
+    }
+
+    private function isSro($order,$line_items)
+    {
+        $is_sro = $order['user1'] == 'SRO' ? 1 : 0;
+
+        if($is_sro) return true;
+
+        foreach($line_items as $line_item)
+        {
+            if(str_contains($line_item['prodline'], 'LR-E'))
+            {
+                return true;
+            } 
+        }
+
+        return false;
+
+    }
+
+    private function checkForWarehouseTransfer($sx_order, $line_items)
+    {
+        $line_item_level_statuses = [];
+
+        if($sx_order->isBackOrder())
+        {
+            foreach($line_items as $line_item)
+            {
+                $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
+
+                if($backorder_count > 0 && strtolower($line_item->ordertype) != 't')
+                {
+                    $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
+
+                    foreach($inventory_levels as $inventory_level)
+                    {
+                        $available_stock = $inventory_level->qtyonhand - ($inventory_level->qtycommit + $inventory_level->qtyreservd);
+
+                        if($available_stock >= $backorder_count) $line_item_level_statuses[] = 'wt'; //full wt available
+                        if(!($available_stock >= $backorder_count) && $available_stock > 0) $line_item_level_statuses[] = 'p-wt'; //partial wt transfer
+
+                    }
+                }
+            }
+        }
+
+        if(in_array('wt',$line_item_level_statuses)) return 'wt';
+        if(in_array('p-wt',$line_item_level_statuses)) return 'p-wt';
+
+        return 'n/a';
+
+    }
+
+
 }
