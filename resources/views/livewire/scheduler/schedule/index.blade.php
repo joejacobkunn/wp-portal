@@ -178,7 +178,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <x-forms.input type="text" label="Search Schedule" model="searchKey"
-                                hint="Search by order number, name, email or phone" lazy />
+                                hint="Search by order number, sro number, schedule id, name, email or phone" lazy />
                         </div>
                     </div>
                 </div>

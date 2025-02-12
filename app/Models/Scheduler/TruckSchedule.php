@@ -38,7 +38,7 @@ class TruckSchedule extends Model
 
     public function getScheduleCountAttribute()
     {
-        return $this->orderSchedule()->where('status', '!=', 'Cancelled')->count();
+        return $this->orderSchedule()->where('status', '!=', 'cancelled')->count();
     }
 
     public function driver()
