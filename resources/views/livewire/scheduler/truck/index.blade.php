@@ -14,10 +14,10 @@
                             <ul class="list-group list-group-flush">
                                 @foreach ($warehouses->sortBy('title') as $warehouse)
                                     <li
-                                        class="list-group-item d-flex justify-content-center align-items-center px-0 border-bottom {{ $activeWarehouse->id == $warehouse->id ? 'active' : '' }}">
+                                        class="list-group-item d-flex justify-content-center align-items-center px-0 border-bottom {{ $activeWarehouse->short == $warehouse->short ? 'active' : '' }}">
                                         <div>
                                             <a class="h6 mb-1"
-                                                wire:click="changeWarehouse({{ $warehouse->id }})">{{ $warehouse->title }}</a>
+                                                wire:click="changeWarehouse('{{ $warehouse->short }}')">{{ $warehouse->title }}</a>
                                         </div>
                                     </li>
                                 @endforeach

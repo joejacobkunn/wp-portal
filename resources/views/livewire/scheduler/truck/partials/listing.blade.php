@@ -11,7 +11,7 @@
         <div class="card-body">
             <div class="alert alert-light-primary color-primary"><i class="fas fa-info-circle"></i> Add/Manage trucks and
                 configure truck schedule</div>
-            <livewire:scheduler.truck.table :whseId="$activeWarehouse->id" :key="'trucks-' . $activeWarehouse->id" />
+            <livewire:scheduler.truck.table :whseShort="$activeWarehouse->short" :key="'trucks-' . $activeWarehouse->id" />
         </div>
     </div>
 </div>
