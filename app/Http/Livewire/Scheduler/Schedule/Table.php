@@ -46,6 +46,9 @@ class Table extends DataTableComponent
             Column::make('SX Order No', 'sx_ordernumber')
                 ->excludeFromColumnSelect()
                 ->searchable()
+                ->format(function ($value, $row) {
+                    return $value.'-'.$row->order_number_suffix;
+                })
                 ->html(),
 
             Column::make('Type', 'type')
@@ -73,23 +76,15 @@ class Table extends DataTableComponent
                 }),
 
             Column::make('Order No Suffix', 'order_number_suffix')
-                ->excludeFromColumnSelect()
-                ->searchable()
-                ->html(),
+                ->hideIf(1),
 
             Column::make('Customer Name', 'sx_ordernumber')
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
-                    return $row->order?->customer?->name;
+                    return $row->order?->customer?->name.' (#'.$row->order?->customer?->sx_customer_number.')';
                 }),
 
-            Column::make('SX Customer No', 'sx_ordernumber')
-                ->excludeFromColumnSelect()
-                ->format(function ($value, $row)
-                {
-                    return $row->order?->customer?->sx_customer_number;
-                }),
 
             Column::make('Truck Name', 'truck_schedule_id')
                 ->excludeFromColumnSelect()
@@ -104,14 +99,36 @@ class Table extends DataTableComponent
                 {
                     return $row->truckSchedule?->zone?->name;
                 }),
+
+                Column::make('Time Slot', 'truck_schedule_id')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    return $row->truckSchedule?->start_time.' - '.$row->truckSchedule?->end_time;
+                }),
+
             ];
 
         if ($this->activeTab == 'today') {
+            $columns[] = Column::make('ETA', 'id')
+                ->format(function ($value, $row) {
+                    return (empty($row->expected_arrival_time)) ? 'n/a' : Carbon::parse($row->expected_arrival_time)->format('h:i A');
+                });
             $columns[] = Column::make('Latest Comment', 'id')
                 ->format(function ($value, $row) {
                     return strip_tags($row->latestComment?->comment);
                 });
         }
+
+        $columns[] = Column::make('Status', 'status')
+        ->excludeFromColumnSelect()
+        ->html()
+        ->format(function ($value, $row)
+        {
+            return '<span class="badge bg-'.$row->status_color_class.'">'.strtoupper($value).'</span>';
+            return $row->truckSchedule?->zone?->name;
+        });
+
 
         return $columns;
     }
