@@ -62,6 +62,7 @@ class Table extends DataTableComponent
 
             Column::make('Schedule Date', 'schedule_date')
                 ->excludeFromColumnSelect()
+                ->hideIf($this->activeTab == 'today' || $this->activeTab == 'tomorrow')
                 ->format(function ($value, $row) {
                     if ($value) {
                         $dateObj = Carbon::parse($value);
@@ -110,9 +111,9 @@ class Table extends DataTableComponent
             ];
 
         if ($this->activeTab == 'today') {
-            $columns[] = Column::make('ETA', 'id')
+            $columns[] = Column::make('ETA', 'expected_arrival_time')
                 ->format(function ($value, $row) {
-                    return (empty($row->expected_arrival_time)) ? 'n/a' : Carbon::parse($row->expected_arrival_time)->format('h:i A');
+                    return (empty($value)) ? 'n/a' : Carbon::parse($value)->format('h:i A');
                 });
             $columns[] = Column::make('Latest Comment', 'id')
                 ->format(function ($value, $row) {
