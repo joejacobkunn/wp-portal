@@ -59,6 +59,7 @@ class ScheduleForm extends Form
     public $not_purchased_via_weingartz;
     public $addressVerified = false;
     public $addressFromOrder;
+    public $selectedTruckSchedule;
 
     public $recommendedAddress;
     public $alertConfig = [
@@ -250,6 +251,8 @@ class ScheduleForm extends Form
         $validatedData['order_number_suffix'] = $this->suffix;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['schedule_type'] = $this->scheduleType;
+        $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
+
         if($this->not_purchased_via_weingartz) {
             $validatedData['line_item'] = null;
         } else {

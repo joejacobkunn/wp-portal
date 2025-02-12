@@ -524,6 +524,7 @@ class Index extends Component
     {
         $schedule = TruckSchedule::find($scheduleId);
         $this->form->schedule_time = $schedule->id;
+        $this->form->selectedTruckSchedule = $schedule;
         $this->scheduledTruckInfo = [
             'truck_name' => $schedule->truck->truck_name,
             'vin_number' => $schedule->truck->vin_number,
