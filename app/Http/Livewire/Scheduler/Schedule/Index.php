@@ -382,6 +382,7 @@ class Index extends Component
                 'expected_time' => $schedule->expected_arrival_time,
                 'travel_prio_number' => $schedule->travel_prio_number,
                 'truck_schedule_id' => $schedule->truck_schedule_id,
+                'latest_comment' => $schedule->comments->last()
             ];
         })
         ->toArray();

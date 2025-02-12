@@ -97,7 +97,7 @@
                                         Showing
                                         optimal route suggested by Google</div>
                                 @endif
-                                <div class="list-group mt-2">
+                                <div class="list-group mt-2 border border-3">
                                     <ul class="list-group">
 
                                         @foreach ($truck['events'] as $event)
@@ -111,8 +111,8 @@
                                                     <div class="d-flex w-100 justify-content-between">
                                                         <h6 class="text-break">
                                                             <span
-                                                                class=" d-inline-block text-wrap badge bg-{{ $event['status_color'] }}">ScheduleID
-                                                                #{{ $event['schedule_id'] }} - Order
+                                                                class=" d-inline-block text-wrap badge bg-{{ $event['status_color'] }}">
+                                                                #{{ $event['schedule_id'] }} - OE
                                                                 #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}</span>
                                                             <div wire:loading
                                                                 wire:target="handleEventClick({{ $event['id'] }})">
@@ -128,6 +128,12 @@
                                                     </p>
                                                     @if (isset($event['shipping_info']))
                                                         <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
+                                                    @endif
+                                                    @if (!empty($event['latest_comment']))
+                                                        <div class="p-1 mt-2 bg-light-dark color-warning"> <i
+                                                                class="far fa-comment-dots"></i>
+                                                            {{ str($event['latest_comment']->comment)->limit(30, ' ...') }}
+                                                        </div>
                                                     @endif
                                                     @if ($event['travel_prio_number'])
                                                         <p class="font-small"><span class="badge bg-light-info">

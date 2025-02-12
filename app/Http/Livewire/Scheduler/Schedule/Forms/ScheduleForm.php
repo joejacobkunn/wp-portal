@@ -98,7 +98,7 @@ class ScheduleForm extends Form
                 'max_digits:9',
                 Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at'),
             ],
-            'suffix' => 'required',
+            'suffix' => 'required|numeric|max_digits:1',
             'schedule_date' => [
                 'required',
                 new ValidateScheduleDate($this->getActiveDays())
