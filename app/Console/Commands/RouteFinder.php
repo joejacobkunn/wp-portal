@@ -90,16 +90,20 @@ class RouteFinder extends Command
         ));
 
         $lastAddress = $firstSchedule->truck->warehouse->address;
-        $currentTime = Carbon::parse($firstSchedule->schedule_date . ' ' . '08:45 AM');
-
+        $currentTime = null;
         foreach ($schedules as $schedule) {
             $confirmedOrders = $schedule->orderSchedule()
                 ->where('status', 'confirmed')
                 ->orderBy('id')
                 ->get();
 
+            if($currentTime == null) {
+                $currentTime = Carbon::parse($schedule->schedule_date . ' ' . $schedule->start_time);
+                $currentTime = $currentTime->subMinutes(15);
+            }
             if ($confirmedOrders->isEmpty()) {
                 $this->warn(sprintf('No confirmed orders found for Schedule ID: %d', $schedule->id));
+                $currentTime = null;
                 continue;
             }
 
