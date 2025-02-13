@@ -730,10 +730,11 @@ class Index extends Component
                 'city' => $faker->city(),
                 'zip' => $faker->postcode(),
                 'brand' => 'Toro',
-                'model' => 'ghd567df'
+                'model' => 'ghd567df',
+                'id' => '1'
             ];
         }else{
-            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model')->where('sro_no', $sro)->first();
+            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model', 'id')->where('sro_no', $sro)->first();
             if(!empty($sro)) {
                 return $sro->toArray();
             }

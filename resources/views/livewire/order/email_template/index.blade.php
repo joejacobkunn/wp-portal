@@ -5,7 +5,7 @@
         <x-slot:title>Orders Notification Templates</x-slot>
 
         <x-slot:description>
-            {{ !$addRecord ? 'Manage notofication templates here' : 'Create a new notofication template here' }}
+            {{ !$addRecord ? 'Manage notification templates here' : 'Create a new notification template here' }}
         </x-slot>
 
         <x-slot:content>

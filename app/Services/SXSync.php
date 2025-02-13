@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Core\Account;
 use App\Models\Core\Customer;
 use App\Models\Order\Order as PortalOrder;
+use App\Models\Scheduler\Schedule;
 use App\Models\SX\Customer as SXCustomer;
 use App\Models\SX\Order;
 use App\Models\SX\OrderLineItem;
@@ -47,6 +48,11 @@ class SXSync
         if ($this->payload['event'] == 'order.created') {
             $this->orderCreated($this->payload['data']);
         }
+
+        if ($this->payload['event'] == 'serialized-products.invoiced') {
+            $this->serializedProductsInvoiced($this->payload['data']);
+        }
+
 
 
     }
@@ -271,6 +277,31 @@ class SXSync
         return response()->json(['status' => 'success', 'portal_order_id' => $portal_order->id], 201);
 
     }
+
+    private function serializedProductsInvoiced($data)
+    {
+        //find if orderno is scheduled
+        $schedule = Schedule::where('sx_ordernumber',$data['order_no'])->where('order_number_suffix', $data['order_suffix'])->first();
+
+        if($schedule->isNotEmpty() && !empty($schedule->line_item))
+        {
+            $prod_code = array_keys($schedule->line_item)[0];
+
+            $line_items = $this->getSxOrderLineItemsProperty($data['order_no'], $data['order_suffix']);
+
+            foreach($line_items as $line)
+            {
+                if($line->lineno == $data['lineno'])
+                {
+                    if(strtolower($line->shipprod) == strtolower($prod_code))
+                    {
+                        $schedule->update(['serial_no' => $data['serialno']]);
+                    }
+                }
+            }
+        }
+    }
+
 
 
     private function split_address($address)
