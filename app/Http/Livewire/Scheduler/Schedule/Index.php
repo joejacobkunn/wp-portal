@@ -67,6 +67,7 @@ class Index extends Component
     public $exportToDate;
     public $announceModal;
     public $scheduledTruckInfo = [];
+    public $driverSkills;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -80,6 +81,8 @@ class Index extends Component
         'scheduleTypeDispatch' => 'scheduleTypeDispatch',
         'closeDriverModal' => 'closeDriverModal',
         'closeAddressValidation' => 'closeAddressValidation',
+        'fetchDriverSkills' => 'fetchDriverSkills',
+        'closeAnnouncementModal' => 'closeAnnouncementModal',
     ];
 
     public $actionButtons = [
@@ -461,16 +464,19 @@ class Index extends Component
                 'trucks.whse',
                 'zones.name as zone_name',
                 'users.name as driver_name',
-                'users.title as driver_title'
+                'users.title as driver_title',
+                'user_skills.skills as driver_skills'
             ])
             ->with('orderSchedule')
             ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
             ->join('zones', 'truck_schedules.zone_id', '=', 'zones.id')
             ->leftjoin('users', 'truck_schedules.driver_id', '=', 'users.id')
+            ->leftjoin('user_skills', 'users.id', '=', 'user_skills.user_id')
             ->whereNull('truck_schedules.deleted_at')
             ->whereNull('trucks.deleted_at')
             ->whereNull('zones.deleted_at')
             ->whereNull('users.deleted_at')
+            ->whereNull('user_skills.deleted_at')
             ->whereBetween('truck_schedules.schedule_date', [$this->eventStart, $this->eventEnd])
             ->where('trucks.whse', $this->activeWarehouse->id);
 
@@ -506,6 +512,7 @@ class Index extends Component
                     'slots' => $truck->slots,
                     'scheduled_count' => $truck->schedule_count,
                     'driver_id' => $truck->driver_id,
+                    'driver_skills' => explode(",", $truck->driver_skills),
                     'driverName' => $truck->driver_name ? $truck->driver_name . ' (' . $truck->driver_title . ')' : null,
                 ];
             })->toArray();
@@ -990,6 +997,17 @@ class Index extends Component
         }
         $this->alert('error', 'cancelling failed');
 
+    }
+
+    public function fetchDriverSkills($field, $value)
+    {
+
+        $key = explode(".", $field)[1];
+        $this->filteredSchedules[$key]['driver_id'] = $value;
+        $driver = user::find($value);
+        $skills = $driver->skills?->skills;
+        $skills = $skills ? explode(",", $skills) : null;
+        $this->filteredSchedules[$key]['driver_skills'] = $skills;
     }
 
 }
