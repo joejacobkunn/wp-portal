@@ -54,7 +54,7 @@
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
                 @if (!empty($this->filteredSchedules))
                     @if (collect($this->filteredSchedules)->contains('driver_id', null))
-                        <div class="alert alert-light-warning color-warning"><i class="fas fa-exclamation-triangle"></i>
+                        <div class="alert alert-light-danger color-warning"><i class="fas fa-exclamation-triangle"></i>
                             Drivers not assigned
                             <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Assign
                                 Driver</button>
@@ -675,18 +675,16 @@
                     });
 
                 });
-                Livewire.on('calender-remove-driver-span', date => {
+                Livewire.on('calender-remove-driver-warning', date => {
                     const cell = document.querySelector(`[data-date="${date.date}"]`);
 
                     if (cell) {
-                        const span = cell.querySelector('.driver-assigned-span');
-                        if (span) {
-                            span.remove();
-                        }
+                        cell.classList.remove('bg-light-danger');
                     }
                 });
 
                 function setZoneInDayCells() {
+                    let today = new Date();
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
                         span.remove();
                     });
@@ -719,15 +717,8 @@
                             }
                         });
                         if (driverNotAssigned) {
-
-                            let driverAssignedSpan = document.createElement('span');
-                            driverAssignedSpan.classList.add('driver-assigned-span', 'float-end');
-                            driverAssignedSpan.innerHTML =
-                                `<i class="fa-solid fa-triangle-exclamation text-danger"></i>`;
-                            dayCell.insertBefore(driverAssignedSpan, dayCell.firstChild);
-                            let zoneSpan = dayCell.querySelector('.zoneinfo-span');
-                            if (zoneSpan) {
-                                zoneSpan.insertAdjacentElement('afterbegin', driverAssignedSpan);
+                            if (cellDateObj >= today) {
+                                dayCell.classList.add('bg-light-danger');
                             }
                         }
                     });

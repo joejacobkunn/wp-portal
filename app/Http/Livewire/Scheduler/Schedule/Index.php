@@ -834,7 +834,7 @@ class Index extends Component
             }
         }
         $date = $this->filteredSchedules[0]['schedule_date'];
-        $this->dispatch('calender-remove-driver-span', date: $date);
+        $this->dispatch('calender-remove-driver-warning', date: $date);
         $this->closeDriverModal();
     }
 
