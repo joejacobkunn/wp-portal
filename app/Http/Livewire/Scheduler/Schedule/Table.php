@@ -6,6 +6,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Models\Scheduler\Zones;
 use App\Models\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
+use App\Enums\Scheduler\ScheduleStatusEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
@@ -108,6 +109,20 @@ class Table extends DataTableComponent
                     return $row->truckSchedule?->start_time.' - '.$row->truckSchedule?->end_time;
                 }),
 
+                Column::make('Created By', 'created_by')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    return $row->user?->name;
+                }),
+
+                Column::make('Driver', 'truckSchedule.driver_id')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    return $row->truckSchedule?->driver?->name;
+                }),
+
             ];
 
         if ($this->activeTab == 'today') {
@@ -126,7 +141,7 @@ class Table extends DataTableComponent
         ->html()
         ->format(function ($value, $row)
         {
-            return '<span class="badge bg-'.$row->status_color_class.'">'.strtoupper($value).'</span>';
+            return '<span class="badge bg-'.$row->status_color_class.'">'. ScheduleStatusEnum::tryFrom($value)->label() .'</span>';
             return $row->truckSchedule?->zone?->name;
         });
 
@@ -175,7 +190,7 @@ class Table extends DataTableComponent
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('truck_schedules.zone_id', $value);
                 }),
-            
+
             DateFilter::make('Scheduled From', 'scheduled_from')
                 ->config([
                     'format' => config('app.default_date_format')
@@ -185,7 +200,7 @@ class Table extends DataTableComponent
                         $builder->whereDate('schedules.schedule_date', '>=', $value);
                     }
                 }),
-            
+
             DateFilter::make('Scheduled To', 'scheduled_to')
                 ->config([
                     'format' => config('app.default_date_format')
@@ -215,7 +230,8 @@ class Table extends DataTableComponent
                 $query->whereNull('deleted_at')
                     ->with('zone:id,name')
                     ->with('truck:id,truck_name')
-                    ->select('id', 'start_time', 'end_time', 'truck_id', 'zone_id');
+                    ->with('driver:id,name')
+                    ->select('id', 'start_time', 'end_time', 'truck_id', 'zone_id', 'driver_id');
             },
             'order' => function($query) {
                 $query->whereNull('deleted_at')
