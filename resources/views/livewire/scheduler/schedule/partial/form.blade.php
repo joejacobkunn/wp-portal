@@ -317,13 +317,14 @@
             <li class="list-group-item list-group-item-primary">
                 <span class="badge bg-light-warning float-end">
                     @if ($form->zipcodeInfo)
-                        <a href="{{ route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo->id]) }}"><i
+                        <a target="_blank"
+                            href="{{ route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo->id]) }}"><i
                                 class="fas fa-external-link-alt"></i>
                             #{{ $form->zipcodeInfo?->zip_code }}</a>
                     @else
-                        <a href="{{ route('service-area.index') }}?tab=zip_code"><i
+                        <a target="_blank" href="{{ route('service-area.index') }}?tab=zip_code"><i
                                 class="fas fa-external-link-alt"></i>
-                            create new</a>
+                            Create New ZIP Code</a>
                     @endif
 
                 </span>
@@ -509,6 +510,7 @@
 
             document.addEventListener('browser:show-edit-address', initAutocomplete);
             document.addEventListener('livewire:navigating', unbindEvents);
+
             function unbindEvents() {
                 document.removeEventListener('browser:show-edit-address', initAutocomplete);
                 document.removeEventListener('livewire:navigating', unbindEvents)

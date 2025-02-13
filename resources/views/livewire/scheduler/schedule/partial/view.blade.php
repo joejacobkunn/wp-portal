@@ -428,26 +428,27 @@
                         <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
                             <span class="badge bg-secondary float-end"><a
                                     href="{{ config('sro.url') . 'dashboard/repair-orders/' . $sro_response['id'] }}"
-                                    target="_blank">SRO
+                                    target="_blank"><i class="fas fa-external-link-alt"></i> SRO
                                     #{{ $form->schedule->sro_number }}</a></span>
                             {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}
                         </h4>
 
-                        <ul class="list-group">
+                        <ul class="list-group mt-4">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span> Equipment</span>
                                 <span
-                                    class="badge bg-secondary badge-pill badge-round ms-1">{{ $sro_response['brand'] }}
+                                    class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['brand'] }}
                                     {{ $sro_response['model'] }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span> Address</span>
                                 <span
-                                    class="badge bg-secondary badge-pill badge-round ms-1">{{ $sro_response['address'] }},
+                                    class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['address'] }},
                                     {{ $sro_response['city'] }},
                                     {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span>
                             </li>
                         </ul>
+
                     </div>
                 @endif
                 <ul class="list-group list-group-flush">
@@ -473,11 +474,22 @@
                             @endif
                         </div>
                     </li>
+                    @if (!empty($form->schedule->serial_no))
+                        <li
+                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                            <div>
+                                <h3 class="h6 mb-1">Equipment Serial Number</h3>
+                                <p class="small pe-4">{{ $form->schedule->serial_no }}</p>
+                            </div>
+                        </li>
+                    @endif
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">SX Order Number</h3>
                             <p class="small pe-4">
-                                {{ $form->schedule->sx_ordernumber . '-' . $form->schedule->order_number_suffix }}</p>
+                                <a href="{{ route('order.show', $form->schedule->order->id) }}"
+                                    target="_blank">{{ $form->schedule->sx_ordernumber . '-' . $form->schedule->order_number_suffix }}</a>
+                            </p>
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
@@ -520,8 +532,10 @@
     <div class="col-12 col-md-4 col-xxl-4">
         <div class="card border rounded shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">
-                <span class="badge bg-light-info float-end">CustNo
-                    #{{ $form->schedule->order->customer?->sx_customer_number }}</span>
+                <span class="badge bg-light-info float-end"><a
+                        href="{{ route('core.customer.show', $form->schedule->order->customer->id) }}"
+                        target="_blank"><i class="fas fa-external-link-alt"></i> CustNo
+                        #{{ $form->schedule->order->customer?->sx_customer_number }}</a></span>
                 <h3 class="h5 mb-0">Customer Info</h3>
             </div>
 
