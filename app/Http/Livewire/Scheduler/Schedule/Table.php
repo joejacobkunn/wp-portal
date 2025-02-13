@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Http\Livewire\Scheduler\Schedule\Traits\ScheduleData;
+use App\Models\Core\User;
 use App\Models\Scheduler\Truck;
 use Carbon\Carbon;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateFilter;
@@ -54,6 +55,7 @@ class Table extends DataTableComponent
 
             Column::make('Type', 'type')
                 ->sortable()
+                ->secondaryHeader($this->getFilterByKey('type'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
@@ -89,6 +91,7 @@ class Table extends DataTableComponent
 
 
             Column::make('Truck Name', 'truck_schedule_id')
+                ->secondaryHeader($this->getFilterByKey('truck'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
@@ -96,6 +99,7 @@ class Table extends DataTableComponent
                 }),
 
             Column::make('Zone', 'truck_schedule_id')
+                ->secondaryHeader($this->getFilterByKey('zone'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
@@ -117,6 +121,7 @@ class Table extends DataTableComponent
                 }),
 
                 Column::make('Driver', 'truckSchedule.driver_id')
+                ->secondaryHeader($this->getFilterByKey('drivers'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
@@ -159,9 +164,14 @@ class Table extends DataTableComponent
         return Truck::select('id', 'truck_name', 'whse')->limit(100)->get();
     }
 
+    public function getDriversProperty()
+    {
+        return User::whereIn('title', ['Driver', 'Service Technician'])->select('id', 'name')->limit(100)->get();
+    }
+
     public function getZonesProperty()
     {
-        return Zones::select('id', 'name')->limit(100)->pluck('name', 'id')->toArray();
+        return Zones::select('id', 'name')->orderBy('name')->limit(100)->pluck('name', 'id')->toArray();
     }
 
     public function filters(): array
@@ -169,26 +179,42 @@ class Table extends DataTableComponent
         return [
             SelectFilter::make('Type', 'type')
                 ->options(
+                    ['' => 'All Types'] +
                    $this->schedule_types
                 )
+                ->hiddenFromMenus()
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('schedules.type', $value);
                 }),
 
             SelectFilter::make('Truck', 'truck')
                 ->options(
+                    ['' => 'All Trucks'] +
                     $this->trucks->pluck('truck_name', 'id')->toArray()
                 )
+                ->hiddenFromMenus()
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('truck_schedules.truck_id', $value);
                 }),
 
             SelectFilter::make('Zone', 'zone')
                 ->options(
+                    [''=> 'All Zones'] +
                     $this->zones
                 )
+                ->hiddenFromMenus()
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('truck_schedules.zone_id', $value);
+                }),
+
+            SelectFilter::make('Drivers', 'drivers')
+                ->options(
+                    [''=> 'All Drivers'] +
+                    $this->drivers->pluck('name', 'id')->toArray()
+                )
+                ->hiddenFromMenus()
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('truck_schedules.driver_id', $value);
                 }),
 
             DateFilter::make('Scheduled From', 'scheduled_from')
