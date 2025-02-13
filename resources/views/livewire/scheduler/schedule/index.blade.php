@@ -3,19 +3,21 @@
     <x-slot:content>
         @if (!empty($this->announcements))
             @foreach ($this->announcements as $item)
-                <div class="alert alert-light-success color-success">
-                    <i class="fas fa-exclamation-circle"></i> {{$item['message']}}
+                <div class="alert alert-light-warning color-warning">
+                    <i class="fas fa-info-circle"></i> {{ $item['message'] }}
                     @can('scheduler.announcement.manage')
-                        <button class="btn btn-outline-danger float-end" wire:click="cancelAnnouncement({{$item['id']}})">
-                            <div wire:loading wire:target="cancelAnnouncement({{$item['id']}})">
+                        <button class="btn btn-sm btn-outline-danger float-end"
+                            wire:click="cancelAnnouncement({{ $item['id'] }})">
+                            <div wire:loading wire:target="cancelAnnouncement({{ $item['id'] }})">
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             </div>
-                            Cancel
+                            Remove
                         </button>
                     @endcan
                 </div>
             @endforeach
         @endif
+
         <ul class="nav nav-pills mb-2">
             <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="javascript:;"><i class="far fa-calendar-alt"></i>
@@ -156,8 +158,9 @@
                                                     @endif
                                                     @if ($event['travel_prio_number'])
                                                         <p class="font-small"><span class="badge bg-light-info">
-                                                                ETA :
-                                                                {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}</span>
+                                                                <i class="far fa-clock"></i> ETA :
+                                                                {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}
+                                                                => DURATION : ~1HR</span>
                                                         </p>
                                                     @endif
                                                 </a>
@@ -206,7 +209,7 @@
                         <div wire:loading wire:target="createAnnouncement">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        Add new
+                        Create Announcement
                     </button>
                 </x-slot>
             </x-modal>
