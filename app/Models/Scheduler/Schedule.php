@@ -39,7 +39,8 @@ class Schedule extends Model
         'expected_arrival_time',
         'travel_prio_number',
         'not_purchased_via_weingartz',
-        'whse'
+        'whse',
+        'serial_no'
     ];
 
     protected $casts = [

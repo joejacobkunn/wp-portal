@@ -397,8 +397,8 @@
                         <p class="mb-0">Completed by <span
                                 class="badge bg-{{ $form->schedule->status_color_class }}">
                                 {{ $form->schedule->completedUser->name }}</span>
-                            Completed at <span class="badge bg-{{ $form->schedule->status_color_class }}">
-                                {{ \Carbon\Carbon::parse($form->schedule->completed_at)->toFormattedDayDateString() }}
+                            at <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                {{ \Carbon\Carbon::parse($form->schedule->completed_at)->toDayDateTimeString() }}
                             </span>
                         </p>
                     @endif
@@ -426,12 +426,28 @@
                 @if (!empty($sro_response) && $form->schedule->status != 'scheduled')
                     <div class="alert alert-secondary">
                         <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
-                            {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
-                        <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
-                                {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
-                        <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
-                                {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
-                                {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
+                            <span class="badge bg-secondary float-end"><a
+                                    href="{{ config('sro.url') . 'dashboard/repair-orders/' . $sro_response['id'] }}"
+                                    target="_blank">SRO
+                                    #{{ $form->schedule->sro_number }}</a></span>
+                            {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}
+                        </h4>
+
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span> Equipment</span>
+                                <span
+                                    class="badge bg-secondary badge-pill badge-round ms-1">{{ $sro_response['brand'] }}
+                                    {{ $sro_response['model'] }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span> Address</span>
+                                <span
+                                    class="badge bg-secondary badge-pill badge-round ms-1">{{ $sro_response['address'] }},
+                                    {{ $sro_response['city'] }},
+                                    {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span>
+                            </li>
+                        </ul>
                     </div>
                 @endif
                 <ul class="list-group list-group-flush">
@@ -447,11 +463,13 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Equipment</h3>
-                            @if($form->schedule->line_item)
+                            @if ($form->schedule->line_item)
                                 <p class="small pe-4">
                                     {{ head($form->schedule->line_item) }}
                                     ({{ array_keys($form->schedule->line_item)[0] }})
                                 </p>
+                            @else
+                                <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
                             @endif
                         </div>
                     </li>
