@@ -435,7 +435,7 @@
                 </x-slot>
             </x-modal>
         @endif
-
+        {{-- service address modal  --}}
         <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
             <x-slot name="title">Update Address </x-slot>
             <div class="col-md-12 mb-2">

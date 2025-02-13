@@ -1,6 +1,21 @@
 <x-page :breadcrumbs="$breadcrumbs">
     <x-slot:title>Schedule</x-slot>
     <x-slot:content>
+        @if (!empty($this->announcements))
+            @foreach ($this->announcements as $item)
+                <div class="alert alert-light-success color-success">
+                    <i class="fas fa-exclamation-circle"></i> {{$item['message']}}
+                    @can('scheduler.announcement.manage')
+                        <button class="btn btn-outline-danger float-end" wire:click="cancelAnnouncement({{$item['id']}})">
+                            <div wire:loading wire:target="cancelAnnouncement({{$item['id']}})">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                            Cancel
+                        </button>
+                    @endcan
+                </div>
+            @endforeach
+        @endif
         <ul class="nav nav-pills mb-2">
             <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="javascript:;"><i class="far fa-calendar-alt"></i>
@@ -44,6 +59,10 @@
                                     <a class="dropdown-item border-bottom" href="#"
                                         wire:click.prevent="changeZone('{{ $zone->id }}')">{{ $zone->name }}</a>
                                 @endforeach
+                            </div>
+                            <div id="settings-wrap">
+                                <a class="dropdown-item border-bottom" href="#"
+                                    wire:click.prevent="openAnnouncementModal()">Announcement</a>
                             </div>
                         </div>
                     </div>
@@ -176,6 +195,23 @@
                 @include('livewire.scheduler.schedule.partial.drivers_form')
             </x-modal>
         @endif
+
+        @if ($announceModal)
+            <x-modal toggle="announceModal" size="md" :closeEvent="'closeAnnouncementModal'">
+                <x-slot name="title"> Create Announcement </x-slot>
+                <x-forms.textarea label="Message" rows="5" model="announcementForm.message" lazy />
+
+                <x-slot name="footer">
+                    <button type="button" wire:click="createAnnouncement" class="btn btn-primary">
+                        <div wire:loading wire:target="createAnnouncement">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Add new
+                    </button>
+                </x-slot>
+            </x-modal>
+        @endif
+
         {{-- search modal --}}
         @if ($showSearchModal)
             <x-modal toggle="showSearchModal" size="md" :closeEvent="'closeSearchModal'">
@@ -308,7 +344,7 @@
                     height: 'auto',
                     contentHeight: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today exportBtn searchBtn',
+                        left: 'prev,next today exportBtn searchBtn settingsBtn',
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
@@ -341,6 +377,7 @@
                                     document.getElementById('warehouse-wrap').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'none';
                                     document.getElementById('zones-wrap').style.display = 'none';
+                                    document.getElementById('settings-wrap').style.display = 'none';
                                 }
                                 e.stopPropagation();
                             }
@@ -349,6 +386,38 @@
                             text: '',
                             click: function(e) {
                                 $wire.showSearchModalForm();
+                            }
+                        },
+                        settingsBtn: {
+                            text: '',
+                            click: function(e) {
+                                const button = e.currentTarget;
+                                const buttonRect = button.getBoundingClientRect();
+                                const calendarRect = calendarEl.getBoundingClientRect();
+
+                                if (isDropdownVisible) {
+                                    dropdownMenu.style.display = 'none';
+                                    isDropdownVisible = false;
+                                } else {
+                                    const dropdownWidth = 160;
+                                    dropdownMenu.style.top = (buttonRect.bottom + 5) + 'px';
+                                    const leftPosition = Math.min(
+                                        buttonRect.left,
+                                        calendarRect.right - dropdownWidth - 10
+                                    );
+                                    dropdownMenu.style.left = leftPosition + 'px';
+                                    dropdownMenu.style.display = 'block';
+                                    isDropdownVisible = true;
+                                    document.querySelectorAll('.calendar-button').forEach(element => {
+                                        element.classList.add('d-none');
+                                    });
+                                    document.getElementById('schedule-options').style.display = 'none';
+                                    document.getElementById('warehouse-wrap').style.display = 'none';
+                                    document.getElementById('type-wrap').style.display = 'none';
+                                    document.getElementById('zones-wrap').style.display = 'none';
+                                    document.getElementById('settings-wrap').style.display = 'block';
+                                }
+                                e.stopPropagation();
                             }
                         },
                         warehouseBtn: {
@@ -375,6 +444,7 @@
                                     document.getElementById('type-wrap').style.display = 'none';
                                     document.getElementById('schedule-options').style.display = 'none';
                                     document.getElementById('zones-wrap').style.display = 'none';
+                                    document.getElementById('settings-wrap').style.display = 'none';
 
                                 }
                                 e.stopPropagation();
@@ -404,6 +474,7 @@
                                     document.getElementById('schedule-options').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'block';
                                     document.getElementById('zones-wrap').style.display = 'none';
+                                    document.getElementById('settings-wrap').style.display = 'none';
 
                                 }
                                 e.stopPropagation();
@@ -433,6 +504,7 @@
                                     document.getElementById('schedule-options').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'none';
                                     document.getElementById('zones-wrap').style.display = 'block';
+                                    document.getElementById('settings-wrap').style.display = 'none';
                                 }
                                 e.stopPropagation();
                             }
@@ -577,6 +649,12 @@
                     const icon = document.createElement('i');
                     icon.className = 'fas fa-search';
                     searchButton.appendChild(icon);
+                }
+                const settingsButton = document.querySelector('.fc-settingsBtn-button');
+                if (settingsButton) {
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-cog';
+                    settingsButton.appendChild(icon);
                 }
                 const exportButton = document.querySelector('.fc-exportBtn-button');
                 if (exportButton) {
@@ -763,6 +841,9 @@
                         if (document.getElementById('zones-wrap').style.display === 'block') {
                             buttonClass = '.fc-zoneBtn-button';
                         }
+                        if (document.getElementById('settings-wrap').style.display === 'block') {
+                            buttonClass = '.fc-settingsBtn-button';
+                        }
 
                         const button = document.querySelector(buttonClass);
                         if (button) {
@@ -794,6 +875,9 @@
                         }
                         if (document.getElementById('zones-wrap').style.display === 'block') {
                             buttonClass = '.fc-zoneBtn-button';
+                        }
+                        if (document.getElementById('settings-wrap').style.display === 'block') {
+                            buttonClass = '.fc-settingsBtn-button';
                         }
                         const button = document.querySelector(buttonClass);
                         if (button) {

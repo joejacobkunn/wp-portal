@@ -16,6 +16,8 @@ use App\Models\Scheduler\Zones;
 use App\Models\SRO\RepairOrders;
 use App\Models\Scheduler\Schedule;
 use App\Exports\Scheduler\OrderScheduleExport;
+use App\Http\Livewire\Scheduler\Schedule\Forms\AnnouncementForm;
+use App\Models\Scheduler\Announcement;
 use App\Models\Scheduler\NotificationTemplate;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -29,6 +31,7 @@ class Index extends Component
     use LivewireAlert, HasTabs;
 
     public ScheduleForm $form;
+    public AnnouncementForm $announcementForm;
     public $showModal;
     public $schedules;
     public $isEdit;
@@ -62,6 +65,7 @@ class Index extends Component
     public $exportModal = false;
     public $exportFromDate;
     public $exportToDate;
+    public $announceModal;
     public $scheduledTruckInfo = [];
 
     protected $listeners = [
@@ -102,6 +106,25 @@ class Index extends Component
             ],
         ],
     ];
+    public function getWarehousesProperty()
+    {
+        $data = Warehouse::select(['id', 'short', 'title'])
+            ->where('cono', 10)
+            ->orderBy('title', 'asc')
+            ->get();
+
+        return $data;
+    }
+
+    public function getActiveWarehouseProperty()
+    {
+        return $this->warehouses->find($this->activeWarehouseId);
+    }
+
+    public function getAnnouncementsProperty()
+    {
+        return Announcement::where('whse', $this->activeWarehouse->short)->select(['id', 'message'])->get()->toArray();
+    }
 
     public function mount()
     {
@@ -137,20 +160,7 @@ class Index extends Component
 
     }
 
-    public function getWarehousesProperty()
-    {
-        $data = Warehouse::select(['id', 'short', 'title'])
-            ->where('cono', 10)
-            ->orderBy('title', 'asc')
-            ->get();
 
-        return $data;
-    }
-
-    public function getActiveWarehouseProperty()
-    {
-        return $this->warehouses->find($this->activeWarehouseId);
-    }
 
     public function setActiveWarehouse($warehouseId)
     {
@@ -937,6 +947,7 @@ class Index extends Component
         $this->form->serviceZip = $this->form->extractZipCode($this->form->recommendedAddress);
         $this->form->validateAddress($this->form->recommendedAddress, $this->form->serviceZip);
     }
+
     public function useCurrentAddress()
     {
         $this->form->serviceZip = $this->form->extractZipCode($this->form->service_address);
@@ -947,6 +958,38 @@ class Index extends Component
             'showAddressBox'
         ]);
         $this->form->checkZipcode();
+    }
+
+    public function openAnnouncementModal()
+    {
+        $this->announceModal = true;
+    }
+
+    public function createAnnouncement()
+    {
+        $this->authorize('store', Announcement::class);
+        $this->announcementForm->store($this->activeWarehouse->short);
+        $this->alert('success', 'Announcement added');
+        $this->closeAnnouncementModal();
+    }
+
+    public function closeAnnouncementModal()
+    {
+        $this->announceModal = false;
+        $this->announcementForm->reset();
+        $this->resetValidation('announcementForm.message');
+    }
+
+    public function cancelAnnouncement(Announcement $announcement)
+    {
+        $this->authorize('delete', $announcement);
+        $response = $this->announcementForm->delete($announcement);
+        if($response) {
+            $this->alert('success', 'Announcement Cancelled');
+            return;
+        }
+        $this->alert('error', 'cancelling failed');
+
     }
 
 }
