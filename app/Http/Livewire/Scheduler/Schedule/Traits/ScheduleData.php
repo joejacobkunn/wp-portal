@@ -12,13 +12,15 @@ trait ScheduleData
      * HRAF Get All HRAF Data Builder
      */
     public function scheduleBaseQuery(): Builder
-    {   
+    {
         return Schedule::leftJoin('truck_schedules', 'truck_schedules.id', '=', 'schedules.truck_schedule_id')
                 ->whereNull('truck_schedules.deleted_at')
                 ->leftJoin('orders', 'orders.order_number', '=', 'schedules.sx_ordernumber')
                 ->whereNull('orders.deleted_at')
                 ->leftJoin('customers', 'orders.sx_customer_number', '=', 'customers.sx_customer_number')
-                ->whereNull('customers.deleted_at');
+                ->whereNull('customers.deleted_at')
+                ->leftJoin('users', 'schedules.created_by', '=', 'users.id')
+                ->whereNull('users.deleted_at');
     }
 
     /**

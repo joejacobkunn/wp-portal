@@ -16,6 +16,8 @@ use App\Models\Scheduler\Zones;
 use App\Models\SRO\RepairOrders;
 use App\Models\Scheduler\Schedule;
 use App\Exports\Scheduler\OrderScheduleExport;
+use App\Http\Livewire\Scheduler\Schedule\Forms\AnnouncementForm;
+use App\Models\Scheduler\Announcement;
 use App\Models\Scheduler\NotificationTemplate;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -29,6 +31,7 @@ class Index extends Component
     use LivewireAlert, HasTabs;
 
     public ScheduleForm $form;
+    public AnnouncementForm $announcementForm;
     public $showModal;
     public $schedules;
     public $isEdit;
@@ -62,7 +65,9 @@ class Index extends Component
     public $exportModal = false;
     public $exportFromDate;
     public $exportToDate;
+    public $announceModal;
     public $scheduledTruckInfo = [];
+    public $driverSkills;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -76,6 +81,8 @@ class Index extends Component
         'scheduleTypeDispatch' => 'scheduleTypeDispatch',
         'closeDriverModal' => 'closeDriverModal',
         'closeAddressValidation' => 'closeAddressValidation',
+        'fetchDriverSkills' => 'fetchDriverSkills',
+        'closeAnnouncementModal' => 'closeAnnouncementModal',
     ];
 
     public $actionButtons = [
@@ -102,6 +109,25 @@ class Index extends Component
             ],
         ],
     ];
+    public function getWarehousesProperty()
+    {
+        $data = Warehouse::select(['id', 'short', 'title'])
+            ->where('cono', 10)
+            ->orderBy('title', 'asc')
+            ->get();
+
+        return $data;
+    }
+
+    public function getActiveWarehouseProperty()
+    {
+        return $this->warehouses->find($this->activeWarehouseId);
+    }
+
+    public function getAnnouncementsProperty()
+    {
+        return Announcement::where('whse', $this->activeWarehouse->short)->select(['id', 'message'])->get()->toArray();
+    }
 
     public function mount()
     {
@@ -137,20 +163,7 @@ class Index extends Component
 
     }
 
-    public function getWarehousesProperty()
-    {
-        $data = Warehouse::select(['id', 'short', 'title'])
-            ->where('cono', 10)
-            ->orderBy('title', 'asc')
-            ->get();
 
-        return $data;
-    }
-
-    public function getActiveWarehouseProperty()
-    {
-        return $this->warehouses->find($this->activeWarehouseId);
-    }
 
     public function setActiveWarehouse($warehouseId)
     {
@@ -451,16 +464,19 @@ class Index extends Component
                 'trucks.whse',
                 'zones.name as zone_name',
                 'users.name as driver_name',
-                'users.title as driver_title'
+                'users.title as driver_title',
+                'user_skills.skills as driver_skills'
             ])
             ->with('orderSchedule')
             ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
             ->join('zones', 'truck_schedules.zone_id', '=', 'zones.id')
             ->leftjoin('users', 'truck_schedules.driver_id', '=', 'users.id')
+            ->leftjoin('user_skills', 'users.id', '=', 'user_skills.user_id')
             ->whereNull('truck_schedules.deleted_at')
             ->whereNull('trucks.deleted_at')
             ->whereNull('zones.deleted_at')
             ->whereNull('users.deleted_at')
+            ->whereNull('user_skills.deleted_at')
             ->whereBetween('truck_schedules.schedule_date', [$this->eventStart, $this->eventEnd])
             ->where('trucks.whse', $this->activeWarehouse->id);
 
@@ -496,6 +512,7 @@ class Index extends Component
                     'slots' => $truck->slots,
                     'scheduled_count' => $truck->schedule_count,
                     'driver_id' => $truck->driver_id,
+                    'driver_skills' => explode(",", $truck->driver_skills),
                     'driverName' => $truck->driver_name ? $truck->driver_name . ' (' . $truck->driver_title . ')' : null,
                 ];
             })->toArray();
@@ -834,7 +851,7 @@ class Index extends Component
             }
         }
         $date = $this->filteredSchedules[0]['schedule_date'];
-        $this->dispatch('calender-remove-driver-span', date: $date);
+        $this->dispatch('calender-remove-driver-warning', date: $date);
         $this->closeDriverModal();
     }
 
@@ -937,6 +954,7 @@ class Index extends Component
         $this->form->serviceZip = $this->form->extractZipCode($this->form->recommendedAddress);
         $this->form->validateAddress($this->form->recommendedAddress, $this->form->serviceZip);
     }
+
     public function useCurrentAddress()
     {
         $this->form->serviceZip = $this->form->extractZipCode($this->form->service_address);
@@ -947,6 +965,49 @@ class Index extends Component
             'showAddressBox'
         ]);
         $this->form->checkZipcode();
+    }
+
+    public function openAnnouncementModal()
+    {
+        $this->announceModal = true;
+    }
+
+    public function createAnnouncement()
+    {
+        $this->authorize('store', Announcement::class);
+        $this->announcementForm->store($this->activeWarehouse->short);
+        $this->alert('success', 'Announcement added');
+        $this->closeAnnouncementModal();
+    }
+
+    public function closeAnnouncementModal()
+    {
+        $this->announceModal = false;
+        $this->announcementForm->reset();
+        $this->resetValidation('announcementForm.message');
+    }
+
+    public function cancelAnnouncement(Announcement $announcement)
+    {
+        $this->authorize('delete', $announcement);
+        $response = $this->announcementForm->delete($announcement);
+        if($response) {
+            $this->alert('success', 'Announcement Cancelled');
+            return;
+        }
+        $this->alert('error', 'cancelling failed');
+
+    }
+
+    public function fetchDriverSkills($field, $value)
+    {
+
+        $key = explode(".", $field)[1];
+        $this->filteredSchedules[$key]['driver_id'] = $value;
+        $driver = user::find($value);
+        $skills = $driver->skills?->skills;
+        $skills = $skills ? explode(",", $skills) : null;
+        $this->filteredSchedules[$key]['driver_skills'] = $skills;
     }
 
 }
