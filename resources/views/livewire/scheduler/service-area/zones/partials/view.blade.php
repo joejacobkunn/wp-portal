@@ -55,7 +55,7 @@
                 <ul class="list-group list-group-flush">
                     @foreach($zipcodes as $zipcode)
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <strong>{{ $zipcode->zip_code }}</strong>
+                        <strong>{{ $zipcode->zip_code }} - {{$zipcode->generalZipcode->city}}, {{$zipcode->generalZipcode->state}}</strong>
                     </li>
                     @endforeach
                 </ul>

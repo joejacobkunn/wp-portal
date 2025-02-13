@@ -54,7 +54,18 @@
                 "name": "scheduler.can-complete-event",
                 "label": "Complete Scheduled Event",
                 "description": "User can complete a scheduled event"
+            },
+            {
+                "name": "scheduler.announcement.view",
+                "label": "View Scheduler Announcements",
+                "description": "User can view schedule related announcement"
+            },
+            {
+                "name": "scheduler.announcement.manage",
+                "label": "Manage Scheduler Announcements",
+                "description": "User can Manage schedule related announcement"
             }
+
         ]
     }
 ]
