@@ -36,9 +36,6 @@ class Table extends DataTableComponent
         if ($this->activeTab == 'unconfirmed') {
             $this->setDefaultSort('schedule_date', 'asc');
         }
-        if ($this->activeTab == 'today') {
-            $this->setDefaultSort('expected_arrival_time', 'asc');
-        }
     }
 
 
@@ -46,6 +43,8 @@ class Table extends DataTableComponent
     {
         $columns = [
             Column::make('Id', 'id')
+                ->hideIf(1),
+            Column::make('Schedule Priority', 'travel_prio_number')
                 ->hideIf(1),
 
             Column::make('SX Order No', 'sx_ordernumber')
@@ -135,7 +134,6 @@ class Table extends DataTableComponent
 
         if ($this->activeTab == 'today') {
             $columns[] = Column::make('ETA', 'expected_arrival_time')
-                ->sortable()
                 ->format(function ($value, $row) {
                     return (empty($value)) ? 'n/a' : Carbon::parse($value)->format('h:i A');
                 });

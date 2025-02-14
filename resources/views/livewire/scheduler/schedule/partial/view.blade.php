@@ -566,7 +566,7 @@
         <div class="card border rounded shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">
                 <span class="badge bg-light-info float-end"><a
-                        href="{{ route('core.customer.show', $form->schedule->order->customer->id) }}"
+                        href="{{ route('core.customer.show', $form->schedule->order?->customer?->id) }}"
                         target="_blank"><i class="fas fa-external-link-alt"></i> CustNo
                         #{{ $form->schedule->order->customer?->sx_customer_number }}</a></span>
                 <h3 class="h5 mb-0">Customer Info</h3>
