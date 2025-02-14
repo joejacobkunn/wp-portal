@@ -945,6 +945,12 @@
     opacity: 1;
     cursor: progress;
 }
+.schedule-view .linked-sro {
+    background-color: #e6a4ff !important;
+}
+.schedule-view .linked-sro-dark {
+    background-color: #9E2EC9 !important;
+}
 
 .schedule-tab .fc-warehouseBtn-button:hover {
     background-color: #3788d8 !important;
