@@ -952,8 +952,8 @@ class Index extends Component
 
     public function useRecommended()
     {
-        $this->form->serviceZip = $this->form->extractZipCode($this->form->recommendedAddress);
-        $this->form->validateAddress($this->form->recommendedAddress, $this->form->serviceZip);
+        $this->form->service_address = $this->form->recommendedAddress;
+        $this->useCurrentAddress();
     }
 
     public function useCurrentAddress()
