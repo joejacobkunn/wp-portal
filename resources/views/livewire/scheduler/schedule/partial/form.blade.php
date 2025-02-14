@@ -368,7 +368,16 @@
                 <li class="list-group-item"><strong>Vin Number</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['vin_number'] }}</span></li>
                 <li class="list-group-item"><strong>Driver Name</strong> <span
-                        class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
+                    class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
+                <li class="list-group-item"><strong>Model Make, Year</strong> <span
+                        class="float-end">{{ $scheduledTruckInfo['make_model'] }},
+                         {{ $scheduledTruckInfo['year'] }}</span></li>
+                <li class="list-group-item"><strong>Shift type</strong> <span
+                        class="float-end">{{ $scheduledTruckInfo['shiftType'] }}</span></li>
+                <li class="list-group-item"><strong>Cubic Storage Space</strong> <span
+                        class="float-end">{{ $scheduledTruckInfo['cubic_storage'] }}</span></li>
+                <li class="list-group-item"><strong>{{ $scheduledTruckInfo['notes'] }}</strong> </li>
+
             </ul>
         @endif
 
