@@ -651,7 +651,7 @@ class Index extends Component
 
         } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
             $query->where('customers.email',  $value);
-        } elseif(preg_match('/^[A-Za-z0-9]+$/', $value)) {
+        } elseif (preg_match('/^\d{6}-\d{2}$/', $value)) {
             $query->where('schedules.sro_number', $value);
         } elseif (Str::length($this->searchKey) >= 4) {
             $query->where('customers.name', 'like', $value . '%');
