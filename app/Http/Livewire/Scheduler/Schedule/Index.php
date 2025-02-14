@@ -289,6 +289,13 @@ class Index extends Component
         $this->EventUpdate($response);
     }
 
+    public function confirmSchedule()
+    {
+        $response = $this->form->confirmSchedule();
+        $this->alert($response['class'], $response['message']);
+        $this->EventUpdate($response);
+    }
+
     public function typeCheck($field, $value)
     {
         $this->form->type = $value;
@@ -310,12 +317,16 @@ class Index extends Component
         ->map(function ($schedule, $index) {
             $enumInstance = ScheduleEnum::tryFrom($schedule->type);
             $icon = $enumInstance ? $enumInstance->icon() : null;
+            $color = $schedule->status_color;
+            if($schedule->status == 'scheduled' && $schedule->sro_number != null) {
+                $color = '#9E2EC9';
+            }
             return [
                 'id' => $schedule->id,
                 'title' => 'Order #' . $schedule->sx_ordernumber,
                 'start' => $schedule->schedule_date->format('Y-m-d'),
                 'description' => 'schedule',
-                'color' => $schedule->status_color,
+                'color' => $color,
                 'icon' => $icon,
                 'sortIndex' => $index
             ];
@@ -547,6 +558,11 @@ class Index extends Component
             'truck_name' => $schedule->truck->truck_name,
             'vin_number' => $schedule->truck->vin_number,
             'driver_name' => $schedule->driver?->name,
+            'make_model' => $schedule->truck->model_and_make,
+            'year' => $schedule->truck->year,
+            'shiftType' => $schedule->truck->shift_type,
+            'cubic_storage' => $schedule->truck->cubic_storage_space,
+            'notes' => $schedule->truck->notes,
         ];
         $this->resetValidation(['form.schedule_time']);
     }
@@ -651,7 +667,7 @@ class Index extends Component
 
         } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
             $query->where('customers.email',  $value);
-        } elseif(preg_match('/^[A-Za-z0-9]+$/', $value)) {
+        } elseif (preg_match('/^\d{6}-\d{2}$/', $value)) {
             $query->where('schedules.sro_number', $value);
         } elseif (Str::length($this->searchKey) >= 4) {
             $query->where('customers.name', 'like', $value . '%');
@@ -744,7 +760,19 @@ class Index extends Component
 
     public function cancelConfirm()
     {
-        $response = $this->form->unlinkSRO();
+        $response = $this->form->unConfirm();
+        $this->reset([
+            'sro_number',
+            'sro_verified',
+            'sro_response'
+        ]);
+        $this->alert($response['class'], $response['message']);
+        $this->EventUpdate($response);
+    }
+
+    public function unlinkSro()
+    {
+        $response = $this->form->unlinkSro();
         $this->reset([
             'sro_number',
             'sro_verified',
@@ -803,12 +831,16 @@ class Index extends Component
     {
         $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
+        $color = $response['schedule']->status_color;
+        if($response['schedule']->status == 'scheduled' && $response['schedule']->sro_number != null) {
+            $color = '#9E2EC9';
+        }
         $event = [
             'id' => $response['schedule']->id,
             'title' => 'Order #' . $response['schedule']->sx_ordernumber,
             'start' => $response['schedule']->schedule_date->format('Y-m-d'),
             'description' => 'schedule',
-            'color' => $response['schedule']->status_color,
+            'color' => $color,
             'icon' => $icon,
         ];
         $this->alert($response['class'], $response['message']);
@@ -952,8 +984,8 @@ class Index extends Component
 
     public function useRecommended()
     {
-        $this->form->serviceZip = $this->form->extractZipCode($this->form->recommendedAddress);
-        $this->form->validateAddress($this->form->recommendedAddress, $this->form->serviceZip);
+        $this->form->service_address = $this->form->recommendedAddress;
+        $this->useCurrentAddress();
     }
 
     public function useCurrentAddress()

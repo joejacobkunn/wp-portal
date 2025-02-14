@@ -144,7 +144,7 @@ class ScheduleForm extends Form
 
         if(!config('sx.mock'))
         {
-            
+
             $this->SXOrderInfo = SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
 
             if(is_null($this->SXOrderInfo)) {
@@ -159,13 +159,13 @@ class ScheduleForm extends Form
                     'scheduleType',
                     'line_item',
                     'orderInfo'
-    
+
                 ]);
                 return;
             }
 
             $this->orderInfo = $this->syncSXOrder($this->SXOrderInfo);
-    
+
         }else{
             $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
             ->first();
@@ -460,19 +460,29 @@ class ScheduleForm extends Form
     public function linkSRONumber($sro)
     {
         $this->schedule->sro_number = $sro;
-        $this->schedule->status = 'confirmed';
-        $this->schedule->confirmed_at = Carbon::now();
-        $this->schedule->confirmed_by = Auth::user()->id;
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'SRO number successfully linked', 'schedule' => $this->schedule];
     }
 
-    public function unlinkSRO()
+    public function confirmSchedule()
     {
-        $this->schedule->sro_number = null;
+        $this->schedule->status = 'confirmed';
+        $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule confirmed successfully', 'schedule' => $this->schedule];
+    }
+
+    public function unConfirm()
+    {
         $this->schedule->status = 'scheduled';
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule Unconfirmed', 'schedule' => $this->schedule];
+    }
+
+    public function unlinkSro()
+    {
+        $this->schedule->sro_number = null;
+        $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'SRO Number Unlinked', 'schedule' => $this->schedule];
     }
 
     public function cancelSchedule()
@@ -605,11 +615,11 @@ class ScheduleForm extends Form
     {
         $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
         $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
-        
+
         $portal_order = Order::updateOrCreate(
             [
-                'order_number' => $sx_order['orderno'], 
-                'order_number_suffix' => $sx_order['ordersuf'], 
+                'order_number' => $sx_order['orderno'],
+                'order_number_suffix' => $sx_order['ordersuf'],
                 'cono' => $sx_order['cono']
             ],
             [
@@ -637,7 +647,7 @@ class ScheduleForm extends Form
         );
 
         return $portal_order;
-        
+
     }
 
     private function getSxOrderLineItemsProperty($order_number, $order_suffix, $cono = 10)
@@ -672,7 +682,7 @@ class ScheduleForm extends Form
             'oeel.cono',
             'oeel.enterdt',
         ];
-    
+
         return OrderLineItem::select($required_line_item_columns)
         ->leftJoin('icsp', function (JoinClause $join) {
             $join->on('oeel.cono','=','icsp.cono')
@@ -698,7 +708,7 @@ class ScheduleForm extends Form
             if(!str_contains($line_item['prodline'], 'LR-E') && str_contains($line_item['prodline'], '-E'))
             {
                 return true;
-            } 
+            }
         }
 
         return false;
@@ -715,7 +725,7 @@ class ScheduleForm extends Form
             if(str_contains($line_item['prodline'], 'LR-E'))
             {
                 return true;
-            } 
+            }
         }
 
         return false;

@@ -368,7 +368,16 @@
                 <li class="list-group-item"><strong>Vin Number</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['vin_number'] }}</span></li>
                 <li class="list-group-item"><strong>Driver Name</strong> <span
-                        class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
+                    class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
+                <li class="list-group-item"><strong>Model Make, Year</strong> <span
+                        class="float-end">{{ $scheduledTruckInfo['make_model'] }},
+                         {{ $scheduledTruckInfo['year'] }}</span></li>
+                <li class="list-group-item"><strong>Shift type</strong> <span
+                        class="float-end">{{ $scheduledTruckInfo['shiftType'] }}</span></li>
+                <li class="list-group-item"><strong>Cubic Storage Space</strong> <span
+                        class="float-end">{{ $scheduledTruckInfo['cubic_storage'] }}</span></li>
+                <li class="list-group-item"><strong>{{ $scheduledTruckInfo['notes'] }}</strong> </li>
+
             </ul>
         @endif
 
@@ -386,7 +395,7 @@
 
                 </div>
                 <div class="mb-4">
-                    <h6 class="text-primary">Verified Address</h6>
+                    <h6 class="text-primary">Suggested Address</h6>
                     <ul class="list-group">
                         <li class="list-group-item">
                             {{ $form->recommendedAddress }}
@@ -404,13 +413,10 @@
                                 </strong> is Missing/Incorrect</p>
                         @endforeach
                     </div>
-                    @if ($form->showAddressBox)
-                        <div class="form-group">
-                            <x-forms.textarea label="Service Address" model="form.recommendedAddress"
-                                :hint="'Showing verified address from google.Make necessary changes and verify'" :key="'fix-service-address'" />
-                        </div>
-                    @endif
-
+                    <div class="form-group">
+                        <x-forms.textarea label="Service Address" model="form.recommendedAddress"
+                            :hint="'Showing verified address from google. Make necessary changes and verify'" :key="'fix-service-address'" />
+                    </div>
                 </div>
                 <x-slot name="footer">
                     <button type="submit" class="btn btn-light-secondary" wire:click="useCurrentAddress">
@@ -424,14 +430,14 @@
                         <div wire:loading wire:target="useRecommended">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        Use Verified Address
+                        Use Suggested Address
                     </button>
                     <button type="submit" class="btn btn-primary {{ $form->showAddressBox ? 'd-none' : '' }}"
                         wire:click="fixAddress">
                         <div wire:loading wire:target="fixAddress">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        Review Verified Address
+                        Review Suggested Address
                     </button>
                 </x-slot>
             </x-modal>
