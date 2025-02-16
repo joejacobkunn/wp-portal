@@ -443,30 +443,32 @@
             </x-modal>
         @endif
         {{-- service address modal  --}}
-        <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
-            <x-slot name="title">Update Address </x-slot>
-            <div class="col-md-12 mb-2">
-                <div class="form-group">
-                    <x-forms.textarea label="Service Address" model="form.service_address_temp" :key="'service-address' . $form->addressKey" />
+        @if ($serviceAddressModal)
+            <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
+                <x-slot name="title">Update Address </x-slot>
+                <div class="col-md-12 mb-2">
+                    <div class="form-group">
+                        <x-forms.textarea label="Service Address" model="form.service_address_temp" :key="'service-address' . $form->addressKey" />
+                    </div>
                 </div>
-            </div>
-            <hr>
-            <x-slot name="footer">
-                <button type="submit" class="btn btn-primary" wire:click="updateAddress">
-                    <div wire:loading wire:target="updateAddress">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </div>
-                    Update Address
-                </button>
-                <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif
-                    wire:click="revertAddress">
-                    <div wire:loading wire:target="revertAddress">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </div>
-                    Reset Address
-                </button>
-            </x-slot>
-        </x-modal>
+                <hr>
+                <x-slot name="footer">
+                    <button type="submit" class="btn btn-primary" wire:click="updateAddress">
+                        <div wire:loading wire:target="updateAddress">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Update Address
+                    </button>
+                    <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif
+                        wire:click="revertAddress">
+                        <div wire:loading wire:target="revertAddress">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Reset Address
+                    </button>
+                </x-slot>
+            </x-modal>
+        @endif
 
     </div>
     {{-- end of sidebar --}}

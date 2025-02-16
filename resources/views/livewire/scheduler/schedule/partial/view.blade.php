@@ -159,7 +159,7 @@
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
                                         </div>
-                                        <i class="far fa-calendar-times"></i> Unconfirm
+                                        <i class="fas fa-solid fa-xmark"></i> Unconfirm
                                     </button>
                                 </div>
                             </div>
@@ -611,7 +611,7 @@
                 </ul>
             </div>
         </div>
-        <x-tabs :tabs="$tabs" tabId="schedule-comment-tabs" activeTabIndex="active">
+        <x-tabs :tabs="$this->tabs" tabId="schedule-comment-tabs" activeTabIndex="active">
             <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'comments' . time()">
             </x-slot>
 

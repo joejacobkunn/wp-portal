@@ -180,15 +180,17 @@
                 @endif
             </div>
         </div>
-        @if ($showModal || $isEdit)
+        @if ($showModal)
             <x-modal toggle="showModal" size="xl" :closeEvent="'closeModal'">
                 <x-slot name="title">Schedule
-                    {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($form->type)->label() }}</x-slot>
-                @if (!$this->showView)
-                    @include('livewire.scheduler.schedule.partial.form')
-                @else
-                    @include('livewire.scheduler.schedule.partial.view')
-                @endif
+                    {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($selectedType)->label() }}</x-slot>
+
+                <livewire:scheduler.schedule.create lazy wire:key="create"
+                :page="$this->showView"
+                :selectedType="$selectedType"
+                :selectedSchedule="$selectedSchedule"
+                :activeWarehouse="$this->activeWarehouse"
+                >
             </x-modal>
         @endif
         @if ($showDriverModal)
