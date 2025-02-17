@@ -134,7 +134,7 @@
                     </div>
                     <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
-                            you are about to unlink SRO Number. Click below unlink button to confirm.
+                            You are about to unlink SRO Number. Click below unlink button to confirm.
                             <div class="col-md-12">
                                 <div class="mt-4 float-start">
                                     <button wire:click="unlinkSro" class="btn btn-sm btn-primary">
@@ -383,15 +383,14 @@
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
                             on this day.
-                            @if ($form->schedule->truckSchedule->driver_id)
-                                Driven by
-                                <span class="badge bg-{{ $form->schedule->status_color_class }}
-                                    @if($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark  @endif
-                                    ">
-                                    <i class="fas fa-user-tag"></i>
-                                    {{ $form->schedule->truckSchedule->driver?->name }}</span>
-                            @endif
                         </p>
+                        @if ($form->schedule->truckSchedule->driver_id)
+                            <p class="mt-2">Driven by
+                            <span class="badge bg-{{ $form->schedule->status_color_class }}
+                                @if($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark  @endif
+                                ">
+                            <i class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span></p>
+                        @endif
                     @endif
                     @if ($form->schedule->status == 'completed')
                         <p><i class="far fa-calendar-check"></i> AHM is Completed
@@ -415,14 +414,14 @@
                             is serving <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
-                            on this day.
+                            on this day.</p>
                             @if ($form->schedule->truckSchedule->driver_id)
-                                Driven by
-                                <span class="badge bg-{{ $form->schedule->status_color_class }}">
-                                    <i class="fas fa-user-tag"></i>
-                                    {{ $form->schedule->truckSchedule->driver?->name }}</span>
+                               <p class="mt-2">Driven by
+                                    <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                        <i class="fas fa-user-tag"></i>
+                                        {{ $form->schedule->truckSchedule->driver?->name }}</span>
+                                </p>
                             @endif
-                        </p>
                     @endif
                 </div>
 

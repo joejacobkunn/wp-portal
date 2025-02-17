@@ -312,6 +312,8 @@ class ScheduleForm extends Form
         $this->serviceZip = $this->extractZipCode($this->service_address);
 
         $this->getTruckSchedules();
+        $holidays = CalendarHoliday::listAll();
+        $this->disabledDates = array_column($holidays, 'date');
     }
 
     public function update()
@@ -414,12 +416,6 @@ class ScheduleForm extends Form
         )
         ->get();
 
-    }
-
-    public function calendarInit()
-    {
-        $holidays = CalendarHoliday::listAll();
-        $this->disabledDates = array_column($holidays, 'date');
     }
 
     public function getEnabledDates()

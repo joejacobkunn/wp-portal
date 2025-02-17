@@ -49,5 +49,18 @@
                 </div>
             </div>
         </div>
+        @if ($showEventModal)
+            <x-modal toggle="showEventModal" size="xl" :closeEvent="'closeEventModal'">
+                <x-slot name="title">Schedule
+                    {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($selectedSchedule->type)->label() }}</x-slot>
+
+                <livewire:scheduler.schedule.create lazy wire:key="create"
+                :page="true"
+                :selectedType="$selectedSchedule->type"
+                :selectedSchedule="$selectedSchedule"
+                :activeWarehouse="$this->activeWarehouse"
+                >
+            </x-modal>
+        @endif
     </x-slot>
 </x-page>

@@ -48,12 +48,16 @@ class Table extends DataTableComponent
                 ->hideIf(1),
 
             Column::make('SX Order No', 'sx_ordernumber')
-                ->excludeFromColumnSelect()
-                ->searchable()
-                ->format(function ($value, $row) {
-                    return $value.'-'.$row->order_number_suffix;
-                })
-                ->html(),
+            ->excludeFromColumnSelect()
+            ->searchable()
+            ->format(function ($value, $row) {
+                return '<a href="#"
+                    wire:click.prevent="$dispatch(\'schedule-event-modal-open\', { id: ' . $row->id . ' })"
+                    class="text-primary text-decoration-underline">'
+                    . $value . '-' . $row->order_number_suffix .
+                '</a>';
+            })
+            ->html(),
 
             Column::make('Type', 'type')
                 ->sortable()

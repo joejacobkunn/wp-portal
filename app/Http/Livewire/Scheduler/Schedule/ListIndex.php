@@ -15,6 +15,8 @@ class ListIndex extends Component
 {
     use LivewireAlert, HasTabs, ScheduleData;
 
+    public $showEventModal;
+    public $selectedSchedule;
     public $tabs = [
         'schedule-list-index-tabs' => [
             'active' => 'today',
@@ -34,6 +36,8 @@ class ListIndex extends Component
 
     protected $listeners = [
         'schedule-list-index-tabs:tab:changed' => 'indexActiveTabChange',
+        'schedule-event-modal-open' => 'scheduleModalOpen',
+        'closeEventModal' => 'closeEventModal'
     ];
 
     public $tabCounts = [];
@@ -89,10 +93,22 @@ class ListIndex extends Component
     {
         //@TODO update after schedule whse update
         $truckList = $this->trucks->where('whse', $this->activeWarehouseId)->pluck('id')->toArray();
-        
+
         $this->tabCounts['today'] = $this->queryByDate(Carbon::now()->toDateString())->whereIn('truck_schedules.truck_id', $truckList)->count();
         $this->tabCounts['tomorrow'] = $this->queryByDate(Carbon::now()->addDay()->toDateString())->whereIn('truck_schedules.truck_id', $truckList)->count();
         $this->tabCounts['unconfirmed'] = $this->queryByStatus('unconfirmed')->whereIn('truck_schedules.truck_id', $truckList)->count();
         $this->tabCounts['all'] = $this->scheduleBaseQuery()->whereIn('truck_schedules.truck_id', $truckList)->count();
+    }
+
+    public function scheduleModalOpen($id)
+    {
+        $this->selectedSchedule = Schedule::find($id);
+        $this->showEventModal = true;
+    }
+
+    public function closeEventModal()
+    {
+        $this->reset('selectedSchedule');
+        $this->showEventModal = false;
     }
 }

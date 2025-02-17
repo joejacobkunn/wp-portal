@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\User;
 use App\Models\Core\Warehouse;
@@ -30,7 +29,6 @@ class Index extends Component
 {
     use LivewireAlert, HasTabs;
 
-    public ScheduleForm $form;
     public AnnouncementForm $announcementForm;
     public $showModal;
     public $schedules;
@@ -155,8 +153,6 @@ class Index extends Component
         $this->authorize('store', Schedule::class);
         $this->selectedType = $type;
         $this->showModal = true;
-        $this->form->calendarInit();
-
     }
 
     public function closeModal()
