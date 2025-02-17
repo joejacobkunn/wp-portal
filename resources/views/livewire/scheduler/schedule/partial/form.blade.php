@@ -139,10 +139,7 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <x-forms.select label="Scheduling Priority" model="form.scheduleType"
-                                            :options="[
-                                                'next_avail' => 'Next Available Date',
-                                                'one_year' => 'One Year from Now',
-                                            ]" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
+                                            :options="$schedulePriority" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
                                             default-option-label="- None -" :selected="$form->scheduleType" :key="'scheduleTypeKey'" />
                                     </div>
                                 </div>
@@ -174,10 +171,11 @@
                                                     }
                                                 });"
                                                 x-on:enable-date-update.window="
-                                                        if (flatpickrInstance) {
-                                                            flatpickrInstance.set('enable', $event.detail.enabledDates);
-                                                        }
-                                                    "
+                                                    if (flatpickrInstance) {
+                                                        let dates = Array.isArray($event.detail.enabledDates) ? $event.detail.enabledDates : [];
+                                                        flatpickrInstance.set('enable', dates);
+                                                    }
+                                                "
                                                 x-on:set-current-date.window="
                                                         if (flatpickrInstance) {
                                                             flatpickrInstance.jumpToDate($event.detail.activeDay);
@@ -215,7 +213,7 @@
                                 {{-- schedule date end --}}
                                 {{-- timeslots listing --}}
                                 <div wire:loading.remove wire:target="updateFormScheduleDate"
-                                    class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }}">
+                                    class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }} overflow-auto" style="height: 400px">
                                     <label class="form-label">Available Time Slots on
                                         {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
                                     <div class="d-flex flex-column gap-2">
@@ -224,7 +222,7 @@
                                             <a href="javascript:void(0)"
                                                 wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                 class="list-group-item list-group-item-action
-                                                @if ($schedule->schedule_count >= $schedule->slots) disabled text-muted time-slot-full @endif">
+                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType!='schedule_override') disabled text-muted time-slot-full @endif">
                                                 <div
                                                     class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                     {{ $schedule->start_time . ' - ' . $schedule->end_time }}
@@ -443,30 +441,32 @@
             </x-modal>
         @endif
         {{-- service address modal  --}}
-        <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
-            <x-slot name="title">Update Address </x-slot>
-            <div class="col-md-12 mb-2">
-                <div class="form-group">
-                    <x-forms.textarea label="Service Address" model="form.service_address_temp" :key="'service-address' . $form->addressKey" />
+        @if ($serviceAddressModal)
+            <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
+                <x-slot name="title">Update Address </x-slot>
+                <div class="col-md-12 mb-2">
+                    <div class="form-group">
+                        <x-forms.textarea label="Service Address" model="form.service_address_temp" :key="'service-address' . $form->addressKey" />
+                    </div>
                 </div>
-            </div>
-            <hr>
-            <x-slot name="footer">
-                <button type="submit" class="btn btn-primary" wire:click="updateAddress">
-                    <div wire:loading wire:target="updateAddress">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </div>
-                    Update Address
-                </button>
-                <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif
-                    wire:click="revertAddress">
-                    <div wire:loading wire:target="revertAddress">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </div>
-                    Reset Address
-                </button>
-            </x-slot>
-        </x-modal>
+                <hr>
+                <x-slot name="footer">
+                    <button type="submit" class="btn btn-primary" wire:click="updateAddress">
+                        <div wire:loading wire:target="updateAddress">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Update Address
+                    </button>
+                    <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif
+                        wire:click="revertAddress">
+                        <div wire:loading wire:target="revertAddress">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Reset Address
+                    </button>
+                </x-slot>
+            </x-modal>
+        @endif
 
     </div>
     {{-- end of sidebar --}}

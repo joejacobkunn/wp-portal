@@ -132,9 +132,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container">
+                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container" >
                         <div class="card card-body mb-0 p-0">
-                            you are about to unlink SRO Number. Click below unlink button to confirm.
+                            You are about to unlink SRO Number. Click below unlink button to confirm.
                             <div class="col-md-12">
                                 <div class="mt-4 float-start">
                                     <button wire:click="unlinkSro" class="btn btn-sm btn-primary">
@@ -159,7 +159,7 @@
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
                                         </div>
-                                        <i class="far fa-calendar-times"></i> Unconfirm
+                                        <i class="fas fa-solid fa-xmark"></i> Unconfirm
                                     </button>
                                 </div>
                             </div>
@@ -200,10 +200,7 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <x-forms.select label="Scheduling Priority" model="form.scheduleType"
-                                                    :options="[
-                                                        'next_avail' => 'Next Available Date',
-                                                        'one_year' => 'One Year from Now',
-                                                    ]" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
+                                                    :options="$schedulePriority" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
                                                     default-option-label="- None -" :selected="$form->scheduleType"
                                                     :key="'scheduleTypeKey'" />
                                             </div>
@@ -295,10 +292,10 @@
                                                     <a href="javascript:void(0)"
                                                         wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                         class="list-group-item list-group-item-action
-                                                    @if ($schedule->schedule_count >= $schedule->slots) disabled text-muted time-slot-full @endif">
+                                                    @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') disabled text-muted time-slot-full @endif">
                                                         <div
                                                             class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
-                                                            {{ $schedule->start_time . ' - ' . $schedule->end_time }}
+                                                            {{$schedule->id}}{{ $schedule->start_time . ' - ' . $schedule->end_time }}
                                                             <span
                                                                 class="badge bg-secondary badge-pill badge-round ms-1 float-end">
                                                                 {{ $schedule->schedule_count }} /
@@ -383,15 +380,14 @@
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
                             on this day.
-                            @if ($form->schedule->truckSchedule->driver_id)
-                                Driven by
-                                <span class="badge bg-{{ $form->schedule->status_color_class }}
-                                    @if($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark  @endif
-                                    ">
-                                    <i class="fas fa-user-tag"></i>
-                                    {{ $form->schedule->truckSchedule->driver?->name }}</span>
-                            @endif
                         </p>
+                        @if ($form->schedule->truckSchedule->driver_id)
+                            <p class="mt-2">Driven by
+                            <span class="badge bg-{{ $form->schedule->status_color_class }}
+                                @if($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark  @endif
+                                ">
+                            <i class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span></p>
+                        @endif
                     @endif
                     @if ($form->schedule->status == 'completed')
                         <p><i class="far fa-calendar-check"></i> AHM is Completed
@@ -415,14 +411,14 @@
                             is serving <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
-                            on this day.
+                            on this day.</p>
                             @if ($form->schedule->truckSchedule->driver_id)
-                                Driven by
-                                <span class="badge bg-{{ $form->schedule->status_color_class }}">
-                                    <i class="fas fa-user-tag"></i>
-                                    {{ $form->schedule->truckSchedule->driver?->name }}</span>
+                               <p class="mt-2">Driven by
+                                    <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                        <i class="fas fa-user-tag"></i>
+                                        {{ $form->schedule->truckSchedule->driver?->name }}</span>
+                                </p>
                             @endif
-                        </p>
                     @endif
                 </div>
 
@@ -475,7 +471,7 @@
                         <div class="mt-4 mb-4">
                             <button @if (!$sro_verified) disabled @endif wire:click="linkSRO"
                                 class="btn btn-sm btn-success">
-                                <div wire:loading>
+                                <div wire:loading wire:target="linkSRO">
                                     <span class="spinner-border spinner-border-sm" role="status"
                                         aria-hidden="true"></span>
                                 </div>
@@ -566,7 +562,7 @@
         <div class="card border rounded shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">
                 <span class="badge bg-light-info float-end"><a
-                        href="{{ route('core.customer.show', $form->schedule->order->customer->id) }}"
+                        href="{{ route('core.customer.show', $form->schedule->order?->customer?->id) }}"
                         target="_blank"><i class="fas fa-external-link-alt"></i> CustNo
                         #{{ $form->schedule->order->customer?->sx_customer_number }}</a></span>
                 <h3 class="h5 mb-0">Customer Info</h3>
@@ -611,12 +607,12 @@
                 </ul>
             </div>
         </div>
-        <x-tabs :tabs="$tabs" tabId="schedule-comment-tabs" activeTabIndex="active">
-            <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'comments' . time()">
+        <x-tabs :tabs="$this->tabs" tabId="schedule-comment-tabs" activeTabIndex="active">
+            <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'schedule-comments'">
             </x-slot>
 
-            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" recordType="floor-model"
-                :key="'activity-' . time()">
+            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule"
+                :key="'schedule-activity'">
             </x-slot>
         </x-tabs>
     </div>

@@ -6,6 +6,7 @@ use App\Enums\Scheduler\ScheduleEnum;
 use App\Enums\Scheduler\ScheduleStatusEnum;
 use App\Models\Core\Comment;
 use App\Models\Core\User;
+use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -168,5 +169,10 @@ class Schedule extends Model
     public function resolveLineItem($value)
     {
         return reset($value);
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'whse', 'short');
     }
 }
