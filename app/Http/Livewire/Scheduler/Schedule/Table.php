@@ -36,9 +36,6 @@ class Table extends DataTableComponent
         if ($this->activeTab == 'unconfirmed') {
             $this->setDefaultSort('schedule_date', 'asc');
         }
-        if ($this->activeTab == 'today') {
-            $this->setDefaultSort('expected_arrival_time', 'asc');
-        }
     }
 
 
@@ -47,14 +44,20 @@ class Table extends DataTableComponent
         $columns = [
             Column::make('Id', 'id')
                 ->hideIf(1),
+            Column::make('Schedule Priority', 'travel_prio_number')
+                ->hideIf(1),
 
             Column::make('SX Order No', 'sx_ordernumber')
-                ->excludeFromColumnSelect()
-                ->searchable()
-                ->format(function ($value, $row) {
-                    return $value.'-'.$row->order_number_suffix;
-                })
-                ->html(),
+            ->excludeFromColumnSelect()
+            ->searchable()
+            ->format(function ($value, $row) {
+                return '<a href="#"
+                    wire:click.prevent="$dispatch(\'schedule-event-modal-open\', { id: ' . $row->id . ' })"
+                    class="text-primary text-decoration-underline">'
+                    . $value . '-' . $row->order_number_suffix .
+                '</a>';
+            })
+            ->html(),
 
             Column::make('Type', 'type')
                 ->sortable()
@@ -135,7 +138,6 @@ class Table extends DataTableComponent
 
         if ($this->activeTab == 'today') {
             $columns[] = Column::make('ETA', 'expected_arrival_time')
-                ->sortable()
                 ->format(function ($value, $row) {
                     return (empty($value)) ? 'n/a' : Carbon::parse($value)->format('h:i A');
                 });

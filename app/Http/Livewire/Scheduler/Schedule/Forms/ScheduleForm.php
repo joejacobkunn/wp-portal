@@ -62,8 +62,8 @@ class ScheduleForm extends Form
     public $addressVerified = false;
     public $addressFromOrder;
     public $selectedTruckSchedule;
-
     public $recommendedAddress;
+
     public $alertConfig = [
         'status' => false,
         'message' => '',
@@ -106,7 +106,7 @@ class ScheduleForm extends Form
             'scheduleType' =>'required',
             'schedule_time' =>[
                 'required',
-                new ValidateSlotsforSchedule()
+                new ValidateSlotsforSchedule($this->scheduleType)
             ],
             'line_item' => $this->not_purchased_via_weingartz ? 'nullable' : 'required',
             'notes' =>'nullable',
@@ -230,7 +230,7 @@ class ScheduleForm extends Form
             return;
         }
         $this->checkServiceValidity();
-        $this->getEnabledDates();
+        $this->getEnabledDates(false, $this->orderInfo?->warehouse?->id);
     }
 
     public function checkServiceAVailability($value)
@@ -294,6 +294,11 @@ class ScheduleForm extends Form
                 'user_id' => Auth::user()->id
             ]);
         }
+        if( $this->scheduleType == 'schedule_override' && $schedule->truckSchedule->schedule_count >= $schedule->truckSchedule->slots) {
+
+            $schedule->truckSchedule->slots = $schedule->truckSchedule->slots + 1;
+            $schedule->truckSchedule->save();
+        }
 
         EventScheduled::dispatch($schedule);
 
@@ -311,7 +316,9 @@ class ScheduleForm extends Form
         $this->scheduleType = $schedule->schedule_type;
         $this->serviceZip = $this->extractZipCode($this->service_address);
 
-        $this->getTruckSchedules();
+        $this->getTruckSchedules($this->schedule->warehouse->id);
+        $holidays = CalendarHoliday::listAll();
+        $this->disabledDates = array_column($holidays, 'date');
     }
 
     public function update()
@@ -324,8 +331,15 @@ class ScheduleForm extends Form
         ])->toArray());
 
         $validatedData['truck_schedule_id'] = $this->schedule_time;
+
         $this->schedule->fill($validatedData);
         $this->schedule->save();
+        $this->selectedTruckSchedule = $this->selectedTruckSchedule->fresh();
+        if($this->scheduleType == 'schedule_override' && $this->selectedTruckSchedule->schedule_count > $this->selectedTruckSchedule->slots) {
+            $this->selectedTruckSchedule->slots = $this->selectedTruckSchedule->slots + 1;
+            $this->selectedTruckSchedule->save();
+
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
 
@@ -391,10 +405,9 @@ class ScheduleForm extends Form
 
 
 
-    public function getTruckSchedules()
+    public function getTruckSchedules($whse)
     {
-
-        $this->truckSchedules = DB::table('truck_schedules')
+        $truckScheduleQuery = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
         ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
@@ -402,8 +415,15 @@ class ScheduleForm extends Form
         ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
         ->whereNull('zones.deleted_at')
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
-        ->whereNull('trucks.deleted_at')
-        ->where('scheduler_zipcodes.zip_code', $this->serviceZip)
+        ->whereNull('trucks.deleted_at');
+
+        $zipcodes = [$this->serviceZip];
+
+        if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
+            $zipcodes = Zipcode::where('whse_id', $whse)->pluck('zip_code');
+        }
+
+        $this->truckSchedules = $truckScheduleQuery->whereIn('scheduler_zipcodes.zip_code', $zipcodes)
         ->where('truck_schedules.schedule_date', '=', $this->schedule_date)
         ->select(
             'truck_schedules.*',
@@ -412,30 +432,32 @@ class ScheduleForm extends Form
             'trucks.truck_name',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
         )
+        ->distinct()
         ->get();
-
     }
 
-    public function calendarInit()
+    public function getEnabledDates($shouldOverride, $whse)
     {
-        $holidays = CalendarHoliday::listAll();
-        $this->disabledDates = array_column($holidays, 'date');
-    }
-
-    public function getEnabledDates()
-    {
-        $schedules = DB::table('truck_schedules')
+        $zipcodes = [$this->serviceZip];
+        if($shouldOverride) {
+            if( Auth::user()->can('scheduler.can-schedule-override')) {
+                $zipcodes = Zipcode::where('whse_id', $whse)->pluck('zip_code');
+            }
+        }
+        $this->enabledDates = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
         ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
         ->whereNull('scheduler_zipcodes.deleted_at')
         ->select(
-            'truck_schedules.*',
-            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
+            'truck_schedules.schedule_date',
         )
-        ->where('scheduler_zipcodes.zip_code', $this->serviceZip)
-        ->get();
-        $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
+        ->whereIn('scheduler_zipcodes.zip_code', $zipcodes)
+        ->get()
+        ->pluck('schedule_date')
+        ->unique()
+        ->values()
+        ->toArray();
     }
 
     public function getSerialNumbers($orderno, $suffix)
@@ -543,7 +565,7 @@ class ScheduleForm extends Form
         }
         $this->getDistance();
         $this->checkServiceValidity();
-        $this->getEnabledDates();
+        $this->getEnabledDates(false, $this->orderInfo?->warehouse->id);
     }
 
     public function extractZipCode($address)

@@ -5,7 +5,7 @@
         $tabHeaders = [];
         $tabContents = [];
         $lazy = !empty($lazy) ? true : false;
-        
+
         foreach($tabList as $tabIndex => $tab) {
             if (isset(${"tab_header_{$tabIndex}"})) {
                 $tabHeaders[$tabIndex] = (${"tab_header_{$tabIndex}"})->toHtml();
@@ -13,7 +13,7 @@
 
             if (isset(${"tab_content_{$tabIndex}"})) {
                 $selectedSlot = ${"tab_content_{$tabIndex}"};
-                
+
                 $tabContents[$tabIndex] = [
                     'html' => !empty($selectedSlot) && !$selectedSlot->attributes->get('component') ? $selectedSlot->toHtml() : '',
                     'component' => !empty($selectedSlot) ? $selectedSlot->attributes->get('component') : '',
@@ -48,6 +48,8 @@
         :commonContent="$commonContent"
         wire:key="tab-{{ $tabs[$tabId]['active'] . ($key ?? '') }}"
         lazy="{{ $lazy }}"
+        parentComponent="{{ $parentComponent ?? $this::class }}"
+
     >
 
     @if(empty($commonContent['component']) && isset($content))
