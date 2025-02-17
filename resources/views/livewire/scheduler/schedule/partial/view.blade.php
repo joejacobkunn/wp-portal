@@ -295,7 +295,7 @@
                                                     @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') disabled text-muted time-slot-full @endif">
                                                         <div
                                                             class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
-                                                            {{$schedule->id}}{{ $schedule->start_time . ' - ' . $schedule->end_time }}
+                                                            {{ $schedule->start_time . ' - ' . $schedule->end_time }}
                                                             <span
                                                                 class="badge bg-secondary badge-pill badge-round ms-1 float-end">
                                                                 {{ $schedule->schedule_count }} /
