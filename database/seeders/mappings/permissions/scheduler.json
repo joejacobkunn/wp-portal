@@ -56,16 +56,15 @@
                 "description": "User can complete a scheduled event"
             },
             {
-                "name": "scheduler.announcement.view",
-                "label": "View Scheduler Announcements",
-                "description": "User can view schedule related announcement"
-            },
-            {
                 "name": "scheduler.announcement.manage",
                 "label": "Manage Scheduler Announcements",
                 "description": "User can Manage schedule related announcement"
+            },
+            {
+                "name": "scheduler.can-schedule-override",
+                "label": "Override Schedules",
+                "description": "User can Override schedules"
             }
-
         ]
     }
 ]

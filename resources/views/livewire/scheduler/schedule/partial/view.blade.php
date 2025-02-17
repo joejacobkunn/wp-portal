@@ -132,7 +132,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container">
+                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container" >
                         <div class="card card-body mb-0 p-0">
                             You are about to unlink SRO Number. Click below unlink button to confirm.
                             <div class="col-md-12">
@@ -200,10 +200,7 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <x-forms.select label="Scheduling Priority" model="form.scheduleType"
-                                                    :options="[
-                                                        'next_avail' => 'Next Available Date',
-                                                        'one_year' => 'One Year from Now',
-                                                    ]" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
+                                                    :options="$schedulePriority" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
                                                     default-option-label="- None -" :selected="$form->scheduleType"
                                                     :key="'scheduleTypeKey'" />
                                             </div>
@@ -295,10 +292,10 @@
                                                     <a href="javascript:void(0)"
                                                         wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                         class="list-group-item list-group-item-action
-                                                    @if ($schedule->schedule_count >= $schedule->slots) disabled text-muted time-slot-full @endif">
+                                                    @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') disabled text-muted time-slot-full @endif">
                                                         <div
                                                             class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
-                                                            {{ $schedule->start_time . ' - ' . $schedule->end_time }}
+                                                            {{$schedule->id}}{{ $schedule->start_time . ' - ' . $schedule->end_time }}
                                                             <span
                                                                 class="badge bg-secondary badge-pill badge-round ms-1 float-end">
                                                                 {{ $schedule->schedule_count }} /
@@ -474,7 +471,7 @@
                         <div class="mt-4 mb-4">
                             <button @if (!$sro_verified) disabled @endif wire:click="linkSRO"
                                 class="btn btn-sm btn-success">
-                                <div wire:loading>
+                                <div wire:loading wire:target="linkSRO">
                                     <span class="spinner-border spinner-border-sm" role="status"
                                         aria-hidden="true"></span>
                                 </div>
@@ -611,11 +608,11 @@
             </div>
         </div>
         <x-tabs :tabs="$this->tabs" tabId="schedule-comment-tabs" activeTabIndex="active">
-            <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'comments' . time()">
+            <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'schedule-comments'">
             </x-slot>
 
-            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" recordType="floor-model"
-                :key="'activity-' . time()">
+            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule"
+                :key="'schedule-activity'">
             </x-slot>
         </x-tabs>
     </div>

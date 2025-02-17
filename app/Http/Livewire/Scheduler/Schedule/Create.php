@@ -11,6 +11,7 @@ use App\Models\Scheduler\TruckSchedule;
 use App\Models\SRO\RepairOrders;
 use App\Traits\HasTabs;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Create extends Component
@@ -31,7 +32,10 @@ class Create extends Component
     public $sro_verified;
     public $sro_response;
     public $scheduledLineItem;
-
+    public $schedulePriority = [
+        'next_avail' => 'Next Available Date',
+        'one_year' => 'One Year from Now',
+    ];
     public $tabs = [
         'schedule-comment-tabs' => [
             'active' => 'comments',
@@ -63,6 +67,9 @@ class Create extends Component
                 $this->sro_verified = true;
                 $this->sro_response = $this->getSROInfo($this->sro_number);
             }
+        }
+        if (Auth::user()->can('scheduler.can-schedule-override')) {
+            $this->schedulePriority = ['schedule_override' => 'Schedule Override'] + $this->schedulePriority;
         }
     }
 
@@ -146,7 +153,9 @@ class Create extends Component
     public function updateFormScheduleDate($date)
     {
         $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
-        $this->form->getTruckSchedules();
+        $whse = $this->page ? $this->form->schedule->warehouse->id : $this->form->orderInfo->warehouse->id;
+
+        $this->form->getTruckSchedules($whse);
         $this->form->schedule_time = null;
     }
 
@@ -191,15 +200,18 @@ class Create extends Component
 
     public function scheduleTypeDispatch()
     {
+        $whse = $this->page ? $this->form->schedule->warehouse->id : $this->form->orderInfo->warehouse->id;
+        $this->form->getEnabledDates($this->form->scheduleType == 'schedule_override', $whse);
         if($this->form->scheduleType == 'one_year') {
             $date = Carbon::now()->addYear()->format('Y-m-d');
         }
 
-        if($this->form->scheduleType == 'next_avail') {
+        if($this->form->scheduleType == 'next_avail' || $this->form->scheduleType == 'schedule_override') {
             $date = isset($this->form->enabledDates[0]) ? $this->form->enabledDates[0] : Carbon::now()->format('Y-m-d');
         }
 
         $this->form->reset(['schedule_time', 'truckSchedules', 'schedule_date']);
+        $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
         $this->dispatch('set-current-date', activeDay: $date);
         $this->showTypeLoader = false;
     }
@@ -226,12 +238,16 @@ class Create extends Component
     {
         $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
+        $color = $response['schedule']->status_color;
+        if($response['schedule']->status == 'scheduled' && $response['schedule']->sro_number != null) {
+            $color = '#9E2EC9';
+        }
         $event = [
             'id' => $response['schedule']->id,
             'title' => 'Order #' . $response['schedule']->sx_ordernumber,
             'start' => $response['schedule']->schedule_date->format('Y-m-d'),
             'description' => 'schedule',
-            'color' => $response['schedule']->status_color,
+            'color' => $color,
             'icon' => $icon,
         ];
         $this->alert($response['class'], $response['message']);
@@ -263,10 +279,12 @@ class Create extends Component
         $this->form->service_address_temp = $this->form->addressFromOrder;
     }
 
+    // todo need to check whether it is still required
     public function getEnabledDates()
     {
+        $whse = $this->page ? $this->form->schedule->warehouse->id : $this->form->orderInfo->warehouse->id;
         if(empty($this->form->enabledDates)) {
-            $this->form->getEnabledDates();
+            $this->form->getEnabledDates(false, $whse);
         }
         return $this->form->enabledDates;
     }
