@@ -96,7 +96,6 @@ class ScheduleForm extends Form
                 'required',
                 'numeric',
                 'max_digits:9',
-                Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at'),
             ],
             'suffix' => 'required|numeric|max_digits:1',
             'schedule_date' => [
@@ -132,6 +131,14 @@ class ScheduleForm extends Form
         $this->alertConfig['status'] = false;
         if(!$this->sx_ordernumber) {
             $this->addError('sx_ordernumber', 'Order Number is required');
+            return;
+        }
+        $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
+            ->whereNotIn('status', ['cancelled', 'completed'])
+            ->where('schedule_date', '<', Carbon::now()->addMonths(6))
+            ->get();
+        if($existingSchedules->count() >=1 ) {
+            $this->addError('sx_ordernumber', 'Order number already exist');
             return;
         }
 
