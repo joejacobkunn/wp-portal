@@ -203,6 +203,8 @@ class ScheduleForm extends Form
             $this->not_purchased_via_weingartz = true;
         }
 
+        $this->serialNumbers = $this->getSerialNumbers($this->sx_ordernumber, $suffix);
+
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
         if (!empty($this->orderInfo?->shipping_info['line2'])) {

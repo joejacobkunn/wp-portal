@@ -120,8 +120,15 @@
                                             Line Items
                                         </li>
                                         @foreach ($form->orderInfo->line_items['line_items'] ?? [] as $item)
+                                            @php
+                                                $appendSerial = '';
+                                                $serial = collect($form->serialNumbers)->firstWhere('prod', $item['shipprod']);
+                                                if(isset($serial)) {
+                                                    $appendSerial = '- '.$serial['serialno'];
+                                                }
+                                            @endphp
                                             <li class="list-group-item">
-                                                <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
+                                                <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ') '.$appendSerial " :name="'lineitem'" :value="$item['shipprod']"
                                                     :model="'form.line_item'" />
 
                                             </li>
