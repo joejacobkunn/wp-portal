@@ -96,7 +96,6 @@ class ScheduleForm extends Form
                 'required',
                 'numeric',
                 'max_digits:9',
-                Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at'),
             ],
             'suffix' => 'required|numeric|max_digits:1',
             'schedule_date' => [
@@ -132,6 +131,14 @@ class ScheduleForm extends Form
         $this->alertConfig['status'] = false;
         if(!$this->sx_ordernumber) {
             $this->addError('sx_ordernumber', 'Order Number is required');
+            return;
+        }
+        $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
+            ->whereNotIn('status', ['cancelled', 'completed'])
+            ->where('schedule_date', '<', Carbon::now()->addMonths(6))
+            ->get();
+        if($existingSchedules->count() >=1 ) {
+            $this->addError('sx_ordernumber', 'Order number already scheduled within six months');
             return;
         }
 
@@ -195,6 +202,8 @@ class ScheduleForm extends Form
         if(empty($this->orderInfo->line_items['line_items'])) {
             $this->not_purchased_via_weingartz = true;
         }
+
+        $this->serialNumbers = $this->getSerialNumbers($this->sx_ordernumber, $suffix);
 
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
@@ -284,6 +293,7 @@ class ScheduleForm extends Form
             $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
             $validatedData['line_item'] = [$this->line_item=>$itemDesc];
             $validatedData['not_purchased_via_weingartz'] = 0;
+            $validatedData['serial_no'] = collect($this->serialNumbers)->firstWhere('prod',$this->line_item)?->serialno;
         }
 
 
@@ -340,6 +350,9 @@ class ScheduleForm extends Form
             $this->selectedTruckSchedule->save();
 
         }
+        $this->scheduleType = null;
+        $this->schedule_date = null;
+        $this->schedule_time = null;
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
 

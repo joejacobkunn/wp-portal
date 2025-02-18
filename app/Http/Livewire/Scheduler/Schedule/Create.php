@@ -58,6 +58,7 @@ class Create extends Component
     {
         $this->form->type = $this->selectedType;
         $this->scheduleOptions = collect(ScheduleEnum::cases())
+        ->filter(fn($case) => $case->name === 'at_home_maintenance')
         ->mapWithKeys(fn($case) => [$case->name => $case->label()])
         ->toArray();
         if($this->page) {

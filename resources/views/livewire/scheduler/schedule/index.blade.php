@@ -36,13 +36,13 @@
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom @if($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif" href="#"
                                         wire:click.prevent="create('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
                             <div id="warehouse-wrap">
                                 @foreach ($this->warehouses as $whse)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom " href="#"
                                         wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}</a>
                                 @endforeach
                             </div>
@@ -50,7 +50,7 @@
                                 <a class="dropdown-item border-bottom" href="#"
                                     wire:click.prevent="changeScheduleType('')">All Services</a>
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom  @if($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif" href="#"
                                         wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
@@ -177,6 +177,14 @@
                     <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i> No
                         active trucks and zones
                     </div>
+                @endif
+                @if($truckReturnInfo)
+                    @foreach ($truckReturnInfo as $data)
+                    <div class="mb-2 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
+                        Truck <strong> {{$data['truck_name']}}</strong>  expected to return to <strong>{{$data['warehouse_name']}}</strong> warehouse by
+                         {{ Carbon\Carbon::parse($data['expected_arrival_time'])->format('h:i A') }}
+                    </div>
+                    @endforeach
                 @endif
             </div>
         </div>

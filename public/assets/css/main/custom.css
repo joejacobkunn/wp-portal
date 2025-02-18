@@ -998,8 +998,8 @@
 }
 
 .scheduler-driver-img-thumbnail {
-    height: 100px;
-    width: 100px;
+    height: 100px !important;
+    width: 100px !important;
 }
 .schedule-tab .fc {
     min-height: 600px !important;
@@ -1074,3 +1074,9 @@
 }
 
 /** End Rotations */
+
+.anchor-disabled {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
