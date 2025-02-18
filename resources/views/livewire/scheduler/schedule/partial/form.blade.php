@@ -8,7 +8,7 @@
                             <div class="form-group">
                                 <x-forms.select label="Schedule" model="form.type" :options="$scheduleOptions" :hasAssociativeIndex="true"
                                     :listener="'typeCheck'" default-option-label="- None -" :selected="$form->type"
-                                    :key="'schedule-' . now()" />
+                                    :key="'schedule-options'" />
                             </div>
                         </div>
                         <div class="col-md-6 mb-2">
@@ -120,7 +120,21 @@
                                             Line Items
                                         </li>
                                         @foreach ($form->orderInfo->line_items['line_items'] ?? [] as $item)
+                                            @php
+                                                $appendSerial = '';
+                                                $serial = collect($form->serialNumbers)->firstWhere(
+                                                    'prod',
+                                                    $item['shipprod'],
+                                                );
+                                                if (isset($serial)) {
+                                                    $appendSerial = $serial->serialno;
+                                                }
+                                            @endphp
                                             <li class="list-group-item">
+                                                @if (!empty($appendSerial))
+                                                    <span class="badge bg-light-secondary float-end">SN :
+                                                        {{ $appendSerial }}</span>
+                                                @endif
                                                 <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
                                                     :model="'form.line_item'" />
 
@@ -213,7 +227,8 @@
                                 {{-- schedule date end --}}
                                 {{-- timeslots listing --}}
                                 <div wire:loading.remove wire:target="updateFormScheduleDate"
-                                    class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }} overflow-auto" style="height: 400px">
+                                    class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }} overflow-auto"
+                                    style="height: 400px">
                                     <label class="form-label">Available Time Slots on
                                         {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
                                     <div class="d-flex flex-column gap-2">
@@ -222,7 +237,7 @@
                                             <a href="javascript:void(0)"
                                                 wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                 class="list-group-item list-group-item-action
-                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType!='schedule_override') disabled text-muted time-slot-full @endif">
+                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') disabled text-muted time-slot-full @endif">
                                                 <div
                                                     class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                     {{ $schedule->start_time . ' - ' . $schedule->end_time }}
@@ -366,10 +381,10 @@
                 <li class="list-group-item"><strong>Vin Number</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['vin_number'] }}</span></li>
                 <li class="list-group-item"><strong>Driver Name</strong> <span
-                    class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
+                        class="float-end">{{ $scheduledTruckInfo['driver_name'] }}</span></li>
                 <li class="list-group-item"><strong>Model Make, Year</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['make_model'] }},
-                         {{ $scheduledTruckInfo['year'] }}</span></li>
+                        {{ $scheduledTruckInfo['year'] }}</span></li>
                 <li class="list-group-item"><strong>Shift type</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['shiftType'] }}</span></li>
                 <li class="list-group-item"><strong>Cubic Storage Space</strong> <span
@@ -412,8 +427,8 @@
                         @endforeach
                     </div>
                     <div class="form-group">
-                        <x-forms.textarea label="Service Address" model="form.recommendedAddress"
-                            :hint="'Showing verified address from google. Make necessary changes and verify'" :key="'fix-service-address'" />
+                        <x-forms.textarea label="Service Address" model="form.recommendedAddress" :hint="'Showing verified address from google. Make necessary changes and verify'"
+                            :key="'fix-service-address'" />
                     </div>
                 </div>
                 <x-slot name="footer">
@@ -446,7 +461,8 @@
                 <x-slot name="title">Update Address </x-slot>
                 <div class="col-md-12 mb-2">
                     <div class="form-group">
-                        <x-forms.textarea label="Service Address" model="form.service_address_temp" :key="'service-address' . $form->addressKey" />
+                        <x-forms.textarea label="Service Address" model="form.service_address_temp"
+                            :key="'service-address' . $form->addressKey" />
                     </div>
                 </div>
                 <hr>
@@ -457,8 +473,8 @@
                         </div>
                         Update Address
                     </button>
-                    <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif
-                        wire:click="revertAddress">
+                    <button type="submit" class="btn btn-secondary"
+                        @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif wire:click="revertAddress">
                         <div wire:loading wire:target="revertAddress">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>

@@ -132,7 +132,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container" >
+                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container"
+                        {!! $form->schedule->sro_number != null ? 'wire:ignore.self' : '' !!} wire:key="unlinksro-section-{{ $form->schedule->sro_number }}">
                         <div class="card card-body mb-0 p-0">
                             You are about to unlink SRO Number. Click below unlink button to confirm.
                             <div class="col-md-12">
@@ -350,7 +351,8 @@
                 </div>
 
                 <div class="alert alert-light-{{ $form->schedule->status_color_class }} color-{{ $form->schedule->status_color_class }}
-                     @if($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro  @endif" role="alert">
+                     @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro @endif"
+                    role="alert">
                     <h4 class="alert-heading">Schedule #{{ $form->schedule->scheduleId() }}</h4>
                     @if ($form->schedule->status == 'cancelled')
                         <p><i class="far fa-calendar-check"></i> AHM was <strong>Cancelled</strong> by
@@ -369,13 +371,15 @@
                                 {{ $form->schedule->truckSchedule->end_time }}</strong>
                         </p>
                         <hr>
-                        <p class="mb-0"><span class="badge bg-{{ $form->schedule->status_color_class }}
-                            @if($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark  @endif
+                        <p class="mb-0"><span
+                                class="badge bg-{{ $form->schedule->status_color_class }}
+                            @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
                             "><i
                                     class="fas fa-truck"></i>
                                 {{ $form->schedule->truckSchedule->truck->truck_name }}</span>
-                            is serving <span class="badge bg-{{ $form->schedule->status_color_class }}
-                                @if($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark  @endif
+                            is serving <span
+                                class="badge bg-{{ $form->schedule->status_color_class }}
+                                @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
                                 "><i
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
@@ -383,10 +387,13 @@
                         </p>
                         @if ($form->schedule->truckSchedule->driver_id)
                             <p class="mt-2">Driven by
-                            <span class="badge bg-{{ $form->schedule->status_color_class }}
-                                @if($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark  @endif
+                                <span
+                                    class="badge bg-{{ $form->schedule->status_color_class }}
+                                @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
                                 ">
-                            <i class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span></p>
+                                    <i
+                                        class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span>
+                            </p>
                         @endif
                     @endif
                     @if ($form->schedule->status == 'completed')
@@ -412,13 +419,13 @@
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
                             on this day.</p>
-                            @if ($form->schedule->truckSchedule->driver_id)
-                               <p class="mt-2">Driven by
-                                    <span class="badge bg-{{ $form->schedule->status_color_class }}">
-                                        <i class="fas fa-user-tag"></i>
-                                        {{ $form->schedule->truckSchedule->driver?->name }}</span>
-                                </p>
-                            @endif
+                        @if ($form->schedule->truckSchedule->driver_id)
+                            <p class="mt-2">Driven by
+                                <span class="badge bg-{{ $form->schedule->status_color_class }}">
+                                    <i class="fas fa-user-tag"></i>
+                                    {{ $form->schedule->truckSchedule->driver?->name }}</span>
+                            </p>
+                        @endif
                     @endif
                 </div>
 
@@ -460,8 +467,7 @@
                                     {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
                                 <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
                                         {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
-                                <p><span class="badge bg-light-secondary"><i
-                                            class="fas fa-map-marker-alt"></i>
+                                <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
                                         {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
                                         {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
                             </div>
@@ -516,8 +522,11 @@
                         <div>
                             <h3 class="h6 mb-1">SX Order Number</h3>
                             <p class="small pe-4">
-                                <a href="{{ route('order.show', $form->schedule->order->id) }}"
-                                    target="_blank">{{ $form->schedule->sx_ordernumber . '-' . $form->schedule->order_number_suffix }}</a>
+                                <span class="badge bg-light-primary"> <a
+                                        href="{{ route('order.show', $form->schedule->order->id) }}"
+                                        target="_blank"><i class="fas fa-external-link-alt"></i>
+                                        {{ $form->schedule->sx_ordernumber . '-' . $form->schedule->order_number_suffix }}</a>
+                                </span>
                             </p>
                         </div>
                     </li>
@@ -611,8 +620,7 @@
             <x-slot:tab_content_comments component="x-comments" :entity="$form->schedule" :key="'schedule-comments'">
             </x-slot>
 
-            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule"
-                :key="'schedule-activity'">
+            <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" :key="'schedule-activity'">
             </x-slot>
         </x-tabs>
     </div>

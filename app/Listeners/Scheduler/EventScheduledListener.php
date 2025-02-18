@@ -73,7 +73,12 @@ class EventScheduledListener
         if(Str::contains($template,'[WarehouseNumber]')) $template = Str::replace('[WarehouseNumber]', format_phone($schedule->order->warehouse->phone), $template);
         if(Str::contains($template,'[WarehouseAddress]')) $template = Str::replace('[WarehouseAddress]', format_phone($schedule->order->warehouse->address), $template);
         if(Str::contains($template,'[OrderNumber]')) $template = Str::replace('[OrderNumber]', $schedule->sx_ordernumber, $template);
-        if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', head($schedule->line_item).' ('.array_keys($schedule->line_item)[0].')', $template);
+        if($schedule->not_purchased_via_weingartz)
+        {
+            if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', 'equipment', $template);
+        }else{
+            if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', head($schedule->line_item).' ('.array_keys($schedule->line_item)[0].')', $template);
+        }
         if(Str::contains($template,'[DriverName]')) $template = Str::replace('[DriverName]', $schedule->truckSchedule->driver?->name, $template);
         return $template;
     }
