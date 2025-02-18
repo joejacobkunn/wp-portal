@@ -75,7 +75,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'America/New_York',
 
     'default_date_format' => 'M j, Y',
 

@@ -138,7 +138,7 @@ class ScheduleForm extends Form
             ->where('schedule_date', '<', Carbon::now()->addMonths(6))
             ->get();
         if($existingSchedules->count() >=1 ) {
-            $this->addError('sx_ordernumber', 'Order number already exist');
+            $this->addError('sx_ordernumber', 'Order number already scheduled within six months');
             return;
         }
 
@@ -293,6 +293,7 @@ class ScheduleForm extends Form
             $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
             $validatedData['line_item'] = [$this->line_item=>$itemDesc];
             $validatedData['not_purchased_via_weingartz'] = 0;
+            $validatedData['serial_no'] = collect($this->serialNumbers)->firstWhere('prod',$this->line_item)?->serialno;
         }
 
 
