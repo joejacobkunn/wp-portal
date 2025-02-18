@@ -340,6 +340,9 @@ class ScheduleForm extends Form
             $this->selectedTruckSchedule->save();
 
         }
+        $this->scheduleType = null;
+        $this->schedule_date = null;
+        $this->schedule_time = null;
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
 
