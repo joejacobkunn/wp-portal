@@ -178,6 +178,14 @@
                         active trucks and zones
                     </div>
                 @endif
+                @if($truckReturnInfo)
+                    @foreach ($truckReturnInfo as $data)
+                    <div class="mb-2 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
+                        Truck <strong> {{$data['truck_name']}}</strong>  expected to return to <strong>{{$data['warehouse_name']}}</strong> warehouse by
+                         {{ Carbon\Carbon::parse($data['expected_arrival_time'])->format('h:i A') }}
+                    </div>
+                    @endforeach
+                @endif
             </div>
         </div>
         @if ($showModal)

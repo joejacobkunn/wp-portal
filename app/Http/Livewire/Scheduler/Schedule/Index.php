@@ -21,6 +21,7 @@ use App\Models\Scheduler\NotificationTemplate;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Scheduler\TruckSchedule;
+use App\Models\Scheduler\TruckScheduleReturn;
 use App\Traits\HasTabs;
 use Illuminate\Support\Facades\Validator;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -59,6 +60,7 @@ class Index extends Component
     public $driverSkills;
     public $selectedType;
     public $selectedSchedule;
+    public $truckReturnInfo;
 
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -260,6 +262,19 @@ class Index extends Component
         usort($this->filteredSchedules, function ($a, $b) {
             return count($b['events']) <=> count($a['events']);
         });
+        $this->truckReturnInfo = TruckScheduleReturn::where('schedule_date', $date)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'schedule_date' => $item->schedule_date,
+                'expected_arrival_time' => $item->expected_arrival_time,
+                'distance' => $item->distance,
+                'warehouse_name' => $item->warehouse->title ?? null,
+                'truck_name' => $item->truck->truck_name ?? null,
+            ];
+        })
+        ->toArray();
     }
 
     public function onDateRangeChanges($start, $end)

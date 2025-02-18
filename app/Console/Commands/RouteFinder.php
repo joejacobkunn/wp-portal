@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Contracts\DistanceInterface;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\TruckSchedule;
+use App\Models\Scheduler\TruckScheduleReturn;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -88,9 +89,13 @@ class RouteFinder extends Command
             $firstSchedule->truck_id,
             $firstSchedule->schedule_date
         ));
-
+        if(!$firstSchedule->truck) {
+            $this->warn('truck info is missing');
+            return;
+        }
         $lastAddress = $firstSchedule->truck->warehouse->address;
         $currentTime = null;
+        $lastExpectedTime =null;
         foreach ($schedules as $schedule) {
             $confirmedOrders = $schedule->orderSchedule()
                 ->where('status', 'confirmed')
@@ -136,13 +141,50 @@ class RouteFinder extends Command
                 $currentTime,
                 $addressToOrders
             );
-
             $optimalRoute = $response['optimal_route'];
             $lastAddress = end($optimalRoute);
+            //add break 1 hour
             if (count($optimalRoute) > 1) {
                 $currentTime = $lastExpectedTime->addHour();
             }
         }
+
+        if(!$lastExpectedTime) {
+            return;
+        }
+        $returnResponse = $this->getDistance([$lastAddress, $firstSchedule->truck->warehouse->address]);
+        if (!isset($returnResponse['error'])) {
+            $this->saveWarehouseReturn(
+                $returnResponse,
+                $firstSchedule->truck,
+                $lastExpectedTime,
+                $lastAddress
+            );
+        }
+
+    }
+
+    private function saveWarehouseReturn($returnResponse, $truck, $lastExpectedTime, $lastAddress)
+    {
+        $distanceToWarehouse = $returnResponse['distances'][0][1];
+        $durationToWarehouse = ceil($returnResponse['durations'][0][1] / 60);
+        $distanceInMiles = round($distanceToWarehouse / 1609.344, 2);
+
+        $expectedArrival = clone $lastExpectedTime;
+        $expectedArrival->addMinutes($durationToWarehouse);
+
+        TruckScheduleReturn::updateOrCreate(
+            [
+                'truck_id' => $truck->id,
+                'schedule_date' => $this->schedule_date,
+            ],
+            [
+                'whse' => $truck->warehouse_short,
+                'expected_arrival_time' => $expectedArrival->format('H:i:s'),
+                'last_scheduled_address' => $lastAddress,
+                'distance' => $distanceInMiles,
+            ]
+        );
     }
     private function getDistance($dataInput)
     {
