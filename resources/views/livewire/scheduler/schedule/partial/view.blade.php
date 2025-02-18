@@ -132,7 +132,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container" >
+                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container"
+                    {!! $form->schedule->sro_number != null ? 'wire:ignore.self' : '' !!} wire:key="unlinksro-section-{{ $form->schedule->sro_number }}">
                         <div class="card card-body mb-0 p-0">
                             You are about to unlink SRO Number. Click below unlink button to confirm.
                             <div class="col-md-12">
