@@ -8,7 +8,7 @@
                             <div class="form-group">
                                 <x-forms.select label="Schedule" model="form.type" :options="$scheduleOptions" :hasAssociativeIndex="true"
                                     :listener="'typeCheck'" default-option-label="- None -" :selected="$form->type"
-                                    :key="'schedule-' . now()" />
+                                    :key="'schedule-options'" />
                             </div>
                         </div>
                         <div class="col-md-6 mb-2">

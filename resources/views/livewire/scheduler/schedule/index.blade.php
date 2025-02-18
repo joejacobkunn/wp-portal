@@ -36,13 +36,13 @@
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom @if($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif" href="#"
                                         wire:click.prevent="create('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
                             <div id="warehouse-wrap">
                                 @foreach ($this->warehouses as $whse)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom " href="#"
                                         wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}</a>
                                 @endforeach
                             </div>
@@ -50,7 +50,7 @@
                                 <a class="dropdown-item border-bottom" href="#"
                                     wire:click.prevent="changeScheduleType('')">All Services</a>
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom  @if($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif" href="#"
                                         wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
