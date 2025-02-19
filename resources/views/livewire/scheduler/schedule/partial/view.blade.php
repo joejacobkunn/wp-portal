@@ -25,7 +25,7 @@
                                         aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
                                         Reschedule</button>
                                 @endif
-                                @if ($form->schedule->status == 'scheduled' && $form->schedule->sro_number != null)
+                                @if ($form->schedule->status == 'scheduled_linked')
                                     <button type="button" class="btn btn-sm btn-primary" wire:click="hideScheduleSection"
                                         data-bs-toggle="collapse" data-bs-target="#confirmCollapse" aria-expanded="false"
                                         aria-controls="confirmCollapse"><i class="fas fa-check-double"></i>
@@ -350,8 +350,7 @@
                     </div>
                 </div>
 
-                <div class="alert alert-light-{{ $form->schedule->status_color_class }} color-{{ $form->schedule->status_color_class }}
-                     @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro @endif"
+                <div class="alert alert-light-{{ $form->schedule->status_color_class }} color-{{ $form->schedule->status_color_class }}"
                     role="alert">
                     <h4 class="alert-heading">Schedule #{{ $form->schedule->scheduleId() }}</h4>
                     @if ($form->schedule->status == 'cancelled')
@@ -364,23 +363,19 @@
                             {{ $form->schedule->cancel_reason }}
                         </p>
                     @endif
-                    @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'confirmed')
-                        <p><i class="far fa-calendar-check"></i> AHM is {{ $form->schedule->status }} for
+                    @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'confirmed' || $form->schedule->status == 'scheduled_linked')
+                        <p><i class="far fa-calendar-check"></i> AHM is {{ App\Enums\Scheduler\ScheduleStatusEnum::tryFrom($form->schedule->status)->label() }} for
                             <strong>{{ $form->schedule->schedule_date->toFormattedDayDateString() }}</strong> between
                             <strong>{{ $form->schedule->truckSchedule->start_time }} and
                                 {{ $form->schedule->truckSchedule->end_time }}</strong>
                         </p>
                         <hr>
                         <p class="mb-0"><span
-                                class="badge bg-{{ $form->schedule->status_color_class }}
-                            @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
-                            "><i
+                                class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-truck"></i>
                                 {{ $form->schedule->truckSchedule->truck->truck_name }}</span>
                             is serving <span
-                                class="badge bg-{{ $form->schedule->status_color_class }}
-                                @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
-                                "><i
+                                class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
                             on this day.
@@ -388,11 +383,8 @@
                         @if ($form->schedule->truckSchedule->driver_id)
                             <p class="mt-2">Driven by
                                 <span
-                                    class="badge bg-{{ $form->schedule->status_color_class }}
-                                @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
-                                ">
-                                    <i
-                                        class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span>
+                                    class="badge bg-{{ $form->schedule->status_color_class }}">
+                                    <i class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span>
                             </p>
                         @endif
                     @endif

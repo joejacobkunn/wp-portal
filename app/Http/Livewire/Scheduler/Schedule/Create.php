@@ -239,16 +239,12 @@ class Create extends Component
     {
         $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
-        $color = $response['schedule']->status_color;
-        if($response['schedule']->status == 'scheduled' && $response['schedule']->sro_number != null) {
-            $color = '#9E2EC9';
-        }
         $event = [
             'id' => $response['schedule']->id,
             'title' => 'Order #' . $response['schedule']->sx_ordernumber,
             'start' => $response['schedule']->schedule_date->format('Y-m-d'),
             'description' => 'schedule',
-            'color' => $color,
+            'color' => $response['schedule']->status_color,
             'icon' => $icon,
         ];
         $this->alert($response['class'], $response['message']);

@@ -494,6 +494,7 @@ class ScheduleForm extends Form
 
     public function linkSRONumber($sro)
     {
+        $this->schedule->status = 'scheduled_linked';
         $this->schedule->sro_number = $sro;
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'SRO number successfully linked', 'schedule' => $this->schedule];
@@ -508,13 +509,14 @@ class ScheduleForm extends Form
 
     public function unConfirm()
     {
-        $this->schedule->status = 'scheduled';
+        $this->schedule->status = 'scheduled_linked';
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule Unconfirmed', 'schedule' => $this->schedule];
     }
 
     public function unlinkSro()
     {
+        $this->schedule->status = 'scheduled';
         $this->schedule->sro_number = null;
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'SRO Number Unlinked', 'schedule' => $this->schedule];
@@ -534,6 +536,7 @@ class ScheduleForm extends Form
     public function undoCancel()
     {
         $this->schedule->status = 'scheduled';
+        $this->schedule->sro_number = null;
         $this->schedule->cancel_reason = null;
         $this->schedule->save();
         $this->fill($this->schedule);
