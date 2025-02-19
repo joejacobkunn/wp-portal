@@ -423,7 +423,7 @@
                     @endif
                 </div>
 
-                @if (!empty($sro_response) && $form->schedule->status != 'scheduled')
+                @if (!empty($sro_response) && $form->schedule->sro_number != null)
                     <div class="alert alert-secondary">
                         <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
                             <span class="badge bg-secondary float-end"><a
@@ -526,9 +526,9 @@
                         <div>
                             <h3 class="h6 mb-1">SRO Number</h3>
                             <p class="small pe-4">
-                                @if ($form->schedule->status == 'scheduled')
-                                    <span class="bg-warning text-dark">Confirm
-                                        schedule to view SRO Info</span>
+                                @if ($form->schedule->sro_number == null)
+                                    <span class="bg-warning text-dark"> Link SRO
+                                        to view SRO Info</span>
                                 @else
                                     {{ $form->schedule->sro_number }}
                                 @endif
