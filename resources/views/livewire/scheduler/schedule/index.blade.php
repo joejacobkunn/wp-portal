@@ -33,6 +33,13 @@
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
                         <div id="calendar" class="w-100" wire:ignore></div>
+                        <div class="legend-section mt-2">
+                            @foreach (App\Enums\Scheduler\ScheduleStatusEnum::cases() as $status)
+
+                            <span class="badge bg-{{$status->colorClass();}}"> {{ $status->label() }}</span>
+                            @endforeach
+
+                        </div>
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
                                 @foreach ($scheduleOptions as $key => $value)
