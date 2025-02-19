@@ -288,7 +288,7 @@
                                             <label class="form-label">Available Time Slots on
                                                 {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
                                             @if($form->scheduleType == 'schedule_override')
-                                                <p class="ps-2 bg-warning text-dark rounded"> schedule override is activated</p>
+                                                <p class="ps-2 bg-warning text-dark rounded"> Schedule override is activated</p>
                                             @endif
                                             <div class="d-flex flex-column gap-2">
 

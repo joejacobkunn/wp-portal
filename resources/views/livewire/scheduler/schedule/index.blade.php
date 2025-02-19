@@ -381,6 +381,9 @@
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
+                    buttonText: {
+                        today: 'Today'
+                    },
                     titleFormat: {
                         month: 'short',
                         year: 'numeric'
