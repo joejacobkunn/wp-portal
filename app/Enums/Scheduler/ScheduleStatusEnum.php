@@ -31,11 +31,11 @@ enum ScheduleStatusEnum: string
     {
         return match ($value) {
             self::scheduled => 'Scheduled',
-            self::scheduled_linked => 'Scheduled And Linked',
-            self::confirmed => 'Confirmed',
+            self::scheduled_linked => 'SRO Attached',
+            self::confirmed => 'Parts are Ready',
             self::completed => 'Completed',
             self::cancelled => 'Cancelled',
-            self::out_for_delivery => 'Out for Delivery',
+            self::out_for_delivery => 'Tech in Progress',
             default => '-'
         };
     }

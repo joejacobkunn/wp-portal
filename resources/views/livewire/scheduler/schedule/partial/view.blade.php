@@ -44,7 +44,7 @@
                             @endcan
                             @canany(['scheduler.can-start-event', 'scheduler.schedule.manage'])
                                 @if ($form->schedule->status == 'confirmed')
-                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="collapse"
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse"
                                         data-bs-target="#startScheduleCollapse" aria-expanded="false"
                                         aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
                                         Start</button>
@@ -169,7 +169,7 @@
                     <div class="collapse p-4" id="startScheduleCollapse" data-bs-parent=".collapse-container"
                         wire:ignore.self>
                         <div class="card card-body mb-0 p-0">
-                            Click on the Start button below to Start the Delivery Process.
+                            Click on the Start button below to Start the Schedule.
                             <div class="col-md-12">
                                 <div class="mt-4 float-start">
                                     <button wire:click="startSchedule" class="btn btn-sm btn-warning">
@@ -194,8 +194,7 @@
                         </div>
                         @if ($viewScheduleTypeCollapse)
                             <div class="card card-body mb-0 p-0 mb-2">
-                                Reschedule this schedule to another date select the schedule type then choose date and
-                                timeslot.
+                                Reschedule this schedule to another date
                                 <form wire:submit.prevent="save()">
                                     <div class="row mt-4">
                                         <div class="col-md-12">
@@ -393,8 +392,8 @@
                         @if ($form->schedule->truckSchedule->driver_id)
                             <p class="mt-2">Driven by
                                 <span class="badge bg-{{ $form->schedule->status_color_class }}">
-                                    <i
-                                        class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span>
+                                    <i class="fas fa-user-tag"></i>
+                                    {{ $form->schedule->truckSchedule->driver?->name }}</span>
                             </p>
                         @endif
                     @endif
@@ -411,7 +410,7 @@
                         </p>
                     @endif
                     @if ($form->schedule->status == 'out_for_delivery')
-                        <p><i class="far fa-calendar-check"></i> Delivery Process initiated
+                        <p><i class="far fa-calendar-check"></i> Tech in Progress
                         </p>
                         <hr>
                         <p class="mb-0"><span class="badge bg-{{ $form->schedule->status_color_class }}"><i
