@@ -79,7 +79,7 @@
 
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-3" wire:key="schedule-sidebar">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
                 @if (!empty($this->filteredSchedules))
                     @if (collect($this->filteredSchedules)->contains('driver_id', null))

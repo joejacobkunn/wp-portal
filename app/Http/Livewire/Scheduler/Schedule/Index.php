@@ -162,6 +162,7 @@ class Index extends Component
         $this->showModal = false;
         $this->showView = false;
         $this->resetValidation();
+        $this->handleDateClick($this->dateSelected);
     }
 
     public function render()
