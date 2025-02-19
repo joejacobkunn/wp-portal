@@ -16,6 +16,9 @@ class Kernel extends ConsoleKernel
         //rerun failed jobs every 3 hours
         $schedule->command('queue:prune-failed --hours=72')->dailyAt('07:45');
 
+        //run ahm reminder emails at 8am
+        $schedule->command('app:send-ahm-reminder-emails')->timezone('America/New_York')->dailyAt('08:00');
+
         //task to sync customer last sale dates from sx to local database
         $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->dailyAt('21:15');
 
