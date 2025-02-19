@@ -475,17 +475,16 @@ class ScheduleForm extends Form
 
     public function getSerialNumbers($orderno, $suffix)
     {
-        if(config('sx.mock'))
-        {
-           $serials = [];
-            foreach($this->orderInfo->line_items['line_items'] as $item)
-            {
-                if (mt_rand(0,1))
-                {
-                    $serials[] = ['prod' => $item['shipprod'], 'serialno' => rand ( 100000 , 999999 )];
+        if (config('sx.mock')) {
+            $serials = [];
+            foreach ($this->orderInfo->line_items['line_items'] as $item) {
+                if (mt_rand(0, 1)) {
+                    $obj = new \stdClass();
+                    $obj->prod = $item['shipprod'];
+                    $obj->serialno = rand(100000, 999999);
+                    $serials[] = $obj;
                 }
             }
-
             return $serials;
         }
 
