@@ -39,7 +39,7 @@ class EventRescheduledListener implements ShouldQueue
             if($event->schedule->user->phone)
             {
                 $kenect = new Kenect();
-                $kenect->send($event->schedule->user->phone, $notification['sms']);
+                $kenect->send($event->schedule->user->phone, $notification['sms'], '18771');
             }
     
             if($event->schedule->user->email)
