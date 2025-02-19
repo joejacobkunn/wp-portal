@@ -12,6 +12,7 @@ use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\Zipcode;
+use App\Models\Scheduler\Zones;
 use App\Models\SX\Order as SXOrder;
 use App\Models\SX\OrderLineItem;
 use App\Rules\ValidateScheduleDate;
@@ -430,13 +431,15 @@ class ScheduleForm extends Form
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
         ->whereNull('trucks.deleted_at');
 
-        $zipcodes = [$this->serviceZip];
+        $zones = Zones::whereHas('zipcodes', function ($query) {
+            $query->where('zip_code', $this->serviceZip);
+        })->pluck('id');
 
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
-            $zipcodes = Zipcode::where('whse_id', $whse)->pluck('zip_code');
+            $zones = Zones::where('whse_id', $whse)->pluck('id');
         }
 
-        $this->truckSchedules = $truckScheduleQuery->whereIn('scheduler_zipcodes.zip_code', $zipcodes)
+        $this->truckSchedules = $truckScheduleQuery->whereIn('truck_schedules.zone_id', $zones)
         ->where('truck_schedules.schedule_date', '=', $this->schedule_date)
         ->select(
             'truck_schedules.*',
@@ -451,21 +454,21 @@ class ScheduleForm extends Form
 
     public function getEnabledDates($shouldOverride, $whse)
     {
-        $zipcodes = [$this->serviceZip];
+        $zones = Zones::whereHas('zipcodes', function ($query) {
+                    $query->where('zip_code', $this->serviceZip);
+                })->pluck('id');
         if($shouldOverride) {
             if( Auth::user()->can('scheduler.can-schedule-override')) {
-                $zipcodes = Zipcode::where('whse_id', $whse)->pluck('zip_code');
+                $zones = Zones::where('whse_id', $whse)->pluck('id');
             }
         }
         $this->enabledDates = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
-        ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
-        ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
-        ->whereNull('scheduler_zipcodes.deleted_at')
+
         ->select(
             'truck_schedules.schedule_date',
         )
-        ->whereIn('scheduler_zipcodes.zip_code', $zipcodes)
+        ->whereIn('truck_schedules.zone_id', $zones)
         ->get()
         ->pluck('schedule_date')
         ->unique()
