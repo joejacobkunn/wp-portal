@@ -9,9 +9,9 @@ enum ScheduleStatusEnum: string
     case scheduled =  'scheduled';
     case scheduled_linked =  'scheduled_linked';
     case confirmed = 'confirmed';
+    case out_for_delivery = 'out_for_delivery';
     case completed = 'completed';
     case cancelled = 'cancelled';
-    case out_for_delivery = 'out_for_delivery';
 
     public function label(): string
     {
@@ -33,9 +33,9 @@ enum ScheduleStatusEnum: string
             self::scheduled => 'Scheduled',
             self::scheduled_linked => 'SRO Attached',
             self::confirmed => 'Parts are Ready',
+            self::out_for_delivery => 'Tech in Progress',
             self::completed => 'Completed',
             self::cancelled => 'Cancelled',
-            self::out_for_delivery => 'Tech in Progress',
             default => '-'
         };
     }

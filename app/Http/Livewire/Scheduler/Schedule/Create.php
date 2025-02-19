@@ -70,7 +70,7 @@ class Create extends Component
             }
         }
         if (Auth::user()->can('scheduler.can-schedule-override')) {
-            $this->schedulePriority = ['schedule_override' => 'Schedule Override'] + $this->schedulePriority;
+            $this->schedulePriority = $this->schedulePriority + ['schedule_override' => 'Schedule Override'];
         }
     }
 

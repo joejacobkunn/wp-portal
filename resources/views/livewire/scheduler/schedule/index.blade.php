@@ -129,7 +129,7 @@
                                 <div class="list-group mt-2 border border-3">
                                     <ul class="list-group">
 
-                                        @foreach ($truck['events'] as $event)
+                                        @forelse ($truck['events'] as $event)
                                             <li
                                                 class="list-group-item d-flex justify-content-between align-items-start">
                                                 <a href="#" class="text-black w-100"
@@ -198,7 +198,12 @@
                                                     </a>
                                                 </li>
                                             @endif
-                                        @endforeach
+
+                                        @empty
+                                            <li class="list-group-item list-group-item-warning">
+                                                <em>No events scheduled</em>
+                                            </li>
+                                        @endforelse
 
                                     </ul>
                                 </div>
