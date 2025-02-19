@@ -40,7 +40,7 @@
                             <x-slot:tab_header_all>All <span
                                     class="badge badge-lg {{ $tabs['schedule-list-index-tabs']['active'] == 'all' ? 'text-primary bg-white ml-2' : 'bg-primary' }} ms-2 ml-2">{{ $tabCounts['all'] ?? '0' }}</span></x-slot>
 
-                            <x-slot:content component="scheduler.schedule.table" :whse="$activeWarehouseId"
+                            <x-slot:content component="scheduler.schedule.table" :whse="$this->activeWarehouse->short"
                                 :activeTab="$tabs['schedule-list-index-tabs']['active']">
                             </x-slot>
 

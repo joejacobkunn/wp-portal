@@ -24,7 +24,7 @@ trait ScheduleData
     }
 
     /**
-     * HRAF Get All HRAF Data Builder with Pending Approval Status
+     *
      */
     public function queryByDate($date): Builder
     {
@@ -36,14 +36,14 @@ trait ScheduleData
     }
 
     /**
-     * HRAF Get All HRAF Data Builder with Pending Approval Status
+     *
      */
     public function queryByStatus($status): Builder
     {
         $scheduleQuery = $this->scheduleBaseQuery();
 
         if ($status == 'unconfirmed') {
-            $scheduleQuery->where('schedules.status', 'scheduled');
+            $scheduleQuery->whereIn('schedules.status', ['scheduled', 'scheduled_linked']);
             $scheduleQuery->where('schedules.schedule_date', '>=', Carbon::now()->toDateString());
         }
 

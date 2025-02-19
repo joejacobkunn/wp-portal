@@ -58,6 +58,26 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\Scheduler\EventScheduled::class => [
             \App\Listeners\Scheduler\EventScheduledListener::class
         ],
+
+        \App\Events\Scheduler\EventRescheduled::class => [
+            \App\Listeners\Scheduler\EventRescheduledListener::class
+        ],
+
+        \App\Events\Scheduler\EventCancelled::class => [
+            \App\Listeners\Scheduler\EventCancelledListener::class
+        ],
+
+        \App\Events\Scheduler\EventDispatched::class => [
+            \App\Listeners\Scheduler\EventDispatchedListener::class
+        ],
+
+        \App\Events\Scheduler\EventComplete::class => [
+            \App\Listeners\Scheduler\EventCompleteListener::class
+        ],
+
+
+
+
         
     ];
 
