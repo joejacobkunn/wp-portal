@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Scheduler;
 
+use App\Events\Scheduler\EventDispatched;
 use App\Events\Scheduler\EventScheduled;
 use App\Models\Scheduler\NotificationTemplate;
 use App\Models\Scheduler\Schedule;
@@ -14,10 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\App;
 
-
-
-
-class EventScheduledListener implements ShouldQueue
+class EventDispatchedListener implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -30,11 +28,11 @@ class EventScheduledListener implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(EventScheduled $event): void
+    public function handle(EventDispatched $event): void
     {
         if(App::environment() == 'production')
         {
-            $notification = $this->populateTemplate('ahm-scheduled',$event->schedule);
+            $notification = $this->populateTemplate('ahm-dispatched',$event->schedule);
 
             if($event->schedule->user->phone)
             {
@@ -82,5 +80,4 @@ class EventScheduledListener implements ShouldQueue
         if(Str::contains($template,'[DriverName]')) $template = Str::replace('[DriverName]', $schedule->truckSchedule->driver?->name, $template);
         return $template;
     }
-
 }

@@ -2,22 +2,22 @@
 
 namespace App\Listeners\Scheduler;
 
-use App\Events\Scheduler\EventScheduled;
-use App\Models\Scheduler\NotificationTemplate;
-use App\Models\Scheduler\Schedule;
-use App\Notifications\Scheduler\EmailNotification;
-use App\Services\Kenect;
-use Carbon\Carbon;
+use App\Events\Scheduler\EventRescheduled;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\Scheduler\EmailNotification;
+use App\Services\Kenect;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\NotificationTemplate;
 
 
 
 
-class EventScheduledListener implements ShouldQueue
+class EventRescheduledListener implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -30,11 +30,11 @@ class EventScheduledListener implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(EventScheduled $event): void
+    public function handle(EventRescheduled $event): void
     {
         if(App::environment() == 'production')
         {
-            $notification = $this->populateTemplate('ahm-scheduled',$event->schedule);
+            $notification = $this->populateTemplate('ahm-rescheduled',$event->schedule);
 
             if($event->schedule->user->phone)
             {
@@ -50,6 +50,7 @@ class EventScheduledListener implements ShouldQueue
             }
     
         }
+
     }
 
     public function populateTemplate($slug ,Schedule $schedule)

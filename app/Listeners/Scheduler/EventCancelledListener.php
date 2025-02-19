@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Scheduler;
 
+use App\Events\Scheduler\EventCancelled;
 use App\Events\Scheduler\EventScheduled;
 use App\Models\Scheduler\NotificationTemplate;
 use App\Models\Scheduler\Schedule;
@@ -14,10 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\App;
 
-
-
-
-class EventScheduledListener implements ShouldQueue
+class EventCancelledListener implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -30,11 +28,11 @@ class EventScheduledListener implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(EventScheduled $event): void
+    public function handle(EventCancelled $event): void
     {
         if(App::environment() == 'production')
         {
-            $notification = $this->populateTemplate('ahm-scheduled',$event->schedule);
+            $notification = $this->populateTemplate('ahm-cancelled',$event->schedule);
 
             if($event->schedule->user->phone)
             {
