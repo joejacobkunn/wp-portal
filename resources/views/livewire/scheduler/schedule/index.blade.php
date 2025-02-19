@@ -172,6 +172,27 @@
                                                     @endif
                                                 </a>
                                             </li>
+                                            @php
+                                                $data = collect($truckReturnInfo)->firstWhere('schedule_id', $event['id']);
+                                            @endphp
+                                            @if ($data)
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                 <a href="#" class="text-black w-100 disabled">
+                                                    <div class="d-flex w-100 justify-content-between">
+                                                        <h6 class="">
+                                                            {{$data['warehouse_name']}}
+                                                        </h6>
+                                                    </div>
+                                                    <small>{{ $data['warehouse_address'] }}</small>
+
+                                                    <p class="font-small"><span class="badge bg-light-info">
+                                                            <i class="far fa-clock"></i> ETA :
+                                                            {{ Carbon\Carbon::parse($data['expected_arrival_time'])->format('h:i A') }}
+                                                            </span>
+                                                    </p>
+                                                 </a>
+                                            </li>
+                                            @endif
                                         @endforeach
 
                                     </ul>
@@ -184,14 +205,6 @@
                     <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i> No
                         active trucks and zones
                     </div>
-                @endif
-                @if($truckReturnInfo)
-                    @foreach ($truckReturnInfo as $data)
-                    <div class="mb-2 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
-                        Truck <strong> {{$data['truck_name']}}</strong>  expected to return to <strong>{{$data['warehouse_name']}}</strong> warehouse by
-                         {{ Carbon\Carbon::parse($data['expected_arrival_time'])->format('h:i A') }}
-                    </div>
-                    @endforeach
                 @endif
             </div>
         </div>

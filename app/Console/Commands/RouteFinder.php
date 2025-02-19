@@ -133,14 +133,12 @@ class RouteFinder extends Command
             }
 
             // Update the schedule with optimized route
-            $lastExpectedTime = $this->updateSchedulePriorities(
-                collect([$schedule]),
-                $confirmedOrders,
+            $responseData = $this->updateSchedulePriorities(
                 $response,
-                $dataInput,
                 $currentTime,
                 $addressToOrders
             );
+            $lastExpectedTime = $responseData['expectedTime'];
             $optimalRoute = $response['optimal_route'];
             $lastAddress = end($optimalRoute);
             //add break 1 hour
@@ -158,13 +156,14 @@ class RouteFinder extends Command
                 $returnResponse,
                 $firstSchedule->truck,
                 $lastExpectedTime,
-                $lastAddress
+                $lastAddress,
+                $responseData['scheduleId']
             );
         }
 
     }
 
-    private function saveWarehouseReturn($returnResponse, $truck, $lastExpectedTime, $lastAddress)
+    private function saveWarehouseReturn($returnResponse, $truck, $lastExpectedTime, $lastAddress, $scheduleId)
     {
         $distanceToWarehouse = $returnResponse['distances'][0][1];
         $durationToWarehouse = ceil($returnResponse['durations'][0][1] / 60);
@@ -183,6 +182,7 @@ class RouteFinder extends Command
                 'expected_arrival_time' => $expectedArrival->format('H:i:s'),
                 'last_scheduled_address' => $lastAddress,
                 'distance' => $distanceInMiles,
+                'schedule_id' => $scheduleId,
             ]
         );
     }
@@ -263,21 +263,20 @@ class RouteFinder extends Command
     }
 
 
-    private function updateSchedulePriorities($schedules, $confirmedOrders, $routeData, $addresses, $startTime, $addressToOrders)
+    private function updateSchedulePriorities($routeData, $startTime, $addressToOrders)
     {
         $optimalRoute = $routeData['optimal_route'];
         $durations = $routeData['durations'];
         $expectedTime = clone $startTime;
         $priority = 1;
         $previousAddress = $optimalRoute[0];
-
         foreach (array_slice($optimalRoute, 1) as $address) {
             if (isset($addressToOrders[$address])) {
                 $isFirstOrderAtAddress = true;
-
-                foreach ($addressToOrders[$address] as $order) {
+                $lastScheduleID = null;
+                foreach ($addressToOrders[$address] as $schedule) {
                     if ($isFirstOrderAtAddress) {
-                        // Calculate travel time only for the first order at this address
+                        // Calculate travel time only for the first schedule at this address
                         $currentIndex = array_search($address, $optimalRoute);
                         $previousIndex = array_search($previousAddress, $optimalRoute);
 
@@ -290,14 +289,14 @@ class RouteFinder extends Command
                         $isFirstOrderAtAddress = false;
                     }
 
-                    $order->update([
+                    $schedule->update([
                         'travel_prio_number' => $priority,
                         'expected_arrival_time' => $expectedTime->format('H:i:s')
                     ]);
 
                     $this->info(sprintf(
-                        "Updated Order ID: %d with priority: %d and expected time: %s",
-                        $order->id,
+                        "Updated Truck Schedule ID: %d with priority: %d and expected time: %s",
+                        $schedule->id,
                         $priority,
                         $expectedTime->format('H:i:s')
                     ));
@@ -306,8 +305,9 @@ class RouteFinder extends Command
                     $priority++;
                 }
                 $previousAddress = $address;
+                $lastScheduleID = $schedule->id;
             }
         }
-        return $expectedTime;
+        return ['expectedTime' => $expectedTime, 'scheduleId' => $lastScheduleID];
     }
 }
