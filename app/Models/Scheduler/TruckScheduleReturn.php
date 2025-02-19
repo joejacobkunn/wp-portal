@@ -18,6 +18,7 @@ class TruckScheduleReturn extends Model
         'expected_arrival_time',
         'last_scheduled_address',
         'distance',
+        'schedule_id'
     ];
 
     public function warehouse()

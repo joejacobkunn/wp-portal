@@ -26,7 +26,7 @@
                             <div wire:loading wire:target="form.suffix" class="mb-3">
                                 <span class="spinner-border spinner-border-sm mr-2" role="status"
                                     aria-hidden="true"></span>
-                                <span>Please wait, processing order...</span>
+                                <span>Please wait, fetching order from SX...</span>
                             </div>
                         </div>
 
@@ -53,10 +53,11 @@
                                                 class="fas fa-external-link-alt"></i> CustNo
                                             #{{ $form->orderInfo?->sx_customer_number }}</a></span>
 
-                                    <h4 class="alert-heading">Service Address <a href="javascript:void(0)"
-                                            wire:click="showAddressModal"><i
-                                                class="fas fa-edit schedule-edit-icon"></i></a></h4>
+                                    <h5 class="alert-heading text-decoration-underline text-muted">Service Address</h5>
                                     <p>
+                                        <a class="float-end link-secondary" href="javascript:void(0)"
+                                            wire:click="showAddressModal"><i class="fas fa-edit schedule-edit-icon"></i>
+                                            Edit Address</a>
                                     <address class="ms-1">
                                         <Strong>{{ $form->orderInfo?->shipping_info['name'] }}</Strong> <br>
                                         {{ $form->service_address }}
@@ -73,7 +74,7 @@
                                             aria-hidden="true"></span>
                                     </div>
                                     <hr>
-                                    <p class="mb-0"><Strong>Ship To</Strong>
+                                    <p class="mb-0 text-muted"><Strong>Ship To (from SX)</Strong>
                                     </p>
                                     <p class="mb-0">
                                         {{ $form->orderInfo->shipping_info['line'] .
@@ -86,8 +87,8 @@
                                             ', ' .
                                             $form->orderInfo->shipping_info['zip'] }}
                                     </p>
-                                    <p class="mb-0">Shipping Instructions :
-                                        {{ $form->orderInfo->shipping_info['instructions'] ?? 'n/a' }}</p>
+                                    <p class="mb-0">Shipping Instructions (from SX) :
+                                        {{ $form->orderInfo->shipping_info['instructions'] ?: 'n/a' }}</p>
                                 </div>
                             </div>
                             @if ($form->addressVerified)
@@ -231,6 +232,11 @@
                                     style="height: 400px">
                                     <label class="form-label">Available Time Slots on
                                         {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
+                                    @if ($form->scheduleType == 'schedule_override')
+                                        <p class="ps-2 bg-warning text-dark rounded"><i
+                                                class="fas fa-exclamation-triangle"></i> Schedule Override Mode ON
+                                        </p>
+                                    @endif
                                     <div class="d-flex flex-column gap-2">
 
                                         @forelse($this->form->truckSchedules as $schedule)
@@ -241,10 +247,12 @@
                                                 <div
                                                     class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                     {{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                                    <span
-                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">
-                                                        {{ $schedule->schedule_count }} / {{ $schedule->slots }}
-                                                    </span>
+                                                    @if ($form->scheduleType != 'schedule_override')
+                                                        <span
+                                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                                            {{ $schedule->schedule_count }} / {{ $schedule->slots }}
+                                                        </span>
+                                                    @endif
                                                     <p class="me-2 fst-italic text-muted" style="font-size: smaller;">
                                                         <i class="fas fa-globe"></i>
                                                         {{ $schedule->zone_name }} => <i

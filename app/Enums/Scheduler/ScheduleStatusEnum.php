@@ -7,6 +7,7 @@ use App\Traits\Enum\StatusEnumTrait;
 enum ScheduleStatusEnum: string
 {
     case scheduled =  'scheduled';
+    case scheduled_linked =  'scheduled_linked';
     case confirmed = 'confirmed';
     case completed = 'completed';
     case cancelled = 'cancelled';
@@ -30,6 +31,7 @@ enum ScheduleStatusEnum: string
     {
         return match ($value) {
             self::scheduled => 'Scheduled',
+            self::scheduled_linked => 'Scheduled And Linked',
             self::confirmed => 'Confirmed',
             self::completed => 'Completed',
             self::cancelled => 'Cancelled',
@@ -42,6 +44,7 @@ enum ScheduleStatusEnum: string
     {
         return match ($value) {
             self::scheduled => '#a5aaae',
+            self::scheduled_linked => '#9E2EC9',
             self::confirmed => '#435cbe',
             self::completed => '#43aa48',
             self::cancelled => '#bb2d3b',
@@ -55,6 +58,7 @@ enum ScheduleStatusEnum: string
     {
         return match ($value) {
             self::scheduled => 'secondary',
+            self::scheduled_linked => 'linked',
             self::confirmed => 'primary',
             self::completed => 'success',
             self::cancelled => 'danger',

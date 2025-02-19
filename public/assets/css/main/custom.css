@@ -1080,3 +1080,14 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+.bg-linked {
+    background-color: #9E2EC9 !important;
+}
+.bg-light-linked {
+    background-color: #e6a4ff !important;
+}
+.alert-light-linked {
+    background-color: #e6a4ff;
+    color: #9E2EC9 ;
+}

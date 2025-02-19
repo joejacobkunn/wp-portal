@@ -263,6 +263,7 @@ class Index extends Component
             return count($b['events']) <=> count($a['events']);
         });
         $this->truckReturnInfo = TruckScheduleReturn::where('schedule_date', $date)
+        ->where('whse', $this->activeWarehouse->short)
         ->get()
         ->map(function ($item) {
             return [
@@ -271,7 +272,9 @@ class Index extends Component
                 'expected_arrival_time' => $item->expected_arrival_time,
                 'distance' => $item->distance,
                 'warehouse_name' => $item->warehouse->title ?? null,
+                'warehouse_address' => $item->warehouse->address ?? null,
                 'truck_name' => $item->truck->truck_name ?? null,
+                'schedule_id' => $item->schedule_id ?? null,
             ];
         })
         ->toArray();

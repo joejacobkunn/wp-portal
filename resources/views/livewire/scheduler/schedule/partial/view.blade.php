@@ -19,13 +19,13 @@
                                         aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
                                         Uncancel</button>
                                 @endif
-                                @if ($form->schedule->status == 'scheduled')
+                                @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'scheduled_linked')
                                     <button type="button" class="btn btn-sm btn-warning" wire:click="scheduleDateInitiate"
                                         data-bs-toggle="collapse" data-bs-target="#rescheduleCollapse" aria-expanded="false"
                                         aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
                                         Reschedule</button>
                                 @endif
-                                @if ($form->schedule->status == 'scheduled' && $form->schedule->sro_number != null)
+                                @if ($form->schedule->status == 'scheduled_linked')
                                     <button type="button" class="btn btn-sm btn-primary" wire:click="hideScheduleSection"
                                         data-bs-toggle="collapse" data-bs-target="#confirmCollapse" aria-expanded="false"
                                         aria-controls="confirmCollapse"><i class="fas fa-check-double"></i>
@@ -287,6 +287,9 @@
                                             class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }}">
                                             <label class="form-label">Available Time Slots on
                                                 {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
+                                            @if($form->scheduleType == 'schedule_override')
+                                                <p class="ps-2 bg-warning text-dark rounded"> Schedule override is activated</p>
+                                            @endif
                                             <div class="d-flex flex-column gap-2">
 
                                                 @forelse($this->form->truckSchedules as $schedule)
@@ -297,11 +300,13 @@
                                                         <div
                                                             class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                             {{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                                            <span
-                                                                class="badge bg-secondary badge-pill badge-round ms-1 float-end">
-                                                                {{ $schedule->schedule_count }} /
-                                                                {{ $schedule->slots }}
-                                                            </span>
+                                                            @if($form->scheduleType != 'schedule_override')
+                                                                <span
+                                                                    class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                                                    {{ $schedule->schedule_count }} /
+                                                                    {{ $schedule->slots }}
+                                                                </span>
+                                                            @endif
                                                             <p class="me-2 fst-italic text-muted"
                                                                 style="font-size: smaller;"><i
                                                                     class="fas fa-globe"></i>
@@ -350,8 +355,7 @@
                     </div>
                 </div>
 
-                <div class="alert alert-light-{{ $form->schedule->status_color_class }} color-{{ $form->schedule->status_color_class }}
-                     @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro @endif"
+                <div class="alert alert-light-{{ $form->schedule->status_color_class }} color-{{ $form->schedule->status_color_class }}"
                     role="alert">
                     <h4 class="alert-heading">Schedule #{{ $form->schedule->scheduleId() }}</h4>
                     @if ($form->schedule->status == 'cancelled')
@@ -364,23 +368,19 @@
                             {{ $form->schedule->cancel_reason }}
                         </p>
                     @endif
-                    @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'confirmed')
-                        <p><i class="far fa-calendar-check"></i> AHM is {{ $form->schedule->status }} for
+                    @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'confirmed' || $form->schedule->status == 'scheduled_linked')
+                        <p><i class="far fa-calendar-check"></i> {{ $form->schedule->status == 'scheduled_linked' ? 'AHM has been' : 'AHM is' }} {{ App\Enums\Scheduler\ScheduleStatusEnum::tryFrom($form->schedule->status)->label() }} for
                             <strong>{{ $form->schedule->schedule_date->toFormattedDayDateString() }}</strong> between
                             <strong>{{ $form->schedule->truckSchedule->start_time }} and
                                 {{ $form->schedule->truckSchedule->end_time }}</strong>
                         </p>
                         <hr>
                         <p class="mb-0"><span
-                                class="badge bg-{{ $form->schedule->status_color_class }}
-                            @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
-                            "><i
+                                class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-truck"></i>
                                 {{ $form->schedule->truckSchedule->truck->truck_name }}</span>
                             is serving <span
-                                class="badge bg-{{ $form->schedule->status_color_class }}
-                                @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
-                                "><i
+                                class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
                             on this day.
@@ -388,11 +388,8 @@
                         @if ($form->schedule->truckSchedule->driver_id)
                             <p class="mt-2">Driven by
                                 <span
-                                    class="badge bg-{{ $form->schedule->status_color_class }}
-                                @if ($form->schedule->sro_number != null && $form->schedule->status == 'scheduled') linked-sro-dark @endif
-                                ">
-                                    <i
-                                        class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span>
+                                    class="badge bg-{{ $form->schedule->status_color_class }}">
+                                    <i class="fas fa-user-tag"></i>{{ $form->schedule->truckSchedule->driver?->name }}</span>
                             </p>
                         @endif
                     @endif
@@ -429,7 +426,7 @@
                     @endif
                 </div>
 
-                @if (!empty($sro_response) && $form->schedule->status != 'scheduled')
+                @if (!empty($sro_response) && $form->schedule->sro_number != null)
                     <div class="alert alert-secondary">
                         <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
                             <span class="badge bg-secondary float-end"><a
@@ -534,9 +531,9 @@
                         <div>
                             <h3 class="h6 mb-1">SRO Number</h3>
                             <p class="small pe-4">
-                                @if ($form->schedule->status == 'scheduled')
-                                    <span class="bg-warning text-dark">Confirm
-                                        schedule to view SRO Info</span>
+                                @if ($form->schedule->sro_number == null)
+                                    <span class="bg-warning text-dark"> Link SRO
+                                        to view SRO Info</span>
                                 @else
                                     {{ $form->schedule->sro_number }}
                                 @endif

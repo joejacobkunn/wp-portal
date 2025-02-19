@@ -33,10 +33,17 @@
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
                         <div id="calendar" class="w-100" wire:ignore></div>
+                        <div class="legend-section mt-2">
+                            @foreach (App\Enums\Scheduler\ScheduleStatusEnum::cases() as $status)
+                                <span class="badge bg-{{ $status->colorClass() }}"> {{ $status->label() }}</span>
+                            @endforeach
+
+                        </div>
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom @if($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif" href="#"
+                                    <a class="dropdown-item border-bottom @if ($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif"
+                                        href="#"
                                         wire:click.prevent="create('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
@@ -50,7 +57,8 @@
                                 <a class="dropdown-item border-bottom" href="#"
                                     wire:click.prevent="changeScheduleType('')">All Services</a>
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom  @if($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif" href="#"
+                                    <a class="dropdown-item border-bottom  @if ($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif"
+                                        href="#"
                                         wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
@@ -165,6 +173,31 @@
                                                     @endif
                                                 </a>
                                             </li>
+                                            @php
+                                                $data = collect($truckReturnInfo)->firstWhere(
+                                                    'schedule_id',
+                                                    $event['id'],
+                                                );
+                                            @endphp
+                                            @if ($data)
+                                                <li
+                                                    class="list-group-item d-flex justify-content-between align-items-start">
+                                                    <a href="#" class="text-black w-100 disabled">
+                                                        <div class="d-flex w-100 justify-content-between">
+                                                            <h6 class="">
+                                                                {{ $data['warehouse_name'] }} Warehouse
+                                                            </h6>
+                                                        </div>
+                                                        <small>{{ $data['warehouse_address'] }}</small>
+
+                                                        <p class="font-small"><span class="badge bg-light-info">
+                                                                <i class="far fa-clock"></i> ETA :
+                                                                {{ Carbon\Carbon::parse($data['expected_arrival_time'])->format('h:i A') }}
+                                                            </span>
+                                                        </p>
+                                                    </a>
+                                                </li>
+                                            @endif
                                         @endforeach
 
                                     </ul>
@@ -178,14 +211,6 @@
                         active trucks and zones
                     </div>
                 @endif
-                @if($truckReturnInfo)
-                    @foreach ($truckReturnInfo as $data)
-                    <div class="mb-2 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
-                        Truck <strong> {{$data['truck_name']}}</strong>  expected to return to <strong>{{$data['warehouse_name']}}</strong> warehouse by
-                         {{ Carbon\Carbon::parse($data['expected_arrival_time'])->format('h:i A') }}
-                    </div>
-                    @endforeach
-                @endif
             </div>
         </div>
         @if ($showModal)
@@ -193,12 +218,8 @@
                 <x-slot name="title">Schedule
                     {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($selectedType)->label() }}</x-slot>
 
-                <livewire:scheduler.schedule.create lazy wire:key="create"
-                :page="$this->showView"
-                :selectedType="$selectedType"
-                :selectedSchedule="$selectedSchedule"
-                :activeWarehouse="$this->activeWarehouse"
-                >
+                <livewire:scheduler.schedule.create lazy wire:key="create" :page="$this->showView" :selectedType="$selectedType"
+                    :selectedSchedule="$selectedSchedule" :activeWarehouse="$this->activeWarehouse">
             </x-modal>
         @endif
         @if ($showDriverModal)
@@ -360,6 +381,9 @@
                         left: 'prev,next today exportBtn searchBtn settingsBtn',
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
+                    },
+                    buttonText: {
+                        today: 'Today'
                     },
                     titleFormat: {
                         month: 'short',
