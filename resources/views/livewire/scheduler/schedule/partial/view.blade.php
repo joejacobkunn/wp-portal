@@ -364,7 +364,7 @@
                         </p>
                     @endif
                     @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'confirmed' || $form->schedule->status == 'scheduled_linked')
-                        <p><i class="far fa-calendar-check"></i> AHM is {{ App\Enums\Scheduler\ScheduleStatusEnum::tryFrom($form->schedule->status)->label() }} for
+                        <p><i class="far fa-calendar-check"></i> {{ $form->schedule->status == 'scheduled_linked' ? 'AHM has been' : 'AHM is' }} {{ App\Enums\Scheduler\ScheduleStatusEnum::tryFrom($form->schedule->status)->label() }} for
                             <strong>{{ $form->schedule->schedule_date->toFormattedDayDateString() }}</strong> between
                             <strong>{{ $form->schedule->truckSchedule->start_time }} and
                                 {{ $form->schedule->truckSchedule->end_time }}</strong>
