@@ -19,7 +19,7 @@
                                         aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
                                         Uncancel</button>
                                 @endif
-                                @if ($form->schedule->status == 'scheduled')
+                                @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'scheduled_linked')
                                     <button type="button" class="btn btn-sm btn-warning" wire:click="scheduleDateInitiate"
                                         data-bs-toggle="collapse" data-bs-target="#rescheduleCollapse" aria-expanded="false"
                                         aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
@@ -287,6 +287,9 @@
                                             class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }}">
                                             <label class="form-label">Available Time Slots on
                                                 {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
+                                            @if($form->scheduleType == 'schedule_override')
+                                                <p class="ps-2 bg-warning text-dark rounded"> schedule override is activated</p>
+                                            @endif
                                             <div class="d-flex flex-column gap-2">
 
                                                 @forelse($this->form->truckSchedules as $schedule)
@@ -297,11 +300,13 @@
                                                         <div
                                                             class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                             {{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                                            <span
-                                                                class="badge bg-secondary badge-pill badge-round ms-1 float-end">
-                                                                {{ $schedule->schedule_count }} /
-                                                                {{ $schedule->slots }}
-                                                            </span>
+                                                            @if($form->scheduleType != 'schedule_override')
+                                                                <span
+                                                                    class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                                                    {{ $schedule->schedule_count }} /
+                                                                    {{ $schedule->slots }}
+                                                                </span>
+                                                            @endif
                                                             <p class="me-2 fst-italic text-muted"
                                                                 style="font-size: smaller;"><i
                                                                     class="fas fa-globe"></i>
