@@ -75,9 +75,9 @@ class EventServiceProvider extends ServiceProvider
             \App\Listeners\Scheduler\EventCompleteListener::class
         ],
 
-
-
-
+        \App\Events\Scheduler\EventReminder::class => [
+            \App\Listeners\Scheduler\EventReminderListener::class
+        ],
         
     ];
 
