@@ -110,19 +110,19 @@ class Create extends Component
 
     public function updatedFormSuffix($value)
     {
+        $this->form->reset([
+            'orderInfo',
+            'zipcodeInfo',
+            'scheduleType',
+            'schedule_date',
+            'schedule_time',
+            'line_item',
+            'alertConfig',
+            'ServiceStatus'
+        ]);
+        $this->reset('scheduledTruckInfo');
         if(is_numeric($value))
         {
-            $this->form->reset([
-                'orderInfo',
-                'zipcodeInfo',
-                'scheduleType',
-                'schedule_date',
-                'schedule_time',
-                'line_item',
-                'alertConfig',
-                'ServiceStatus'
-            ]);
-            $this->reset('scheduledTruckInfo');
             $this->validateOnly('form.sx_ordernumber');
             $this->form->getOrderInfo($value, $this->activeWarehouse->short);
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
