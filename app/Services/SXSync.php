@@ -283,7 +283,7 @@ class SXSync
         //find if orderno is scheduled
         $schedule = Schedule::where('sx_ordernumber',$data['order_no'])->where('order_number_suffix', $data['order_suffix'])->first();
 
-        if($schedule->isNotEmpty() && !empty($schedule->line_item))
+        if(!is_null($schedule) && !empty($schedule->line_item))
         {
             $prod_code = array_keys($schedule->line_item)[0];
 
@@ -423,5 +423,6 @@ class SXSync
         return 'n/a';
 
     }
+
 
 }
