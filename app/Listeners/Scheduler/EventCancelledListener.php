@@ -14,6 +14,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\App;
+use App\Classes\SX;
+
 
 class EventCancelledListener implements ShouldQueue
 {
@@ -46,6 +48,10 @@ class EventCancelledListener implements ShouldQueue
                 ->notify(new EmailNotification($notification['email_subject'], $notification['email_body']));
     
             }
+
+            $sx_client = new SX();
+            $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been Cancelled', $event->schedule->sx_ordernumber);
+
     
         }
     }
