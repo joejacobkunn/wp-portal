@@ -316,8 +316,7 @@ class ScheduleForm extends Form
                 'user_id' => Auth::user()->id
             ]);
         }
-        if( $this->scheduleType == 'schedule_override' && $schedule->truckSchedule->schedule_count >= $schedule->truckSchedule->slots) {
-
+        if( $this->scheduleType == 'schedule_override' && $schedule->truckSchedule->schedule_count > $schedule->truckSchedule->slots) {
             $schedule->truckSchedule->slots = $schedule->truckSchedule->slots + 1;
             $schedule->truckSchedule->save();
         }
