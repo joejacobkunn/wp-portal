@@ -515,9 +515,7 @@ class Index extends Component
             $query->where('type', $this->activeType);
         }
         $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('truckSchedule', function ($query) use ($whse) {
-            $query->whereIn('truck_id', Truck::where('whse', $whse->id)->pluck('id')->toArray());
-        });
+        ->where('whse', $whse->short);
 
         if(!empty($this->activeZone)) {
             $zoneId = $this->activeZone['id'];
