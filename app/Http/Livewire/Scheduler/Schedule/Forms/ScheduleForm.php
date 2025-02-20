@@ -3,6 +3,10 @@
 
 use App\Classes\SX;
 use App\Contracts\DistanceInterface;
+use App\Events\Scheduler\EventCancelled;
+use App\Events\Scheduler\EventComplete;
+use App\Events\Scheduler\EventDispatched;
+use App\Events\Scheduler\EventRescheduled;
 use App\Events\Scheduler\EventScheduled;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
@@ -372,6 +376,9 @@ class ScheduleForm extends Form
         $this->scheduleType = null;
         $this->schedule_date = null;
         $this->schedule_time = null;
+
+        EventRescheduled::dispatch($this->schedule);
+
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
 
@@ -454,7 +461,7 @@ class ScheduleForm extends Form
         })->pluck('id');
 
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
-            $zones = Zones::where('whse_id', $whse)->pluck('id');
+            $zones = Zones::where('is_active',1)->pluck('id');
         }
 
         $this->truckSchedules = $truckScheduleQuery->whereIn('truck_schedules.zone_id', $zones)
@@ -550,6 +557,7 @@ class ScheduleForm extends Form
         $this->schedule->cancelled_at = Carbon::now();
         $this->schedule->cancelled_by = Auth::user()->id;
         $this->schedule->save();
+        EventCancelled::dispatch($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule cancelled', 'schedule' => $this->schedule];
     }
 
@@ -568,6 +576,7 @@ class ScheduleForm extends Form
         $this->schedule->status = 'out_for_delivery';
         $this->schedule->save();
         $this->fill($this->schedule);
+        EventDispatched::dispatch($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'Delivery initiated', 'schedule' => $this->schedule];
     }
 
@@ -577,6 +586,7 @@ class ScheduleForm extends Form
         $this->schedule->completed_at = Carbon::now();
         $this->schedule->completed_by = Auth::user()->id;
         $this->schedule->save();
+        EventComplete::dispatch($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule completed', 'schedule' => $this->schedule];
 
     }

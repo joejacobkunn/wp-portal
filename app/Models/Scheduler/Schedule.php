@@ -47,6 +47,7 @@ class Schedule extends Model
     protected $casts = [
         'schedule_date' => 'date',
         'line_item' => 'array',
+        'completed_at' => 'datetime'
     ];
     const LOG_FIELD_MAPS = [
 

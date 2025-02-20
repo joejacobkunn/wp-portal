@@ -2,24 +2,24 @@
 
 namespace App\Listeners\Scheduler;
 
-use App\Events\Scheduler\EventScheduled;
-use App\Models\Scheduler\NotificationTemplate;
-use App\Models\Scheduler\Schedule;
-use App\Notifications\Scheduler\EmailNotification;
-use App\Services\Kenect;
-use Carbon\Carbon;
+use App\Events\Scheduler\EventRescheduled;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\Scheduler\EmailNotification;
+use App\Services\Kenect;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use App\Models\Scheduler\Schedule;
+use App\Models\Scheduler\NotificationTemplate;
 use App\Classes\SX;
 
 
 
 
 
-class EventScheduledListener implements ShouldQueue
+class EventRescheduledListener implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -32,16 +32,16 @@ class EventScheduledListener implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(EventScheduled $event): void
+    public function handle(EventRescheduled $event): void
     {
         if(App::environment() == 'production')
         {
-            $notification = $this->populateTemplate('ahm-scheduled',$event->schedule);
+            $notification = $this->populateTemplate('ahm-rescheduled',$event->schedule);
 
             if($event->schedule->user->phone)
             {
                 $kenect = new Kenect();
-                $kenect->send($event->schedule->user->phone, $notification['sms']);
+                $kenect->send($event->schedule->user->phone, $notification['sms'], '18771');
             }
     
             if($event->schedule->user->email)
@@ -52,10 +52,11 @@ class EventScheduledListener implements ShouldQueue
             }
 
             $sx_client = new SX();
-            $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been scheduled for '.$event->schedule->schedule_date->toFormattedDayDateString(), $event->schedule->sx_ordernumber);
+            $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been rescheduled to '.$event->schedule->schedule_date->toFormattedDayDateString().' by '.$event->schedule->user->name, $event->schedule->sx_ordernumber);
 
     
         }
+
     }
 
     public function populateTemplate($slug ,Schedule $schedule)
