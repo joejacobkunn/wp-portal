@@ -54,6 +54,11 @@ class EventScheduledListener implements ShouldQueue
             $sx_client = new SX();
             $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been scheduled for '.$event->schedule->schedule_date->toFormattedDayDateString(), $event->schedule->sx_ordernumber);
 
+            foreach($event->schedule->comments as $comment)
+            {
+                $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' added a note : '.$comment->comment, $event->schedule->sx_ordernumber);
+            }
+
     
         }
     }

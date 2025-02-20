@@ -79,7 +79,7 @@
 
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-3" wire:key="schedule-sidebar">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
                 @if (!empty($this->filteredSchedules))
                     @if (collect($this->filteredSchedules)->contains('driver_id', null))
@@ -223,7 +223,7 @@
                 <x-slot name="title">Schedule
                     {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($selectedType)->label() }}</x-slot>
 
-                <livewire:scheduler.schedule.create lazy wire:key="create" :page="$this->showView" :selectedType="$selectedType"
+                <livewire:scheduler.schedule.schedule-order lazy wire:key="create" :page="$this->showView" :selectedType="$selectedType"
                     :selectedSchedule="$selectedSchedule" :activeWarehouse="$this->activeWarehouse">
             </x-modal>
         @endif
