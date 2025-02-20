@@ -505,25 +505,27 @@
             function initAutocomplete() {
                 if (typeof(google) == 'undefined') return;
 
-                addressField = document.getElementById("form.service_address_temp_textarea-field");
+                setTimeout(() => {
+                    addressField = document.getElementById("form.service_address_temp_textarea-field");
 
-                if (autocomplete) {
-                    google.maps.event.clearInstanceListeners(autocomplete);
+                    if (autocomplete) {
+                        google.maps.event.clearInstanceListeners(autocomplete);
 
-                    if (document.querySelector('.pac-container')) {
-                        document.querySelector('.pac-container').remove()
+                        if (document.querySelector('.pac-container')) {
+                            document.querySelector('.pac-container').remove()
+                        }
                     }
-                }
 
-                autocomplete = new google.maps.places.Autocomplete(addressField, {
-                    componentRestrictions: {
-                        country: ["us", "ca"]
-                    },
-                    fields: ["address_components", "geometry"],
-                    types: ["address"],
-                });
+                    autocomplete = new google.maps.places.Autocomplete(addressField, {
+                        componentRestrictions: {
+                            country: ["us", "ca"]
+                        },
+                        fields: ["address_components", "geometry"],
+                        types: ["address"],
+                    });
 
-                autocomplete.addListener("place_changed", fillInAddress);
+                    autocomplete.addListener("place_changed", fillInAddress);
+                }, 500)
             }
 
             if (typeof(google) == 'undefined') {
