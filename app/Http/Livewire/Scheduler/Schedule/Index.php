@@ -61,7 +61,11 @@ class Index extends Component
     public $selectedType;
     public $selectedSchedule;
     public $truckReturnInfo;
+    public $selectedScheduleId;
 
+    protected $queryString = [
+        'selectedScheduleId' => ['except' => '', 'as' => 'schedule'],
+    ];
     protected $listeners = [
         'closeModal' => 'closeModal',
         'edit' => 'edit',
@@ -124,7 +128,12 @@ class Index extends Component
             ];
         })->toArray();
 
-
+        if($this->selectedScheduleId) {
+            $schedule = Schedule::find($this->selectedScheduleId);
+            if($schedule) {
+                $this->handleEventClick($schedule);
+            }
+        }
 
     }
 
@@ -162,6 +171,7 @@ class Index extends Component
         $this->showModal = false;
         $this->showView = false;
         $this->resetValidation();
+        $this->handleDateClick($this->dateSelected);
     }
 
     public function render()
@@ -201,6 +211,7 @@ class Index extends Component
     public function handleEventClick(Schedule $schedule)
     {
         $this->selectedSchedule = $schedule;
+        $this->selectedScheduleId = $this->selectedSchedule->id;
         $this->orderInfoStrng = uniqid();
         $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
         $this->showModal = true;
@@ -514,9 +525,7 @@ class Index extends Component
             $query->where('type', $this->activeType);
         }
         $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('truckSchedule', function ($query) use ($whse) {
-            $query->whereIn('truck_id', Truck::where('whse', $whse->id)->pluck('id')->toArray());
-        });
+        ->where('whse', $whse->short);
 
         if(!empty($this->activeZone)) {
             $zoneId = $this->activeZone['id'];

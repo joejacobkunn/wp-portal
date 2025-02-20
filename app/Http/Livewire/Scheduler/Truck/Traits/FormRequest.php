@@ -7,10 +7,13 @@ use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Models\Core\Location;
 use Illuminate\Validation\Rule;
+use Livewire\WithFileUploads;
 
 trait FormRequest
 {
-    use LivewireAlert;
+    use LivewireAlert, WithFileUploads;
+
+    public $truckImage;
     public $serviceTypes = [
         'AHM' => 'AHM',
         'Delivery / Pickup' => 'Delivery / Pickup'
@@ -25,6 +28,7 @@ trait FormRequest
         'truck.color' => 'Color',
         'truck.notes' => 'Notes',
         'truck.cubic_storage_space' => 'Storage Space',
+        'truckImage' => 'Truck Image',
     ];
 
     protected $messages = [
@@ -49,6 +53,7 @@ trait FormRequest
             'truck.year' => 'required|numeric|digits:4',
             'truck.color' => 'required|string|max:50',
             'truck.notes' => 'nullable|string',
+            'truckImage' => 'nullable',
         ];
     }
 
@@ -78,6 +83,7 @@ trait FormRequest
      */
     public function submit()
     {
+
         $this->validate();
 
         if (! empty($this->truck->id)) {
@@ -100,8 +106,20 @@ trait FormRequest
             'warehouse_short' => $this->whseShort,
         ]);
         $truck = $this->truck->save();
+
+        if ($this->truckImage && !is_string($this->truckImage)) {
+            // Clear old media first (optional)
+            $this->truck->clearMediaCollection(Truck::DOCUMENT_COLLECTION);
+
+            $this->truck
+                ->syncFromMediaLibraryRequest($this->truckImage)
+                ->toMediaCollection(Truck::DOCUMENT_COLLECTION);
+
+        }
         $this->alert('success', 'Truck created successfully!');
+
         return redirect()->route('scheduler.truck.show', $this->truck->id);
+
     }
 
     /**
@@ -111,6 +129,15 @@ trait FormRequest
     {
         $this->authorize('update', $this->truck);
         $truck = $this->truck->save();
+        if ($this->truckImage && !is_string($this->truckImage)) {
+            // Clear old media first (optional)
+            $this->truck->clearMediaCollection(Truck::DOCUMENT_COLLECTION);
+
+            $this->truck
+                ->syncFromMediaLibraryRequest($this->truckImage)
+                ->toMediaCollection(Truck::DOCUMENT_COLLECTION);
+
+        }
         $this->editRecord = false;
         $this->alert('success', 'Record updated!');
         return redirect()->route('scheduler.truck.show', $this->truck->id);

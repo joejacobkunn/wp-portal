@@ -58,6 +58,16 @@
                         <x-forms.input label="Color" model="truck.color" lazy />
                     </div>
                 </div>
+                <!-- Color -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <h3 class="h5 mb-3"><i class="fas fa-truck me-2"></i>Truck Image</h3>
+                            <x-forms.media field-id="truck_image" model="truckImage" :entity="$truck"
+                                collection="truck_image" editable rules="mimes:jpeg,png,webp" />
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Notes -->
                 <div class="row">
