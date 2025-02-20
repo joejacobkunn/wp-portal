@@ -8,10 +8,11 @@ use App\Http\Livewire\Component\Component;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Resources\Transformers\PermissionGroupCollection;
 use App\Models\Core\Permission;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, LivewireAlert;
 
     public Role $role;
 
@@ -122,17 +123,14 @@ class Index extends Component
         $selectedPermissions = $allowedPermissions->whereIn('name', $this->selectedPermissions);
         $this->role->givePermissionTo([$selectedPermissions]);
 
-        $this->reset();
-        $this->addRole = false;
-
-        session()->flash('success', 'Role created !');
+        $this->alert('success', 'Role Created!');
+    
+        return $this->redirect(route('core.role.show', ['role' => $this->role->id]), navigate: true);
     }
 
     public function cancel()
     {
-        $this->reset();
-
-        $this->addRole = false;
+        return $this->redirect(route('core.role.index'), navigate: true);
     }
 
     protected function getPermissions()
