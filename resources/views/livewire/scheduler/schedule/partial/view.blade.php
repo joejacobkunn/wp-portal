@@ -454,6 +454,16 @@
                                     {{ $sro_response['city'] }},
                                     {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span>
                             </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span> Note</span>
+                                <span
+                                    class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['note'] }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span> Status</span>
+                                <span
+                                    class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['status'] }}</span>
+                            </li>
                         </ul>
 
                     </div>
