@@ -1,8 +1,27 @@
 <div class="row">
-    <div class="col-8 col-md-12 col-xxl-12">
+    <div class="col-4 col-md-4 col-xxl-4">
+        <div class="card-body">
+            <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                  <div class="carousel-item active">
+                        @php
+                            $mediaUrl = $truck->getFirstMediaUrl($truck::DOCUMENT_COLLECTION);
+                        @endphp
+                        @if ($mediaUrl)
+                        <img class="d-block w-100" src="{{ $mediaUrl }}"
+                                alt="Avatar">
+                        @else
+                            <p class="small">No image available</p>
+                        @endif
+                  </div>
+                </div>
+              </div>
+        </div>
+    </div>
+    <div class="col-8 col-md-8 col-xxl-8">
         <div class="card border-light shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" >
-                <livewire:component.action-button :actionButtons="$actionButtons" :key="'truck' . time()">
+                <livewire:component.action-button :actionButtons="$actionButtons" :key="'truck'">
                     <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i> Overview</h3>
             </div>
             <div class="card-body">
@@ -68,5 +87,4 @@
             </div>
         </div>
     </div>
-
 </div>

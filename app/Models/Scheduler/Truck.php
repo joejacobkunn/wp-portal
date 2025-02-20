@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Core\Location;
 use App\Models\Core\User;
 use App\Models\Core\Warehouse;
+use App\Traits\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 
-class Truck extends Model
+class Truck extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, InteractsWithMedia;
 
     protected $table = 'trucks';
 
@@ -30,6 +32,7 @@ class Truck extends Model
         'warehouse_short',
     ];
 
+    const DOCUMENT_COLLECTION = 'truck_image';
 
     public function warehouse()
     {
