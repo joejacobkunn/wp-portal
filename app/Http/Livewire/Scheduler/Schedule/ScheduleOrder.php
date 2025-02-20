@@ -329,10 +329,11 @@ class ScheduleOrder extends Component
                 'model' => 'ghd567df',
                 'id' => '1',
                 'status' => 'Complete',
-                'note' => 'this is a note'
+                'note' => 'this is a note',
+                'sx_repair_order_no' => '67678854'
             ];
         }else{
-            $sro = RepairOrders::select('first_name','last_name', 'at_home_address as address','at_home_state as state', 'at_home_city as city', 'at_home_zip as zip', 'brand', 'model', 'id', 'status', 'at_home_note as note')->where('sro_no', $sro)->first();
+            $sro = RepairOrders::select('first_name','last_name', 'at_home_address as address','at_home_state as state', 'at_home_city as city', 'at_home_zip as zip', 'brand', 'model', 'id', 'status', 'at_home_note as note', 'sx_repair_order_no')->where('sro_no', $sro)->first();
             if(!empty($sro)) {
                 return $sro->toArray();
             }

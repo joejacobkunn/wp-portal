@@ -442,6 +442,12 @@
 
                         <ul class="list-group mt-4">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span> SX Order Number</span>
+                                <span
+                                    class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['sx_repair_order_no'] }}</span>
+                            </li>
+
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span> Equipment</span>
                                 <span
                                     class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['brand'] }}
