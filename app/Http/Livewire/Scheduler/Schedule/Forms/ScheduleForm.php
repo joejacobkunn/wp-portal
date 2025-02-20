@@ -136,7 +136,7 @@ class ScheduleForm extends Form
         }
         $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
             ->whereNotIn('status', ['cancelled', 'completed'])
-            ->where('schedule_date', '<', Carbon::now()->addMonths(6))
+            ->whereBetween('schedule_date', [Carbon::now(), Carbon::now()->addMonths(6)])
             ->get();
         if($existingSchedules->count() >=1 ) {
             $this->addError('sx_ordernumber', 'Order number already scheduled within six months');
