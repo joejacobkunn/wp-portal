@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
-class ScheduleOrder extends Component
+class Create extends Component
 {
     use LivewireAlert, HasTabs;
     public ScheduleForm $form;
@@ -76,7 +76,7 @@ class ScheduleOrder extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.schedule.schedule-order');
+        return $this->renderView('livewire.scheduler.schedule.create');
     }
 
     public function typeCheck($field, $value)
@@ -93,10 +93,6 @@ class ScheduleOrder extends Component
 
         $this->authorize('store', Schedule::class);
         $response = $this->form->store();
-        if(!$response['status']) {
-            $this->alert($response['class'], $response['message']);
-            return;
-        }
         $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
         $event = [
@@ -229,12 +225,7 @@ class ScheduleOrder extends Component
     public function save()
     {
         $this->authorize('update', $this->form->schedule);
-
         $response = $this->form->update();
-        if(!$response['status']) {
-            $this->alert($response['class'], $response['message']);
-            return;
-        }
         $this->viewScheduleTypeCollapse = false;
         $this->EventUpdate($response);
     }
@@ -338,7 +329,6 @@ class ScheduleOrder extends Component
             }
             return null;
         }
-
     }
 
     public function cancelSchedule()
