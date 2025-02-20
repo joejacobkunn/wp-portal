@@ -93,6 +93,10 @@ class ScheduleOrder extends Component
 
         $this->authorize('store', Schedule::class);
         $response = $this->form->store();
+        if(!$response['status']) {
+            $this->alert($response['class'], $response['message']);
+            return;
+        }
         $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
         $event = [
@@ -225,7 +229,12 @@ class ScheduleOrder extends Component
     public function save()
     {
         $this->authorize('update', $this->form->schedule);
+
         $response = $this->form->update();
+        if(!$response['status']) {
+            $this->alert($response['class'], $response['message']);
+            return;
+        }
         $this->viewScheduleTypeCollapse = false;
         $this->EventUpdate($response);
     }

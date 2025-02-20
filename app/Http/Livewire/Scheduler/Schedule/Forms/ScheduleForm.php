@@ -134,14 +134,7 @@ class ScheduleForm extends Form
             $this->addError('sx_ordernumber', 'Order Number is required');
             return;
         }
-        $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
-            ->whereNotIn('status', ['cancelled', 'completed'])
-            ->whereBetween('schedule_date', [Carbon::now(), Carbon::now()->addMonths(6)])
-            ->get();
-        if($existingSchedules->count() >=1 ) {
-            $this->addError('sx_ordernumber', 'Order number already scheduled within six months');
-            return;
-        }
+
 
         if(!is_numeric($suffix)) {
             $this->addError('sx_ordernumber', 'Order Suffix is required');
@@ -195,6 +188,7 @@ class ScheduleForm extends Form
             ]);
             return;
         }
+
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
@@ -277,7 +271,20 @@ class ScheduleForm extends Form
             'schedule_time',
             'not_purchased_via_weingartz',
         ])->toArray());
+
         if(!$this->ServiceStatus) {
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
+
+        $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
+        ->whereNotIn('status', ['cancelled', 'completed'])
+        ->whereBetween('schedule_date', [
+            Carbon::parse($this->schedule_date)->subMonths(6),
+            Carbon::parse($this->schedule_date)->addMonths(6)
+        ])
+        ->get();
+        if($existingSchedules->count() >=1 ) {
+            $this->addError('sx_ordernumber', 'Order number already scheduled within six months');
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
 
@@ -340,7 +347,18 @@ class ScheduleForm extends Form
             'schedule_time',
             'reschedule_reason'
         ])->toArray());
-
+        $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
+        ->whereNotIn('status', ['cancelled', 'completed'])
+        ->where('id', '!=', $this->schedule->id)
+        ->whereBetween('schedule_date', [
+            Carbon::parse($this->schedule_date)->subMonths(6),
+            Carbon::parse($this->schedule_date)->addMonths(6)
+        ])
+        ->get();
+        if($existingSchedules->count() >=1 ) {
+            $this->addError('schedule_date', 'Order number already scheduled within six months');
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
         $validatedData['truck_schedule_id'] = $this->schedule_time;
 
         $this->schedule->fill($validatedData);
