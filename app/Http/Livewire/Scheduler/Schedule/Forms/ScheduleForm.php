@@ -483,7 +483,7 @@ class ScheduleForm extends Form
                 })->pluck('id');
         if($shouldOverride) {
             if( Auth::user()->can('scheduler.can-schedule-override')) {
-                $zones = Zones::where('whse_id', $whse)->pluck('id');
+                $zones = Zones::where('is_active',1)->pluck('id');
             }
         }
         $this->enabledDates = DB::table('truck_schedules')
