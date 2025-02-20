@@ -7,10 +7,11 @@ use App\Models\Core\Permission;
 use App\Http\Livewire\Component\Component;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Resources\Transformers\PermissionGroupCollection;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Show extends Component
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, LivewireAlert;
 
     public Role $role;
 
@@ -52,6 +53,15 @@ class Show extends Component
         $this->authorize('view', $this->role);
         $this->role->permission_list = (new PermissionGroupCollection($this->role->getAllPermissions()))->aggregateGroup()->toArray();
 
+        return $this->renderView('livewire.core.role.show');
+    }
+
+    public function mount(Role $role)
+    {
+        $this->authorize('view', $role);
+        array_push($this->breadcrumbs, ['title' => $role->label]);
+        $this->roleTypes = Role::getRoleTypes();
+
         if(!in_array($this->role->name,[Role::MASTER_ROLE,Role::SUPER_ADMIN_ROLE, Role::USER_ROLE, Role::DEFAULT_USER_ROLE])){
             $this->actionButtons[] =[
                 'icon' => 'fa-trash',
@@ -61,15 +71,6 @@ class Show extends Component
                 'listener' => 'deleteRecord'
             ];
         }
-
-        return $this->renderView('livewire.core.role.show');
-    }
-
-    public function mount(Role $role)
-    {
-        $this->authorize('view', $role);
-        array_push($this->breadcrumbs, ['title' => $role->label]);
-        $this->roleTypes = Role::getRoleTypes();
     }
 
     public function roleTypeChanged($name, $value, $recheckValidation = true)
@@ -126,7 +127,7 @@ class Show extends Component
 
         $this->editRole = false;
 
-        session()->flash('success', 'Role updated !');
+        $this->alert('success', 'Role updated!');
     }
 
     public function delete()
@@ -136,19 +137,19 @@ class Show extends Component
         //check for existing users with this role
         $existingUserCount = $this->role->hasModels()->count();
         if ($existingUserCount) {
-            session()->flash('warning', "Error, there ".($existingUserCount > 1 ? 'are' : 'is')." $existingUserCount users associated with this role, re-assign them to different role before continue!");
+            $this->alert('warning', "Error, there ".($existingUserCount > 1 ? 'are' : 'is')." $existingUserCount users associated with this role, re-assign them to different role before continue!");
             return;
         }
 
         //check for other roles reporting to this role
         $reportingRoleCount = Role::where('reporting_role', $this->role->id)->count();
         if ($reportingRoleCount) {
-            session()->flash('warning', "Warning, there ".($reportingRoleCount > 1 ? 'are' : 'is')." $reportingRoleCount roles reporting to this role!");
+            $this->alert('warning', "Warning, there ".($reportingRoleCount > 1 ? 'are' : 'is')." $reportingRoleCount roles reporting to this role!");
             return;
         }
 
         $this->role->delete();
-        session()->flash('success', 'Role deleted !');
+        $this->alert('success', 'Role deleted !');
 
         return redirect()->route('core.role.index');
     }
