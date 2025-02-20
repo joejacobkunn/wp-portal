@@ -194,7 +194,7 @@ class ScheduleForm extends Form
         }
 
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
-        if(is_null($this->orderInfo->shipping_info) || empty($this->orderInfo?->shipping_info['line'])) {
+        if(is_null($this->orderInfo->shipping_info) || empty($this->orderInfo?->shipping_info['line']) || strlen($this->orderInfo?->shipping_info['line']) < 2) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
         }
