@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
-class Create extends Component
+class ScheduleOrder extends Component
 {
     use LivewireAlert, HasTabs;
     public ScheduleForm $form;
@@ -76,7 +76,7 @@ class Create extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.schedule.create');
+        return $this->renderView('livewire.scheduler.schedule.schedule-order');
     }
 
     public function typeCheck($field, $value)

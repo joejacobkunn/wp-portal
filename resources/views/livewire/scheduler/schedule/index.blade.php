@@ -218,7 +218,7 @@
                 <x-slot name="title">Schedule
                     {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($selectedType)->label() }}</x-slot>
 
-                <livewire:scheduler.schedule.create lazy wire:key="create" :page="$this->showView" :selectedType="$selectedType"
+                <livewire:scheduler.schedule.schedule-order lazy wire:key="create" :page="$this->showView" :selectedType="$selectedType"
                     :selectedSchedule="$selectedSchedule" :activeWarehouse="$this->activeWarehouse">
             </x-modal>
         @endif
