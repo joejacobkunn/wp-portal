@@ -15,6 +15,9 @@ class ListIndex extends Component
 {
     use LivewireAlert, HasTabs, ScheduleData;
 
+    public $showEventModal;
+    public $selectedSchedule;
+    public $scheduleId;
     public $tabs = [
         'schedule-list-index-tabs' => [
             'active' => 'today',
@@ -30,10 +33,13 @@ class ListIndex extends Component
     protected $queryString = [
         'tabs.schedule-list-index-tabs.active' => ['except' => '', 'as' => 'tab'],
         'activeWarehouseId' => ['except' => '', 'as' => 'whse'],
+        'scheduleId' => ['except' => '', 'as' => 'schedule'],
     ];
 
     protected $listeners = [
         'schedule-list-index-tabs:tab:changed' => 'indexActiveTabChange',
+        'schedule-event-modal-open' => 'scheduleModalOpen',
+        'closeEventModal' => 'closeEventModal'
     ];
 
     public $tabCounts = [];
@@ -62,6 +68,10 @@ class ListIndex extends Component
         if (empty($this->activeWarehouseId)) {
             $this->activeWarehouseId = $this->warehouses->firstWhere('title', auth()->user()->office_location)?->id;
         }
+
+        if($this->scheduleId) {
+            $this->scheduleModalOpen($this->scheduleId);
+        }
     }
 
     public function render()
@@ -87,12 +97,22 @@ class ListIndex extends Component
 
     public function updateTabCounts()
     {
-        //@TODO update after schedule whse update
-        $truckList = $this->trucks->where('whse', $this->activeWarehouseId)->pluck('id')->toArray();
-        
-        $this->tabCounts['today'] = $this->queryByDate(Carbon::now()->toDateString())->whereIn('truck_schedules.truck_id', $truckList)->count();
-        $this->tabCounts['tomorrow'] = $this->queryByDate(Carbon::now()->addDay()->toDateString())->whereIn('truck_schedules.truck_id', $truckList)->count();
-        $this->tabCounts['unconfirmed'] = $this->queryByStatus('unconfirmed')->whereIn('truck_schedules.truck_id', $truckList)->count();
-        $this->tabCounts['all'] = $this->scheduleBaseQuery()->whereIn('truck_schedules.truck_id', $truckList)->count();
+        $this->tabCounts['today'] = $this->queryByDate(Carbon::now()->toDateString())->where('schedules.whse', $this->activeWarehouse->short)->count();
+        $this->tabCounts['tomorrow'] = $this->queryByDate(Carbon::now()->addDay()->toDateString())->where('schedules.whse', $this->activeWarehouse->short)->count();
+        $this->tabCounts['unconfirmed'] = $this->queryByStatus('unconfirmed')->where('schedules.whse', $this->activeWarehouse->short)->count();
+        $this->tabCounts['all'] = $this->scheduleBaseQuery()->where('schedules.whse', $this->activeWarehouse->short)->count();
+    }
+
+    public function scheduleModalOpen($id)
+    {
+        $this->selectedSchedule = Schedule::find($id);
+        $this->scheduleId =  $this->selectedSchedule->id;
+        $this->showEventModal = true;
+    }
+
+    public function closeEventModal()
+    {
+        $this->reset('selectedSchedule');
+        $this->showEventModal = false;
     }
 }

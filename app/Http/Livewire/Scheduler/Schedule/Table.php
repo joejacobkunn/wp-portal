@@ -6,10 +6,12 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Models\Scheduler\Zones;
 use App\Models\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
+use App\Enums\Scheduler\ScheduleStatusEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Http\Livewire\Scheduler\Schedule\Traits\ScheduleData;
+use App\Models\Core\User;
 use App\Models\Scheduler\Truck;
 use Carbon\Carbon;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateFilter;
@@ -42,14 +44,24 @@ class Table extends DataTableComponent
         $columns = [
             Column::make('Id', 'id')
                 ->hideIf(1),
+            Column::make('Schedule Priority', 'travel_prio_number')
+                ->hideIf(1),
 
             Column::make('SX Order No', 'sx_ordernumber')
-                ->excludeFromColumnSelect()
-                ->searchable()
-                ->html(),
+            ->excludeFromColumnSelect()
+            ->searchable()
+            ->format(function ($value, $row) {
+                return '<a href="#"
+                    wire:click.prevent="$dispatch(\'schedule-event-modal-open\', { id: ' . $row->id . ' })"
+                    class="text-primary text-decoration-underline">'
+                    . $value . '-' . $row->order_number_suffix .
+                '</a>';
+            })
+            ->html(),
 
             Column::make('Type', 'type')
                 ->sortable()
+                ->secondaryHeader($this->getFilterByKey('type'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
@@ -59,6 +71,7 @@ class Table extends DataTableComponent
 
             Column::make('Schedule Date', 'schedule_date')
                 ->excludeFromColumnSelect()
+                ->hideIf($this->activeTab == 'today' || $this->activeTab == 'tomorrow')
                 ->format(function ($value, $row) {
                     if ($value) {
                         $dateObj = Carbon::parse($value);
@@ -73,25 +86,18 @@ class Table extends DataTableComponent
                 }),
 
             Column::make('Order No Suffix', 'order_number_suffix')
-                ->excludeFromColumnSelect()
-                ->searchable()
-                ->html(),
+                ->hideIf(1),
 
             Column::make('Customer Name', 'sx_ordernumber')
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
-                    return $row->order?->customer?->name;
+                    return $row->order?->customer?->name.' (#'.$row->order?->customer?->sx_customer_number.')';
                 }),
 
-            Column::make('SX Customer No', 'sx_ordernumber')
-                ->excludeFromColumnSelect()
-                ->format(function ($value, $row)
-                {
-                    return $row->order?->customer?->sx_customer_number;
-                }),
 
             Column::make('Truck Name', 'truck_schedule_id')
+                ->secondaryHeader($this->getFilterByKey('truck'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
@@ -99,19 +105,57 @@ class Table extends DataTableComponent
                 }),
 
             Column::make('Zone', 'truck_schedule_id')
+                ->secondaryHeader($this->getFilterByKey('zone'))
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
                     return $row->truckSchedule?->zone?->name;
                 }),
+
+                Column::make('Time Slot', 'truck_schedule_id')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    return $row->truckSchedule?->start_time.' - '.$row->truckSchedule?->end_time;
+                }),
+
+                Column::make('Created By', 'created_by')
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    return $row->user?->name;
+                }),
+
+                Column::make('Driver', 'truckSchedule.driver_id')
+                ->secondaryHeader($this->getFilterByKey('drivers'))
+                ->excludeFromColumnSelect()
+                ->format(function ($value, $row)
+                {
+                    return $row->truckSchedule?->driver?->name;
+                }),
+
             ];
 
         if ($this->activeTab == 'today') {
+            $columns[] = Column::make('ETA', 'expected_arrival_time')
+                ->format(function ($value, $row) {
+                    return (empty($value)) ? 'n/a' : Carbon::parse($value)->format('h:i A');
+                });
             $columns[] = Column::make('Latest Comment', 'id')
                 ->format(function ($value, $row) {
                     return strip_tags($row->latestComment?->comment);
                 });
         }
+
+        $columns[] = Column::make('Status', 'status')
+        ->excludeFromColumnSelect()
+        ->html()
+        ->format(function ($value, $row)
+        {
+            return '<span class="badge bg-'.$row->status_color_class.'">'. ScheduleStatusEnum::tryFrom($value)->label() .'</span>';
+            return $row->truckSchedule?->zone?->name;
+        });
+
 
         return $columns;
     }
@@ -126,9 +170,14 @@ class Table extends DataTableComponent
         return Truck::select('id', 'truck_name', 'whse')->limit(100)->get();
     }
 
+    public function getDriversProperty()
+    {
+        return User::whereIn('title', ['Driver', 'Service Technician'])->select('id', 'name')->limit(100)->get();
+    }
+
     public function getZonesProperty()
     {
-        return Zones::select('id', 'name')->limit(100)->pluck('name', 'id')->toArray();
+        return Zones::select('id', 'name')->orderBy('name')->limit(100)->pluck('name', 'id')->toArray();
     }
 
     public function filters(): array
@@ -136,28 +185,44 @@ class Table extends DataTableComponent
         return [
             SelectFilter::make('Type', 'type')
                 ->options(
+                    ['' => 'All Types'] +
                    $this->schedule_types
                 )
+                ->hiddenFromMenus()
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('schedules.type', $value);
                 }),
 
             SelectFilter::make('Truck', 'truck')
                 ->options(
+                    ['' => 'All Trucks'] +
                     $this->trucks->pluck('truck_name', 'id')->toArray()
                 )
+                ->hiddenFromMenus()
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('truck_schedules.truck_id', $value);
                 }),
 
             SelectFilter::make('Zone', 'zone')
                 ->options(
+                    [''=> 'All Zones'] +
                     $this->zones
                 )
+                ->hiddenFromMenus()
                 ->filter(function (Builder $builder, string $value) {
                     $builder->where('truck_schedules.zone_id', $value);
                 }),
-            
+
+            SelectFilter::make('Drivers', 'drivers')
+                ->options(
+                    [''=> 'All Drivers'] +
+                    $this->drivers->pluck('name', 'id')->toArray()
+                )
+                ->hiddenFromMenus()
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('truck_schedules.driver_id', $value);
+                }),
+
             DateFilter::make('Scheduled From', 'scheduled_from')
                 ->config([
                     'format' => config('app.default_date_format')
@@ -167,7 +232,7 @@ class Table extends DataTableComponent
                         $builder->whereDate('schedules.schedule_date', '>=', $value);
                     }
                 }),
-            
+
             DateFilter::make('Scheduled To', 'scheduled_to')
                 ->config([
                     'format' => config('app.default_date_format')
@@ -197,7 +262,8 @@ class Table extends DataTableComponent
                 $query->whereNull('deleted_at')
                     ->with('zone:id,name')
                     ->with('truck:id,truck_name')
-                    ->select('id', 'start_time', 'end_time', 'truck_id', 'zone_id');
+                    ->with('driver:id,name')
+                    ->select('id', 'start_time', 'end_time', 'truck_id', 'zone_id', 'driver_id');
             },
             'order' => function($query) {
                 $query->whereNull('deleted_at')
@@ -208,10 +274,10 @@ class Table extends DataTableComponent
                     }]);
             }
         ]);
-
         if (!empty($this->whse)) {
+
             //@TODO update after schedule whse update
-            $scheduleQuery->whereIn('truck_schedules.truck_id', $this->trucks->where('whse', $this->whse)->pluck('id')->toArray());
+            $scheduleQuery->where('schedules.whse', $this->whse);
 
             //$scheduleQuery->where('orders.whse', $this->whse);
         }

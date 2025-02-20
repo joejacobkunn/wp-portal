@@ -3,6 +3,10 @@
 
 use App\Classes\SX;
 use App\Contracts\DistanceInterface;
+use App\Events\Scheduler\EventCancelled;
+use App\Events\Scheduler\EventComplete;
+use App\Events\Scheduler\EventDispatched;
+use App\Events\Scheduler\EventRescheduled;
 use App\Events\Scheduler\EventScheduled;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
@@ -12,6 +16,7 @@ use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\Zipcode;
+use App\Models\Scheduler\Zones;
 use App\Models\SX\Order as SXOrder;
 use App\Models\SX\OrderLineItem;
 use App\Rules\ValidateScheduleDate;
@@ -62,8 +67,8 @@ class ScheduleForm extends Form
     public $addressVerified = false;
     public $addressFromOrder;
     public $selectedTruckSchedule;
-
     public $recommendedAddress;
+
     public $alertConfig = [
         'status' => false,
         'message' => '',
@@ -96,7 +101,6 @@ class ScheduleForm extends Form
                 'required',
                 'numeric',
                 'max_digits:9',
-                Rule::unique('schedules', 'sx_ordernumber')->whereNull('deleted_at'),
             ],
             'suffix' => 'required|numeric|max_digits:1',
             'schedule_date' => [
@@ -106,7 +110,7 @@ class ScheduleForm extends Form
             'scheduleType' =>'required',
             'schedule_time' =>[
                 'required',
-                new ValidateSlotsforSchedule()
+                new ValidateSlotsforSchedule($this->scheduleType)
             ],
             'line_item' => $this->not_purchased_via_weingartz ? 'nullable' : 'required',
             'notes' =>'nullable',
@@ -135,6 +139,7 @@ class ScheduleForm extends Form
             return;
         }
 
+
         if(!is_numeric($suffix)) {
             $this->addError('sx_ordernumber', 'Order Suffix is required');
             return;
@@ -144,7 +149,7 @@ class ScheduleForm extends Form
 
         if(!config('sx.mock'))
         {
-            
+
             $this->SXOrderInfo = SXOrder::where('cono', 10)->where('orderno', $this->sx_ordernumber)->where('ordersuf', $suffix)->first();
 
             if(is_null($this->SXOrderInfo)) {
@@ -159,13 +164,13 @@ class ScheduleForm extends Form
                     'scheduleType',
                     'line_item',
                     'orderInfo'
-    
+
                 ]);
                 return;
             }
 
             $this->orderInfo = $this->syncSXOrder($this->SXOrderInfo);
-    
+
         }else{
             $this->orderInfo = Order::where(['order_number' =>$this->sx_ordernumber, 'order_number_suffix' => $suffix])
             ->first();
@@ -187,6 +192,7 @@ class ScheduleForm extends Form
             ]);
             return;
         }
+
         $this->orderTotal = (config('sx.mock')) ? '234.25' : number_format($this->SXOrderInfo->totordamt,2);
         if(is_null($this->orderInfo->shipping_info)) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
@@ -195,6 +201,8 @@ class ScheduleForm extends Form
         if(empty($this->orderInfo->line_items['line_items'])) {
             $this->not_purchased_via_weingartz = true;
         }
+
+        $this->serialNumbers = $this->getSerialNumbers($this->sx_ordernumber, $suffix);
 
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
@@ -230,7 +238,7 @@ class ScheduleForm extends Form
             return;
         }
         $this->checkServiceValidity();
-        $this->getEnabledDates();
+        $this->getEnabledDates(false, $this->orderInfo?->warehouse?->id);
     }
 
     public function checkServiceAVailability($value)
@@ -267,7 +275,20 @@ class ScheduleForm extends Form
             'schedule_time',
             'not_purchased_via_weingartz',
         ])->toArray());
+
         if(!$this->ServiceStatus) {
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
+
+        $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
+        ->whereNotIn('status', ['cancelled', 'completed'])
+        ->whereBetween('schedule_date', [
+            Carbon::parse($this->schedule_date)->subMonths(6),
+            Carbon::parse($this->schedule_date)->addMonths(6)
+        ])
+        ->get();
+        if($existingSchedules->count() >=1 ) {
+            $this->addError('sx_ordernumber', 'Order number already scheduled within six months');
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
 
@@ -284,6 +305,7 @@ class ScheduleForm extends Form
             $itemDesc = collect($this->orderInfo->line_items['line_items'])->firstWhere('shipprod', $this->line_item)['descrip'] ?? null;
             $validatedData['line_item'] = [$this->line_item=>$itemDesc];
             $validatedData['not_purchased_via_weingartz'] = 0;
+            $validatedData['serial_no'] = collect($this->serialNumbers)->firstWhere('prod',$this->line_item)?->serialno;
         }
 
 
@@ -293,6 +315,10 @@ class ScheduleForm extends Form
                 'comment' => $this->notes,
                 'user_id' => Auth::user()->id
             ]);
+        }
+        if( $this->scheduleType == 'schedule_override' && $schedule->truckSchedule->schedule_count > $schedule->truckSchedule->slots) {
+            $schedule->truckSchedule->slots = $schedule->truckSchedule->slots + 1;
+            $schedule->truckSchedule->save();
         }
 
         EventScheduled::dispatch($schedule);
@@ -311,7 +337,9 @@ class ScheduleForm extends Form
         $this->scheduleType = $schedule->schedule_type;
         $this->serviceZip = $this->extractZipCode($this->service_address);
 
-        $this->getTruckSchedules();
+        $this->getTruckSchedules($this->schedule->warehouse->id);
+        $holidays = CalendarHoliday::listAll();
+        $this->disabledDates = array_column($holidays, 'date');
     }
 
     public function update()
@@ -322,10 +350,34 @@ class ScheduleForm extends Form
             'schedule_time',
             'reschedule_reason'
         ])->toArray());
-
+        $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
+        ->whereNotIn('status', ['cancelled', 'completed'])
+        ->where('id', '!=', $this->schedule->id)
+        ->whereBetween('schedule_date', [
+            Carbon::parse($this->schedule_date)->subMonths(6),
+            Carbon::parse($this->schedule_date)->addMonths(6)
+        ])
+        ->get();
+        if($existingSchedules->count() >=1 ) {
+            $this->addError('schedule_date', 'Order number already scheduled within six months');
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
         $validatedData['truck_schedule_id'] = $this->schedule_time;
+
         $this->schedule->fill($validatedData);
         $this->schedule->save();
+        $this->selectedTruckSchedule = $this->selectedTruckSchedule->fresh();
+        if($this->scheduleType == 'schedule_override' && $this->selectedTruckSchedule->schedule_count > $this->selectedTruckSchedule->slots) {
+            $this->selectedTruckSchedule->slots = $this->selectedTruckSchedule->slots + 1;
+            $this->selectedTruckSchedule->save();
+
+        }
+        $this->scheduleType = null;
+        $this->schedule_date = null;
+        $this->schedule_time = null;
+
+        EventRescheduled::dispatch($this->schedule);
+
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
 
@@ -391,10 +443,9 @@ class ScheduleForm extends Form
 
 
 
-    public function getTruckSchedules()
+    public function getTruckSchedules($whse)
     {
-
-        $this->truckSchedules = DB::table('truck_schedules')
+        $truckScheduleQuery = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
         ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
@@ -402,8 +453,17 @@ class ScheduleForm extends Form
         ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
         ->whereNull('zones.deleted_at')
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
-        ->whereNull('trucks.deleted_at')
-        ->where('scheduler_zipcodes.zip_code', $this->serviceZip)
+        ->whereNull('trucks.deleted_at');
+
+        $zones = Zones::whereHas('zipcodes', function ($query) {
+            $query->where('zip_code', $this->serviceZip);
+        })->pluck('id');
+
+        if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
+            $zones = Zones::where('is_active',1)->pluck('id');
+        }
+
+        $this->truckSchedules = $truckScheduleQuery->whereIn('truck_schedules.zone_id', $zones)
         ->where('truck_schedules.schedule_date', '=', $this->schedule_date)
         ->select(
             'truck_schedules.*',
@@ -412,45 +472,46 @@ class ScheduleForm extends Form
             'trucks.truck_name',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
         )
+        ->distinct()
         ->get();
-
     }
 
-    public function calendarInit()
+    public function getEnabledDates($shouldOverride, $whse)
     {
-        $holidays = CalendarHoliday::listAll();
-        $this->disabledDates = array_column($holidays, 'date');
-    }
-
-    public function getEnabledDates()
-    {
-        $schedules = DB::table('truck_schedules')
+        $zones = Zones::whereHas('zipcodes', function ($query) {
+                    $query->where('zip_code', $this->serviceZip);
+                })->pluck('id');
+        if($shouldOverride) {
+            if( Auth::user()->can('scheduler.can-schedule-override')) {
+                $zones = Zones::where('whse_id', $whse)->pluck('id');
+            }
+        }
+        $this->enabledDates = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
-        ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
-        ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
-        ->whereNull('scheduler_zipcodes.deleted_at')
+
         ->select(
-            'truck_schedules.*',
-            DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
+            'truck_schedules.schedule_date',
         )
-        ->where('scheduler_zipcodes.zip_code', $this->serviceZip)
-        ->get();
-        $this->enabledDates = $schedules->pluck('schedule_date')->toArray();
+        ->whereIn('truck_schedules.zone_id', $zones)
+        ->get()
+        ->pluck('schedule_date')
+        ->unique()
+        ->values()
+        ->toArray();
     }
 
     public function getSerialNumbers($orderno, $suffix)
     {
-        if(config('sx.mock'))
-        {
-           $serials = [];
-            foreach($this->orderInfo->line_items['line_items'] as $item)
-            {
-                if (mt_rand(0,1))
-                {
-                    $serials[] = ['prod' => $item['shipprod'], 'serialno' => rand ( 100000 , 999999 )];
+        if (config('sx.mock')) {
+            $serials = [];
+            foreach ($this->orderInfo->line_items['line_items'] as $item) {
+                if (mt_rand(0, 1)) {
+                    $obj = new \stdClass();
+                    $obj->prod = $item['shipprod'];
+                    $obj->serialno = rand(100000, 999999);
+                    $serials[] = $obj;
                 }
             }
-
             return $serials;
         }
 
@@ -459,20 +520,32 @@ class ScheduleForm extends Form
 
     public function linkSRONumber($sro)
     {
+        $this->schedule->status = 'scheduled_linked';
         $this->schedule->sro_number = $sro;
-        $this->schedule->status = 'confirmed';
-        $this->schedule->confirmed_at = Carbon::now();
-        $this->schedule->confirmed_by = Auth::user()->id;
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'SRO number successfully linked', 'schedule' => $this->schedule];
     }
 
-    public function unlinkSRO()
+    public function confirmSchedule()
     {
-        $this->schedule->sro_number = null;
-        $this->schedule->status = 'scheduled';
+        $this->schedule->status = 'confirmed';
+        $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule confirmed successfully', 'schedule' => $this->schedule];
+    }
+
+    public function unConfirm()
+    {
+        $this->schedule->status = 'scheduled_linked';
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule Unconfirmed', 'schedule' => $this->schedule];
+    }
+
+    public function unlinkSro()
+    {
+        $this->schedule->status = 'scheduled';
+        $this->schedule->sro_number = null;
+        $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'SRO Number Unlinked', 'schedule' => $this->schedule];
     }
 
     public function cancelSchedule()
@@ -483,12 +556,14 @@ class ScheduleForm extends Form
         $this->schedule->cancelled_at = Carbon::now();
         $this->schedule->cancelled_by = Auth::user()->id;
         $this->schedule->save();
+        EventCancelled::dispatch($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule cancelled', 'schedule' => $this->schedule];
     }
 
     public function undoCancel()
     {
         $this->schedule->status = 'scheduled';
+        $this->schedule->sro_number = null;
         $this->schedule->cancel_reason = null;
         $this->schedule->save();
         $this->fill($this->schedule);
@@ -500,6 +575,7 @@ class ScheduleForm extends Form
         $this->schedule->status = 'out_for_delivery';
         $this->schedule->save();
         $this->fill($this->schedule);
+        EventDispatched::dispatch($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'Delivery initiated', 'schedule' => $this->schedule];
     }
 
@@ -509,6 +585,7 @@ class ScheduleForm extends Form
         $this->schedule->completed_at = Carbon::now();
         $this->schedule->completed_by = Auth::user()->id;
         $this->schedule->save();
+        EventComplete::dispatch($this->schedule);
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule completed', 'schedule' => $this->schedule];
 
     }
@@ -533,7 +610,7 @@ class ScheduleForm extends Form
         }
         $this->getDistance();
         $this->checkServiceValidity();
-        $this->getEnabledDates();
+        $this->getEnabledDates(false, $this->orderInfo?->warehouse->id);
     }
 
     public function extractZipCode($address)
@@ -605,11 +682,11 @@ class ScheduleForm extends Form
     {
         $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
         $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
-        
+
         $portal_order = Order::updateOrCreate(
             [
-                'order_number' => $sx_order['orderno'], 
-                'order_number_suffix' => $sx_order['ordersuf'], 
+                'order_number' => $sx_order['orderno'],
+                'order_number_suffix' => $sx_order['ordersuf'],
                 'cono' => $sx_order['cono']
             ],
             [
@@ -637,7 +714,7 @@ class ScheduleForm extends Form
         );
 
         return $portal_order;
-        
+
     }
 
     private function getSxOrderLineItemsProperty($order_number, $order_suffix, $cono = 10)
@@ -672,7 +749,7 @@ class ScheduleForm extends Form
             'oeel.cono',
             'oeel.enterdt',
         ];
-    
+
         return OrderLineItem::select($required_line_item_columns)
         ->leftJoin('icsp', function (JoinClause $join) {
             $join->on('oeel.cono','=','icsp.cono')
@@ -698,7 +775,7 @@ class ScheduleForm extends Form
             if(!str_contains($line_item['prodline'], 'LR-E') && str_contains($line_item['prodline'], '-E'))
             {
                 return true;
-            } 
+            }
         }
 
         return false;
@@ -715,7 +792,7 @@ class ScheduleForm extends Form
             if(str_contains($line_item['prodline'], 'LR-E'))
             {
                 return true;
-            } 
+            }
         }
 
         return false;

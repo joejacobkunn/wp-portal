@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Contracts\DistanceInterface;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\TruckSchedule;
+use App\Models\Scheduler\TruckScheduleReturn;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -88,18 +89,26 @@ class RouteFinder extends Command
             $firstSchedule->truck_id,
             $firstSchedule->schedule_date
         ));
-
+        if(!$firstSchedule->truck) {
+            $this->warn('truck info is missing');
+            return;
+        }
         $lastAddress = $firstSchedule->truck->warehouse->address;
-        $currentTime = Carbon::parse($firstSchedule->schedule_date . ' ' . '08:45 AM');
-
+        $currentTime = null;
+        $lastExpectedTime =null;
         foreach ($schedules as $schedule) {
             $confirmedOrders = $schedule->orderSchedule()
                 ->where('status', 'confirmed')
                 ->orderBy('id')
                 ->get();
 
+            if($currentTime == null) {
+                $currentTime = Carbon::parse($schedule->schedule_date . ' ' . $schedule->start_time);
+                $currentTime = $currentTime->subMinutes(15);
+            }
             if ($confirmedOrders->isEmpty()) {
                 $this->warn(sprintf('No confirmed orders found for Schedule ID: %d', $schedule->id));
+                $currentTime = null;
                 continue;
             }
 
@@ -124,21 +133,58 @@ class RouteFinder extends Command
             }
 
             // Update the schedule with optimized route
-            $lastExpectedTime = $this->updateSchedulePriorities(
-                collect([$schedule]),
-                $confirmedOrders,
+            $responseData = $this->updateSchedulePriorities(
                 $response,
-                $dataInput,
                 $currentTime,
                 $addressToOrders
             );
-
+            $lastExpectedTime = $responseData['expectedTime'];
             $optimalRoute = $response['optimal_route'];
             $lastAddress = end($optimalRoute);
+            //add break 1 hour
             if (count($optimalRoute) > 1) {
                 $currentTime = $lastExpectedTime->addHour();
             }
         }
+
+        if(!$lastExpectedTime) {
+            return;
+        }
+        $returnResponse = $this->getDistance([$lastAddress, $firstSchedule->truck->warehouse->address]);
+        if (!isset($returnResponse['error'])) {
+            $this->saveWarehouseReturn(
+                $returnResponse,
+                $firstSchedule->truck,
+                $lastExpectedTime,
+                $lastAddress,
+                $responseData['scheduleId']
+            );
+        }
+
+    }
+
+    private function saveWarehouseReturn($returnResponse, $truck, $lastExpectedTime, $lastAddress, $scheduleId)
+    {
+        $distanceToWarehouse = $returnResponse['distances'][0][1];
+        $durationToWarehouse = ceil($returnResponse['durations'][0][1] / 60);
+        $distanceInMiles = round($distanceToWarehouse / 1609.344, 2);
+
+        $expectedArrival = clone $lastExpectedTime;
+        $expectedArrival->addMinutes($durationToWarehouse);
+
+        TruckScheduleReturn::updateOrCreate(
+            [
+                'truck_id' => $truck->id,
+                'schedule_date' => $this->schedule_date,
+            ],
+            [
+                'whse' => $truck->warehouse_short,
+                'expected_arrival_time' => $expectedArrival->format('H:i:s'),
+                'last_scheduled_address' => $lastAddress,
+                'distance' => $distanceInMiles,
+                'schedule_id' => $scheduleId,
+            ]
+        );
     }
     private function getDistance($dataInput)
     {
@@ -217,21 +263,20 @@ class RouteFinder extends Command
     }
 
 
-    private function updateSchedulePriorities($schedules, $confirmedOrders, $routeData, $addresses, $startTime, $addressToOrders)
+    private function updateSchedulePriorities($routeData, $startTime, $addressToOrders)
     {
         $optimalRoute = $routeData['optimal_route'];
         $durations = $routeData['durations'];
         $expectedTime = clone $startTime;
         $priority = 1;
         $previousAddress = $optimalRoute[0];
-
         foreach (array_slice($optimalRoute, 1) as $address) {
             if (isset($addressToOrders[$address])) {
                 $isFirstOrderAtAddress = true;
-
-                foreach ($addressToOrders[$address] as $order) {
+                $lastScheduleID = null;
+                foreach ($addressToOrders[$address] as $schedule) {
                     if ($isFirstOrderAtAddress) {
-                        // Calculate travel time only for the first order at this address
+                        // Calculate travel time only for the first schedule at this address
                         $currentIndex = array_search($address, $optimalRoute);
                         $previousIndex = array_search($previousAddress, $optimalRoute);
 
@@ -244,14 +289,14 @@ class RouteFinder extends Command
                         $isFirstOrderAtAddress = false;
                     }
 
-                    $order->update([
+                    $schedule->update([
                         'travel_prio_number' => $priority,
                         'expected_arrival_time' => $expectedTime->format('H:i:s')
                     ]);
 
                     $this->info(sprintf(
-                        "Updated Order ID: %d with priority: %d and expected time: %s",
-                        $order->id,
+                        "Updated Truck Schedule ID: %d with priority: %d and expected time: %s",
+                        $schedule->id,
                         $priority,
                         $expectedTime->format('H:i:s')
                     ));
@@ -260,8 +305,9 @@ class RouteFinder extends Command
                     $priority++;
                 }
                 $previousAddress = $address;
+                $lastScheduleID = $schedule->id;
             }
         }
-        return $expectedTime;
+        return ['expectedTime' => $expectedTime, 'scheduleId' => $lastScheduleID];
     }
 }

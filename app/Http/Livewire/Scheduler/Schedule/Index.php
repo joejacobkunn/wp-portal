@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\User;
 use App\Models\Core\Warehouse;
@@ -16,10 +15,13 @@ use App\Models\Scheduler\Zones;
 use App\Models\SRO\RepairOrders;
 use App\Models\Scheduler\Schedule;
 use App\Exports\Scheduler\OrderScheduleExport;
+use App\Http\Livewire\Scheduler\Schedule\Forms\AnnouncementForm;
+use App\Models\Scheduler\Announcement;
 use App\Models\Scheduler\NotificationTemplate;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Scheduler\TruckSchedule;
+use App\Models\Scheduler\TruckScheduleReturn;
 use App\Traits\HasTabs;
 use Illuminate\Support\Facades\Validator;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -28,12 +30,10 @@ class Index extends Component
 {
     use LivewireAlert, HasTabs;
 
-    public ScheduleForm $form;
+    public AnnouncementForm $announcementForm;
     public $showModal;
     public $schedules;
-    public $isEdit;
     public $showView;
-    public $addressModal;
     public $orderInfoStrng;
     public $scheduleOptions;
     public $dateSelected;
@@ -47,61 +47,56 @@ class Index extends Component
     public $showSearchModal = false;
     public $availableZones;
     public $eventsData = [];
-    public $showTypeLoader =false;
     public $activeWarehouseId;
     public $searchKey;
     public $searchData;
     public $scheduledLineItem;
-    public $sro_number;
-    public $sro_verified = false;
-    public $sro_response;
-    public $viewScheduleTypeCollapse = false;
-    public $serviceAddressModal = false;
     public $showDriverModal = false;
     public $drivers = [];
     public $exportModal = false;
     public $exportFromDate;
     public $exportToDate;
-    public $scheduledTruckInfo = [];
+    public $announceModal;
+    public $driverSkills;
+    public $selectedType;
+    public $selectedSchedule;
+    public $truckReturnInfo;
+    public $selectedScheduleId;
 
+    protected $queryString = [
+        'selectedScheduleId' => ['except' => '', 'as' => 'schedule'],
+    ];
     protected $listeners = [
         'closeModal' => 'closeModal',
         'edit' => 'edit',
         'deleteRecord' => 'delete',
-        'typeCheck' => 'typeCheck',
         'setScheduleTimes' => 'setScheduleTimes',
         'closeTimeSlot' => 'closeTimeSlot',
         'closeSearchModal' => 'closeSearchModal',
-        'scheduleTypeChange' => 'scheduleTypeChange',
-        'scheduleTypeDispatch' => 'scheduleTypeDispatch',
         'closeDriverModal' => 'closeDriverModal',
-        'closeAddressValidation' => 'closeAddressValidation',
+        'fetchDriverSkills' => 'fetchDriverSkills',
+        'closeAnnouncementModal' => 'closeAnnouncementModal',
     ];
 
-    public $actionButtons = [
-        [
-            'icon' => 'fa-edit',
-            'color' => 'primary',
-            'listener' => 'edit',
-        ],
-        [
-            'icon' => 'fa-trash',
-            'color' => 'danger',
-            'confirm' => true,
-            'confirm_header' => 'Confirm Delete',
-            'listener' => 'deleteRecord',
-        ],
-    ];
+    public function getWarehousesProperty()
+    {
+        $data = Warehouse::select(['id', 'short', 'title'])
+            ->where('cono', 10)
+            ->orderBy('title', 'asc')
+            ->get();
 
-    public $tabs = [
-        'schedule-comment-tabs' => [
-            'active' => 'comments',
-            'links' => [
-                'comments' => 'Comments',
-                'activity' => 'Activity',
-            ],
-        ],
-    ];
+        return $data;
+    }
+
+    public function getActiveWarehouseProperty()
+    {
+        return $this->warehouses->find($this->activeWarehouseId);
+    }
+
+    public function getAnnouncementsProperty()
+    {
+        return Announcement::where('whse', $this->activeWarehouse->short)->select(['id', 'message'])->get()->toArray();
+    }
 
     public function mount()
     {
@@ -133,24 +128,16 @@ class Index extends Component
             ];
         })->toArray();
 
-
+        if($this->selectedScheduleId) {
+            $schedule = Schedule::find($this->selectedScheduleId);
+            if($schedule) {
+                $this->handleEventClick($schedule);
+            }
+        }
 
     }
 
-    public function getWarehousesProperty()
-    {
-        $data = Warehouse::select(['id', 'short', 'title'])
-            ->where('cono', 10)
-            ->orderBy('title', 'asc')
-            ->get();
 
-        return $data;
-    }
-
-    public function getActiveWarehouseProperty()
-    {
-        return $this->warehouses->find($this->activeWarehouseId);
-    }
 
     public function setActiveWarehouse($warehouseId)
     {
@@ -175,114 +162,21 @@ class Index extends Component
     public function create($type)
     {
         $this->authorize('store', Schedule::class);
-        $this->isEdit = false;
-        $this->form->reset();
-        $this->form->type = $type;
+        $this->selectedType = $type;
         $this->showModal = true;
-        $this->form->calendarInit();
-
     }
 
     public function closeModal()
     {
         $this->showModal = false;
         $this->showView = false;
-        $this->isEdit = false;
         $this->resetValidation();
-        $this->form->reset();
-        $this->reset([
-            'sro_number',
-            'sro_verified',
-            'sro_response',
-            'viewScheduleTypeCollapse'
-        ]);
+        $this->handleDateClick($this->dateSelected);
     }
 
     public function render()
     {
         return $this->renderView('livewire.scheduler.schedule.index');
-    }
-
-    public function submit()
-    {
-
-        $this->authorize('store', Schedule::class);
-        $response = $this->form->store();
-        $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
-        $icon = $enumInstance ? $enumInstance->icon() : null;
-        $event = [
-            'id' => $response['schedule']->id,
-            'title' => 'Order #' . $response['schedule']->sx_ordernumber,
-            'start' => $response['schedule']->schedule_date->format('Y-m-d'),
-            'description' => 'schedule',
-            'color' => $response['schedule']->status_color,
-            'icon' => $icon,
-        ];
-        $this->alert($response['class'], $response['message']);
-        $this->handleEventClick($response['schedule']);
-        $this->dispatch('add-event-calendar', newEvent: $event);
-    }
-
-    public function updatedFormSuffix($value)
-    {
-        if(is_numeric($value))
-        {
-            $this->form->reset([
-                'orderInfo',
-                'zipcodeInfo',
-                'scheduleType',
-                'schedule_date',
-                'schedule_time',
-                'line_item',
-                'alertConfig',
-                'ServiceStatus'
-            ]);
-            $this->reset('scheduledTruckInfo');
-            $this->validateOnly('form.sx_ordernumber');
-            $this->form->getOrderInfo($value, $this->activeWarehouse->short);
-            $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
-        }
-    }
-
-    public function updatedFormSxOrdernumber($value)
-    {
-        $this->form->suffix = null;
-        $this->form->reset([
-            'orderInfo',
-            'zipcodeInfo',
-            'scheduleType',
-            'schedule_date',
-            'schedule_time',
-            'line_item',
-            'alertConfig',
-            'ServiceStatus'
-        ]);
-        $this->reset('scheduledTruckInfo');
-    }
-
-    public function updatedSroNumber($value)
-    {
-        $this->sro_response = [];
-        $this->sro_verified = false;
-
-        $this->sro_response = strlen($value) > 6 ? $this->getSROInfo($value) : [];
-
-    }
-
-    public function linkSRO()
-    {
-        $response = $this->form->linkSRONumber($this->sro_number);
-        $this->alert($response['class'], $response['message']);
-        $this->EventUpdate($response);
-    }
-
-    public function typeCheck($field, $value)
-    {
-        $this->form->type = $value;
-        $this->form->checkServiceValidity($value);
-        if(!$this->form->ServiceStatus) {
-            $this->reset('scheduledTruckInfo');
-        }
     }
 
     public function getEvents()
@@ -297,12 +191,16 @@ class Index extends Component
         ->map(function ($schedule, $index) {
             $enumInstance = ScheduleEnum::tryFrom($schedule->type);
             $icon = $enumInstance ? $enumInstance->icon() : null;
+            $color = $schedule->status_color;
+            if($schedule->status == 'scheduled' && $schedule->sro_number != null) {
+                $color = '#9E2EC9';
+            }
             return [
                 'id' => $schedule->id,
                 'title' => 'Order #' . $schedule->sx_ordernumber,
                 'start' => $schedule->schedule_date->format('Y-m-d'),
                 'description' => 'schedule',
-                'color' => $schedule->status_color,
+                'color' => $color,
                 'icon' => $icon,
                 'sortIndex' => $index
             ];
@@ -312,35 +210,19 @@ class Index extends Component
 
     public function handleEventClick(Schedule $schedule)
     {
-        $this->form->init($schedule);
+        $this->selectedSchedule = $schedule;
+        $this->selectedScheduleId = $this->selectedSchedule->id;
         $this->orderInfoStrng = uniqid();
         $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
         $this->showModal = true;
-        $this->isEdit = true;
         $this->showView = true;
-        $this->sro_number = $schedule->sro_number;
-        if($this->sro_number) {
-            $this->sro_verified = true;
-            $this->sro_response = $this->getSROInfo($this->sro_number);
-        }
+        $this->selectedType = $schedule->type;
+
         if($this->showSearchModal) {
             $this->closeSearchModal();
             $this->dispatch('jump-to-date', activeDay: $schedule->schedule_date->format('Y-m-d'));
         }
         $this->dispatch('modalContentLoaded');
-    }
-
-
-
-    public function updateAddress()
-    {
-        $this->form->service_address = $this->form->service_address_temp;
-        $this->form->updatedAddress();
-        $this->closeServiceAddressModal();
-    }
-    public function revertAddress()
-    {
-        $this->form->service_address_temp = $this->form->addressFromOrder;
     }
 
     public function changeWarehouse($wsheID)
@@ -391,6 +273,22 @@ class Index extends Component
         usort($this->filteredSchedules, function ($a, $b) {
             return count($b['events']) <=> count($a['events']);
         });
+        $this->truckReturnInfo = TruckScheduleReturn::where('schedule_date', $date)
+        ->where('whse', $this->activeWarehouse->short)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'schedule_date' => $item->schedule_date,
+                'expected_arrival_time' => $item->expected_arrival_time,
+                'distance' => $item->distance,
+                'warehouse_name' => $item->warehouse->title ?? null,
+                'warehouse_address' => $item->warehouse->address ?? null,
+                'truck_name' => $item->truck->truck_name ?? null,
+                'schedule_id' => $item->schedule_id ?? null,
+            ];
+        })
+        ->toArray();
     }
 
     public function onDateRangeChanges($start, $end)
@@ -451,16 +349,19 @@ class Index extends Component
                 'trucks.whse',
                 'zones.name as zone_name',
                 'users.name as driver_name',
-                'users.title as driver_title'
+                'users.title as driver_title',
+                'user_skills.skills as driver_skills'
             ])
             ->with('orderSchedule')
             ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
             ->join('zones', 'truck_schedules.zone_id', '=', 'zones.id')
             ->leftjoin('users', 'truck_schedules.driver_id', '=', 'users.id')
+            ->leftjoin('user_skills', 'users.id', '=', 'user_skills.user_id')
             ->whereNull('truck_schedules.deleted_at')
             ->whereNull('trucks.deleted_at')
             ->whereNull('zones.deleted_at')
             ->whereNull('users.deleted_at')
+            ->whereNull('user_skills.deleted_at')
             ->whereBetween('truck_schedules.schedule_date', [$this->eventStart, $this->eventEnd])
             ->where('trucks.whse', $this->activeWarehouse->id);
 
@@ -496,6 +397,7 @@ class Index extends Component
                     'slots' => $truck->slots,
                     'scheduled_count' => $truck->schedule_count,
                     'driver_id' => $truck->driver_id,
+                    'driver_skills' => explode(",", $truck->driver_skills),
                     'driverName' => $truck->driver_name ? $truck->driver_name . ' (' . $truck->driver_title . ')' : null,
                 ];
             })->toArray();
@@ -512,52 +414,6 @@ class Index extends Component
         $this->showSearchModal = false;
         $this->resetValidation('searchKey');
         $this->reset(['searchKey', 'searchData']);
-    }
-
-    public function updateFormScheduleDate($date)
-    {
-        $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
-        $this->form->getTruckSchedules();
-        $this->form->schedule_time = null;
-    }
-
-    public function selectSlot($scheduleId)
-    {
-        $schedule = TruckSchedule::find($scheduleId);
-        $this->form->schedule_time = $schedule->id;
-        $this->form->selectedTruckSchedule = $schedule;
-        $this->scheduledTruckInfo = [
-            'truck_name' => $schedule->truck->truck_name,
-            'vin_number' => $schedule->truck->vin_number,
-            'driver_name' => $schedule->driver?->name,
-        ];
-        $this->resetValidation(['form.schedule_time']);
-    }
-
-    public function scheduleTypeChange($field, $value)
-    {
-        $this->showTypeLoader = true;
-        if(isset($this->form->Schedule)) {
-            $this->viewScheduleTypeCollapse = true;
-        }
-        $this->form->scheduleType = $value;
-        $this->dispatch('scheduleTypeDispatch');
-
-    }
-
-    public function scheduleTypeDispatch()
-    {
-        if($this->form->scheduleType == 'one_year') {
-            $date = Carbon::now()->addYear()->format('Y-m-d');
-        }
-
-        if($this->form->scheduleType == 'next_avail') {
-            $date = isset($this->form->enabledDates[0]) ? $this->form->enabledDates[0] : Carbon::now()->format('Y-m-d');
-        }
-
-        $this->form->reset(['schedule_time', 'truckSchedules', 'schedule_date']);
-        $this->dispatch('set-current-date', activeDay: $date);
-        $this->showTypeLoader = false;
     }
 
     public function changeZone($zoneId)
@@ -634,7 +490,7 @@ class Index extends Component
 
         } elseif (filter_var($this->searchKey, FILTER_VALIDATE_EMAIL)) {
             $query->where('customers.email',  $value);
-        } elseif(preg_match('/^[A-Za-z0-9]+$/', $value)) {
+        } elseif (preg_match('/^\d{6}-\d{2}$/', $value)) {
             $query->where('schedules.sro_number', $value);
         } elseif (Str::length($this->searchKey) >= 4) {
             $query->where('customers.name', 'like', $value . '%');
@@ -669,9 +525,7 @@ class Index extends Component
             $query->where('type', $this->activeType);
         }
         $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('truckSchedule', function ($query) use ($whse) {
-            $query->whereIn('truck_id', Truck::where('whse', $whse->id)->pluck('id')->toArray());
-        });
+        ->where('whse', $whse->short);
 
         if(!empty($this->activeZone)) {
             $zoneId = $this->activeZone['id'];
@@ -681,121 +535,6 @@ class Index extends Component
         }
 
         return $query;
-    }
-
-    public function showAddressModal()
-    {
-        $this->form->service_address_temp = $this->form->service_address;
-        $this->serviceAddressModal = true;
-        $this->dispatch('browser:show-edit-address');
-    }
-
-    public function closeServiceAddressModal()
-    {
-        $this->serviceAddressModal = false;
-    }
-
-    public function cancelSchedule()
-    {
-        $this->form->cancelSchedule();
-    }
-
-    public function getSROInfo($sro)
-    {
-        if(config('sx.mock'))
-        {
-            $faker = \Faker\Factory::create();
-            return [
-                'first_name' => $faker->name(),
-                'last_name' => $faker->lastName(),
-                'address' => $faker->streetAddress(),
-                'state' => $faker->state(),
-                'city' => $faker->city(),
-                'zip' => $faker->postcode(),
-                'brand' => 'Toro',
-                'model' => 'ghd567df'
-            ];
-        }else{
-            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model')->where('sro_no', $sro)->first();
-            if(!empty($sro)) {
-                return $sro->toArray();
-            }
-            return null;
-        }
-    }
-
-    public function cancelConfirm()
-    {
-        $response = $this->form->unlinkSRO();
-        $this->reset([
-            'sro_number',
-            'sro_verified',
-            'sro_response'
-        ]);
-        $this->alert($response['class'], $response['message']);
-        $this->EventUpdate($response);
-    }
-
-    public function scheduleDateInitiate()
-    {
-        $this->viewScheduleTypeCollapse = !$this->viewScheduleTypeCollapse;
-    }
-    public function getEnabledDates()
-    {
-        if(empty($this->form->enabledDates)) {
-            $this->form->getEnabledDates();
-        }
-        return $this->form->enabledDates;
-    }
-
-    public function save()
-    {
-        $this->authorize('update', $this->form->schedule);
-        $response = $this->form->update();
-        $this->viewScheduleTypeCollapse = false;
-        $this->EventUpdate($response);
-    }
-
-    public function undoCancel()
-    {
-        $this->authorize('update', $this->form->schedule);
-        $response = $this->form->undoCancel();
-        $this->EventUpdate($response);
-    }
-    public function startSchedule()
-    {
-        $this->authorize('startSchedule', $this->form->schedule);
-        $response = $this->form->startSchedule();
-        $this->EventUpdate($response);
-    }
-
-    public function completeSchedule()
-    {
-        $this->authorize('update', $this->form->schedule);
-        $response = $this->form->completeSchedule();
-        $this->EventUpdate($response);
-    }
-
-    public function hideScheduleSection()
-    {
-        $this->viewScheduleTypeCollapse = false;
-    }
-
-    public function EventUpdate($response)
-    {
-        $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
-        $icon = $enumInstance ? $enumInstance->icon() : null;
-        $event = [
-            'id' => $response['schedule']->id,
-            'title' => 'Order #' . $response['schedule']->sx_ordernumber,
-            'start' => $response['schedule']->schedule_date->format('Y-m-d'),
-            'description' => 'schedule',
-            'color' => $response['schedule']->status_color,
-            'icon' => $icon,
-        ];
-        $this->alert($response['class'], $response['message']);
-        $this->dispatch('remove-event-calendar', eventId: $response['schedule']->id);
-        $this->dispatch('add-event-calendar', newEvent: $event);
     }
 
     public function openDriverModal()
@@ -834,7 +573,7 @@ class Index extends Component
             }
         }
         $date = $this->filteredSchedules[0]['schedule_date'];
-        $this->dispatch('calender-remove-driver-span', date: $date);
+        $this->dispatch('calender-remove-driver-warning', date: $date);
         $this->closeDriverModal();
     }
 
@@ -916,37 +655,47 @@ class Index extends Component
         );
     }
 
-    public function updatedFormServiceAddress($value)
+    public function openAnnouncementModal()
     {
-        $this->form->service_address = $value;
-        $this->form->updatedAddress();
+        $this->announceModal = true;
     }
 
-    public function closeAddressValidation()
+    public function createAnnouncement()
     {
-        $this->useCurrentAddress();
+        $this->authorize('store', Announcement::class);
+        $this->announcementForm->store($this->activeWarehouse->short);
+        $this->alert('success', 'Announcement added');
+        $this->closeAnnouncementModal();
     }
 
-    public function fixAddress()
+    public function closeAnnouncementModal()
     {
-        $this->form->showAddressBox = true;
+        $this->announceModal = false;
+        $this->announcementForm->reset();
+        $this->resetValidation('announcementForm.message');
     }
 
-    public function useRecommended()
+    public function cancelAnnouncement(Announcement $announcement)
     {
-        $this->form->serviceZip = $this->form->extractZipCode($this->form->recommendedAddress);
-        $this->form->validateAddress($this->form->recommendedAddress, $this->form->serviceZip);
+        $this->authorize('delete', $announcement);
+        $response = $this->announcementForm->delete($announcement);
+        if($response) {
+            $this->alert('success', 'Announcement Cancelled');
+            return;
+        }
+        $this->alert('error', 'cancelling failed');
+
     }
-    public function useCurrentAddress()
+
+    public function fetchDriverSkills($field, $value)
     {
-        $this->form->serviceZip = $this->form->extractZipCode($this->form->service_address);
-        $this->form->showAddressModal = false;
-        $this->form->reset([
-            'recommendedAddress',
-            'showAddressModal',
-            'showAddressBox'
-        ]);
-        $this->form->checkZipcode();
+
+        $key = explode(".", $field)[1];
+        $this->filteredSchedules[$key]['driver_id'] = $value;
+        $driver = user::find($value);
+        $skills = $driver->skills?->skills;
+        $skills = $skills ? explode(",", $skills) : null;
+        $this->filteredSchedules[$key]['driver_skills'] = $skills;
     }
 
 }

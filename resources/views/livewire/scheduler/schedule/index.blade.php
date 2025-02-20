@@ -1,6 +1,23 @@
 <x-page :breadcrumbs="$breadcrumbs">
     <x-slot:title>Schedule</x-slot>
     <x-slot:content>
+        @if (!empty($this->announcements))
+            @foreach ($this->announcements as $item)
+                <div class="alert alert-light-warning color-warning">
+                    <i class="fas fa-info-circle"></i> {{ $item['message'] }}
+                    @can('scheduler.announcement.manage')
+                        <button class="btn btn-sm btn-outline-danger float-end"
+                            wire:click="cancelAnnouncement({{ $item['id'] }})">
+                            <div wire:loading wire:target="cancelAnnouncement({{ $item['id'] }})">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                            Remove
+                        </button>
+                    @endcan
+                </div>
+            @endforeach
+        @endif
+
         <ul class="nav nav-pills mb-2">
             <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="javascript:;"><i class="far fa-calendar-alt"></i>
@@ -16,16 +33,23 @@
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
                         <div id="calendar" class="w-100" wire:ignore></div>
+                        <div class="legend-section mt-2">
+                            @foreach (App\Enums\Scheduler\ScheduleStatusEnum::cases() as $status)
+                                <span class="badge bg-{{ $status->colorClass() }}"> {{ $status->label() }}</span>
+                            @endforeach
+
+                        </div>
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom @if ($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif"
+                                        href="#"
                                         wire:click.prevent="create('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
                             <div id="warehouse-wrap">
                                 @foreach ($this->warehouses as $whse)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom " href="#"
                                         wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}</a>
                                 @endforeach
                             </div>
@@ -33,7 +57,8 @@
                                 <a class="dropdown-item border-bottom" href="#"
                                     wire:click.prevent="changeScheduleType('')">All Services</a>
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom" href="#"
+                                    <a class="dropdown-item border-bottom  @if ($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif"
+                                        href="#"
                                         wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
@@ -45,16 +70,20 @@
                                         wire:click.prevent="changeZone('{{ $zone->id }}')">{{ $zone->name }}</a>
                                 @endforeach
                             </div>
+                            <div id="settings-wrap">
+                                <a class="dropdown-item border-bottom" href="#"
+                                    wire:click.prevent="openAnnouncementModal()">Announcement</a>
+                            </div>
                         </div>
                     </div>
 
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-3" wire:key="schedule-sidebar">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
                 @if (!empty($this->filteredSchedules))
                     @if (collect($this->filteredSchedules)->contains('driver_id', null))
-                        <div class="alert alert-light-warning color-warning"><i class="fas fa-exclamation-triangle"></i>
+                        <div class="alert alert-light-danger color-warning"><i class="fas fa-exclamation-triangle"></i>
                             Drivers not assigned
                             <button class="btn btn-sm btn-outline-success float-end" wire:click="openDriverModal">Assign
                                 Driver</button>
@@ -100,7 +129,7 @@
                                 <div class="list-group mt-2 border border-3">
                                     <ul class="list-group">
 
-                                        @foreach ($truck['events'] as $event)
+                                        @forelse ($truck['events'] as $event)
                                             <li
                                                 class="list-group-item d-flex justify-content-between align-items-start">
                                                 <a href="#" class="text-black w-100"
@@ -137,13 +166,44 @@
                                                     @endif
                                                     @if ($event['travel_prio_number'])
                                                         <p class="font-small"><span class="badge bg-light-info">
-                                                                ETA :
-                                                                {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}</span>
+                                                                <i class="far fa-clock"></i> ETA :
+                                                                {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}
+                                                                => DURATION : ~1HR</span>
                                                         </p>
                                                     @endif
                                                 </a>
                                             </li>
-                                        @endforeach
+                                            @php
+                                                $data = collect($truckReturnInfo)->firstWhere(
+                                                    'schedule_id',
+                                                    $event['id'],
+                                                );
+                                            @endphp
+                                            @if ($data)
+                                                <li
+                                                    class="list-group-item d-flex justify-content-between align-items-start">
+                                                    <a href="#" class="text-black w-100 disabled">
+                                                        <div class="d-flex w-100 justify-content-between">
+                                                            <h6 class="">
+                                                                {{ $data['warehouse_name'] }} Warehouse
+                                                            </h6>
+                                                        </div>
+                                                        <small>{{ $data['warehouse_address'] }}</small>
+
+                                                        <p class="font-small"><span class="badge bg-light-info">
+                                                                <i class="far fa-clock"></i> ETA :
+                                                                {{ Carbon\Carbon::parse($data['expected_arrival_time'])->format('h:i A') }}
+                                                            </span>
+                                                        </p>
+                                                    </a>
+                                                </li>
+                                            @endif
+
+                                        @empty
+                                            <li class="list-group-item list-group-item-warning">
+                                                <em>No events scheduled</em>
+                                            </li>
+                                        @endforelse
 
                                     </ul>
                                 </div>
@@ -158,15 +218,13 @@
                 @endif
             </div>
         </div>
-        @if ($showModal || $isEdit)
+        @if ($showModal)
             <x-modal toggle="showModal" size="xl" :closeEvent="'closeModal'">
                 <x-slot name="title">Schedule
-                    {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($form->type)->label() }}</x-slot>
-                @if (!$this->showView)
-                    @include('livewire.scheduler.schedule.partial.form')
-                @else
-                    @include('livewire.scheduler.schedule.partial.view')
-                @endif
+                    {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($selectedType)->label() }}</x-slot>
+
+                <livewire:scheduler.schedule.schedule-order lazy wire:key="create" :page="$this->showView" :selectedType="$selectedType"
+                    :selectedSchedule="$selectedSchedule" :activeWarehouse="$this->activeWarehouse">
             </x-modal>
         @endif
         @if ($showDriverModal)
@@ -176,6 +234,23 @@
                 @include('livewire.scheduler.schedule.partial.drivers_form')
             </x-modal>
         @endif
+
+        @if ($announceModal)
+            <x-modal toggle="announceModal" size="md" :closeEvent="'closeAnnouncementModal'">
+                <x-slot name="title"> Create Announcement </x-slot>
+                <x-forms.textarea label="Message" rows="5" model="announcementForm.message" lazy />
+
+                <x-slot name="footer">
+                    <button type="button" wire:click="createAnnouncement" class="btn btn-primary">
+                        <div wire:loading wire:target="createAnnouncement">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Create Announcement
+                    </button>
+                </x-slot>
+            </x-modal>
+        @endif
+
         {{-- search modal --}}
         @if ($showSearchModal)
             <x-modal toggle="showSearchModal" size="md" :closeEvent="'closeSearchModal'">
@@ -308,9 +383,12 @@
                     height: 'auto',
                     contentHeight: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today exportBtn searchBtn',
+                        left: 'prev,next today exportBtn searchBtn settingsBtn',
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
+                    },
+                    buttonText: {
+                        today: 'Today'
                     },
                     titleFormat: {
                         month: 'short',
@@ -341,6 +419,7 @@
                                     document.getElementById('warehouse-wrap').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'none';
                                     document.getElementById('zones-wrap').style.display = 'none';
+                                    document.getElementById('settings-wrap').style.display = 'none';
                                 }
                                 e.stopPropagation();
                             }
@@ -349,6 +428,38 @@
                             text: '',
                             click: function(e) {
                                 $wire.showSearchModalForm();
+                            }
+                        },
+                        settingsBtn: {
+                            text: '',
+                            click: function(e) {
+                                const button = e.currentTarget;
+                                const buttonRect = button.getBoundingClientRect();
+                                const calendarRect = calendarEl.getBoundingClientRect();
+
+                                if (isDropdownVisible) {
+                                    dropdownMenu.style.display = 'none';
+                                    isDropdownVisible = false;
+                                } else {
+                                    const dropdownWidth = 160;
+                                    dropdownMenu.style.top = (buttonRect.bottom + 5) + 'px';
+                                    const leftPosition = Math.min(
+                                        buttonRect.left,
+                                        calendarRect.right - dropdownWidth - 10
+                                    );
+                                    dropdownMenu.style.left = leftPosition + 'px';
+                                    dropdownMenu.style.display = 'block';
+                                    isDropdownVisible = true;
+                                    document.querySelectorAll('.calendar-button').forEach(element => {
+                                        element.classList.add('d-none');
+                                    });
+                                    document.getElementById('schedule-options').style.display = 'none';
+                                    document.getElementById('warehouse-wrap').style.display = 'none';
+                                    document.getElementById('type-wrap').style.display = 'none';
+                                    document.getElementById('zones-wrap').style.display = 'none';
+                                    document.getElementById('settings-wrap').style.display = 'block';
+                                }
+                                e.stopPropagation();
                             }
                         },
                         warehouseBtn: {
@@ -375,6 +486,7 @@
                                     document.getElementById('type-wrap').style.display = 'none';
                                     document.getElementById('schedule-options').style.display = 'none';
                                     document.getElementById('zones-wrap').style.display = 'none';
+                                    document.getElementById('settings-wrap').style.display = 'none';
 
                                 }
                                 e.stopPropagation();
@@ -404,6 +516,7 @@
                                     document.getElementById('schedule-options').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'block';
                                     document.getElementById('zones-wrap').style.display = 'none';
+                                    document.getElementById('settings-wrap').style.display = 'none';
 
                                 }
                                 e.stopPropagation();
@@ -433,6 +546,7 @@
                                     document.getElementById('schedule-options').style.display = 'none';
                                     document.getElementById('type-wrap').style.display = 'none';
                                     document.getElementById('zones-wrap').style.display = 'block';
+                                    document.getElementById('settings-wrap').style.display = 'none';
                                 }
                                 e.stopPropagation();
                             }
@@ -578,6 +692,12 @@
                     icon.className = 'fas fa-search';
                     searchButton.appendChild(icon);
                 }
+                const settingsButton = document.querySelector('.fc-settingsBtn-button');
+                if (settingsButton) {
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-cog';
+                    settingsButton.appendChild(icon);
+                }
                 const exportButton = document.querySelector('.fc-exportBtn-button');
                 if (exportButton) {
                     const icon = document.createElement('i');
@@ -675,18 +795,16 @@
                     });
 
                 });
-                Livewire.on('calender-remove-driver-span', date => {
+                Livewire.on('calender-remove-driver-warning', date => {
                     const cell = document.querySelector(`[data-date="${date.date}"]`);
 
                     if (cell) {
-                        const span = cell.querySelector('.driver-assigned-span');
-                        if (span) {
-                            span.remove();
-                        }
+                        cell.classList.remove('bg-light-danger');
                     }
                 });
 
                 function setZoneInDayCells() {
+                    let today = new Date();
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
                         span.remove();
                     });
@@ -719,15 +837,8 @@
                             }
                         });
                         if (driverNotAssigned) {
-
-                            let driverAssignedSpan = document.createElement('span');
-                            driverAssignedSpan.classList.add('driver-assigned-span', 'float-end');
-                            driverAssignedSpan.innerHTML =
-                                `<i class="fa-solid fa-triangle-exclamation text-danger"></i>`;
-                            dayCell.insertBefore(driverAssignedSpan, dayCell.firstChild);
-                            let zoneSpan = dayCell.querySelector('.zoneinfo-span');
-                            if (zoneSpan) {
-                                zoneSpan.insertAdjacentElement('afterbegin', driverAssignedSpan);
+                            if (cellDateObj >= today) {
+                                dayCell.classList.add('bg-light-danger');
                             }
                         }
                     });
@@ -772,6 +883,9 @@
                         if (document.getElementById('zones-wrap').style.display === 'block') {
                             buttonClass = '.fc-zoneBtn-button';
                         }
+                        if (document.getElementById('settings-wrap').style.display === 'block') {
+                            buttonClass = '.fc-settingsBtn-button';
+                        }
 
                         const button = document.querySelector(buttonClass);
                         if (button) {
@@ -803,6 +917,9 @@
                         }
                         if (document.getElementById('zones-wrap').style.display === 'block') {
                             buttonClass = '.fc-zoneBtn-button';
+                        }
+                        if (document.getElementById('settings-wrap').style.display === 'block') {
+                            buttonClass = '.fc-settingsBtn-button';
                         }
                         const button = document.querySelector(buttonClass);
                         if (button) {

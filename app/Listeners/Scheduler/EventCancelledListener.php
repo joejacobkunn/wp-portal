@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Scheduler;
 
+use App\Events\Scheduler\EventCancelled;
 use App\Events\Scheduler\EventScheduled;
 use App\Models\Scheduler\NotificationTemplate;
 use App\Models\Scheduler\Schedule;
@@ -16,10 +17,7 @@ use Illuminate\Support\Facades\App;
 use App\Classes\SX;
 
 
-
-
-
-class EventScheduledListener implements ShouldQueue
+class EventCancelledListener implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -32,16 +30,16 @@ class EventScheduledListener implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(EventScheduled $event): void
+    public function handle(EventCancelled $event): void
     {
         if(App::environment() == 'production')
         {
-            $notification = $this->populateTemplate('ahm-scheduled',$event->schedule);
+            $notification = $this->populateTemplate('ahm-cancelled',$event->schedule);
 
             if($event->schedule->user->phone)
             {
                 $kenect = new Kenect();
-                $kenect->send($event->schedule->user->phone, $notification['sms']);
+                $kenect->send($event->schedule->user->phone, $notification['sms'], '18771');
             }
     
             if($event->schedule->user->email)
@@ -52,12 +50,7 @@ class EventScheduledListener implements ShouldQueue
             }
 
             $sx_client = new SX();
-            $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been scheduled for '.$event->schedule->schedule_date->toFormattedDayDateString(), $event->schedule->sx_ordernumber);
-
-            foreach($event->schedule->comments as $comment)
-            {
-                $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' added a note : '.$comment->comment, $event->schedule->sx_ordernumber);
-            }
+            $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been Cancelled', $event->schedule->sx_ordernumber);
 
     
         }

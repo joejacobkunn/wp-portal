@@ -884,8 +884,8 @@
     border-color: #bea20c !important;
 }
 .schedule-tab .fc-zoneBtn-button {
-    background-color: #d63384 !important;
-    border-color: #d63384 !important;
+    background-color: #a5e8ee !important;
+    border-color: #a5e8ee !important;
 }
 .schedule-tab .fc-zoneBtn-button, .schedule-tab .fc-scheduleBtn-button {
     color: white !important;
@@ -903,8 +903,8 @@
     border-color: #bea20c !important;
 }
 .schedule-tab .fc-zoneBtn-button:hover {
-    background-color: #d63384 !important;
-    border-color: #d63384 !important;
+    background-color: #a5e8ee !important;
+    border-color: #a5e8ee !important;
 }
 
 .schedule-tab .fc-scheduleBtn-button:active,
@@ -914,8 +914,8 @@
 }
 .schedule-tab .fc-zoneBtn-button:active,
 .schedule-tab .fc-zoneBtn-button:focus {
-    background-color: #d63384 !important;
-    border-color: #d63384 !important;
+    background-color: #a5e8ee !important;
+    border-color: #a5e8ee !important;
 }
 
 .schedule-tab .fc-scheduleBtn-button::after,
@@ -944,6 +944,12 @@
 .schedule-tab .fc-exportBtn-button:disabled {
     opacity: 1;
     cursor: progress;
+}
+.schedule-view .linked-sro {
+    background-color: #e6a4ff !important;
+}
+.schedule-view .linked-sro-dark {
+    background-color: #9E2EC9 !important;
 }
 
 .schedule-tab .fc-warehouseBtn-button:hover {
@@ -992,8 +998,8 @@
 }
 
 .scheduler-driver-img-thumbnail {
-    height: 100px;
-    width: 100px;
+    height: 100px !important;
+    width: 100px !important;
 }
 .schedule-tab .fc {
     min-height: 600px !important;
@@ -1068,3 +1074,20 @@
 }
 
 /** End Rotations */
+
+.anchor-disabled {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.bg-linked {
+    background-color: #9E2EC9 !important;
+}
+.bg-light-linked {
+    background-color: #e6a4ff !important;
+}
+.alert-light-linked {
+    background-color: #e6a4ff;
+    color: #9E2EC9 ;
+}

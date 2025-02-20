@@ -8,10 +8,10 @@ use App\Traits\Livewire\HasPlaceholder;
 class Tabs extends Component
 {
     use HasPlaceholder;
-    
+
     /*
     |--------------------------------------------------------------------------
-    | Configurable Attributes 
+    | Configurable Attributes
     |--------------------------------------------------------------------------
     */
 
@@ -34,10 +34,12 @@ class Tabs extends Component
     /**  Common content field */
     public $commonContent;
 
+    public $parentComponent;
+
 
     /*
     |--------------------------------------------------------------------------
-    | Non - Configurable Attributes 
+    | Non - Configurable Attributes
     |--------------------------------------------------------------------------
     */
 
@@ -57,6 +59,6 @@ class Tabs extends Component
     public function updateTab($tabId, $activeTab, $queryString = null)
     {
         $this->componentActiveTab = $activeTab;
-        $this->dispatch('x-tab:changed', $tabId, $activeTab);
+        $this->dispatch('x-tab:changed', $tabId, $activeTab)->to($this->parentComponent);
     }
 }

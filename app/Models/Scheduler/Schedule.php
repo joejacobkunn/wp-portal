@@ -6,6 +6,7 @@ use App\Enums\Scheduler\ScheduleEnum;
 use App\Enums\Scheduler\ScheduleStatusEnum;
 use App\Models\Core\Comment;
 use App\Models\Core\User;
+use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -39,12 +40,14 @@ class Schedule extends Model
         'expected_arrival_time',
         'travel_prio_number',
         'not_purchased_via_weingartz',
-        'whse'
+        'whse',
+        'serial_no'
     ];
 
     protected $casts = [
         'schedule_date' => 'date',
         'line_item' => 'array',
+        'completed_at' => 'datetime'
     ];
     const LOG_FIELD_MAPS = [
 
@@ -167,5 +170,10 @@ class Schedule extends Model
     public function resolveLineItem($value)
     {
         return reset($value);
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'whse', 'short');
     }
 }
