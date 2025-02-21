@@ -520,8 +520,6 @@
                         componentRestrictions: {
                             country: ["us", "ca"]
                         },
-                        fields: ["address_components", "geometry"],
-                        types: ["address"],
                     });
 
                     autocomplete.addListener("place_changed", fillInAddress);
@@ -536,8 +534,27 @@
 
             function fillInAddress() {
                 let place = autocomplete.getPlace();
-                $wire.set('form.service_address_temp', document.getElementById(
-                    "form.service_address_temp_textarea-field").value);
+                let postcode;
+                
+                for (const component of place.address_components) {
+                    const componentType = component.types[0];
+
+                    switch (componentType) {
+                        case "postal_code": {
+                            postcode = `${component.long_name}`;
+                            break;
+                        }
+                    }
+                }
+
+                let selectedValue = document.getElementById("form.service_address_temp_textarea-field").value;
+                if (postcode && !selectedValue.includes(postcode)) {
+                    let country = selectedValue.includes('Canada') ? 'Canada' : 'USA';
+                    selectedValue = selectedValue.replace(/(, [^,]+), (USA|Canada)$/, `$1 ${postcode}, ${country}`)
+                    document.getElementById("form.service_address_temp_textarea-field").value = selectedValue
+                }
+
+                $wire.set('form.service_address_temp', selectedValue);
             }
 
             document.addEventListener('browser:show-edit-address', initAutocomplete);

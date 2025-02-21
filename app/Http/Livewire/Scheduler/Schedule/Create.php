@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
-class ScheduleOrder extends Component
+class Create extends Component
 {
     use LivewireAlert, HasTabs;
     public ScheduleForm $form;
@@ -76,7 +76,7 @@ class ScheduleOrder extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.schedule.schedule-order');
+        return $this->renderView('livewire.scheduler.schedule.create');
     }
 
     public function typeCheck($field, $value)
@@ -93,10 +93,6 @@ class ScheduleOrder extends Component
 
         $this->authorize('store', Schedule::class);
         $response = $this->form->store();
-        if(!$response['status']) {
-            $this->alert($response['class'], $response['message']);
-            return;
-        }
         $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
         $event = [
@@ -229,12 +225,7 @@ class ScheduleOrder extends Component
     public function save()
     {
         $this->authorize('update', $this->form->schedule);
-
         $response = $this->form->update();
-        if(!$response['status']) {
-            $this->alert($response['class'], $response['message']);
-            return;
-        }
         $this->viewScheduleTypeCollapse = false;
         $this->EventUpdate($response);
     }
@@ -329,17 +320,15 @@ class ScheduleOrder extends Component
                 'model' => 'ghd567df',
                 'id' => '1',
                 'status' => 'Complete',
-                'note' => 'this is a note',
-                'sx_repair_order_no' => '67678854'
+                'note' => 'this is a note'
             ];
         }else{
-            $sro = RepairOrders::select('first_name','last_name', 'at_home_address as address','at_home_state as state', 'at_home_city as city', 'at_home_zip as zip', 'brand', 'model', 'id', 'status', 'at_home_note as note', 'sx_repair_order_no')->where('sro_no', $sro)->first();
+            $sro = RepairOrders::select('first_name','last_name', 'at_home_address as address','at_home_state as state', 'at_home_city as city', 'at_home_zip as zip', 'brand', 'model', 'id', 'status', 'at_home_note as note')->where('sro_no', $sro)->first();
             if(!empty($sro)) {
                 return $sro->toArray();
             }
             return null;
         }
-
     }
 
     public function cancelSchedule()

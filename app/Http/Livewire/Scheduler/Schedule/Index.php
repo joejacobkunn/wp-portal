@@ -258,7 +258,7 @@ class Index extends Component
                 'order_number_suffix' => $schedule->order_number_suffix,
                 'customer_name' => $schedule->order->customer?->name,
                 'sx_customer_number' => $schedule->order->customer?->sx_customer_number,
-                'shipping_info' => $schedule->order->shipping_info,
+                'shipping_info' => $schedule->service_address,
                 'truckName' => $schedule->truckSchedule->truck->truck_name,
                 'zone' => $schedule->truckSchedule->zone->name,
                 'status_color' => $schedule->status_color_class,

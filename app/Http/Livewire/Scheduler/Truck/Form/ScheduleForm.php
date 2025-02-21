@@ -80,8 +80,8 @@ class ScheduleForm extends Form
         $this->truckSchedule->fill([
             'zone_id' => $this->zone,
             'schedule_date' => $this->schedule_date,
-            'start_time' => $this->start_time.' '.$this->timePeriod,
-            'end_time' => $this->end_time. ' '.$this->timePeriodEnd,
+            'start_time' => date('h:i',strtotime($this->start_time)).' '.$this->timePeriod,
+            'end_time' => date('h:i',strtotime($this->end_time)). ' '.$this->timePeriodEnd,
             'slots' => $this->slots
         ]);
         $this->truckSchedule->save();

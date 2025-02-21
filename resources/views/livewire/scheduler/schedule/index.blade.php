@@ -155,10 +155,11 @@
                                                         {{ $event['customer_name'] }} - CustNo
                                                         #{{ $event['sx_customer_number'] }}
                                                     </p>
-
-                                                    <small>{{ $event['service_address'] }}</small>
+                                                    @if (isset($event['shipping_info']))
+                                                        <small>{{ $event['shipping_info'] }}</small>
+                                                    @endif
                                                     @if (!empty($event['latest_comment']))
-                                                        <div class="p-1 mt-2 bg-light-dark color-warning"> <i
+                                                        <div class="p-1 mt-2 mb-2 bg-light-dark color-warning"> <i
                                                                 class="far fa-comment-dots"></i>
                                                             {{ str($event['latest_comment']->comment)->limit(30, ' ...') }}
                                                         </div>
