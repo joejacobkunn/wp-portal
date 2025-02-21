@@ -36,9 +36,7 @@ class Table extends DataTableComponent
         if ($this->activeTab == 'unconfirmed') {
             $this->setDefaultSort('schedule_date', 'asc');
         }
-        if ($this->activeTab == 'tomorrow') {
-            $this->setDefaultSort('expected_arrival_time', 'asc');
-        }
+
     }
 
 
