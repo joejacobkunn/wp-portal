@@ -30,7 +30,6 @@ trait ScheduleData
     {
         return $this->scheduleBaseQuery()
                     ->whereDate('schedules.schedule_date', $date)
-                    ->orderByRaw('COALESCE(schedules.travel_prio_number, 9999) asc')
                     ->orderByRaw('STR_TO_DATE(schedules.expected_arrival_time, "%h:%i %p") asc')
                     ->orderBy('schedules.created_at', 'asc');
     }

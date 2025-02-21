@@ -329,12 +329,10 @@ class ScheduleForm extends Form
     public function init(Schedule $schedule)
     {
         $this->schedule = $schedule;
-        $this->schedule_time = $schedule->truck_schedule_id;
         $this->fill($schedule->toArray());
         $this->line_item = $schedule->line_item ? key($schedule->line_item): null;
-        $this->schedule_date = Carbon::parse($schedule->schedule_date)->format('Y-m-d');
+        $this->reset(['schedule_date']);
         $this->suffix = $schedule->order_number_suffix;
-        $this->scheduleType = $schedule->schedule_type;
         $this->serviceZip = $this->extractZipCode($this->service_address);
 
         $this->getTruckSchedules($this->schedule->warehouse->id);
@@ -486,14 +484,19 @@ class ScheduleForm extends Form
                 $zones = Zones::where('is_active',1)->pluck('id');
             }
         }
-        $this->enabledDates = DB::table('truck_schedules')
+        $enabledDatesQuery = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
-
-        ->select(
-            'truck_schedules.schedule_date',
-        )
+        ->leftJoin('schedules', function ($join) {
+            $join->on('truck_schedules.id', '=', 'schedules.truck_schedule_id')
+                ->where('schedules.status', '!=', 'cancelled');
+        })
+        ->select('truck_schedules.schedule_date')
         ->whereIn('truck_schedules.zone_id', $zones)
-        ->get()
+        ->groupBy('truck_schedules.id', 'truck_schedules.schedule_date', 'truck_schedules.slots');
+        if(!$shouldOverride) {
+            $enabledDatesQuery->havingRaw('COUNT(schedules.id) < truck_schedules.slots');
+        }
+        $this->enabledDates = $enabledDatesQuery->get()
         ->pluck('schedule_date')
         ->unique()
         ->values()

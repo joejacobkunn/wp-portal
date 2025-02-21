@@ -282,50 +282,53 @@
                                         {{-- schedule date end --}}
 
                                         {{-- timeslots listing --}}
-                                        <div wire:loading.remove wire:target="updateFormScheduleDate"
-                                            class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }}">
-                                            <label class="form-label">Available Time Slots on
-                                                {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
-                                            @if ($form->scheduleType == 'schedule_override')
-                                                <p class="ps-2 bg-warning text-dark rounded"><i
-                                                        class="fas fa-exclamation-triangle"></i> Schedule Override Mode
-                                                    ON</p>
-                                            @endif
-                                            <div class="d-flex flex-column gap-2">
+                                        @if ($form->schedule_date)
 
-                                                @forelse($this->form->truckSchedules as $schedule)
-                                                    <a href="javascript:void(0)"
-                                                        wire:click.prevent="selectSlot({{ $schedule->id }})"
-                                                        class="list-group-item list-group-item-action
-                                                    @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') disabled text-muted time-slot-full @endif">
-                                                        <div
-                                                            class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
-                                                            {{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                                            @if ($form->scheduleType != 'schedule_override')
-                                                                <span
-                                                                    class="badge bg-secondary badge-pill badge-round ms-1 float-end">
-                                                                    {{ $schedule->schedule_count }} /
-                                                                    {{ $schedule->slots }}
-                                                                </span>
-                                                            @endif
-                                                            <p class="me-2 fst-italic text-muted"
-                                                                style="font-size: smaller;"><i
-                                                                    class="fas fa-globe"></i>
-                                                                {{ $schedule->zone_name }} => <i
-                                                                    class="fas fa-truck"></i>{{ $schedule->truck_name }}
-                                                            </p>
+                                            <div wire:loading.remove wire:target="updateFormScheduleDate"
+                                                class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }} overflow-auto" style="height: 400px">
+                                                <label class="form-label">Available Time Slots on
+                                                    {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
+                                                @if ($form->scheduleType == 'schedule_override')
+                                                    <p class="ps-2 bg-warning text-dark rounded"><i
+                                                            class="fas fa-exclamation-triangle"></i> Schedule Override Mode
+                                                        ON</p>
+                                                @endif
+                                                <div class="d-flex flex-column gap-2">
+
+                                                    @forelse($this->form->truckSchedules as $schedule)
+                                                        <a href="javascript:void(0)"
+                                                            wire:click.prevent="selectSlot({{ $schedule->id }})"
+                                                            class="list-group-item list-group-item-action
+                                                        @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none disabled text-muted time-slot-full @endif">
+                                                            <div
+                                                                class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
+                                                                {{ $schedule->start_time . ' - ' . $schedule->end_time }}
+                                                                @if ($form->scheduleType != 'schedule_override')
+                                                                    <span
+                                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                                                        {{ $schedule->schedule_count }} /
+                                                                        {{ $schedule->slots }}
+                                                                    </span>
+                                                                @endif
+                                                                <p class="me-2 fst-italic text-muted"
+                                                                    style="font-size: smaller;"><i
+                                                                        class="fas fa-globe"></i>
+                                                                    {{ $schedule->zone_name }} => <i
+                                                                        class="fas fa-truck"></i>{{ $schedule->truck_name }}
+                                                                </p>
+                                                            </div>
+                                                        </a>
+                                                    @empty
+                                                        <div class="p-3 bg-light rounded border">
+                                                            <button type="button"
+                                                                class="list-group-item list-group-item-action">No
+                                                                Slots
+                                                                Available</button>
                                                         </div>
-                                                    </a>
-                                                @empty
-                                                    <div class="p-3 bg-light rounded border">
-                                                        <button type="button"
-                                                            class="list-group-item list-group-item-action">No
-                                                            Slots
-                                                            Available</button>
-                                                    </div>
-                                                @endforelse
+                                                    @endforelse
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                         @error('form.schedule_time')
                                             <div class="col-md-12">
                                                 <span class="text-danger">{{ $message }}</span>

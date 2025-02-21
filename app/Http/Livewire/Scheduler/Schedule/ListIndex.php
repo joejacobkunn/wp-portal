@@ -33,7 +33,7 @@ class ListIndex extends Component
     protected $queryString = [
         'tabs.schedule-list-index-tabs.active' => ['except' => '', 'as' => 'tab'],
         'activeWarehouseId' => ['except' => '', 'as' => 'whse'],
-        'scheduleId' => ['except' => '', 'as' => 'schedule'],
+        'scheduleId' => ['except' => '*', 'as' => 'id'],
     ];
 
     protected $listeners = [
@@ -112,7 +112,7 @@ class ListIndex extends Component
 
     public function closeEventModal()
     {
-        $this->reset('selectedSchedule');
+        $this->reset(['selectedSchedule', 'scheduleId']);
         $this->showEventModal = false;
     }
 }
