@@ -486,9 +486,17 @@ class ScheduleForm extends Form
         }
         $enabledDatesQuery = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
+        ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
+        ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+        ->whereNull('scheduler_zipcodes.deleted_at')
+        ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
+        ->whereNull('zones.deleted_at')
+        ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
+        ->whereNull('trucks.deleted_at')
         ->leftJoin('schedules', function ($join) {
             $join->on('truck_schedules.id', '=', 'schedules.truck_schedule_id')
-                ->where('schedules.status', '!=', 'cancelled');
+                ->where('schedules.status', '!=', 'cancelled')
+                ->whereNull('schedules.deleted_at');
         })
         ->select('truck_schedules.schedule_date')
         ->whereIn('truck_schedules.zone_id', $zones)
