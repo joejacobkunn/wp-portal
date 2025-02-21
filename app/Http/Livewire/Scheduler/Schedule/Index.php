@@ -64,7 +64,8 @@ class Index extends Component
     public $selectedScheduleId;
 
     protected $queryString = [
-        'selectedScheduleId' => ['except' => '', 'as' => 'schedule'],
+        'selectedScheduleId' => ['except' => '*', 'as' => 'id'],
+        'activeWarehouseId' => ['except' => '', 'as' => 'whse'],
     ];
     protected $listeners = [
         'closeModal' => 'closeModal',
@@ -107,13 +108,11 @@ class Index extends Component
             ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->label()])
             ->toArray();
 
-        if (Auth::user()->office_location) {
-            $activeWarehouse = $this->warehouses->firstWhere('title', Auth::user()->office_location);
-
-            $this->setActiveWarehouse($activeWarehouse ? $activeWarehouse->id : $this->warehouses->first()->id);
-        } else {
-            $this->setActiveWarehouse($this->warehouses->first()->id);
+        if (!$this->activeWarehouseId) {
+            $activeWarehouse = $this->warehouses->firstWhere('title', Auth::user()->office_location) ?? $this->warehouses->first();
+            $this->activeWarehouseId = $activeWarehouse->id;
         }
+        $this->setActiveWarehouse($this->activeWarehouseId);
 
         $this->activeType = '';
         $holidays = CalendarHoliday::listAll();

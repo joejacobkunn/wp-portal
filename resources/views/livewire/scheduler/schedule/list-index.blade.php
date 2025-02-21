@@ -3,7 +3,7 @@
     <x-slot:content>
         <ul class="nav nav-pills mb-2">
             <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="{{ route('schedule.calendar.index') }}" wire:navigate><i
+                <a class="nav-link" aria-current="page" href="{{ route('schedule.calendar.index', ['whse' => $this->activeWarehouse->id]) }}" wire:navigate><i
                         class="far fa-calendar-alt"></i>
                     Calendar View</a>
             </li>
