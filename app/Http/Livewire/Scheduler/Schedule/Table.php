@@ -36,6 +36,9 @@ class Table extends DataTableComponent
         if ($this->activeTab == 'unconfirmed') {
             $this->setDefaultSort('schedule_date', 'asc');
         }
+        if ($this->activeTab == 'tomorrow') {
+            $this->setDefaultSort('expected_arrival_time', 'asc');
+        }
     }
 
 
@@ -146,6 +149,13 @@ class Table extends DataTableComponent
                     return strip_tags($row->latestComment?->comment);
                 });
         }
+        if ($this->activeTab == 'tomorrow') {
+            $columns[] = Column::make('ETA', 'expected_arrival_time')
+                ->format(function ($value, $row) {
+                    return (empty($value)) ? 'n/a' : Carbon::parse($value)->format('h:i A');
+                });
+        }
+
 
         $columns[] = Column::make('Status', 'status')
         ->excludeFromColumnSelect()
@@ -276,7 +286,6 @@ class Table extends DataTableComponent
         ]);
         if (!empty($this->whse)) {
 
-            //@TODO update after schedule whse update
             $scheduleQuery->where('schedules.whse', $this->whse);
 
             //$scheduleQuery->where('orders.whse', $this->whse);

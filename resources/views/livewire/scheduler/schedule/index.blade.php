@@ -24,7 +24,7 @@
                     Calendar View</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('schedule.list.index') }}" wire:navigate><i class="fas fa-list"></i>
+                <a class="nav-link" href="{{ route('schedule.list.index', ['whse' => $this->activeWarehouse->id]) }}" wire:navigate><i class="fas fa-list"></i>
                     List View</a>
             </li>
         </ul>
