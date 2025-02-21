@@ -486,14 +486,19 @@ class ScheduleForm extends Form
                 $zones = Zones::where('is_active',1)->pluck('id');
             }
         }
-        $this->enabledDates = DB::table('truck_schedules')
+        $enabledDatesQuery = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
-
-        ->select(
-            'truck_schedules.schedule_date',
-        )
+        ->leftJoin('schedules', function ($join) {
+            $join->on('truck_schedules.id', '=', 'schedules.truck_schedule_id')
+                ->where('schedules.status', '!=', 'cancelled');
+        })
+        ->select('truck_schedules.schedule_date')
         ->whereIn('truck_schedules.zone_id', $zones)
-        ->get()
+        ->groupBy('truck_schedules.id', 'truck_schedules.schedule_date', 'truck_schedules.slots');
+        if(!$shouldOverride) {
+            $enabledDatesQuery->havingRaw('COUNT(schedules.id) < truck_schedules.slots');
+        }
+        $this->enabledDates = $enabledDatesQuery->get()
         ->pluck('schedule_date')
         ->unique()
         ->values()

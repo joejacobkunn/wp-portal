@@ -243,7 +243,7 @@
                                             <a href="javascript:void(0)"
                                                 wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                 class="list-group-item list-group-item-action
-                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') disabled text-muted time-slot-full @endif">
+                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none disabled text-muted time-slot-full @endif">
                                                 <div
                                                     class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                     {{ $schedule->start_time . ' - ' . $schedule->end_time }}
@@ -535,7 +535,7 @@
             function fillInAddress() {
                 let place = autocomplete.getPlace();
                 let postcode;
-                
+
                 for (const component of place.address_components) {
                     const componentType = component.types[0];
 
