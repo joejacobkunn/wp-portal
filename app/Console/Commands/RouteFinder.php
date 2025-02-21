@@ -96,7 +96,7 @@ class RouteFinder extends Command
         $lastAddress = $firstSchedule->truck->warehouse->address;
         $currentTime = null;
         $lastExpectedTime =null;
-        foreach ($schedules as $schedule) {
+        foreach ($schedules as $key => $schedule) {
             $confirmedOrders = $schedule->orderSchedule()
                 ->where('status', 'confirmed')
                 ->orderBy('id')
@@ -142,8 +142,15 @@ class RouteFinder extends Command
             $optimalRoute = $response['optimal_route'];
             $lastAddress = end($optimalRoute);
             //add break 1 hour
-            if (count($optimalRoute) > 1) {
-                $currentTime = $lastExpectedTime->addHour();
+            if (count($optimalRoute) > 1 && $key < count($schedules) - 1) {
+                $nextSchedule = $schedules[$key + 1];
+                $nextScheduleHasConfirmedOrders = $nextSchedule->orderSchedule()
+                    ->where('status', 'confirmed')
+                    ->exists();
+
+                if ($nextScheduleHasConfirmedOrders) {
+                    $currentTime = $lastExpectedTime->addHour();
+                }
             }
         }
 
