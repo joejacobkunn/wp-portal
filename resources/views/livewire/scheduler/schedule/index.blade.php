@@ -155,9 +155,8 @@
                                                         {{ $event['customer_name'] }} - CustNo
                                                         #{{ $event['sx_customer_number'] }}
                                                     </p>
-                                                    @if (isset($event['shipping_info']))
-                                                        <small>{{ $event['shipping_info']['line'] . ', ' . $event['shipping_info']['city'] . ', ' . $event['shipping_info']['state'] . ', ' . $event['shipping_info']['zip'] }}</small>
-                                                    @endif
+
+                                                    <small>{{ $event['service_address'] }}</small>
                                                     @if (!empty($event['latest_comment']))
                                                         <div class="p-1 mt-2 bg-light-dark color-warning"> <i
                                                                 class="far fa-comment-dots"></i>
