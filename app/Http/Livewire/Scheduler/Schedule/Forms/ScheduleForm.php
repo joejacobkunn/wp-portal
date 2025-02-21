@@ -329,12 +329,10 @@ class ScheduleForm extends Form
     public function init(Schedule $schedule)
     {
         $this->schedule = $schedule;
-        $this->schedule_time = $schedule->truck_schedule_id;
         $this->fill($schedule->toArray());
         $this->line_item = $schedule->line_item ? key($schedule->line_item): null;
-        $this->schedule_date = Carbon::parse($schedule->schedule_date)->format('Y-m-d');
+        $this->reset(['schedule_date']);
         $this->suffix = $schedule->order_number_suffix;
-        $this->scheduleType = $schedule->schedule_type;
         $this->serviceZip = $this->extractZipCode($this->service_address);
 
         $this->getTruckSchedules($this->schedule->warehouse->id);
