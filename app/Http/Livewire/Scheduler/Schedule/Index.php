@@ -171,6 +171,7 @@ class Index extends Component
         $this->showModal = false;
         $this->showView = false;
         $this->resetValidation();
+        $this->reset('selectedScheduleId');
         $this->handleDateClick($this->dateSelected);
     }
 
@@ -264,7 +265,8 @@ class Index extends Component
                 'expected_time' => $schedule->expected_arrival_time,
                 'travel_prio_number' => $schedule->travel_prio_number,
                 'truck_schedule_id' => $schedule->truck_schedule_id,
-                'latest_comment' => $schedule->comments->last()
+                'latest_comment' => $schedule->comments->last(),
+                'service_address' => $schedule->service_address
             ];
         })
         ->toArray();

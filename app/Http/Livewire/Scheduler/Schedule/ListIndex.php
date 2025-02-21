@@ -112,7 +112,7 @@ class ListIndex extends Component
 
     public function closeEventModal()
     {
-        $this->reset('selectedSchedule');
+        $this->reset(['selectedSchedule', 'scheduleId']);
         $this->showEventModal = false;
     }
 }
