@@ -7,52 +7,52 @@
                         <div class="btn-group mt-n1 mb-3 float-end" role="group" aria-label="Basic example">
                             @can('scheduler.schedule.manage')
                                 @if ($form->schedule->status != 'cancelled' && $form->schedule->status != 'completed')
-                                    <button type="button" class="btn btn-sm btn-danger" wire:click="hideScheduleSection"
+                                    <button type="button" wire:key="cancel-toggle-btn" class="btn btn-sm btn-danger" wire:click="changeStatus('cancel')"
                                         data-bs-toggle="collapse" data-bs-target="#cancelCollapse" aria-expanded="false"
                                         aria-controls="cancelCollapse"><i class="far fa-calendar-times"></i>
                                         Cancel</button>
                                 @endif
 
                                 @if ($form->schedule->status == 'cancelled')
-                                    <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
-                                        data-bs-toggle="collapse" data-bs-target="#undoCancelCollapse" aria-expanded="false"
+                                    <button type="button" class="btn btn-sm btn-success" wire:click="changeStatus('uncacnel')"
+                                        data-bs-toggle="collapse" wire:key="undocancel-toggle-btn" data-bs-target="#undoCancelCollapse" aria-expanded="false"
                                         aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
                                         Uncancel</button>
                                 @endif
                                 @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'scheduled_linked')
-                                    <button type="button" class="btn btn-sm btn-warning" wire:click="scheduleDateInitiate"
+                                    <button type="button" class="btn btn-sm btn-warning" wire:click="changeStatus('reschedule')"
                                         data-bs-toggle="collapse" data-bs-target="#rescheduleCollapse" aria-expanded="false"
-                                        aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
+                                        wire:key="reschedule-toggle-btn" aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
                                         Reschedule</button>
                                 @endif
                                 @if ($form->schedule->status == 'scheduled_linked')
-                                    <button type="button" class="btn btn-sm btn-primary" wire:click="hideScheduleSection"
+                                    <button type="button" class="btn btn-sm btn-primary" wire:click="changeStatus('confirm')"
                                         data-bs-toggle="collapse" data-bs-target="#confirmCollapse" aria-expanded="false"
-                                        aria-controls="confirmCollapse"><i class="fas fa-check-double"></i>
+                                        wire:key="confirm-toggle-btn" aria-controls="confirmCollapse"><i class="fas fa-check-double"></i>
                                         Confirm</button>
-                                    <button type="button" class="btn btn-sm btn-info" wire:click="hideScheduleSection"
-                                        data-bs-toggle="collapse" data-bs-target="#unlinkCollapse" aria-expanded="false"
+                                    <button type="button" class="btn btn-sm btn-info" wire:click="changeStatus('unlink')"
+                                        data-bs-toggle="collapse" wire:key="unlink-toggle-btn" data-bs-target="#unlinkCollapse" aria-expanded="false"
                                         aria-controls="unlinkCollapse"><i class="fas fa-unlink"></i>
                                         Unlink SRO</button>
                                 @endif
                                 @if ($form->schedule->status == 'confirmed')
-                                    <button type="button" class="btn btn-sm btn-secondary" wire:click="hideScheduleSection"
-                                        data-bs-toggle="collapse" data-bs-target="#unconfirmCollapse" aria-expanded="false"
+                                    <button type="button" class="btn btn-sm btn-secondary" wire:click="changeStatus('unconfirm')"
+                                        wire:key="unconfirm-toggle-btn" data-bs-toggle="collapse" data-bs-target="#unconfirmCollapse" aria-expanded="false"
                                         aria-controls="unconfirmCollapse"><i class="fas fa-solid fa-xmark"></i>
                                         Unconfirm</button>
                                 @endif
                             @endcan
                             @canany(['scheduler.can-start-event', 'scheduler.schedule.manage'])
                                 @if ($form->schedule->status == 'confirmed')
-                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse"
+                                    <button type="button" class="btn btn-sm btn-primary" wire:click="changeStatus('start')" data-bs-toggle="collapse"
                                         data-bs-target="#startScheduleCollapse" aria-expanded="false"
-                                        aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
+                                        wire:key="start-toggle-btn" aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
                                         Start</button>
                                 @endif
                             @endcan
                             @canany(['scheduler.can-complete-event', 'scheduler.schedule.manage'])
                                 @if ($form->schedule->status == 'out_for_delivery')
-                                    <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
+                                    <button type="button" class="btn btn-sm btn-success" wire:key="complete-toggle-btn" wire:click="changeStatus('complete')"
                                         data-bs-toggle="collapse" data-bs-target="#completeCollapse" aria-expanded="false"
                                         aria-controls="completeCollapse"><i class="fas fa-check-circle"></i>
                                         Complete</button>
@@ -63,12 +63,14 @@
                     </div>
                 @endif
                 <div class="collapse-container" wire:key="actionArea-{{ $form->schedule->status }}">
-                    <div class="collapse p-4" id="cancelCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status != 'cancelled' ? 'wire:ignore.self' : '' !!} wire:key="cancel-section-{{ $form->schedule->status }}">
+                    <div class="collapse @if($actionStatus == 'cancel') show @endif p-4" id="cancelCollapse" data-bs-parent=".collapse-container"
+                         wire:key="cancel-section-{{ $form->schedule->status }}">
                         <div class="card card-body mb-0 p-0">
                             You are cancelling this schedule. Provide a reason in below field
                             <div class="col-md-12 mt-3">
                                 <x-forms.input label="Reason" model="form.cancel_reason" />
+                                <x-forms.checkbox label="Notify Customer"
+                                    name="notifyUser" :value="1" model="form.notifyUser" />
                                 <div class="mt-4 float-start">
                                     <button wire:click="cancelSchedule" class="btn btn-sm btn-danger">
                                         <div wire:loading wire:target="cancelSchedule">
@@ -81,8 +83,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="undoCancelCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status == 'cancelled' ? 'wire:ignore.self' : '' !!}>
+                    <div class="collapse @if($actionStatus == 'uncacnel') show @endif p-4" id="undoCancelCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             You are reinstating this schedule. Please ensure to confirm the SRO afterward.
                             <div class="col-md-12 mt-3">
@@ -98,11 +99,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="completeCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status != 'completed' ? 'wire:ignore.self' : '' !!}>
+                    <div class="collapse @if($actionStatus == 'complete') show @endif p-4" id="completeCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             Click the Complete button below to mark the schedule as complete.
-                            <div class="col-md-12 mt-3">
+                            <div class="col-md-12 mt-2">
+                                <x-forms.checkbox label="Notify Customer"
+                                    name="notifyUser" :value="1" model="form.notifyUser" />
                                 <div class="mt-2 float-start">
                                     <button wire:click="completeSchedule" class="btn btn-sm btn-success">
                                         <div wire:loading wire:target="completeSchedule">
@@ -115,8 +117,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="confirmCollapse" data-bs-parent=".collapse-container"
-                        wire:ignore.self>
+                    <div class="collapse @if($actionStatus == 'confirm') show @endif p-4" id="confirmCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             Confirm this schedule by clicking Confirm below.
                             <div class="col-md-12">
@@ -132,8 +133,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->sro_number != null ? 'wire:ignore.self' : '' !!} wire:key="unlinksro-section-{{ $form->schedule->sro_number }}">
+                    <div class="collapse @if($actionStatus == 'unlink') show @endif p-4" id="unlinkCollapse" data-bs-parent=".collapse-container"
+                         wire:key="unlinksro-section">
                         <div class="card card-body mb-0 p-0">
                             You are about to unlink SRO Number. Click below unlink button to confirm.
                             <div class="col-md-12">
@@ -149,8 +150,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="unconfirmCollapse" data-bs-parent=".collapse-container"
-                        wire:ignore.self>
+                    <div class="collapse @if($actionStatus == 'unconfirm') show @endif p-4" id="unconfirmCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             Unconfirm this schedule and unlink the SRO# by clicking unconfirm below.
                             <div class="col-md-12">
@@ -166,11 +166,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="startScheduleCollapse" data-bs-parent=".collapse-container"
-                        wire:ignore.self>
+                    <div class="collapse @if($actionStatus == 'start') show @endif p-4" id="startScheduleCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             Click on the Start button below to Start the Schedule.
-                            <div class="col-md-12">
+                            <div class="col-md-12 mt-2">
+                                <x-forms.checkbox label="Notify user"
+                                    name="notifyUser" :value="1" model="form.notifyUser" />
                                 <div class="mt-4 float-start">
                                     <button wire:click="startSchedule" class="btn btn-sm btn-warning">
                                         <div wire:loading wire:target="startSchedule">
@@ -183,16 +184,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse @if ($viewScheduleTypeCollapse) show @endif p-4" id="rescheduleCollapse"
+                    <div class="collapse @if ($actionStatus == 'reschedule') show @endif p-4" id="rescheduleCollapse"
                         data-bs-parent=".collapse-container">
                         <div class="col-md-12 mb-3">
-                            <div wire:loading wire:loading.target="scheduleDateInitiate">
+                            <div wire:loading wire:loading.target="changeStatus('reschedule')">
                                 <span class="spinner-border spinner-border-sm mr-2" role="status"
                                     aria-hidden="true"></span>
                                 <span>please wait loading schedule form ...</span>
                             </div>
                         </div>
-                        @if ($viewScheduleTypeCollapse)
                             <div class="card card-body mb-0 p-0 mb-2">
                                 Reschedule this schedule to another date
                                 <form wire:submit.prevent="save()">
@@ -202,7 +202,7 @@
                                                 <x-forms.select label="Scheduling Priority" model="form.scheduleType"
                                                     :options="$schedulePriority" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
                                                     default-option-label="- None -" :selected="$form->scheduleType"
-                                                    :key="'scheduleTypeKey'" />
+                                                    :key="'scheduleTypeKey-' . md5(uniqid())"/>
                                             </div>
                                         </div>
                                         @if ($showTypeLoader)
@@ -340,6 +340,12 @@
                                                     model="form.reschedule_reason" />
                                             </div>
                                         </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <x-forms.checkbox label="Notify Customer"
+                                                name="notifyUser" :value="1" model="form.notifyUser" />
+                                            </div>
+                                        </div>
                                         {{-- end of timeslots listing --}}
                                         <div class="col-md-12">
                                             <div class="mt-4 float-start">
@@ -355,7 +361,7 @@
                                     </div>
                                 </form>
                             </div>
-                        @endif
+
                     </div>
                 </div>
 

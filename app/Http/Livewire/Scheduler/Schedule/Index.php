@@ -77,6 +77,7 @@ class Index extends Component
         'closeDriverModal' => 'closeDriverModal',
         'fetchDriverSkills' => 'fetchDriverSkills',
         'closeAnnouncementModal' => 'closeAnnouncementModal',
+        'attchQueryParam' => 'attchQueryParam',
     ];
 
     public function getWarehousesProperty()
@@ -697,6 +698,11 @@ class Index extends Component
         $skills = $driver->skills?->skills;
         $skills = $skills ? explode(",", $skills) : null;
         $this->filteredSchedules[$key]['driver_skills'] = $skills;
+    }
+
+    public function attchQueryParam($id)
+    {
+        $this->selectedScheduleId = $id;
     }
 
 }
