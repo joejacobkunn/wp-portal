@@ -361,6 +361,7 @@ class ScheduleForm extends Form
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
         $validatedData['truck_schedule_id'] = $this->schedule_time;
+        $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
 
         $this->schedule->fill($validatedData);
         $this->schedule->save();

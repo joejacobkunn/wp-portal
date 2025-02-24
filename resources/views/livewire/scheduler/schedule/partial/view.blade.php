@@ -69,6 +69,8 @@
                             You are cancelling this schedule. Provide a reason in below field
                             <div class="col-md-12 mt-3">
                                 <x-forms.input label="Reason" model="form.cancel_reason" />
+                                <x-forms.checkbox label="Notify user"
+                                    name="notifyUser" :value="1" model="notifyUser" />
                                 <div class="mt-4 float-start">
                                     <button wire:click="cancelSchedule" class="btn btn-sm btn-danger">
                                         <div wire:loading wire:target="cancelSchedule">
