@@ -285,6 +285,9 @@
                         <div class="col-md-12">
                             <x-forms.textarea label="Notes" model="form.notes" lazy />
                         </div>
+                        <div class="col-md-12">
+                            <x-forms.checkbox label="Notify Customer"
+                            name="notifyUser" :value="1" model="form.notifyUser" />                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

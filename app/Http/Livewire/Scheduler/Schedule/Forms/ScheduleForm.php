@@ -68,6 +68,7 @@ class ScheduleForm extends Form
     public $addressFromOrder;
     public $selectedTruckSchedule;
     public $recommendedAddress;
+    public $notifyUser = true;
 
     public $alertConfig = [
         'status' => false,
@@ -320,8 +321,9 @@ class ScheduleForm extends Form
             $schedule->truckSchedule->slots = $schedule->truckSchedule->slots + 1;
             $schedule->truckSchedule->save();
         }
-
-        EventScheduled::dispatch($schedule);
+        if($this->notifyUser) {
+            EventScheduled::dispatch($schedule);
+        }
 
         return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
@@ -374,8 +376,9 @@ class ScheduleForm extends Form
         $this->scheduleType = null;
         $this->schedule_date = null;
         $this->schedule_time = null;
-
-        EventRescheduled::dispatch($this->schedule);
+        if($this->notifyUser) {
+            EventRescheduled::dispatch($this->schedule);
+        }
 
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
@@ -568,7 +571,10 @@ class ScheduleForm extends Form
         $this->schedule->cancelled_at = Carbon::now();
         $this->schedule->cancelled_by = Auth::user()->id;
         $this->schedule->save();
-        EventCancelled::dispatch($this->schedule);
+        if($this->notifyUser) {
+            EventCancelled::dispatch($this->schedule);
+        }
+
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule cancelled', 'schedule' => $this->schedule];
     }
 
@@ -587,7 +593,9 @@ class ScheduleForm extends Form
         $this->schedule->status = 'out_for_delivery';
         $this->schedule->save();
         $this->fill($this->schedule);
-        EventDispatched::dispatch($this->schedule);
+        if($this->notifyUser) {
+            EventDispatched::dispatch($this->schedule);
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'Delivery initiated', 'schedule' => $this->schedule];
     }
 
@@ -597,7 +605,9 @@ class ScheduleForm extends Form
         $this->schedule->completed_at = Carbon::now();
         $this->schedule->completed_by = Auth::user()->id;
         $this->schedule->save();
-        EventComplete::dispatch($this->schedule);
+        if($this->notifyUser) {
+            EventComplete::dispatch($this->schedule);
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule completed', 'schedule' => $this->schedule];
 
     }

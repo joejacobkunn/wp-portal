@@ -25,13 +25,13 @@ class ScheduleOrder extends Component
     public $scheduledTruckInfo = [];
     public $activeWarehouse;
     public $showTypeLoader =false;
-    public $viewScheduleTypeCollapse = false;
     public $serviceAddressModal = false;
     public $selectedSchedule;
     public $sro_number;
     public $sro_verified;
     public $sro_response;
     public $scheduledLineItem;
+    public $actionStatus;
     public $schedulePriority = [
         'next_avail' => 'Next Available Date',
         'one_year' => 'One Year from Now',
@@ -196,7 +196,7 @@ class ScheduleOrder extends Component
     {
         $this->showTypeLoader = true;
         if(isset($this->form->Schedule)) {
-            $this->viewScheduleTypeCollapse = true;
+
         }
         $this->form->scheduleType = $value;
         $this->dispatch('scheduleTypeDispatch');
@@ -221,10 +221,6 @@ class ScheduleOrder extends Component
         $this->showTypeLoader = false;
     }
 
-    public function scheduleDateInitiate()
-    {
-        $this->viewScheduleTypeCollapse = !$this->viewScheduleTypeCollapse;
-    }
 
     public function save()
     {
@@ -235,14 +231,11 @@ class ScheduleOrder extends Component
             $this->alert($response['class'], $response['message']);
             return;
         }
-        $this->viewScheduleTypeCollapse = false;
         $this->EventUpdate($response);
+        $this->reset('actionStatus');
     }
 
-    public function hideScheduleSection()
-    {
-        $this->viewScheduleTypeCollapse = false;
-    }
+
 
     public function EventUpdate($response)
     {
@@ -344,13 +337,16 @@ class ScheduleOrder extends Component
 
     public function cancelSchedule()
     {
-        $this->form->cancelSchedule();
+        $response = $this->form->cancelSchedule();
+        $this->reset(['actionStatus']);
+        $this->EventUpdate($response);
     }
 
     public function undoCancel()
     {
         $this->authorize('update', $this->form->schedule);
         $response = $this->form->undoCancel();
+        $this->reset(['actionStatus', 'sro_number', 'sro_verified']);
         $this->EventUpdate($response);
     }
 
@@ -375,7 +371,8 @@ class ScheduleOrder extends Component
         $this->reset([
             'sro_number',
             'sro_verified',
-            'sro_response'
+            'sro_response',
+            'actionStatus'
         ]);
         $this->alert($response['class'], $response['message']);
         $this->EventUpdate($response);
@@ -385,6 +382,7 @@ class ScheduleOrder extends Component
     {
         $response = $this->form->confirmSchedule();
         $this->alert($response['class'], $response['message']);
+        $this->reset('actionStatus');
         $this->EventUpdate($response);
     }
 
@@ -394,9 +392,11 @@ class ScheduleOrder extends Component
         $this->reset([
             'sro_number',
             'sro_verified',
-            'sro_response'
+            'sro_response',
+            'actionStatus'
         ]);
         $this->alert($response['class'], $response['message']);
+
         $this->EventUpdate($response);
     }
 
@@ -404,6 +404,7 @@ class ScheduleOrder extends Component
     {
         $this->authorize('startSchedule', $this->form->schedule);
         $response = $this->form->startSchedule();
+        $this->reset('actionStatus');
         $this->EventUpdate($response);
     }
 
@@ -411,6 +412,7 @@ class ScheduleOrder extends Component
     {
         $this->authorize('update', $this->form->schedule);
         $response = $this->form->completeSchedule();
+        $this->reset('actionStatus');
         $this->EventUpdate($response);
     }
 
@@ -420,6 +422,15 @@ class ScheduleOrder extends Component
         $this->form->init($schedule);
         $this->selectedType = $schedule->type;
         $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
+        $this->dispatch('attchQueryParam', $schedule->id);
+    }
 
+    public function changeStatus($status)
+    {
+        if($this->actionStatus == $status) {
+            $this->reset('actionStatus');
+            return;
+        }
+        $this->actionStatus = $status;
     }
 }
