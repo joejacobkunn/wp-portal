@@ -68,6 +68,7 @@ class ScheduleForm extends Form
     public $addressFromOrder;
     public $selectedTruckSchedule;
     public $recommendedAddress;
+    public $notifyUser = true;
 
     public $alertConfig = [
         'status' => false,
@@ -320,8 +321,9 @@ class ScheduleForm extends Form
             $schedule->truckSchedule->slots = $schedule->truckSchedule->slots + 1;
             $schedule->truckSchedule->save();
         }
-
-        EventScheduled::dispatch($schedule);
+        if($this->notifyUser) {
+            EventScheduled::dispatch($schedule);
+        }
 
         return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
@@ -361,6 +363,7 @@ class ScheduleForm extends Form
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
         $validatedData['truck_schedule_id'] = $this->schedule_time;
+        $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
 
         $this->schedule->fill($validatedData);
         $this->schedule->save();
@@ -373,8 +376,9 @@ class ScheduleForm extends Form
         $this->scheduleType = null;
         $this->schedule_date = null;
         $this->schedule_time = null;
-
-        EventRescheduled::dispatch($this->schedule);
+        if($this->notifyUser) {
+            EventRescheduled::dispatch($this->schedule);
+        }
 
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
     }
@@ -486,9 +490,17 @@ class ScheduleForm extends Form
         }
         $enabledDatesQuery = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
+        ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
+        ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+        ->whereNull('scheduler_zipcodes.deleted_at')
+        ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
+        ->whereNull('zones.deleted_at')
+        ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
+        ->whereNull('trucks.deleted_at')
         ->leftJoin('schedules', function ($join) {
             $join->on('truck_schedules.id', '=', 'schedules.truck_schedule_id')
-                ->where('schedules.status', '!=', 'cancelled');
+                ->where('schedules.status', '!=', 'cancelled')
+                ->whereNull('schedules.deleted_at');
         })
         ->select('truck_schedules.schedule_date')
         ->whereIn('truck_schedules.zone_id', $zones)
@@ -559,7 +571,10 @@ class ScheduleForm extends Form
         $this->schedule->cancelled_at = Carbon::now();
         $this->schedule->cancelled_by = Auth::user()->id;
         $this->schedule->save();
-        EventCancelled::dispatch($this->schedule);
+        if($this->notifyUser) {
+            EventCancelled::dispatch($this->schedule);
+        }
+
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule cancelled', 'schedule' => $this->schedule];
     }
 
@@ -578,7 +593,9 @@ class ScheduleForm extends Form
         $this->schedule->status = 'out_for_delivery';
         $this->schedule->save();
         $this->fill($this->schedule);
-        EventDispatched::dispatch($this->schedule);
+        if($this->notifyUser) {
+            EventDispatched::dispatch($this->schedule);
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'Delivery initiated', 'schedule' => $this->schedule];
     }
 
@@ -588,7 +605,9 @@ class ScheduleForm extends Form
         $this->schedule->completed_at = Carbon::now();
         $this->schedule->completed_by = Auth::user()->id;
         $this->schedule->save();
-        EventComplete::dispatch($this->schedule);
+        if($this->notifyUser) {
+            EventComplete::dispatch($this->schedule);
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule completed', 'schedule' => $this->schedule];
 
     }

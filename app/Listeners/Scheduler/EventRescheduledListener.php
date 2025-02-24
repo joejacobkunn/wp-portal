@@ -75,7 +75,7 @@ class EventRescheduledListener implements ShouldQueue
         if(Str::contains($template,'[CustomerName]')) $template = Str::replace('[CustomerName]', $schedule->order->customer->name, $template);
         if(Str::contains($template,'[TimeSlot]')) $template = Str::replace('[TimeSlot]', $schedule->truckSchedule->start_time.' - '.$schedule->truckSchedule->end_time, $template);
         if(Str::contains($template,'[ScheduledDate]')) $template = Str::replace('[ScheduledDate]', Carbon::parse($schedule->schedule_date)->toFormattedDateString(), $template);
-        if(Str::contains($template,'[ServiceAddress]')) $template = Str::replace('[ServiceAddress]', $schedule->service_address, $template);
+        if(Str::contains($template,'[ServiceAddress]')) $template = Str::replace('[ServiceAddress]', str_replace(', USA','',$schedule->service_address), $template);
         if(Str::contains($template,'[Warehouse]')) $template = Str::replace('[Warehouse]', $schedule->order->warehouse->title, $template);
         if(Str::contains($template,'[WarehouseNumber]')) $template = Str::replace('[WarehouseNumber]', format_phone($schedule->order->warehouse->phone), $template);
         if(Str::contains($template,'[WarehouseAddress]')) $template = Str::replace('[WarehouseAddress]', format_phone($schedule->order->warehouse->address), $template);
@@ -84,7 +84,7 @@ class EventRescheduledListener implements ShouldQueue
         {
             if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', 'equipment', $template);
         }else{
-            if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', head($schedule->line_item).' ('.array_keys($schedule->line_item)[0].')', $template);
+            if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', array_keys($schedule->line_item)[0], $template);
         }
         if(Str::contains($template,'[DriverName]')) $template = Str::replace('[DriverName]', $schedule->truckSchedule->driver?->name, $template);
         return $template;
