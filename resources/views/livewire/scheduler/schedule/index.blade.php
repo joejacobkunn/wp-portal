@@ -30,7 +30,7 @@
         </ul>
         <div class="row">
             <div class="col-9">
-                <div class="card border-light shadow-sm schedule-tab">
+                <div class="card border-light shadow-sm schedule-tab mb-2">
                     <div class="card-body">
                         <div id="calendar" class="w-100" wire:ignore></div>
                         <div class="legend-section mt-2">
@@ -76,8 +76,8 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
+                <a href="https://forms.clickup.com/8465859/f/82be3-6774/OCD97BGC2IIOUWC8T1">Give Feedback</a>
             </div>
             <div class="col-3" wire:key="schedule-sidebar">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
