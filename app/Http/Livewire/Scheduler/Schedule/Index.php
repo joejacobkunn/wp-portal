@@ -62,6 +62,9 @@ class Index extends Component
     public $selectedSchedule;
     public $truckReturnInfo;
     public $selectedScheduleId;
+    public $searchZoneKey;
+    public $activeSearchKey = 'schedule';
+    public $searchZoneData;
 
     protected $queryString = [
         'selectedScheduleId' => ['except' => '*', 'as' => 'id'],
@@ -272,9 +275,7 @@ class Index extends Component
         ->toArray();
         $this->filteredSchedules = $this->getTrucks();
 
-        usort($this->filteredSchedules, function ($a, $b) {
-            return count($b['events']) <=> count($a['events']);
-        });
+        $this->filteredSchedules =  collect($this->filteredSchedules)->sortBy(fn($item) => strtotime($item['start_time']))->values()->all();
         $this->truckReturnInfo = TruckScheduleReturn::where('schedule_date', $date)
         ->where('whse', $this->activeWarehouse->short)
         ->get()
@@ -414,8 +415,8 @@ class Index extends Component
     public function closeSearchModal()
     {
         $this->showSearchModal = false;
-        $this->resetValidation('searchKey');
-        $this->reset(['searchKey', 'searchData']);
+        $this->resetValidation(['searchKey', 'searchZoneKey']);
+        $this->reset(['searchKey', 'searchData', 'searchZoneData', 'searchZoneKey', 'activeSearchKey']);
     }
 
     public function changeZone($zoneId)
@@ -431,9 +432,38 @@ class Index extends Component
         $this->dispatch('calendar-zone-update', !empty($this->activeZone) ? $this->activeZone['name'] : 'All Zones' );
     }
 
+    public function updatedSearchZoneKey($value)
+    {
+        $this->activeSearchKey = 'zone';
+        $this->searchZoneKey = $value;
+        $zipcodePattern = "/^\d{5}$/";
+        if ($this->searchZoneKey == '') {
+            $this->addError('searchZoneKey', 'Search field can\'t be empty');
+            $this->reset('searchZoneData');
+            return;
+        }
+
+        if (!preg_match($zipcodePattern, $this->searchZoneKey)) {
+            $this->addError('searchZoneKey', 'Search key must be a 5-digit number');
+            $this->reset('searchZoneData');
+            return;
+        }
+        $this->resetValidation('searchZoneKey');
+        $this->searchZoneData = Zones::join('zipcode_zone', 'zones.id', '=', 'zipcode_zone.zone_id')
+        ->join('scheduler_zipcodes', 'scheduler_zipcodes.id', '=', 'zipcode_zone.scheduler_zipcode_id')
+        ->where('scheduler_zipcodes.zip_code', $this->searchZoneKey)
+        ->whereNull('zones.deleted_at')
+        ->whereNull('scheduler_zipcodes.deleted_at')
+        ->select(['zones.name', 'zones.id'])
+        ->get()
+        ->toArray();
+
+    }
+
     public function updatedSearchKey($value)
     {
         $this->searchKey = $value;
+        $this->activeSearchKey = 'schedule';
         $ScheduleIDpattern = "/^[A-Za-z]\d{7,}$/";
         if($this->searchKey == '') {
             $this->addError('searchKey', 'search field can\'t be empty');
