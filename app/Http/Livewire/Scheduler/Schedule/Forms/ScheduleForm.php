@@ -447,6 +447,7 @@ class ScheduleForm extends Form
 
     public function getTruckSchedules($whse)
     {
+
         $truckScheduleQuery = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
@@ -457,12 +458,14 @@ class ScheduleForm extends Form
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
         ->whereNull('trucks.deleted_at');
 
-        $zones = Zones::whereHas('zipcodes', function ($query) {
-            $query->where('zip_code', $this->serviceZip);
-        })->pluck('id');
 
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
             $zones = Zones::where('is_active',1)->pluck('id');
+        } else {
+            $zones = Zones::whereHas('zipcodes', function ($query) {
+                $query->where('zip_code', $this->serviceZip);
+            })->pluck('id');
+
         }
 
         $this->truckSchedules = $truckScheduleQuery->whereIn('truck_schedules.zone_id', $zones)
