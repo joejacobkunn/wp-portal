@@ -491,6 +491,12 @@ class ScheduleForm extends Form
                 $zones = Zones::where('is_active',1)->pluck('id');
             }
         }
+        $scheduleCounts = DB::table('schedules')
+        ->where('schedules.status', '!=', 'cancelled')
+        ->whereNull('schedules.deleted_at')
+        ->select('schedules.truck_schedule_id', DB::raw('COUNT(*) as scheduled_count'))
+        ->groupBy('schedules.truck_schedule_id');
+
         $enabledDatesQuery = DB::table('truck_schedules')
         ->whereNull('truck_schedules.deleted_at')
         ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
@@ -500,16 +506,19 @@ class ScheduleForm extends Form
         ->whereNull('zones.deleted_at')
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
         ->whereNull('trucks.deleted_at')
-        ->leftJoin('schedules', function ($join) {
-            $join->on('truck_schedules.id', '=', 'schedules.truck_schedule_id')
-                ->where('schedules.status', '!=', 'cancelled')
-                ->whereNull('schedules.deleted_at');
+        ->leftJoinSub($scheduleCounts, 'schedule_counts', function ($join) {
+            $join->on('truck_schedules.id', '=', 'schedule_counts.truck_schedule_id');
         })
-        ->select('truck_schedules.schedule_date')
         ->whereIn('truck_schedules.zone_id', $zones)
-        ->groupBy('truck_schedules.id', 'truck_schedules.schedule_date', 'truck_schedules.slots');
-        if(!$shouldOverride) {
-            $enabledDatesQuery->havingRaw('COUNT(schedules.id) < truck_schedules.slots');
+        ->whereDate('truck_schedules.schedule_date', '>=', now()->toDateString())
+        ->select(
+            'truck_schedules.schedule_date',
+            'truck_schedules.id',
+            'truck_schedules.slots',
+            DB::raw('COALESCE(schedule_counts.scheduled_count, 0) as scheduled_count') // Ensures null becomes 0
+        );
+        if (!$shouldOverride) {
+            $enabledDatesQuery->whereRaw('COALESCE(schedule_counts.scheduled_count, 0) < truck_schedules.slots');
         }
         $this->enabledDates = $enabledDatesQuery->get()
         ->pluck('schedule_date')
