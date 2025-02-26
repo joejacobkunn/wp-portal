@@ -864,14 +864,13 @@
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
                         span.remove();
                     });
-                    document.querySelectorAll('.driver-assigned-span').forEach(span => {
-                        span.remove();
-                    });
+
                     document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
                         let truckinfo = $wire.truckInfo
                         let cellDate = dayCell.getAttribute('data-date');
                         let cellDateObj = new Date(cellDate);
                         let driverNotAssigned = false;
+                        dayCell.classList.remove('bg-light-danger');
 
                         truckinfo.forEach(truckData => {
                             let truckDateObj = new Date(truckData.schedule_date);
