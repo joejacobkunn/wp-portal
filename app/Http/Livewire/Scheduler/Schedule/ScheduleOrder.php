@@ -32,6 +32,7 @@ class ScheduleOrder extends Component
     public $sro_response;
     public $scheduledLineItem;
     public $actionStatus;
+    public $startedSchedules;
     public $schedulePriority = [
         'next_avail' => 'Next Available Date',
         'one_year' => 'One Year from Now',
@@ -68,6 +69,12 @@ class ScheduleOrder extends Component
                 $this->sro_verified = true;
                 $this->sro_response = $this->getSROInfo($this->sro_number);
             }
+            $this->startedSchedules = Schedule::where('status', 'out_for_delivery')
+            ->whereHas('truckSchedule', function ($query) {
+                $query->where('driver_id', $this->form->schedule->truckSchedule->driver_id);
+            })
+            ->count();
+
         }
         if (Auth::user()->can('scheduler.can-schedule-override')) {
             $this->schedulePriority = $this->schedulePriority + ['schedule_override' => 'Schedule Override'];
