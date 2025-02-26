@@ -168,20 +168,24 @@
                     </div>
                     <div class="collapse @if($actionStatus == 'start') show @endif p-4" id="startScheduleCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
-                            Click on the Start button below to Start the Schedule.
-                            <div class="col-md-12 mt-2">
-                                <x-forms.checkbox label="Notify user"
-                                    name="notifyUser" :value="1" model="form.notifyUser" />
-                                <div class="mt-4 float-start">
-                                    <button wire:click="startSchedule" class="btn btn-sm btn-warning">
-                                        <div wire:loading wire:target="startSchedule">
-                                            <span class="spinner-border spinner-border-sm" role="status"
-                                                aria-hidden="true"></span>
-                                        </div>
-                                        <i class="far fa-check-circle"></i> Start
-                                    </button>
+                            @if ($startedSchedules > 0)
+                                <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i> This Tech already have an active appointment</div>
+                            @else
+                                Click on the Start button below to Start the Schedule.
+                                <div class="col-md-12 mt-2">
+                                    <x-forms.checkbox label="Notify user"
+                                        name="notifyUser" :value="1" model="form.notifyUser" />
+                                    <div class="mt-4 float-start">
+                                        <button wire:click="startSchedule" class="btn btn-sm btn-warning">
+                                            <div wire:loading wire:target="startSchedule">
+                                                <span class="spinner-border spinner-border-sm" role="status"
+                                                    aria-hidden="true"></span>
+                                            </div>
+                                            <i class="far fa-check-circle"></i> Start
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                     <div class="collapse @if ($actionStatus == 'reschedule') show @endif p-4" id="rescheduleCollapse"

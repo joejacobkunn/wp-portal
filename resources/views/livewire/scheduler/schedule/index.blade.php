@@ -24,7 +24,8 @@
                     Calendar View</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('schedule.list.index', ['whse' => $this->activeWarehouse->id]) }}" wire:navigate><i class="fas fa-list"></i>
+                <a class="nav-link" href="{{ route('schedule.list.index', ['whse' => $this->activeWarehouse->id]) }}"
+                    wire:navigate><i class="fas fa-list"></i>
                     List View</a>
             </li>
         </ul>
@@ -77,7 +78,8 @@
                         </div>
                     </div>
                 </div>
-                <a href="https://forms.clickup.com/8465859/f/82be3-6774/OCD97BGC2IIOUWC8T1">Give Feedback</a>
+                <a target="_blank" href="https://forms.clickup.com/8465859/f/82be3-6774/OCD97BGC2IIOUWC8T1">Give
+                    Feedback</a>
             </div>
             <div class="col-3" wire:key="schedule-sidebar">
                 <h4>Overview for {{ Carbon\Carbon::parse($dateSelected)->toFormattedDayDateString() }}</h4>
@@ -256,20 +258,24 @@
             <x-modal toggle="showSearchModal" size="md" :closeEvent="'closeSearchModal'">
                 <x-slot name="title">
                     <div class="list-group list-group-horizontal-sm mb-1 text-center" role="tablist">
-                        <a class="list-group-item list-group-item-action @if($activeSearchKey == 'schedule') active  @endif" id="list-schedules-list"
-                            data-bs-toggle="list" href="#list-schedules" role="tab" aria-selected="true">Schedules</a>
-                        <a class="list-group-item list-group-item-action @if($activeSearchKey == 'zone') active @endif" id="list-zones-list"
-                            data-bs-toggle="list" href="#list-zones" role="tab" aria-selected="false" tabindex="-1">Zones</a>
+                        <a class="list-group-item list-group-item-action @if ($activeSearchKey == 'schedule') active @endif"
+                            id="list-schedules-list" data-bs-toggle="list" href="#list-schedules" role="tab"
+                            aria-selected="true">Schedules</a>
+                        <a class="list-group-item list-group-item-action @if ($activeSearchKey == 'zone') active @endif"
+                            id="list-zones-list" data-bs-toggle="list" href="#list-zones" role="tab"
+                            aria-selected="false" tabindex="-1">Zones</a>
                     </div>
                 </x-slot>
 
                 <div class="tab-content text-justify">
-                    <div class="tab-pane fade  @if($activeSearchKey == 'schedule') active show @endif " id="list-schedules" role="tabpanel" aria-labelledby="list-schedules-list">
+                    <div class="tab-pane fade  @if ($activeSearchKey == 'schedule') active show @endif "
+                        id="list-schedules" role="tabpanel" aria-labelledby="list-schedules-list">
                         <div class="row w-100">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <x-forms.input type="text" label="Search Schedule" model="searchKey"
-                                        hint="Search by order number, sro number, schedule id, name, email or phone" lazy />
+                                        hint="Search by order number, sro number, schedule id, name, email or phone"
+                                        lazy />
                                 </div>
                             </div>
                         </div>
@@ -295,9 +301,10 @@
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1">Order
                                                         #{{ $event['sx_ordernumber'] }}-{{ $event['order_number_suffix'] }}
-                                                        <div wire:loading wire:target="handleEventClick({{ $event['id'] }})">
-                                                            <span class="spinner-border spinner-border-sm" role="status"
-                                                                aria-hidden="true"></span>
+                                                        <div wire:loading
+                                                            wire:target="handleEventClick({{ $event['id'] }})">
+                                                            <span class="spinner-border spinner-border-sm"
+                                                                role="status" aria-hidden="true"></span>
                                                         </div>
                                                     </h5>
                                                     <small>
@@ -313,7 +320,8 @@
                                                         </span>
                                                     </small>
                                                 </div>
-                                                <small><i class="fas fa-clock fa-xs"></i> {{ $event['schedule_date'] }}
+                                                <small><i class="fas fa-clock fa-xs"></i>
+                                                    {{ $event['schedule_date'] }}
                                                     , {{ $event['schedule_time'] }}</small>
                                                 <p class="mb-1">
                                                     {{ $event['customer'] }} - SX#
@@ -333,12 +341,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade @if($activeSearchKey == 'zone') active show @endif" id="list-zones" role="tabpanel" aria-labelledby="list-zones-list">
+                    <div class="tab-pane fade @if ($activeSearchKey == 'zone') active show @endif" id="list-zones"
+                        role="tabpanel" aria-labelledby="list-zones-list">
                         <div class="row w-100">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <x-forms.input type="text" label="Search Zipcode" model="searchZoneKey"
-                                        hint="Search by Zipcode" lazy />
+                                    <x-forms.input type="text" label="Search by ZIP Code" model="searchZoneKey"
+                                        lazy />
                                 </div>
                             </div>
                         </div>
@@ -359,8 +368,8 @@
                                                 Showing results for {{ $searchZoneKey }}</div>
                                         @endif
                                         @forelse ($searchZoneData as $zone)
-                                            <a href="{{route('service-area.zones.show', ['zone' => $zone['id'] ])}}" class="list-group-item list-group-item-action"
-                                                wire:navigate >
+                                            <a href="{{ route('service-area.zones.show', ['zone' => $zone['id']]) }}"
+                                                class="list-group-item list-group-item-action" wire:navigate>
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1">{{ $zone['name'] }}
                                                     </h5>
@@ -864,14 +873,13 @@
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
                         span.remove();
                     });
-                    document.querySelectorAll('.driver-assigned-span').forEach(span => {
-                        span.remove();
-                    });
+
                     document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
                         let truckinfo = $wire.truckInfo
                         let cellDate = dayCell.getAttribute('data-date');
                         let cellDateObj = new Date(cellDate);
                         let driverNotAssigned = false;
+                        dayCell.classList.remove('bg-light-danger');
 
                         truckinfo.forEach(truckData => {
                             let truckDateObj = new Date(truckData.schedule_date);
