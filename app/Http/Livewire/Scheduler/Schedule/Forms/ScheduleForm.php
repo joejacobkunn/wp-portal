@@ -609,7 +609,7 @@ class ScheduleForm extends Form
         $this->schedule->completed_by = Auth::user()->id;
         $this->schedule->save();
         if($this->notifyUser) {
-            EventComplete::dispatch($this->schedule);
+            EventComplete::dispatch($this->schedule)->delay(now()->addMinutes(120));
         }
         return ['status' =>true, 'class'=> 'success', 'message' =>'schedule completed', 'schedule' => $this->schedule];
 
