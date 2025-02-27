@@ -16,12 +16,15 @@ class EventReminder
 
     public $schedule;
 
+    public $template;
+
     /**
      * Create a new event instance.
      */
-    public function __construct($schedule)
+    public function __construct($schedule, $template)
     {
         $this->schedule = $schedule;
+        $this->template = $template;
     }
 
 

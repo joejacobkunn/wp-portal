@@ -34,7 +34,7 @@ class EventReminderListener
      {
          if(App::environment() == 'production')
          {
-             $notification = $this->populateTemplate('ahm-48-hours',$event->schedule);
+             $notification = $this->populateTemplate($event->template, $event->schedule);
  
              if($event->schedule->order->customer->phone)
              {
