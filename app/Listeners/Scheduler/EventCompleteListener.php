@@ -19,6 +19,8 @@ use App\Classes\SX;
 
 class EventCompleteListener implements ShouldQueue
 {
+
+    public $delay = 1800;
     /**
      * Create the event listener.
      */

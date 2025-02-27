@@ -19,7 +19,7 @@ class ProcessPurchaseOrderReceipts extends Command
      */
     private $cono = 80;
 
-    protected $signature = 'app:process-purchase-order-receipts {--mode=test} {--po=}';
+    protected $signature = 'app:process-purchase-order-receipts {--mode=test} {--po=} {--date=}';
 
     /**
      * The console command description.
@@ -41,13 +41,22 @@ class ProcessPurchaseOrderReceipts extends Command
 
         $po_number = $this->option('po') ?? null;
 
-        $this->info('Starting process in mode : '.$mode);
+        $date = $this->option('date') ?? null;
+
+        $this->info('Starting process in mode : '.$mode.'<br>');
 
         if($po_number)
         {
             $this->newLine();
-            $this->info(' for PO Number : '.$po_number);
+            $this->info(' for PO Number : '.$po_number.'<br>');
         }
+
+        if($date)
+        {
+            $this->newLine();
+            $this->info(' for Date : '.$date);
+        }
+
 
         $query = PurchaseOrderReceipt::query();
 
@@ -55,15 +64,27 @@ class ProcessPurchaseOrderReceipts extends Command
             return $q->where('po_number', $po_number);
         });
 
-        $query->when(is_null($po_number), function ($q) {
-            return $q->where('po_number', '>', 143113);
+        $query->when(!is_null($date), function ($q) use($date) {
+            return $q->where('receipt_date', $date);
         });
 
-        $purchase_orders_numbers = $query->where('is_processed',0)->pluck('po_number')->unique();
+        $query->when($mode == 'process', function ($q) use($date) {
+            return $q->where('is_processed', 0);
+        });
+
+        $purchase_orders_numbers = $query->pluck('po_number')->unique();
 
         foreach($purchase_orders_numbers as $purchase_order_number)
         {
-            $purchase_orders = PurchaseOrderReceipt::where('is_processed',0)->where('po_number', $purchase_order_number)->get();
+            $this->info('Processing PO Number '.$purchase_order_number.'<br>');
+
+            if($mode == 'test')
+            {
+                $purchase_orders = PurchaseOrderReceipt::where('po_number', $purchase_order_number)->get();
+            }else{
+                $purchase_orders = PurchaseOrderReceipt::where('is_processed',0)->where('po_number', $purchase_order_number)->get();
+            }
+
 
             $this->sx_po_line_data = $this->getSxPoData($purchase_order_number);
 
@@ -78,59 +99,62 @@ class ProcessPurchaseOrderReceipts extends Command
 
                 foreach($purchase_orders as $purchase_order)
                 {
+                    if($purchase_order->is_processed) $this->info('Peoplevox Ref '.$purchase_order->people_vox_reference_no .'receipt has already been processed<br>');
+
                     foreach($purchase_order->line_items['line_items'] as $item => $item_count)
                     {
                         //$array_key = $this->checkForItem($item, $products);
-                        $this->line_item_slots[$item][] = ['qty' => $item_count, 'po_number' => $purchase_order_number];
+                        $this->line_item_slots[strtoupper($item)][] = ['qty' => $item_count, 'po_number' => $purchase_order_number];
                         $products[] = ['prod' => $item, 'qty' => $item_count, 'po_number' => $purchase_order_number];                        
                     }
 
                     foreach($this->line_item_slots as $item => $slots)
                     {
-                        $this->line_item_totals[$item] = 0;
+                        $this->line_item_totals[strtoupper($item)] = 0;
                         foreach($slots as $slot){
-                            $this->line_item_totals[$item] += $slot['qty'];
+                            $this->line_item_totals[strtoupper($item)] += $slot['qty'];
                         }
                     }
                 }
+
+                $ineligible_products = $this->checkForIneligibleProducts($products,$this->sx_po_line_data);
+
+                if(!empty($ineligible_products))
+                {
+                    $to = ['jkrefman@wandpmanagement.com'];
+
+                    if($mode == 'process') 
+                    {
+                        $to = ['miranda.beaudett@bwretail.com', 'jay.leblanc@bwretail.com', 'karl.hessell@bwretail.com', 'jkrefman@wandpmanagement.com'];
+                        //PurchaseOrderReceipt::whereIn('id', $purchase_order_ids)->update(['is_processed' => 1]);
+                    }
+
+                    // Mail::send([], [],function (Message $message) use($ineligible_products,$purchase_order,$po_suffix,$to) {
+                    //     $message->to($to)->cc(['jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com'])->subject('Ineligible products for PO# '.$purchase_order->po_number.'-'.$po_suffix);
+                    //     $message->html('The following items were received in Peoplevox today but could not be found on PO# '.$purchase_order->po_number.'-'.$po_suffix.', therefore they were not received in SX.<br><br>PeopleVox Ref Number : '.$purchase_order->people_vox_reference_no.'<br>Receipt Date : '.date('Y-m-d', strtotime($purchase_order->receipt_date)).'<br><br>Ineligible Items  : '.implode(" ,",$ineligible_products).'<br><br>Note: Reasons could include supersedes, substitutes, or overages (if the line item was already completed in SX)');
+                    // });
+
+                    $this->info('Ineligible items : '.implode(" ,",$ineligible_products).'<br>');
+    
+                }
+
+
+                $this->info('PeopleVox Data => '.json_encode($products).'<br><br>');
+                $this->info('PeopleVox Calculated Line Item Totals => '.json_encode($this->line_item_totals).'<br><br>');
     
                 foreach($purchase_orders as $purchase_order)
                 {
-
-                    $ineligible_products = $this->checkForIneligibleProducts($products,$this->sx_po_line_data);
 
                     $po_suffix = $this->sx_po_line_data[0]->posuf;
     
                     $stage_code = $this->sx_po_line_data[0]->stagecd;
 
 
-                    if(!empty($ineligible_products))
-                    {
-                        $to = ['jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com'];
-
-                        if($mode == 'process') 
-                        {
-                            $to = ['miranda.beaudett@bwretail.com', 'jay.leblanc@bwretail.com', 'karl.hessell@bwretail.com','jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com'];
-                            PurchaseOrderReceipt::whereIn('id', $purchase_order_ids)->update(['is_processed' => 1]);
-                        }
-
-                        Mail::send([], [],function (Message $message) use($ineligible_products,$purchase_order,$po_suffix,$to) {
-                            $message->to('jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com', 'jkrefman@wandpmanagement.com'])->subject('Ineligible products for PO# '.$purchase_order->po_number.'-'.$po_suffix);
-                            $message->html('The following items were received in Peoplevox today but could not be found on PO# '.$purchase_order->po_number.'-'.$po_suffix.', therefore they were not received in SX.<br><br>PeopleVox Ref Number : '.$purchase_order->people_vox_reference_no.'<br>Receipt Date : '.date('Y-m-d', strtotime($purchase_order->receipt_date)).'<br><br>Ineligible Items  : '.implode(" ,",$ineligible_products).'<br><br>Note: Reasons could include supersedes, substitutes, or overages (if the line item was already completed in SX)');
-                        });
-
-                        $this->info('Failed to process due to ineligble items : '.implode(" ,",$ineligible_products));
-
-                        exit;
-        
-                    }
-
-    
                     foreach($this->sx_po_line_data as $sx_po_line)
                     {
-                        if($this->itemEligibleForReceipt($sx_po_line->shipprod,$products))
+                        if($this->itemEligibleForReceipt($sx_po_line->shipprod,$products) && !in_array(strtoupper($sx_po_line->shipprod),$ineligible_products))
                         {
-                            $po_meta_data = $this->getPOMetaDataForItem($sx_po_line->shipprod, $sx_po_line->lineno,$sx_po_line->qtyord,$purchase_order_number,$po_suffix);
+                            $po_meta_data = $this->getPOMetaDataForItem(strtoupper($sx_po_line->shipprod), $sx_po_line->lineno,$sx_po_line->qtyord,$purchase_order_number,$po_suffix);
                             
                             if(!empty($po_meta_data))
                             {
@@ -138,11 +162,11 @@ class ProcessPurchaseOrderReceipts extends Command
                             }
                         }
                         
-                    }
+                    }    
+
 
                     $purchase_order_ids[] = $purchase_order->id;
-                }
-    
+                }    
     
                 if(in_array($stage_code,[0,1,2,3,4]))
                 {
@@ -169,11 +193,12 @@ class ProcessPurchaseOrderReceipts extends Command
     
             }
             else{
+                $this->info('No line items found for this PO');
                 if($mode == 'process') PurchaseOrderReceipt::where('po_number', $purchase_order_number)->update(['is_processed', 1]);
             }
         }
 
-        $this->info('The job is complete');
+        $this->info('<br>The job is complete');
     }
 
     private function getSxPoData($po_number)
@@ -186,7 +211,9 @@ class ProcessPurchaseOrderReceipts extends Command
                                                         ORDER BY poeh.posuf DESC
                                                         WITH(NOLOCK)", [$this->cono,$po_number]);
 
-        return DB::connection('sx')->select("SELECT poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
+        $this->info('SX Data => Last Suffix => '.$last_suffix[0]->posuf.'<br>');
+
+        $po_data = DB::connection('sx')->select("SELECT poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
                                                 FROM pub.poeh
                                                 LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
                                                 WHERE poeh.cono = ?
@@ -194,13 +221,21 @@ class ProcessPurchaseOrderReceipts extends Command
                                                 AND poeh.posuf = ?
                                                 WITH(NOLOCK)", [$this->cono,$po_number,$last_suffix[0]->posuf]);
 
+        $this->info('SX Data => PO Data => '.json_encode($po_data).'<br><br>');
+
+        return $po_data;
+
     }
 
     private function getPOMetaDataForItem($item,$line,$qty,$po_number,$po_suffix)
     {
-        Log::info($item.' '.$qty.' total '.$this->line_item_totals[$item]);
+        $this->info('Starting item => '.$item);
 
-        if($this->line_item_totals[$item] < 1) return [];
+        if($this->line_item_totals[$item] < 1) 
+        {
+            //$this->info('Skipping as receipt line item count is '.$this->line_item_totals[$item]);
+            return [];
+        }
 
         //looping thru each line item quantity from the receipt
         foreach($this->line_item_slots[$item] as $slot)
@@ -208,6 +243,8 @@ class ProcessPurchaseOrderReceipts extends Command
 
             if($this->line_item_totals[$item] == $qty)
             {
+                $this->info($item.' => Receipt line item count is same as SX quantity.<br>');
+
 
                 if($this->check_if_last_multiple_item($item,$line))
                 {
@@ -218,12 +255,14 @@ class ProcessPurchaseOrderReceipts extends Command
 
                     return ['lineno' => $line, 'qty' => $qty];
                 }
+
             }
         }
         
         foreach($this->line_item_slots[$item] as $slot)
         {
-            //peoplevox qty less than sx quantity
+            $this->info($item.' => Receipt line item count ('.$this->line_item_totals[$item].') is less than SX quantity.<br>');
+
             if($this->line_item_totals[$item] < $qty)
             {
                 
@@ -247,6 +286,7 @@ class ProcessPurchaseOrderReceipts extends Command
 
             if($this->line_item_totals[$item] > $qty){
 
+                $this->info($item.' => Receipt line item count ('.$this->line_item_totals[$item].') is greater than SX quantity ('.$qty.')<br>');
                 
                 if($this->check_if_last_multiple_item($item,$line))
                 {
@@ -260,6 +300,7 @@ class ProcessPurchaseOrderReceipts extends Command
                     return ['lineno' => $line, 'qty' => $qty];
                 }
 
+
             }
         }
     
@@ -269,7 +310,7 @@ class ProcessPurchaseOrderReceipts extends Command
     {
         foreach($receipted_products as $product)
         {
-            if($item == $product['prod'])
+            if(strtolower($item) == strtolower($product['prod']))
             {
                 return true;
             }
@@ -291,14 +332,15 @@ class ProcessPurchaseOrderReceipts extends Command
 
         foreach($this->sx_po_line_data as $sx_po_line)
         {
-            $sx_products[] = $sx_po_line->shipprod;
+            $sx_products[] = strtolower($sx_po_line->shipprod);
         }
+
 
         foreach($products as $product)
         {
-            if(!in_array($product['prod'],$sx_products))
+            if(!in_array(strtolower($product['prod']),$sx_products))
             {
-                $in_eligible_products[] = $product['prod'];
+                $in_eligible_products[] = strtoupper($product['prod']);
             }
         }
 
@@ -317,7 +359,6 @@ class ProcessPurchaseOrderReceipts extends Command
 
     private function check_if_last_multiple_item($item,$line_no)
     {
-        //Log::info($item.' line no '.$line_no.' max '.collect($this->sx_po_line_data)->where('shipprod',$item)->max('lineno'));
         if(collect($this->sx_po_line_data)->where('shipprod',$item)->count() > 1 && collect($this->sx_po_line_data)->where('shipprod',$item)->max('lineno') == $line_no) return true;
         return false;
     }
@@ -326,7 +367,6 @@ class ProcessPurchaseOrderReceipts extends Command
     {
         if(collect($this->sx_po_line_data)->where('shipprod',$item)->count() == 1 && count($this->line_item_slots[$item]) > 1)
         {
-            Log::info($item.' '.collect($this->sx_po_line_data)->where('shipprod',$item)->count().' '.count($this->line_item_slots[$item]));
             return true;
         } 
         return false;

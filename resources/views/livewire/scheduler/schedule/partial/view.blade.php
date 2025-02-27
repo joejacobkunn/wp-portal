@@ -15,7 +15,7 @@
                                 @endif
 
                                 @if ($form->schedule->status == 'cancelled')
-                                    <button type="button" class="btn btn-sm btn-success"
+                                    <button type="button" class="btn btn-sm btn-warning"
                                         wire:click="changeStatus('uncacnel')" data-bs-toggle="collapse"
                                         wire:key="undocancel-toggle-btn" data-bs-target="#undoCancelCollapse"
                                         aria-expanded="false" aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
@@ -99,7 +99,7 @@
                             You are reinstating this schedule. Please ensure to confirm the SRO afterward.
                             <div class="col-md-12 mt-3">
                                 <div class="mt-2 float-start">
-                                    <button wire:click="undoCancel" class="btn btn-sm btn-success">
+                                    <button wire:click="undoCancel" class="btn btn-sm btn-warning">
                                         <div wire:loading wire:target="undoCancel">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
@@ -466,7 +466,7 @@
                                     href="{{ config('sro.url') . 'dashboard/repair-orders/' . $sro_response['id'] }}"
                                     target="_blank"><i class="fas fa-external-link-alt"></i> SRO
                                     #{{ $form->schedule->sro_number }}</a></span>
-                            {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}
+                            {{ str($sro_response['first_name'] . ' ' . $sro_response['last_name'])->title() }}
                         </h4>
 
                         <ul class="list-group mt-4">
@@ -489,11 +489,13 @@
                                     {{ $sro_response['city'] }},
                                     {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span>
                             </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span> Note</span>
-                                <span
-                                    class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['note'] }}</span>
-                            </li>
+                            @if (!empty($sro_response['note']))
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span> Note</span>
+                                    <span
+                                        class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['note'] }}</span>
+                                </li>
+                            @endif
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span> Status</span>
                                 <span

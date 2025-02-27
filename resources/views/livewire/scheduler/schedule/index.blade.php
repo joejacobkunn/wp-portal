@@ -154,7 +154,7 @@
 
                                                     </div>
                                                     <p class="mb-1">
-                                                        {{ $event['customer_name'] }} - CustNo
+                                                        {{ str($event['customer_name'])->title() }} - CustNo
                                                         #{{ $event['sx_customer_number'] }}
                                                     </p>
                                                     @if (isset($event['shipping_info']))
