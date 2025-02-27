@@ -52,7 +52,7 @@
                             @endcan
                             @canany(['scheduler.can-start-event', 'scheduler.schedule.manage'])
                                 @if ($form->schedule->status == 'confirmed')
-                                    <button type="button" class="btn btn-sm btn-primary" wire:click="changeStatus('start')"
+                                    <button type="button" class="btn btn-sm btn-success" wire:click="changeStatus('start')"
                                         data-bs-toggle="collapse" data-bs-target="#startScheduleCollapse"
                                         aria-expanded="false" wire:key="start-toggle-btn"
                                         aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
@@ -544,19 +544,22 @@
                         </div>
                     </li>
 
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div>
-                            <h3 class="h6 mb-1">Equipment</h3>
-                            @if ($form->schedule->line_item)
-                                <p class="small pe-4">
-                                    {{ head($form->schedule->line_item) }}
-                                    ({{ array_keys($form->schedule->line_item)[0] }})
-                                </p>
-                            @else
-                                <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
-                            @endif
-                        </div>
-                    </li>
+                    @unless ($form->schedule->sro_number)
+
+                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                            <div>
+                                <h3 class="h6 mb-1">Equipment</h3>
+                                @if ($form->schedule->line_item)
+                                    <p class="small pe-4">
+                                        {{ head($form->schedule->line_item) }}
+                                        ({{ array_keys($form->schedule->line_item)[0] }})
+                                    </p>
+                                @else
+                                    <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
+                                @endif
+                            </div>
+                        </li>
+                    @endunless
                     @if (!empty($form->schedule->serial_no))
                         <li
                             class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
@@ -578,19 +581,22 @@
                             </p>
                         </div>
                     </li>
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div>
-                            <h3 class="h6 mb-1">SRO Number</h3>
-                            <p class="small pe-4">
-                                @if ($form->schedule->sro_number == null)
-                                    <span class="bg-warning text-dark"> Link SRO
-                                        to view SRO Info</span>
-                                @else
-                                    {{ $form->schedule->sro_number }}
-                                @endif
-                            </p>
-                        </div>
-                    </li>
+
+                    @unless ($form->schedule->sro_number)
+                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                            <div>
+                                <h3 class="h6 mb-1">SRO Number</h3>
+                                <p class="small pe-4">
+                                    @if ($form->schedule->sro_number == null)
+                                        <span class="bg-warning text-dark"> Link SRO
+                                            to view SRO Info</span>
+                                    @else
+                                        {{ $form->schedule->sro_number }}
+                                    @endif
+                                </p>
+                            </div>
+                        </li>
+                    @endunless
 
                     @if ($form->schedule->notes)
                         <li
