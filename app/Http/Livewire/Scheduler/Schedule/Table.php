@@ -93,7 +93,7 @@ class Table extends DataTableComponent
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
-                    return $row->order?->customer?->name.' (#'.$row->order?->customer?->sx_customer_number.')';
+                    return str($row->order?->customer?->name)->title().' (#'.$row->order?->customer?->sx_customer_number.')';
                 }),
 
 

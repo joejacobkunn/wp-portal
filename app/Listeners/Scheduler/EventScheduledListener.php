@@ -21,6 +21,7 @@ use App\Classes\SX;
 
 class EventScheduledListener implements ShouldQueue
 {
+    public $tries = 1;
     /**
      * Create the event listener.
      */
@@ -44,7 +45,7 @@ class EventScheduledListener implements ShouldQueue
                 $kenect->send($event->schedule->order->customer->phone, $notification['sms'],'18771');
             }
     
-            if($event->schedule->order->customer->email)
+            if($event->schedule->order->customer->email && filter_var($event->schedule->order->customer->email, FILTER_VALIDATE_EMAIL))
             {
                 Notification::route('mail', $event->schedule->order->customer->email)
                 ->notify(new EmailNotification($notification['email_subject'], $notification['email_body']));
@@ -76,7 +77,7 @@ class EventScheduledListener implements ShouldQueue
     private function fillTemplateVariables($template, $schedule)
     {
         if(Str::contains($template,'[ScheduleID]')) $template = Str::replace('[ScheduleID]', $schedule->scheduleId(), $template);
-        if(Str::contains($template,'[CustomerName]')) $template = Str::replace('[CustomerName]', $schedule->order->customer->name, $template);
+        if(Str::contains($template,'[CustomerName]')) $template = Str::replace('[CustomerName]', $schedule->order->customer?->name, $template);
         if(Str::contains($template,'[TimeSlot]')) $template = Str::replace('[TimeSlot]', $schedule->truckSchedule->start_time.' - '.$schedule->truckSchedule->end_time, $template);
         if(Str::contains($template,'[ScheduledDate]')) $template = Str::replace('[ScheduledDate]', Carbon::parse($schedule->schedule_date)->toFormattedDateString(), $template);
         if(Str::contains($template,'[ServiceAddress]')) $template = Str::replace('[ServiceAddress]', str_replace(', USA','',$schedule->service_address), $template);
