@@ -411,7 +411,12 @@
                         @endif
                     @endif
                     @if ($form->schedule->status == 'completed')
-                        <p><i class="far fa-calendar-check"></i> AHM is Completed
+                        <p><i class="far fa-calendar-check"></i> AHM scheduled in
+                            <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
+                            class="fas fa-globe"></i>
+                            {{ $form->schedule->truckSchedule->zone->name }}</span>
+                            between <strong>{{ $form->schedule->truckSchedule->start_time }} and
+                            {{ $form->schedule->truckSchedule->end_time }}</strong> is Completed
                         </p>
                         <hr>
                         <p class="mb-0">Completed by <span

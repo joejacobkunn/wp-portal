@@ -107,12 +107,12 @@ class RouteFinder extends Command
                 $currentTime = $currentTime->subMinutes(15);
             }
             if ($confirmedOrders->isEmpty()) {
-                $this->warn(sprintf('No confirmed orders found for Schedule ID: %d', $schedule->id));
+                $this->warn(sprintf('No confirmed schedules found for truck schedule ID: %d', $schedule->id));
                 $currentTime = null;
                 continue;
             }
 
-            // Group orders by address while maintaining order
+            // Group orders by address while maintaining schedule
             $addressToOrders = [];
             foreach ($confirmedOrders as $order) {
                 if (!isset($addressToOrders[$order->service_address])) {
