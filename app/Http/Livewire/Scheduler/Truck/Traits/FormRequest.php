@@ -129,10 +129,7 @@ trait FormRequest
     {
         $this->authorize('update', $this->truck);
         $truck = $this->truck->save();
-        if ($this->truckImage && !is_string($this->truckImage)) {
-            // Clear old media first (optional)
-            $this->truck->clearMediaCollection(Truck::DOCUMENT_COLLECTION);
-
+        if ($this->truckImage != null || gettype($this->truckImage) == 'array') {
             $this->truck
                 ->syncFromMediaLibraryRequest($this->truckImage)
                 ->toMediaCollection(Truck::DOCUMENT_COLLECTION);

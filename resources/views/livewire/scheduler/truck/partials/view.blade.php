@@ -1,21 +1,26 @@
 <div class="row">
     <div class="col-4 col-md-4 col-xxl-4">
         <div class="card-body">
-            <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+            @php
+                $truckImages = $truck->getMedia($truck::DOCUMENT_COLLECTION);
+            @endphp
+            <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
-                  <div class="carousel-item active">
-                        @php
-                            $mediaUrl = $truck->getFirstMediaUrl($truck::DOCUMENT_COLLECTION);
-                        @endphp
-                        @if ($mediaUrl)
-                        <img class="d-block w-100" src="{{ $mediaUrl }}"
-                                alt="Avatar">
-                        @else
-                            <p class="small">No image available</p>
-                        @endif
-                  </div>
+                    @foreach($truckImages as $key => $image)
+                        <div class="carousel-item @if($key==0) active @endif">
+                            <img src="{{ $image->getUrl() }}" class="d-block w-100" alt="...">
+                        </div>
+                    @endforeach
                 </div>
-              </div>
+                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </a>
+            </div>
         </div>
     </div>
     <div class="col-8 col-md-8 col-xxl-8">
