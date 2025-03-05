@@ -555,6 +555,7 @@ class SX
     {
         $response = Http::withToken($this->token())
         ->acceptJson()
+        ->timeout(60)
         ->withBody(json_encode($request), 'application/json')
         ->post($this->web_endpoint.'/sxapisrreceivepo');
 

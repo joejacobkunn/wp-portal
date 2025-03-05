@@ -181,7 +181,7 @@ class ProcessPurchaseOrderReceipts extends Command
                     }
         
                     Mail::send([], [],function (Message $message) use($sx_payload,$purchase_order_number,$mode) {
-                        $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('SX Payload for PO# '.$purchase_order_number.' on '.date('Y-m-d'));
+                        $message->to('jkrefman@wandpmanagement.com')->subject('SX Payload for PO# '.$purchase_order_number.' on '.date('Y-m-d'));
                         $message->html('<strong>Mode : </strong>'.$mode);
                         $message->html('<span><strong>Aggregated daily SX payload  :</strong> <br><br>'.json_encode($sx_payload));
                     });
