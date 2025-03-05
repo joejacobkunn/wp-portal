@@ -24,14 +24,15 @@
 
                     <!-- Service Type -->
                     <div class="col-md-6 mb-3">
-                        <x-forms.select label="Service Type" model="truck.service_type" :options="$serviceTypes" :selected="$truck->service_type ?? null"
-                            :hasAssociativeIndex="true" default-selectable default-option-label="- Select Shift -"  />
+                        <x-forms.select label="Service Type" model="truck.service_type" :options="$serviceTypes"
+                            :selected="$truck->service_type ?? null" :hasAssociativeIndex="true" default-selectable
+                            default-option-label="- Select Shift -" />
                     </div>
                 </div>
 
             </div>
             <div class="card card-body shadow-sm mb-2">
-                <h4 class="card-title mb-2">Height / width / Length</h4>
+                <h4 class="card-title mb-2">Cargo Dimensions</h4>
 
                 <div class="row">
                     <div class="col-md-4 mb-2">
@@ -59,13 +60,6 @@
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <x-forms.input label="Year" model="truck.year" type="number" lazy />
-                    </div>
-                </div>
-                <!-- Storage Space -->
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <x-forms.input label="Cubic Storage Space" model="truck.cubic_storage_space" type="text"
-                            lazy />
                     </div>
                 </div>
 

@@ -30,7 +30,6 @@ trait FormRequest
         'truck.height' => 'Height',
         'truck.width' => 'Width',
         'truck.length' => 'Length',
-        'truck.cubic_storage_space' => 'Storage Space',
         'truckImage' => 'Truck Image',
     ];
 
@@ -43,7 +42,6 @@ trait FormRequest
     {
         return [
             'truck.truck_name' => 'required|string|max:255',
-            'truck.cubic_storage_space' => 'required|string|max:255',
             'truck.vin_number' => [
                 'required',
                 'string',
@@ -83,7 +81,6 @@ trait FormRequest
             $this->truck->year = null;
             $this->truck->color = null;
             $this->truck->notes = null;
-            $this->truck->cubic_storage_space = null;
         }
     }
 
