@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
+use App\Models\Order\Order;
 use App\Models\Product\Product;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\TruckSchedule;
@@ -33,6 +34,8 @@ class ScheduleOrder extends Component
     public $scheduledLineItem;
     public $actionStatus;
     public $startedSchedules;
+    public $showConfirmMessage = false;
+    public $orderErrorStatus = false;
     public $schedulePriority = [
         'next_avail' => 'Next Available Date',
         'one_year' => 'One Year from Now',
@@ -388,9 +391,24 @@ class ScheduleOrder extends Component
 
     public function confirmSchedule()
     {
+        $order = Order::where('order_number', $this->sro_response['sx_repair_order_no'])->select('id','whse', 'order_number')->first();
+        if(!$order) {
+            $this->orderErrorStatus = true;
+            return;
+        }
+
+        if($order->whse != $this->form->schedule->truckSchedule->truck->warehouse_short) {
+            $this->showConfirmMessage = true;
+            return;
+        }
+        $this->confirmedSchedule();
+    }
+
+    public function confirmedSchedule()
+    {
         $response = $this->form->confirmSchedule();
         $this->alert($response['class'], $response['message']);
-        $this->reset('actionStatus');
+        $this->reset(['actionStatus', 'showConfirmMessage', 'orderErrorStatus']);
         $this->EventUpdate($response);
     }
 
@@ -398,9 +416,6 @@ class ScheduleOrder extends Component
     {
         $response = $this->form->unConfirm();
         $this->reset([
-            'sro_number',
-            'sro_verified',
-            'sro_response',
             'actionStatus'
         ]);
         $this->alert($response['class'], $response['message']);

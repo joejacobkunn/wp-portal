@@ -249,7 +249,7 @@ class Index extends Component
 
         $this->eventsData = $query->where('schedule_Date', $date)
         ->orderByRaw('COALESCE(travel_prio_number, 9999) asc')
-        ->orderByRaw('STR_TO_DATE(schedules.expected_arrival_time, "%h:%i %p") asc')
+        ->orderBy('schedules.expected_arrival_time', 'asc')
         ->orderBy('created_at', 'asc')
         ->get()
         ->map(function($schedule){

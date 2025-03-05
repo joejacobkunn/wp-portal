@@ -24,6 +24,7 @@ use App\Rules\ValidateScheduleTime;
 use App\Rules\ValidateSlotsforSchedule;
 use Carbon\Carbon;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -557,13 +558,21 @@ class ScheduleForm extends Form
     {
         $this->schedule->status = 'confirmed';
         $this->schedule->save();
+        if($this->schedule->schedule_date->format('Y-m-d') == Carbon::now()->format('Y-m-d')) {
+            Artisan::call('app:route-finder');
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule confirmed successfully', 'schedule' => $this->schedule];
     }
 
     public function unConfirm()
     {
         $this->schedule->status = 'scheduled_linked';
+        $this->schedule->expected_arrival_time = null;
+        $this->schedule->travel_prio_number = null;
         $this->schedule->save();
+        if($this->schedule->schedule_date->format('Y-m-d') == Carbon::now()->format('Y-m-d')) {
+            Artisan::call('app:route-finder');
+        }
         return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule Unconfirmed', 'schedule' => $this->schedule];
     }
 
