@@ -27,6 +27,9 @@ trait FormRequest
         'truck.year' => 'Year',
         'truck.color' => 'Color',
         'truck.notes' => 'Notes',
+        'truck.height' => 'Height',
+        'truck.width' => 'Width',
+        'truck.length' => 'Length',
         'truck.cubic_storage_space' => 'Storage Space',
         'truckImage' => 'Truck Image',
     ];
@@ -49,6 +52,9 @@ trait FormRequest
             ],
             'truck.service_type' => 'required|string|max:255',
             'truck.shift_type' => 'required|string|max:255',
+            'truck.height' => 'required|numeric',
+            'truck.width' => 'required|numeric',
+            'truck.length' => 'required|numeric',
             'truck.model_and_make' => 'required|string|max:255',
             'truck.year' => 'required|numeric|digits:4',
             'truck.color' => 'required|string|max:50',
@@ -69,6 +75,9 @@ trait FormRequest
             $this->truck->vin_number = null;
             $this->truck->service_type = null;
             $this->truck->shift_type = null;
+            $this->truck->height = null;
+            $this->truck->width = null;
+            $this->truck->length = null;
             $this->truck->vin_number = null;
             $this->truck->model_and_make = null;
             $this->truck->year = null;

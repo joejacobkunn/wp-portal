@@ -29,6 +29,9 @@ class Truck extends Model implements HasMedia
         'baseline_date',
         'service_type',
         'shift_type',
+        'height',
+        'width',
+        'length',
         'warehouse_short',
     ];
 
