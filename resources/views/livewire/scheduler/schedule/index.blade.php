@@ -448,7 +448,7 @@
                     height: 'auto',
                     contentHeight: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today exportBtn searchBtn settingsBtn',
+                        left: 'prev,next today nextYearButton exportBtn searchBtn settingsBtn',
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
@@ -493,6 +493,12 @@
                             text: '',
                             click: function(e) {
                                 $wire.showSearchModalForm();
+                            }
+                        },
+                        nextYearButton: {
+                            text: 'Next Year',
+                            click: function () {
+                                calendar.incrementDate({ years: 1 }); // Move to next year
                             }
                         },
                         settingsBtn: {
