@@ -132,10 +132,28 @@
                     <div class="collapse @if ($actionStatus == 'confirm') show @endif p-4" id="confirmCollapse"
                         data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
-                            Confirm this schedule by clicking Confirm below.
+                            @if ($orderErrorStatus)
+                                <div class="alert alert-light-danger color-danger"><i class="bi bi-exclamation-triangle"></i>
+                                    The Order associated with SX #{{$sro_response['sx_repair_order_no']}}
+                                    is not found.</div>
+                            @endif
+                            Confirm this schedule by clicking {{$showConfirmMessage ? 'Proceed' : 'Confirm'}} below.
+                            @if ($showConfirmMessage)
+                                <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+                                    The warehouse associated with SX #{{$sro_response['sx_repair_order_no']}}
+                                    is different from the truck assigned. Do you still want to proceed?.</div>
+                            @endif
+
                             <div class="col-md-12">
                                 <div class="mt-4 float-start">
-                                    <button wire:click="confirmSchedule" class="btn btn-sm btn-primary">
+                                    <button wire:click="confirmedSchedule" class="btn btn-sm btn-primary @if(!$showConfirmMessage) d-none @endif ">
+                                        <div wire:loading wire:target="confirmedSchedule">
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
+                                        </div>
+                                        <i class="far fa-calendar-check"></i> Proceed
+                                    </button>
+                                    <button wire:click="confirmSchedule" class="btn btn-sm btn-primary @if($showConfirmMessage) d-none @endif">
                                         <div wire:loading wire:target="confirmSchedule">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>

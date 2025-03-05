@@ -166,7 +166,7 @@
                                                             {{ str($event['latest_comment']->comment)->limit(30, ' ...') }}
                                                         </div>
                                                     @endif
-                                                    @if ($event['travel_prio_number'])
+                                                    @if ($event['travel_prio_number'] && $event['status'] == 'confirmed')
                                                         <p class="font-small"><span class="badge bg-light-info">
                                                                 <i class="far fa-clock"></i> ETA :
                                                                 {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}
