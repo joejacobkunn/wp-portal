@@ -311,7 +311,6 @@ class ScheduleOrder extends Component
             'make_model' => $schedule->truck->model_and_make,
             'year' => $schedule->truck->year,
             'shiftType' => $schedule->truck->shift_type,
-            'cubic_storage' => $schedule->truck->cubic_storage_space,
             'notes' => $schedule->truck->notes,
         ];
         $this->resetValidation(['form.schedule_time']);
