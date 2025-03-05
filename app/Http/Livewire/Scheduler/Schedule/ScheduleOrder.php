@@ -214,8 +214,9 @@ class ScheduleOrder extends Component
     {
         $whse = $this->page ? $this->form->schedule->warehouse->id : $this->form->orderInfo->warehouse->id;
         $this->form->getEnabledDates($this->form->scheduleType == 'schedule_override', $whse);
+        $date = Carbon::now();
         if($this->form->scheduleType == 'one_year') {
-            $date = Carbon::now()->addYear()->format('Y-m-d');
+            $date = $date->addYear()->format('Y-m-d');
         }
 
         if($this->form->scheduleType == 'next_avail' || $this->form->scheduleType == 'schedule_override') {
