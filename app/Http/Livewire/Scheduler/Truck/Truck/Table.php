@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Scheduler\Truck;
+namespace App\Http\Livewire\Scheduler\Truck\Truck;
 
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\Location;
@@ -44,7 +44,7 @@ class Table extends DataTableComponent
                 ->sortable()
                 ->searchable()
                 ->format(function ($value, $row) {
-                    return '<a href="'.route('scheduler.truck.show', ['truck' => $row->id]).'" class="text-primary text-decoration-underline">' . $value . '</a>';
+                    return '<a href="'.route('scheduler.truck.show', ['truck' => $row->id]).'" wire:navigate class="text-primary text-decoration-underline">' . $value . '</a>';
                 })
                 ->excludeFromColumnSelect()
                 ->html(),

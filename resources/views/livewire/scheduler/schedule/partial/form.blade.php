@@ -286,8 +286,9 @@
                             <x-forms.textarea label="Notes" model="form.notes" lazy />
                         </div>
                         <div class="col-md-12">
-                            <x-forms.checkbox label="Notify Customer"
-                            name="notifyUser" :value="1" model="form.notifyUser" />                        </div>
+                            <x-forms.checkbox label="Notify Customer" name="notifyUser" :value="1"
+                                model="form.notifyUser" />
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -398,8 +399,6 @@
                         {{ $scheduledTruckInfo['year'] }}</span></li>
                 <li class="list-group-item"><strong>Shift type</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['shiftType'] }}</span></li>
-                <li class="list-group-item"><strong>Cubic Storage Space</strong> <span
-                        class="float-end">{{ $scheduledTruckInfo['cubic_storage'] }}</span></li>
                 <li class="list-group-item"><strong>{{ $scheduledTruckInfo['notes'] }}</strong> </li>
 
             </ul>

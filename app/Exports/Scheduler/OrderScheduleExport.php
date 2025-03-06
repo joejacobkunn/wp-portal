@@ -38,6 +38,20 @@ class OrderScheduleExport implements FromArray, WithHeadings
             'City',
             'State',
             'Zip Code',
+            'SRO SX Number',
+            'SRO Staus',
+            'Equipment',
+            'Serial Number',
+            'Note',
+            'ETA',
+            'Created By',
+            'Created Date/Time',
+            'Parts Ready User',
+            'Parts Ready Date/Time',
+            'Completed User',
+            'Completed Date/Time',
+            'Cancelled User',
+            'Cancelled Date/Time',
         ];
     }
 }

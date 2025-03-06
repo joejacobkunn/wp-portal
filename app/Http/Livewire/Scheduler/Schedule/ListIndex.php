@@ -106,8 +106,12 @@ class ListIndex extends Component
     public function scheduleModalOpen($id)
     {
         $this->selectedSchedule = Schedule::find($id);
-        $this->scheduleId =  $this->selectedSchedule->id;
-        $this->showEventModal = true;
+        if($this->selectedSchedule) {
+            $this->scheduleId =  $this->selectedSchedule?->id;
+            $this->showEventModal = true;
+            return;
+        }
+
     }
 
     public function closeEventModal()

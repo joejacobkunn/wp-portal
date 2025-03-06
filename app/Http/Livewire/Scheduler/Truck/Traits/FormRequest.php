@@ -109,7 +109,7 @@ trait FormRequest
 
         $this->truck->fill([
             'whse' => $this->activeWarehouse->id,
-            'warehouse_short' => $this->whseShort,
+            'warehouse_short' => $this->activeWarehouse->short,
         ]);
         $truck = $this->truck->save();
 
