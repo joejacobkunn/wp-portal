@@ -42,7 +42,11 @@ class Schedule extends Model
         'travel_prio_number',
         'not_purchased_via_weingartz',
         'whse',
-        'serial_no'
+        'serial_no',
+        'sro_linked_at',
+        'sro_linked_by',
+        'started_at',
+        'started_by',
     ];
 
     protected $casts = [
@@ -110,6 +114,24 @@ class Schedule extends Model
         'whse' => [
             'field_label' => 'Warehouse',
         ],
+        'started_by' => [
+            'field_label' => 'Started By',
+        ],
+        'started_at' => [
+            'field_label' => 'Started At',
+        ],
+        'sro_linked_at' => [
+            'field_label' => 'SRO Linked At',
+        ],
+        'sro_linked_by' => [
+            'field_label' => 'SRO Linked By',
+        ],
+        'completed_by' => [
+            'field_label' => 'Completed By',
+        ],
+        'completed_at' => [
+            'field_label' => 'Completed At',
+        ],
     ];
 
     public function user()
@@ -156,6 +178,14 @@ class Schedule extends Model
     public function confirmedUser()
     {
         return $this->belongsTo(User::class, 'confirmed_by');
+    }
+    public function startedUser()
+    {
+        return $this->belongsTo(User::class, 'started_by');
+    }
+    public function sroLinkedUser()
+    {
+        return $this->belongsTo(User::class, 'sro_linked_by');
     }
 
     public function comments()

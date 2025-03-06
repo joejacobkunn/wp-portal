@@ -658,7 +658,15 @@ class Index extends Component
         $schedulQuery = $this->getSchedules()
             ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()]);
 
-        $schedulQuery = $schedulQuery->with(['latestComment', 'user', 'confirmedUser', 'cancelledUser', 'completedUser']);
+        $schedulQuery = $schedulQuery->with([
+            'latestComment',
+            'user',
+            'confirmedUser',
+            'cancelledUser',
+            'completedUser',
+            'startedUser',
+            'sroLinkedUser'
+        ]);
         if(!config('sx.mock')) {
             $schedulQuery = $schedulQuery->with('repairOrder');
         }
@@ -696,9 +704,10 @@ class Index extends Component
                     'completed_at' => $schedule->completed_at ?? '',
                     'cancelled_by' => $schedule->cancelledUser->name ?? '',
                     'cancelled_at' => $schedule->cancelled_at ? Carbon::parse($schedule->cancelled_at)->format('d-m-Y h:i A') : '',
-
-
-
+                    'sro_linked_by' => $schedule->sroLinkedUser->name ?? '',
+                    'sro_linked_at' => $schedule->sro_linked_at ? Carbon::parse($schedule->sro_linked_at)->format('d-m-Y h:i A') : '',
+                    'started_by' => $schedule->startedUser->name ?? '',
+                    'started_at' => $schedule->started_at ? Carbon::parse($schedule->started_at)->format('d-m-Y h:i A') : '',
                 ];
             })
             ->toArray();
