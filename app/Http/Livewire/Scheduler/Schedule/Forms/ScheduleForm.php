@@ -721,6 +721,10 @@ class ScheduleForm extends Form
         $this->service_address = $recom['result']['address']['formattedAddress'];
         $this->addressVerified =true;
         $this->checkZipcode();
+        return [
+            'status' => true,
+            'message' => ''
+        ];
     }
 
     private function syncSXOrder($sx_order)
