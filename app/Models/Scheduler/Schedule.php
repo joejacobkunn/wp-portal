@@ -8,6 +8,7 @@ use App\Models\Core\Comment;
 use App\Models\Core\User;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
+use App\Models\SRO\RepairOrders;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -175,5 +176,10 @@ class Schedule extends Model
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class, 'whse', 'short');
+    }
+
+    public function repairOrder()
+    {
+        return $this->belongsTo(RepairOrders::class, 'sro_number', 'sro_no');
     }
 }
