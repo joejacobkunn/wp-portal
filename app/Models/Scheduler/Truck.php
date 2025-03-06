@@ -25,7 +25,6 @@ class Truck extends Model implements HasMedia
         'color',
         'notes',
         'whse',
-        'cubic_storage_space',
         'baseline_date',
         'service_type',
         'shift_type',
