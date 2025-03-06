@@ -118,7 +118,7 @@ class Index extends Component
                                         AND h.whse = '".$whse."'
                                         AND h.stagecd IN (1,3)
                                         AND h.openinit = '".$operator."'
-                                        AND h.totinvamt - h.tendamt > 0
+                                        AND h.totinvamt - h.tendamt <> 0
                                         WITH(nolock)");
 
         return isset($order[0]) ? collect($order[0])->toArray() : [];
@@ -172,6 +172,8 @@ class Index extends Component
                 'portal_user_id' => auth()->user()->id
             ],
             'location_id' => auth()->user()->location()->fortis_location_id,
+            'order_number' => $this->selectedOrder['orderno'].'-'.$this->selectedOrder['ordersuf'],
+            'notification_email_address' => $this->selectedOrder['email'],
             'transaction_amount' => (int) (abs($transactionAmount) * 100),
             'customer_id' =>  (string) $this->selectedOrder['custno'],
             'terminal_id' => $this->selectedTerminal
