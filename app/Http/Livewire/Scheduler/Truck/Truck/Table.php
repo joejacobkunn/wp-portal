@@ -71,14 +71,6 @@ class Table extends DataTableComponent
                 })
                 ->excludeFromColumnSelect(),
 
-            Column::make('Cubic Storage Space')
-                ->sortable()
-                ->searchable()
-                ->format(function ($value, $row) {
-                    return $value;
-                })
-                ->excludeFromColumnSelect(),
-
             Column::make('Color', 'color')
                 ->sortable()
                 ->searchable()

@@ -90,7 +90,7 @@
                             <li
                                 class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                                 <div>
-                                    <h3 class="h6 mb-1">Length x Width x Height</h3>
+                                    <h3 class="h6 mb-1">Cargo Dimensions (L x W x H)</h3>
                                     <p class="small pe-4">
                                         {{ $truck->length . ' ft x' . $truck->width . ' ft x' . $truck->height . ' ft' }}
                                     </p>
