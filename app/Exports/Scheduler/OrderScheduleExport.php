@@ -52,6 +52,10 @@ class OrderScheduleExport implements FromArray, WithHeadings
             'Completed Date/Time',
             'Cancelled User',
             'Cancelled Date/Time',
+            'SRO Linked User',
+            'SRO Linked At',
+            'Tech In Progress By',
+            'Tech In Progress Date/Time'
         ];
     }
 }

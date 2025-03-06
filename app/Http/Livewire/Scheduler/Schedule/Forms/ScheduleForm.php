@@ -549,6 +549,8 @@ class ScheduleForm extends Form
     public function linkSRONumber($sro)
     {
         $this->schedule->status = 'scheduled_linked';
+        $this->schedule->sro_linked_by = Auth::user()->id;
+        $this->schedule->sro_linked_at = Carbon::now();
         $this->schedule->sro_number = $sro;
         $this->schedule->save();
         return ['status' =>true, 'class'=> 'success', 'message' =>'SRO number successfully linked', 'schedule' => $this->schedule];
@@ -614,6 +616,8 @@ class ScheduleForm extends Form
     public function startSchedule()
     {
         $this->schedule->status = 'out_for_delivery';
+        $this->schedule->started_by = Auth::user()->id;
+        $this->schedule->started_at = Carbon::now();
         $this->schedule->save();
         $this->fill($this->schedule);
         if($this->notifyUser) {
