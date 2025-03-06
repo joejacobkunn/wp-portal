@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Enums\Scheduler\ScheduleEnum;
+use App\Enums\Scheduler\ScheduleStatusEnum;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\User;
@@ -657,10 +658,14 @@ class Index extends Component
         $schedulQuery = $this->getSchedules()
             ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()]);
 
+        $schedulQuery = $schedulQuery->with(['latestComment', 'user', 'confirmedUser', 'cancelledUser', 'completedUser']);
+        if(!config('sx.mock')) {
+            $schedulQuery = $schedulQuery->with('repairOrder');
+        }
+
         $schedules =  $schedulQuery->get()
             ->map(function ($schedule) {
                 $enumInstance = ScheduleEnum::tryFrom($schedule->type);
-
                 return [
                     'schedule_id' => $schedule->scheduleId(),
                     'sx_ordernumber' => $schedule->sx_ordernumber,
@@ -669,7 +674,7 @@ class Index extends Component
                     'type' => $enumInstance?->label(),
                     'zone' => $schedule->truckSchedule?->zone?->name,
                     'truckName' => $schedule->truckSchedule?->truck?->truck_name,
-                    'status' => $schedule->status,
+                    'status' => ScheduleStatusEnum::tryFrom($schedule->status)->label(),
                     'customer_name' => $schedule->order?->customer?->name,
                     'sx_customer_number' => $schedule->order?->customer?->sx_customer_number,
                     'shipping_address_1' => $schedule->order?->shipping_info['line'] ?? '',
@@ -677,6 +682,23 @@ class Index extends Component
                     'shipping_city' => $schedule->order?->shipping_info['city'] ?? '',
                     'shipping_state' => $schedule->order?->shipping_info['state'] ?? '',
                     'shipping_zip' => $schedule->order?->shipping_info['zip'] ?? '',
+                    'sro_sx_number' => !config('sx.mock') ? $schedule->repairOrder?->sx_repair_order_no ?? '' : '',
+                    'sro_status' => !config('sx.mock') ? $schedule->repairOrder?->status ?? '' : '',
+                    'equipment' => !config('sx.mock') ? $schedule->repairOrder?->brand ?? '' .$schedule->repairOrder?->model ?? '' : '' ,
+                    'serial_number' => $schedule->serial_no ?? '',
+                    'notes' => $schedule->latestComment->comment ?? '',
+                    'eta' => $schedule->expected_arrival_time ?  Carbon::parse($schedule->expected_arrival_time)->format('h:i A') : '',
+                    'created_by' => $schedule->user?->name ?? '',
+                    'created_at' => $schedule->created_at->format('d-m-Y H:i A') ?? '',
+                    'parts_ready_user' => $schedule->confirmedUser->name ?? '',
+                    'parts_ready_timestamp' => $schedule->confirmed_at ? Carbon::parse($schedule->confirmed_at)->format('d-m-Y h:i A') : '',
+                    'completed_user' => $schedule->completedUser->name ?? '',
+                    'completed_at' => $schedule->completed_at ?? '',
+                    'cancelled_by' => $schedule->cancelledUser->name ?? '',
+                    'cancelled_at' => $schedule->cancelled_at ? Carbon::parse($schedule->cancelled_at)->format('d-m-Y h:i A') : '',
+
+
+
                 ];
             })
             ->toArray();

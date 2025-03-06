@@ -557,6 +557,8 @@ class ScheduleForm extends Form
     public function confirmSchedule()
     {
         $this->schedule->status = 'confirmed';
+        $this->schedule->confirmed_by = Auth::user()->id;
+        $this->schedule->confirmed_at = Carbon::now();
         $this->schedule->save();
         if($this->schedule->schedule_date->format('Y-m-d') == Carbon::now()->format('Y-m-d')) {
             Artisan::call('app:route-finder');
