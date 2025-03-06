@@ -166,7 +166,7 @@
                                                             {{ str($event['latest_comment']->comment)->limit(30, ' ...') }}
                                                         </div>
                                                     @endif
-                                                    @if ($event['travel_prio_number'] && $event['status'] == 'confirmed')
+                                                    @if ($event['travel_prio_number'] && in_array($event['status'], ['confirmed', 'out_for_delivery']))
                                                         <p class="font-small"><span class="badge bg-light-info">
                                                                 <i class="far fa-clock"></i> ETA :
                                                                 {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}
@@ -417,6 +417,7 @@
                 let calendarEl = document.getElementById('calendar');
                 let dropdownMenu = document.getElementById('calendar-dropdown-menu');
                 let isDropdownVisible = false;
+                let isNextYear = true; // Flag to track button state
                 let schedulesData = @json($schedules);
                 let currentButtonTexts = {
                     schedule: 'All Services',
@@ -448,7 +449,7 @@
                     height: 'auto',
                     contentHeight: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today nextYearButton exportBtn searchBtn settingsBtn',
+                        left: 'prev,next today toggleYear exportBtn searchBtn settingsBtn',
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
@@ -495,10 +496,16 @@
                                 $wire.showSearchModalForm();
                             }
                         },
-                        nextYearButton: {
+                        toggleYear: {
                             text: 'Next Year',
-                            click: function () {
-                                calendar.incrementDate({ years: 1 }); // Move to next year
+                            click: function(buttonEl) {
+                                if (isNextYear) {
+                                    calendar.nextYear();
+                                } else {
+                                    calendar.prevYear();
+                                }
+                                updateButtonText(isNextYear ? 'Prev Year' : 'Next Year');
+                                isNextYear = !isNextYear; // Toggle flag
                             }
                         },
                         settingsBtn: {
@@ -873,7 +880,9 @@
                         cell.classList.remove('bg-light-danger');
                     }
                 });
-
+                function updateButtonText(newText) {
+                    document.querySelector('.fc-toggleYear-button').textContent = newText;
+                }
                 function setZoneInDayCells() {
                     let today = new Date();
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {

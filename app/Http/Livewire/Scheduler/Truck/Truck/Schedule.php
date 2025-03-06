@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Scheduler\Truck;
+namespace App\Http\Livewire\Scheduler\Truck\Truck;
 
 use App\Http\Livewire\Scheduler\Truck\Form\ScheduleForm;
 use App\Http\Livewire\Scheduler\Truck\Form\ScheduleImportForm;
@@ -25,6 +25,7 @@ class Schedule extends Component
     public $csvFile;
     public $daySchedules;
     public $importIteration = 1245332;
+    public $disableImportBtn = false;
 
     protected $listeners = [
         'closeImportForm' => 'closeImportForm'
@@ -39,7 +40,7 @@ class Schedule extends Component
 
     public function render()
     {
-        return view('livewire.scheduler.truck.schedule');
+        return view('livewire.scheduler.truck.truck.schedule');
     }
 
     public function submit()
@@ -117,9 +118,11 @@ class Schedule extends Component
 
     public function updatedImportFormCsvFile()
     {
+        $this->reset('disableImportBtn');
         $response = $this->importForm->dataImport();
         if(!$response['status']) {
             $this->addError('importForm.csvFile', $response['message']);
+            $this->disableImportBtn = true;
         }
     }
 

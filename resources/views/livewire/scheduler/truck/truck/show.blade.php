@@ -15,7 +15,7 @@
             @else
                 @include('livewire.scheduler.truck.partials.view')
 
-                <livewire:scheduler.truck.schedule
+                <livewire:scheduler.truck.truck.schedule
                     :truck="$truck"
                 />
             @endif

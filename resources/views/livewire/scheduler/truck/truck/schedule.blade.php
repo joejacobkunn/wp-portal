@@ -89,7 +89,7 @@
             <hr>
 
             <div class="mt-2 float-start">
-                <button type="submit" class="btn btn-primary" wire:click="importTruckSchedule">
+                <button type="submit" class="btn btn-primary" @if($disableImportBtn) disabled @endif wire:click="importTruckSchedule">
                     <div wire:loading wire:target="importTruckSchedule">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>

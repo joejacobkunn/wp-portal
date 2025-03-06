@@ -2,7 +2,7 @@
 <div>
     <x-page :breadcrumbs="$breadcrumbs">
         <x-slot:title>Trucks</x-slot>
-        <x-slot:description> {{ !$addRecord ? 'Manage trucks here' : 'Create a new truck here' }}</x-slot>
+        <x-slot:description> {{ 'Manage trucks here' }}</x-slot>
         <x-slot:content>
             <div class="row">
                 <div class="col-2 col-md-2 col-xxl-2">
@@ -26,13 +26,14 @@
                     </div>
                 </div>
                 <div class="col-10 col-md-10 col-xxl-10"  wire:key="{{'index' . $activeWarehouse->id}}">
-                    @if($addRecord)
-                        @include('livewire.scheduler.truck.partials.form', ['button_text' => 'Add Truck'])
-                    @else
 
-                        @include('livewire.scheduler.truck.partials.listing')
-                    @endif
+                    <x-tabs :tabs="$tabs" tabId="truck-tabs" :key="'tabs' . $activeWarehouse->id">
+                        <x-slot:tab_content_trucks component="scheduler.truck.truck.index" :warehouseId="$activeWarehouse->id" :key="'truck' . $activeWarehouse->id">
+                        </x-slot>
 
+                        <x-slot:tab_content_cargo component="scheduler.truck.cargo.index" :warehouseId="$activeWarehouse->id" :key="'cargo' . $activeWarehouse->id">
+                        </x-slot>
+                    </x-tabs>
                 </div>
             </div>
         </x-slot>
