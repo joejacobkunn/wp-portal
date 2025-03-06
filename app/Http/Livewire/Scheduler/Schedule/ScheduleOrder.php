@@ -391,6 +391,10 @@ class ScheduleOrder extends Component
 
     public function confirmSchedule()
     {
+        if(config('sx.mock') ) {
+            $this->confirmedSchedule();
+            return;
+        }
         $order = Order::where('order_number', $this->sro_response['sx_repair_order_no'])->select('id','whse', 'order_number')->first();
         if(!$order) {
             $this->orderErrorStatus = true;
