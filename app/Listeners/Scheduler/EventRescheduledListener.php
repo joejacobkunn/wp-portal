@@ -21,6 +21,7 @@ use App\Classes\SX;
 
 class EventRescheduledListener implements ShouldQueue
 {
+    public $tries = 1;
     /**
      * Create the event listener.
      */
@@ -38,15 +39,15 @@ class EventRescheduledListener implements ShouldQueue
         {
             $notification = $this->populateTemplate('ahm-rescheduled',$event->schedule);
 
-            if($event->schedule->user->phone)
+            if($event->schedule->order->customer->phone)
             {
                 $kenect = new Kenect();
-                $kenect->send($event->schedule->user->phone, $notification['sms'], '18771');
+                $kenect->send($event->schedule->order->customer->phone, $notification['sms'], '18771');
             }
     
-            if($event->schedule->user->email)
+            if($event->schedule->order->customer->email && filter_var($event->schedule->order->customer->email, FILTER_VALIDATE_EMAIL))
             {
-                Notification::route('mail', $event->schedule->user->email)
+                Notification::route('mail', $event->schedule->order->customer->email)
                 ->notify(new EmailNotification($notification['email_subject'], $notification['email_body']));
     
             }
@@ -72,10 +73,10 @@ class EventRescheduledListener implements ShouldQueue
     private function fillTemplateVariables($template, $schedule)
     {
         if(Str::contains($template,'[ScheduleID]')) $template = Str::replace('[ScheduleID]', $schedule->scheduleId(), $template);
-        if(Str::contains($template,'[CustomerName]')) $template = Str::replace('[CustomerName]', $schedule->order->customer->name, $template);
+        if(Str::contains($template,'[CustomerName]')) $template = Str::replace('[CustomerName]', $schedule->order->customer?->name, $template);
         if(Str::contains($template,'[TimeSlot]')) $template = Str::replace('[TimeSlot]', $schedule->truckSchedule->start_time.' - '.$schedule->truckSchedule->end_time, $template);
         if(Str::contains($template,'[ScheduledDate]')) $template = Str::replace('[ScheduledDate]', Carbon::parse($schedule->schedule_date)->toFormattedDateString(), $template);
-        if(Str::contains($template,'[ServiceAddress]')) $template = Str::replace('[ServiceAddress]', $schedule->service_address, $template);
+        if(Str::contains($template,'[ServiceAddress]')) $template = Str::replace('[ServiceAddress]', str_replace(', USA','',$schedule->service_address), $template);
         if(Str::contains($template,'[Warehouse]')) $template = Str::replace('[Warehouse]', $schedule->order->warehouse->title, $template);
         if(Str::contains($template,'[WarehouseNumber]')) $template = Str::replace('[WarehouseNumber]', format_phone($schedule->order->warehouse->phone), $template);
         if(Str::contains($template,'[WarehouseAddress]')) $template = Str::replace('[WarehouseAddress]', format_phone($schedule->order->warehouse->address), $template);
@@ -84,7 +85,7 @@ class EventRescheduledListener implements ShouldQueue
         {
             if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', 'equipment', $template);
         }else{
-            if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', head($schedule->line_item).' ('.array_keys($schedule->line_item)[0].')', $template);
+            if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', array_keys($schedule->line_item)[0], $template);
         }
         if(Str::contains($template,'[DriverName]')) $template = Str::replace('[DriverName]', $schedule->truckSchedule->driver?->name, $template);
         return $template;

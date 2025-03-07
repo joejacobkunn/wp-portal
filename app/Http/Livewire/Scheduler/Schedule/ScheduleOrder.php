@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
+use App\Models\Order\Order;
 use App\Models\Product\Product;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\TruckSchedule;
@@ -14,7 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
-class Create extends Component
+class ScheduleOrder extends Component
 {
     use LivewireAlert, HasTabs;
     public ScheduleForm $form;
@@ -25,13 +26,16 @@ class Create extends Component
     public $scheduledTruckInfo = [];
     public $activeWarehouse;
     public $showTypeLoader =false;
-    public $viewScheduleTypeCollapse = false;
     public $serviceAddressModal = false;
     public $selectedSchedule;
     public $sro_number;
     public $sro_verified;
     public $sro_response;
     public $scheduledLineItem;
+    public $actionStatus;
+    public $startedSchedules;
+    public $showConfirmMessage = false;
+    public $orderErrorStatus = false;
     public $schedulePriority = [
         'next_avail' => 'Next Available Date',
         'one_year' => 'One Year from Now',
@@ -68,6 +72,12 @@ class Create extends Component
                 $this->sro_verified = true;
                 $this->sro_response = $this->getSROInfo($this->sro_number);
             }
+            $this->startedSchedules = Schedule::where('status', 'out_for_delivery')
+            ->whereHas('truckSchedule', function ($query) {
+                $query->where('driver_id', $this->form->schedule->truckSchedule->driver_id);
+            })
+            ->count();
+
         }
         if (Auth::user()->can('scheduler.can-schedule-override')) {
             $this->schedulePriority = $this->schedulePriority + ['schedule_override' => 'Schedule Override'];
@@ -76,7 +86,7 @@ class Create extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.schedule.create');
+        return $this->renderView('livewire.scheduler.schedule.schedule-order');
     }
 
     public function typeCheck($field, $value)
@@ -93,6 +103,10 @@ class Create extends Component
 
         $this->authorize('store', Schedule::class);
         $response = $this->form->store();
+        if(!$response['status']) {
+            $this->alert($response['class'], $response['message']);
+            return;
+        }
         $enumInstance = ScheduleEnum::tryFrom($response['schedule']->type);
         $icon = $enumInstance ? $enumInstance->icon() : null;
         $event = [
@@ -168,6 +182,11 @@ class Create extends Component
     public function fixAddress()
     {
         $this->form->showAddressBox = true;
+        $zip = $this->form->extractZipCode($this->form->recommendedAddress);
+        $response = $this->form->validateAddress($this->form->recommendedAddress, $zip);
+        if(!$response['status']) {
+            $this->alert('error', $response['message']);
+        }
     }
 
     public function useRecommended()
@@ -192,7 +211,7 @@ class Create extends Component
     {
         $this->showTypeLoader = true;
         if(isset($this->form->Schedule)) {
-            $this->viewScheduleTypeCollapse = true;
+
         }
         $this->form->scheduleType = $value;
         $this->dispatch('scheduleTypeDispatch');
@@ -203,8 +222,9 @@ class Create extends Component
     {
         $whse = $this->page ? $this->form->schedule->warehouse->id : $this->form->orderInfo->warehouse->id;
         $this->form->getEnabledDates($this->form->scheduleType == 'schedule_override', $whse);
+        $date = Carbon::now();
         if($this->form->scheduleType == 'one_year') {
-            $date = Carbon::now()->addYear()->format('Y-m-d');
+            $date = $date->addYear()->format('Y-m-d');
         }
 
         if($this->form->scheduleType == 'next_avail' || $this->form->scheduleType == 'schedule_override') {
@@ -217,23 +237,21 @@ class Create extends Component
         $this->showTypeLoader = false;
     }
 
-    public function scheduleDateInitiate()
-    {
-        $this->viewScheduleTypeCollapse = !$this->viewScheduleTypeCollapse;
-    }
 
     public function save()
     {
         $this->authorize('update', $this->form->schedule);
+
         $response = $this->form->update();
-        $this->viewScheduleTypeCollapse = false;
+        if(!$response['status']) {
+            $this->alert($response['class'], $response['message']);
+            return;
+        }
         $this->EventUpdate($response);
+        $this->reset('actionStatus');
     }
 
-    public function hideScheduleSection()
-    {
-        $this->viewScheduleTypeCollapse = false;
-    }
+
 
     public function EventUpdate($response)
     {
@@ -298,7 +316,6 @@ class Create extends Component
             'make_model' => $schedule->truck->model_and_make,
             'year' => $schedule->truck->year,
             'shiftType' => $schedule->truck->shift_type,
-            'cubic_storage' => $schedule->truck->cubic_storage_space,
             'notes' => $schedule->truck->notes,
         ];
         $this->resetValidation(['form.schedule_time']);
@@ -318,26 +335,33 @@ class Create extends Component
                 'zip' => $faker->postcode(),
                 'brand' => 'Toro',
                 'model' => 'ghd567df',
-                'id' => '1'
+                'id' => '1',
+                'status' => 'Complete',
+                'note' => 'this is a note',
+                'sx_repair_order_no' => '67678854'
             ];
         }else{
-            $sro = RepairOrders::select('first_name','last_name', 'address','state', 'city', 'zip', 'brand', 'model', 'id')->where('sro_no', $sro)->first();
+            $sro = RepairOrders::select('first_name','last_name', 'at_home_address as address','at_home_state as state', 'at_home_city as city', 'at_home_zip as zip', 'brand', 'model', 'id', 'status', 'at_home_note as note', 'sx_repair_order_no')->where('sro_no', $sro)->first();
             if(!empty($sro)) {
                 return $sro->toArray();
             }
             return null;
         }
+
     }
 
     public function cancelSchedule()
     {
-        $this->form->cancelSchedule();
+        $response = $this->form->cancelSchedule();
+        $this->reset(['actionStatus']);
+        $this->EventUpdate($response);
     }
 
     public function undoCancel()
     {
         $this->authorize('update', $this->form->schedule);
         $response = $this->form->undoCancel();
+        $this->reset(['actionStatus', 'sro_number', 'sro_verified']);
         $this->EventUpdate($response);
     }
 
@@ -362,7 +386,8 @@ class Create extends Component
         $this->reset([
             'sro_number',
             'sro_verified',
-            'sro_response'
+            'sro_response',
+            'actionStatus'
         ]);
         $this->alert($response['class'], $response['message']);
         $this->EventUpdate($response);
@@ -370,8 +395,28 @@ class Create extends Component
 
     public function confirmSchedule()
     {
+        if(config('sx.mock') ) {
+            $this->confirmedSchedule();
+            return;
+        }
+        $order = Order::where('order_number', $this->sro_response['sx_repair_order_no'])->select('id','whse', 'order_number')->first();
+        if(!$order) {
+            $this->orderErrorStatus = true;
+            return;
+        }
+
+        if($order->whse != $this->form->schedule->truckSchedule->truck->warehouse_short) {
+            $this->showConfirmMessage = true;
+            return;
+        }
+        $this->confirmedSchedule();
+    }
+
+    public function confirmedSchedule()
+    {
         $response = $this->form->confirmSchedule();
         $this->alert($response['class'], $response['message']);
+        $this->reset(['actionStatus', 'showConfirmMessage', 'orderErrorStatus']);
         $this->EventUpdate($response);
     }
 
@@ -379,11 +424,10 @@ class Create extends Component
     {
         $response = $this->form->unConfirm();
         $this->reset([
-            'sro_number',
-            'sro_verified',
-            'sro_response'
+            'actionStatus'
         ]);
         $this->alert($response['class'], $response['message']);
+
         $this->EventUpdate($response);
     }
 
@@ -391,6 +435,7 @@ class Create extends Component
     {
         $this->authorize('startSchedule', $this->form->schedule);
         $response = $this->form->startSchedule();
+        $this->reset('actionStatus');
         $this->EventUpdate($response);
     }
 
@@ -398,6 +443,7 @@ class Create extends Component
     {
         $this->authorize('update', $this->form->schedule);
         $response = $this->form->completeSchedule();
+        $this->reset('actionStatus');
         $this->EventUpdate($response);
     }
 
@@ -407,6 +453,15 @@ class Create extends Component
         $this->form->init($schedule);
         $this->selectedType = $schedule->type;
         $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
+        $this->dispatch('attchQueryParam', $schedule->id);
+    }
 
+    public function changeStatus($status)
+    {
+        if($this->actionStatus == $status) {
+            $this->reset('actionStatus');
+            return;
+        }
+        $this->actionStatus = $status;
     }
 }

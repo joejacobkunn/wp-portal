@@ -19,5 +19,5 @@
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
-
+    @mediaLibraryStyles
 </head>

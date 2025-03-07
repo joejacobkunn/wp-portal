@@ -41,6 +41,12 @@ class SchedulerEmailTemplateSeeder extends Seeder
             'slug' => 'ahm-cancelled',
             'description' => 'Email/SMS customer when schedule cancelled'
         ],
+        6 => [
+            'name' => 'AHM 3 Week Reminder',
+            'slug' => 'ahm-three-week-reminder',
+            'description' => 'Email/SMS customer three weeks out for one year advance AHM schedules'
+        ],
+
     ];
 
     /**

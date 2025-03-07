@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Scheduler\Truck;
+namespace App\Http\Livewire\Scheduler\Truck\Truck;
 
 use App\Models\Scheduler\Truck;
 use App\Http\Livewire\Component\Component;
@@ -63,7 +63,7 @@ class Show extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.scheduler.truck.show');
+        return $this->renderView('livewire.scheduler.truck.truck.show');
     }
 
     public function cancel()

@@ -243,7 +243,7 @@
                                             <a href="javascript:void(0)"
                                                 wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                 class="list-group-item list-group-item-action
-                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') disabled text-muted time-slot-full @endif">
+                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none disabled text-muted time-slot-full @endif">
                                                 <div
                                                     class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                     {{ $schedule->start_time . ' - ' . $schedule->end_time }}
@@ -284,6 +284,10 @@
                     <div class="row w-100">
                         <div class="col-md-12">
                             <x-forms.textarea label="Notes" model="form.notes" lazy />
+                        </div>
+                        <div class="col-md-12">
+                            <x-forms.checkbox label="Notify Customer" name="notifyUser" :value="1"
+                                model="form.notifyUser" />
                         </div>
                     </div>
                 </div>
@@ -395,8 +399,6 @@
                         {{ $scheduledTruckInfo['year'] }}</span></li>
                 <li class="list-group-item"><strong>Shift type</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['shiftType'] }}</span></li>
-                <li class="list-group-item"><strong>Cubic Storage Space</strong> <span
-                        class="float-end">{{ $scheduledTruckInfo['cubic_storage'] }}</span></li>
                 <li class="list-group-item"><strong>{{ $scheduledTruckInfo['notes'] }}</strong> </li>
 
             </ul>
@@ -505,25 +507,25 @@
             function initAutocomplete() {
                 if (typeof(google) == 'undefined') return;
 
-                addressField = document.getElementById("form.service_address_temp_textarea-field");
+                setTimeout(() => {
+                    addressField = document.getElementById("form.service_address_temp_textarea-field");
 
-                if (autocomplete) {
-                    google.maps.event.clearInstanceListeners(autocomplete);
+                    if (autocomplete) {
+                        google.maps.event.clearInstanceListeners(autocomplete);
 
-                    if (document.querySelector('.pac-container')) {
-                        document.querySelector('.pac-container').remove()
+                        if (document.querySelector('.pac-container')) {
+                            document.querySelector('.pac-container').remove()
+                        }
                     }
-                }
 
-                autocomplete = new google.maps.places.Autocomplete(addressField, {
-                    componentRestrictions: {
-                        country: ["us", "ca"]
-                    },
-                    fields: ["address_components", "geometry"],
-                    types: ["address"],
-                });
+                    autocomplete = new google.maps.places.Autocomplete(addressField, {
+                        componentRestrictions: {
+                            country: ["us", "ca"]
+                        },
+                    });
 
-                autocomplete.addListener("place_changed", fillInAddress);
+                    autocomplete.addListener("place_changed", fillInAddress);
+                }, 500)
             }
 
             if (typeof(google) == 'undefined') {
@@ -534,8 +536,27 @@
 
             function fillInAddress() {
                 let place = autocomplete.getPlace();
-                $wire.set('form.service_address_temp', document.getElementById(
-                    "form.service_address_temp_textarea-field").value);
+                let postcode;
+
+                for (const component of place.address_components) {
+                    const componentType = component.types[0];
+
+                    switch (componentType) {
+                        case "postal_code": {
+                            postcode = `${component.long_name}`;
+                            break;
+                        }
+                    }
+                }
+
+                let selectedValue = document.getElementById("form.service_address_temp_textarea-field").value;
+                if (postcode && !selectedValue.includes(postcode)) {
+                    let country = selectedValue.includes('Canada') ? 'Canada' : 'USA';
+                    selectedValue = selectedValue.replace(/(, [^,]+), (USA|Canada)$/, `$1 ${postcode}, ${country}`)
+                    document.getElementById("form.service_address_temp_textarea-field").value = selectedValue
+                }
+
+                $wire.set('form.service_address_temp', selectedValue);
             }
 
             document.addEventListener('browser:show-edit-address', initAutocomplete);

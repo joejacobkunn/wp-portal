@@ -74,3 +74,17 @@
         </div>
     </div>
 </div>
+
+
+@script
+    <script>
+        (function () {
+            setTimeout(() => {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            }, 300)
+        })();
+    </script>
+@endscript

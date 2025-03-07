@@ -96,7 +96,7 @@ class RouteFinder extends Command
         $lastAddress = $firstSchedule->truck->warehouse->address;
         $currentTime = null;
         $lastExpectedTime =null;
-        foreach ($schedules as $schedule) {
+        foreach ($schedules as $key => $schedule) {
             $confirmedOrders = $schedule->orderSchedule()
                 ->where('status', 'confirmed')
                 ->orderBy('id')
@@ -107,12 +107,12 @@ class RouteFinder extends Command
                 $currentTime = $currentTime->subMinutes(15);
             }
             if ($confirmedOrders->isEmpty()) {
-                $this->warn(sprintf('No confirmed orders found for Schedule ID: %d', $schedule->id));
+                $this->warn(sprintf('No confirmed schedules found for truck schedule ID: %d', $schedule->id));
                 $currentTime = null;
                 continue;
             }
 
-            // Group orders by address while maintaining order
+            // Group orders by address while maintaining schedule
             $addressToOrders = [];
             foreach ($confirmedOrders as $order) {
                 if (!isset($addressToOrders[$order->service_address])) {
@@ -142,8 +142,15 @@ class RouteFinder extends Command
             $optimalRoute = $response['optimal_route'];
             $lastAddress = end($optimalRoute);
             //add break 1 hour
-            if (count($optimalRoute) > 1) {
-                $currentTime = $lastExpectedTime->addHour();
+            if (count($optimalRoute) > 1 && $key < count($schedules) - 1) {
+                $nextSchedule = $schedules[$key + 1];
+                $nextScheduleHasConfirmedOrders = $nextSchedule->orderSchedule()
+                    ->where('status', 'confirmed')
+                    ->exists();
+
+                if ($nextScheduleHasConfirmedOrders) {
+                    $currentTime = $lastExpectedTime->addHour();
+                }
             }
         }
 

@@ -20,18 +20,26 @@ class SendAhmReminderEmails extends Command
      *
      * @var string
      */
-    protected $description = 'Reminder emails for AHM appointments 48 hours prior';
+    protected $description = 'Reminder emails for AHM appointments 48 hours prior and 3 weeks';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $schedules = Schedule::where('schedule_date', today()->addDay(2)->format('Y-m-d'))->where('status', 'confirmed')->get();
+        $schedules = Schedule::where('type', 'at_home_maintenance')->where('schedule_date', today()->addDay(2)->format('Y-m-d'))->where('status', 'confirmed')->get();
 
         foreach($schedules as $schedule)
         {
-            EventReminder::dispatch($schedule);
+            EventReminder::dispatch($schedule, 'ahm-48-hours');
         }
+
+        $schedules = Schedule::where('type', 'at_home_maintenance')->where('schedule_type','one_year')->where('schedule_date', today()->addWeek(3)->format('Y-m-d'))->where('status', 'confirmed')->get();
+
+        foreach($schedules as $schedule)
+        {
+            EventReminder::dispatch($schedule, 'ahm-three-week-reminder');
+        }
+
     }
 }

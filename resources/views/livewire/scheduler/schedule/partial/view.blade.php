@@ -7,36 +7,44 @@
                         <div class="btn-group mt-n1 mb-3 float-end" role="group" aria-label="Basic example">
                             @can('scheduler.schedule.manage')
                                 @if ($form->schedule->status != 'cancelled' && $form->schedule->status != 'completed')
-                                    <button type="button" class="btn btn-sm btn-danger" wire:click="hideScheduleSection"
-                                        data-bs-toggle="collapse" data-bs-target="#cancelCollapse" aria-expanded="false"
+                                    <button type="button" wire:key="cancel-toggle-btn" class="btn btn-sm btn-danger"
+                                        wire:click="changeStatus('cancel')" data-bs-toggle="collapse"
+                                        data-bs-target="#cancelCollapse" aria-expanded="false"
                                         aria-controls="cancelCollapse"><i class="far fa-calendar-times"></i>
                                         Cancel</button>
                                 @endif
 
                                 @if ($form->schedule->status == 'cancelled')
-                                    <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
-                                        data-bs-toggle="collapse" data-bs-target="#undoCancelCollapse" aria-expanded="false"
-                                        aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
+                                    <button type="button" class="btn btn-sm btn-warning"
+                                        wire:click="changeStatus('uncacnel')" data-bs-toggle="collapse"
+                                        wire:key="undocancel-toggle-btn" data-bs-target="#undoCancelCollapse"
+                                        aria-expanded="false" aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
                                         Uncancel</button>
                                 @endif
                                 @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'scheduled_linked')
-                                    <button type="button" class="btn btn-sm btn-warning" wire:click="scheduleDateInitiate"
-                                        data-bs-toggle="collapse" data-bs-target="#rescheduleCollapse" aria-expanded="false"
-                                        aria-controls="rescheduleCollapse"><i class="fas fa-redo"></i>
+                                    <button type="button" class="btn btn-sm btn-warning"
+                                        wire:click="changeStatus('reschedule')" data-bs-toggle="collapse"
+                                        data-bs-target="#rescheduleCollapse" aria-expanded="false"
+                                        wire:key="reschedule-toggle-btn" aria-controls="rescheduleCollapse"><i
+                                            class="fas fa-redo"></i>
                                         Reschedule</button>
                                 @endif
                                 @if ($form->schedule->status == 'scheduled_linked')
-                                    <button type="button" class="btn btn-sm btn-primary" wire:click="hideScheduleSection"
-                                        data-bs-toggle="collapse" data-bs-target="#confirmCollapse" aria-expanded="false"
-                                        aria-controls="confirmCollapse"><i class="fas fa-check-double"></i>
+                                    <button type="button" class="btn btn-sm btn-primary"
+                                        wire:click="changeStatus('confirm')" data-bs-toggle="collapse"
+                                        data-bs-target="#confirmCollapse" aria-expanded="false"
+                                        wire:key="confirm-toggle-btn" aria-controls="confirmCollapse"><i
+                                            class="fas fa-check-double"></i>
                                         Confirm</button>
-                                    <button type="button" class="btn btn-sm btn-info" wire:click="hideScheduleSection"
-                                        data-bs-toggle="collapse" data-bs-target="#unlinkCollapse" aria-expanded="false"
+                                    <button type="button" class="btn btn-sm btn-info" wire:click="changeStatus('unlink')"
+                                        data-bs-toggle="collapse" wire:key="unlink-toggle-btn"
+                                        data-bs-target="#unlinkCollapse" aria-expanded="false"
                                         aria-controls="unlinkCollapse"><i class="fas fa-unlink"></i>
                                         Unlink SRO</button>
                                 @endif
                                 @if ($form->schedule->status == 'confirmed')
-                                    <button type="button" class="btn btn-sm btn-secondary" wire:click="hideScheduleSection"
+                                    <button type="button" class="btn btn-sm btn-secondary"
+                                        wire:click="changeStatus('unconfirm')" wire:key="unconfirm-toggle-btn"
                                         data-bs-toggle="collapse" data-bs-target="#unconfirmCollapse" aria-expanded="false"
                                         aria-controls="unconfirmCollapse"><i class="fas fa-solid fa-xmark"></i>
                                         Unconfirm</button>
@@ -44,16 +52,18 @@
                             @endcan
                             @canany(['scheduler.can-start-event', 'scheduler.schedule.manage'])
                                 @if ($form->schedule->status == 'confirmed')
-                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse"
-                                        data-bs-target="#startScheduleCollapse" aria-expanded="false"
+                                    <button type="button" class="btn btn-sm btn-success" wire:click="changeStatus('start')"
+                                        data-bs-toggle="collapse" data-bs-target="#startScheduleCollapse"
+                                        aria-expanded="false" wire:key="start-toggle-btn"
                                         aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
                                         Start</button>
                                 @endif
                             @endcan
                             @canany(['scheduler.can-complete-event', 'scheduler.schedule.manage'])
                                 @if ($form->schedule->status == 'out_for_delivery')
-                                    <button type="button" class="btn btn-sm btn-success" wire:click="hideScheduleSection"
-                                        data-bs-toggle="collapse" data-bs-target="#completeCollapse" aria-expanded="false"
+                                    <button type="button" class="btn btn-sm btn-success" wire:key="complete-toggle-btn"
+                                        wire:click="changeStatus('complete')" data-bs-toggle="collapse"
+                                        data-bs-target="#completeCollapse" aria-expanded="false"
                                         aria-controls="completeCollapse"><i class="fas fa-check-circle"></i>
                                         Complete</button>
                                 @endif
@@ -63,12 +73,14 @@
                     </div>
                 @endif
                 <div class="collapse-container" wire:key="actionArea-{{ $form->schedule->status }}">
-                    <div class="collapse p-4" id="cancelCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status != 'cancelled' ? 'wire:ignore.self' : '' !!} wire:key="cancel-section-{{ $form->schedule->status }}">
+                    <div class="collapse @if ($actionStatus == 'cancel') show @endif p-4" id="cancelCollapse"
+                        data-bs-parent=".collapse-container" wire:key="cancel-section-{{ $form->schedule->status }}">
                         <div class="card card-body mb-0 p-0">
                             You are cancelling this schedule. Provide a reason in below field
                             <div class="col-md-12 mt-3">
                                 <x-forms.input label="Reason" model="form.cancel_reason" />
+                                <x-forms.checkbox label="Notify Customer" name="notifyUser" :value="1"
+                                    model="form.notifyUser" />
                                 <div class="mt-4 float-start">
                                     <button wire:click="cancelSchedule" class="btn btn-sm btn-danger">
                                         <div wire:loading wire:target="cancelSchedule">
@@ -81,13 +93,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="undoCancelCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status == 'cancelled' ? 'wire:ignore.self' : '' !!}>
+                    <div class="collapse @if ($actionStatus == 'uncacnel') show @endif p-4" id="undoCancelCollapse"
+                        data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             You are reinstating this schedule. Please ensure to confirm the SRO afterward.
                             <div class="col-md-12 mt-3">
                                 <div class="mt-2 float-start">
-                                    <button wire:click="undoCancel" class="btn btn-sm btn-success">
+                                    <button wire:click="undoCancel" class="btn btn-sm btn-warning">
                                         <div wire:loading wire:target="undoCancel">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
@@ -98,11 +110,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="completeCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->status != 'completed' ? 'wire:ignore.self' : '' !!}>
+                    <div class="collapse @if ($actionStatus == 'complete') show @endif p-4" id="completeCollapse"
+                        data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             Click the Complete button below to mark the schedule as complete.
-                            <div class="col-md-12 mt-3">
+                            <div class="col-md-12 mt-2">
+                                <x-forms.checkbox label="Notify Customer" name="notifyUser" :value="1"
+                                    model="form.notifyUser" />
                                 <div class="mt-2 float-start">
                                     <button wire:click="completeSchedule" class="btn btn-sm btn-success">
                                         <div wire:loading wire:target="completeSchedule">
@@ -115,13 +129,31 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="confirmCollapse" data-bs-parent=".collapse-container"
-                        wire:ignore.self>
+                    <div class="collapse @if ($actionStatus == 'confirm') show @endif p-4" id="confirmCollapse"
+                        data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
-                            Confirm this schedule by clicking Confirm below.
+                            @if ($orderErrorStatus)
+                                <div class="alert alert-light-danger color-danger"><i class="bi bi-exclamation-triangle"></i>
+                                    The Order associated with SX #{{$sro_response['sx_repair_order_no']}}
+                                    is not found.</div>
+                            @endif
+                            Confirm this schedule by clicking {{$showConfirmMessage ? 'Proceed' : 'Confirm'}} below.
+                            @if ($showConfirmMessage)
+                                <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+                                    The warehouse associated with SX #{{$sro_response['sx_repair_order_no']}}
+                                    is different from the truck assigned. Do you still want to proceed?.</div>
+                            @endif
+
                             <div class="col-md-12">
                                 <div class="mt-4 float-start">
-                                    <button wire:click="confirmSchedule" class="btn btn-sm btn-primary">
+                                    <button wire:click="confirmedSchedule" class="btn btn-sm btn-primary @if(!$showConfirmMessage) d-none @endif ">
+                                        <div wire:loading wire:target="confirmedSchedule">
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true"></span>
+                                        </div>
+                                        <i class="far fa-calendar-check"></i> Proceed
+                                    </button>
+                                    <button wire:click="confirmSchedule" class="btn btn-sm btn-primary @if($showConfirmMessage) d-none @endif">
                                         <div wire:loading wire:target="confirmSchedule">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
@@ -132,8 +164,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="unlinkCollapse" data-bs-parent=".collapse-container"
-                        {!! $form->schedule->sro_number != null ? 'wire:ignore.self' : '' !!} wire:key="unlinksro-section-{{ $form->schedule->sro_number }}">
+                    <div class="collapse @if ($actionStatus == 'unlink') show @endif p-4" id="unlinkCollapse"
+                        data-bs-parent=".collapse-container" wire:key="unlinksro-section">
                         <div class="card card-body mb-0 p-0">
                             You are about to unlink SRO Number. Click below unlink button to confirm.
                             <div class="col-md-12">
@@ -149,8 +181,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="unconfirmCollapse" data-bs-parent=".collapse-container"
-                        wire:ignore.self>
+                    <div class="collapse @if ($actionStatus == 'unconfirm') show @endif p-4" id="unconfirmCollapse"
+                        data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             Unconfirm this schedule and unlink the SRO# by clicking unconfirm below.
                             <div class="col-md-12">
@@ -166,124 +198,132 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse p-4" id="startScheduleCollapse" data-bs-parent=".collapse-container"
-                        wire:ignore.self>
+                    <div class="collapse @if ($actionStatus == 'start') show @endif p-4"
+                        id="startScheduleCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
-                            Click on the Start button below to Start the Schedule.
-                            <div class="col-md-12">
-                                <div class="mt-4 float-start">
-                                    <button wire:click="startSchedule" class="btn btn-sm btn-warning">
-                                        <div wire:loading wire:target="startSchedule">
-                                            <span class="spinner-border spinner-border-sm" role="status"
-                                                aria-hidden="true"></span>
-                                        </div>
-                                        <i class="far fa-check-circle"></i> Start
-                                    </button>
+                            @if ($startedSchedules > 0)
+                                <div class="alert alert-light-warning color-warning"><i
+                                        class="bi bi-exclamation-triangle"></i> Cannot start when another appointment
+                                    is in Progress</div>
+                            @else
+                                Click on the Start button below to Start the Schedule.
+                                <div class="col-md-12 mt-2">
+                                    <x-forms.checkbox label="Notify user" name="notifyUser" :value="1"
+                                        model="form.notifyUser" />
+                                    <div class="mt-4 float-start">
+                                        <button wire:click="startSchedule" class="btn btn-sm btn-warning">
+                                            <div wire:loading wire:target="startSchedule">
+                                                <span class="spinner-border spinner-border-sm" role="status"
+                                                    aria-hidden="true"></span>
+                                            </div>
+                                            <i class="far fa-check-circle"></i> Start
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
-                    <div class="collapse @if ($viewScheduleTypeCollapse) show @endif p-4" id="rescheduleCollapse"
+                    <div class="collapse @if ($actionStatus == 'reschedule') show @endif p-4" id="rescheduleCollapse"
                         data-bs-parent=".collapse-container">
                         <div class="col-md-12 mb-3">
-                            <div wire:loading wire:loading.target="scheduleDateInitiate">
+                            <div wire:loading wire:loading.target="changeStatus('reschedule')">
                                 <span class="spinner-border spinner-border-sm mr-2" role="status"
                                     aria-hidden="true"></span>
                                 <span>please wait loading schedule form ...</span>
                             </div>
                         </div>
-                        @if ($viewScheduleTypeCollapse)
-                            <div class="card card-body mb-0 p-0 mb-2">
-                                Reschedule this schedule to another date
-                                <form wire:submit.prevent="save()">
-                                    <div class="row mt-4">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <x-forms.select label="Scheduling Priority" model="form.scheduleType"
-                                                    :options="$schedulePriority" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
-                                                    default-option-label="- None -" :selected="$form->scheduleType"
-                                                    :key="'scheduleTypeKey'" />
-                                            </div>
+                        <div class="card card-body mb-0 p-0 mb-2">
+                            Reschedule this schedule to another date
+                            <form wire:submit.prevent="save()">
+                                <div class="row mt-4">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <x-forms.select label="Scheduling Priority" model="form.scheduleType"
+                                                :options="$schedulePriority" :hasAssociativeIndex="true" :listener="'scheduleTypeChange'"
+                                                default-option-label="- None -" :selected="$form->scheduleType" :key="'scheduleTypeKey-' . md5(uniqid())" />
                                         </div>
-                                        @if ($showTypeLoader)
-                                            <div class="col-md-12 mb-3">
-                                                <span class="spinner-border spinner-border-sm mr-2" role="status"
-                                                    aria-hidden="true"></span>
-                                                <span>Please wait,fetching schedule dates ...</span>
-                                            </div>
-                                        @endif
-                                        {{-- schedule date field --}}
-                                        <div
-                                            class="col-md-6 {{ !$showTypeLoader && $form->scheduleType ? '' : 'd-none' }}">
-                                            <div class="form-group">
-                                                <label for="datepicker" class="form-label">Select Date</label>
-                                                <div wire:ignore>
-                                                    <input type="text" wire:key="scheduleDateKey" id="datepicker"
-                                                        class="form-control" wire:model.defer="form.schedule_date"
-                                                        x-data="{
-                                                            enabledDates: @js($this->getEnabledDates()),
-                                                            flatpickrInstance: null
-                                                        }" x-init="flatpickrInstance = flatpickr($el, {
-                                                            inline: true,
-                                                            dateFormat: 'Y-m-d',
-                                                            defaultDate: '{{ $form->schedule_date }}',
-                                                            enable: enabledDates,
-                                                            minDate: new Date(),
-                                                            setDate: '{{ $form->schedule_date }}',
-                                                            onChange: function(selectedDates, dateStr) {
-                                                                $wire.updateFormScheduleDate(dateStr);
-                                                            }
-                                                        });"
-                                                        x-on:enable-date-update.window="
+                                    </div>
+                                    @if ($showTypeLoader)
+                                        <div class="col-md-12 mb-3">
+                                            <span class="spinner-border spinner-border-sm mr-2" role="status"
+                                                aria-hidden="true"></span>
+                                            <span>Please wait,fetching schedule dates ...</span>
+                                        </div>
+                                    @endif
+                                    {{-- schedule date field --}}
+                                    <div
+                                        class="col-md-6 {{ !$showTypeLoader && $form->scheduleType ? '' : 'd-none' }}">
+                                        <div class="form-group">
+                                            <label for="datepicker" class="form-label">Select Date</label>
+                                            <div wire:ignore>
+                                                <input type="text" wire:key="scheduleDateKey" id="datepicker"
+                                                    class="form-control" wire:model.defer="form.schedule_date"
+                                                    x-data="{
+                                                        enabledDates: @js($this->getEnabledDates()),
+                                                        flatpickrInstance: null
+                                                    }" x-init="flatpickrInstance = flatpickr($el, {
+                                                        inline: true,
+                                                        dateFormat: 'Y-m-d',
+                                                        defaultDate: '{{ $form->schedule_date }}',
+                                                        enable: enabledDates,
+                                                        minDate: new Date(),
+                                                        setDate: '{{ $form->schedule_date }}',
+                                                        onChange: function(selectedDates, dateStr) {
+                                                            $wire.updateFormScheduleDate(dateStr);
+                                                        }
+                                                    });"
+                                                    x-on:enable-date-update.window="
                                                                 if (flatpickrInstance) {
                                                                     flatpickrInstance.set('enable', $event.detail.enabledDates);
                                                                 }
                                                             "
-                                                        x-on:set-enabled-dates.window="
+                                                    x-on:set-enabled-dates.window="
                                                                 if (flatpickrInstance) {
                                                                     flatpickrInstance.set('enable', $event.detail.enabledDates);
                                                                 }
                                                             "
-                                                        x-on:set-current-date.window="
+                                                    x-on:set-current-date.window="
                                                                 if (flatpickrInstance) {
                                                                     flatpickrInstance.jumpToDate($event.detail.activeDay);
                                                                 }
                                                         ">
 
-                                                </div>
-                                                @error('form.schedule_date')
-                                                    <span class="text-danger"> {{ $message }}</span>
-                                                @enderror
-
                                             </div>
+                                            @error('form.schedule_date')
+                                                <span class="text-danger"> {{ $message }}</span>
+                                            @enderror
+
                                         </div>
-                                        <div wire:loading wire:target="updateFormScheduleDate" class="col-md-6">
-                                            <div
-                                                class="d-flex justify-content-center align-items-center h-100 w-100 py-3">
-                                                <div class="text-center">
-                                                    <div class="spinner-grow text-primary" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
-                                                    <div class="spinner-grow text-primary" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
-                                                    <div class="spinner-grow text-primary" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
-                                                    <div class="spinner-grow text-primary" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
-                                                    <div class="spinner-grow text-primary" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
+                                    </div>
+                                    <div wire:loading wire:target="updateFormScheduleDate" class="col-md-6">
+                                        <div class="d-flex justify-content-center align-items-center h-100 w-100 py-3">
+                                            <div class="text-center">
+                                                <div class="spinner-grow text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <div class="spinner-grow text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <div class="spinner-grow text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <div class="spinner-grow text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <div class="spinner-grow text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        {{-- schedule date end --}}
+                                    </div>
+                                    {{-- schedule date end --}}
 
-                                        {{-- timeslots listing --}}
+                                    {{-- timeslots listing --}}
+                                    @if ($form->schedule_date)
+
                                         <div wire:loading.remove wire:target="updateFormScheduleDate"
-                                            class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }}">
+                                            class="col-md-6 {{ $form->schedule_date && !$showTypeLoader ? '' : 'd-none' }} overflow-auto"
+                                            style="height: 400px">
                                             <label class="form-label">Available Time Slots on
                                                 {{ Carbon\Carbon::parse($form->schedule_date)->toFormattedDayDateString() }}</label>
                                             @if ($form->scheduleType == 'schedule_override')
@@ -297,7 +337,7 @@
                                                     <a href="javascript:void(0)"
                                                         wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                         class="list-group-item list-group-item-action
-                                                    @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') disabled text-muted time-slot-full @endif">
+                                                        @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none disabled text-muted time-slot-full @endif">
                                                         <div
                                                             class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                             {{ $schedule->start_time . ' - ' . $schedule->end_time }}
@@ -326,33 +366,40 @@
                                                 @endforelse
                                             </div>
                                         </div>
-                                        @error('form.schedule_time')
-                                            <div class="col-md-12">
-                                                <span class="text-danger">{{ $message }}</span>
-                                            </div>
-                                        @enderror
+                                    @endif
+                                    @error('form.schedule_time')
                                         <div class="col-md-12">
-                                            <div class="form-group">
-                                                <x-forms.input type="text" label="Reason"
-                                                    model="form.reschedule_reason" />
-                                            </div>
+                                            <span class="text-danger">{{ $message }}</span>
                                         </div>
-                                        {{-- end of timeslots listing --}}
-                                        <div class="col-md-12">
-                                            <div class="mt-4 float-start">
-                                                <button type="submit" class="btn btn-sm btn-warning">
-                                                    <div wire:loading wire:target="save">
-                                                        <span class="spinner-border spinner-border-sm" role="status"
-                                                            aria-hidden="true"></span>
-                                                    </div>
-                                                    <i class="fas fa-redo"></i> Reschedule
-                                                </button>
-                                            </div>
+                                    @enderror
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <x-forms.input type="text" label="Reason"
+                                                model="form.reschedule_reason" />
                                         </div>
                                     </div>
-                                </form>
-                            </div>
-                        @endif
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <x-forms.checkbox label="Notify Customer" name="notifyUser"
+                                                :value="1" model="form.notifyUser" />
+                                        </div>
+                                    </div>
+                                    {{-- end of timeslots listing --}}
+                                    <div class="col-md-12">
+                                        <div class="mt-4 float-start">
+                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                <div wire:loading wire:target="save">
+                                                    <span class="spinner-border spinner-border-sm" role="status"
+                                                        aria-hidden="true"></span>
+                                                </div>
+                                                <i class="fas fa-redo"></i> Reschedule
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
 
@@ -398,7 +445,12 @@
                         @endif
                     @endif
                     @if ($form->schedule->status == 'completed')
-                        <p><i class="far fa-calendar-check"></i> AHM is Completed
+                        <p><i class="far fa-calendar-check"></i> AHM scheduled in
+                            <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
+                            class="fas fa-globe"></i>
+                            {{ $form->schedule->truckSchedule->zone->name }}</span>
+                            between <strong>{{ $form->schedule->truckSchedule->start_time }} and
+                            {{ $form->schedule->truckSchedule->end_time }}</strong> is Completed
                         </p>
                         <hr>
                         <p class="mb-0">Completed by <span
@@ -437,10 +489,16 @@
                                     href="{{ config('sro.url') . 'dashboard/repair-orders/' . $sro_response['id'] }}"
                                     target="_blank"><i class="fas fa-external-link-alt"></i> SRO
                                     #{{ $form->schedule->sro_number }}</a></span>
-                            {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}
+                            {{ str($sro_response['first_name'] . ' ' . $sro_response['last_name'])->title() }}
                         </h4>
 
                         <ul class="list-group mt-4">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span> SX Order Number</span>
+                                <span
+                                    class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['sx_repair_order_no'] }}</span>
+                            </li>
+
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span> Equipment</span>
                                 <span
@@ -453,6 +511,18 @@
                                     class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['address'] }},
                                     {{ $sro_response['city'] }},
                                     {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span>
+                            </li>
+                            @if (!empty($sro_response['note']))
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span> Note</span>
+                                    <span
+                                        class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['note'] }}</span>
+                                </li>
+                            @endif
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span> Status</span>
+                                <span
+                                    class="badge bg-light-secondary badge-pill badge-round ms-1">{{ $sro_response['status'] }}</span>
                             </li>
                         </ul>
 
@@ -497,19 +567,22 @@
                         </div>
                     </li>
 
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div>
-                            <h3 class="h6 mb-1">Equipment</h3>
-                            @if ($form->schedule->line_item)
-                                <p class="small pe-4">
-                                    {{ head($form->schedule->line_item) }}
-                                    ({{ array_keys($form->schedule->line_item)[0] }})
-                                </p>
-                            @else
-                                <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
-                            @endif
-                        </div>
-                    </li>
+                    @unless ($form->schedule->sro_number)
+
+                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                            <div>
+                                <h3 class="h6 mb-1">Equipment</h3>
+                                @if ($form->schedule->line_item)
+                                    <p class="small pe-4">
+                                        {{ head($form->schedule->line_item) }}
+                                        ({{ array_keys($form->schedule->line_item)[0] }})
+                                    </p>
+                                @else
+                                    <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
+                                @endif
+                            </div>
+                        </li>
+                    @endunless
                     @if (!empty($form->schedule->serial_no))
                         <li
                             class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
@@ -531,19 +604,22 @@
                             </p>
                         </div>
                     </li>
-                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                        <div>
-                            <h3 class="h6 mb-1">SRO Number</h3>
-                            <p class="small pe-4">
-                                @if ($form->schedule->sro_number == null)
-                                    <span class="bg-warning text-dark"> Link SRO
-                                        to view SRO Info</span>
-                                @else
-                                    {{ $form->schedule->sro_number }}
-                                @endif
-                            </p>
-                        </div>
-                    </li>
+
+                    @unless ($form->schedule->sro_number)
+                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                            <div>
+                                <h3 class="h6 mb-1">SRO Number</h3>
+                                <p class="small pe-4">
+                                    @if ($form->schedule->sro_number == null)
+                                        <span class="bg-warning text-dark"> Link SRO
+                                            to view SRO Info</span>
+                                    @else
+                                        {{ $form->schedule->sro_number }}
+                                    @endif
+                                </p>
+                            </div>
+                        </li>
+                    @endunless
 
                     @if ($form->schedule->notes)
                         <li

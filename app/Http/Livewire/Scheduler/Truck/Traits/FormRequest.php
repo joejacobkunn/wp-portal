@@ -7,10 +7,13 @@ use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Models\Core\Location;
 use Illuminate\Validation\Rule;
+use Livewire\WithFileUploads;
 
 trait FormRequest
 {
-    use LivewireAlert;
+    use LivewireAlert, WithFileUploads;
+
+    public $truckImage;
     public $serviceTypes = [
         'AHM' => 'AHM',
         'Delivery / Pickup' => 'Delivery / Pickup'
@@ -24,7 +27,10 @@ trait FormRequest
         'truck.year' => 'Year',
         'truck.color' => 'Color',
         'truck.notes' => 'Notes',
-        'truck.cubic_storage_space' => 'Storage Space',
+        'truck.height' => 'Height',
+        'truck.width' => 'Width',
+        'truck.length' => 'Length',
+        'truckImage' => 'Truck Image',
     ];
 
     protected $messages = [
@@ -36,7 +42,6 @@ trait FormRequest
     {
         return [
             'truck.truck_name' => 'required|string|max:255',
-            'truck.cubic_storage_space' => 'required|string|max:255',
             'truck.vin_number' => [
                 'required',
                 'string',
@@ -45,10 +50,14 @@ trait FormRequest
             ],
             'truck.service_type' => 'required|string|max:255',
             'truck.shift_type' => 'required|string|max:255',
+            'truck.height' => 'required|numeric',
+            'truck.width' => 'required|numeric',
+            'truck.length' => 'required|numeric',
             'truck.model_and_make' => 'required|string|max:255',
             'truck.year' => 'required|numeric|digits:4',
             'truck.color' => 'required|string|max:50',
             'truck.notes' => 'nullable|string',
+            'truckImage' => 'nullable',
         ];
     }
 
@@ -64,12 +73,14 @@ trait FormRequest
             $this->truck->vin_number = null;
             $this->truck->service_type = null;
             $this->truck->shift_type = null;
+            $this->truck->height = null;
+            $this->truck->width = null;
+            $this->truck->length = null;
             $this->truck->vin_number = null;
             $this->truck->model_and_make = null;
             $this->truck->year = null;
             $this->truck->color = null;
             $this->truck->notes = null;
-            $this->truck->cubic_storage_space = null;
         }
     }
 
@@ -78,6 +89,7 @@ trait FormRequest
      */
     public function submit()
     {
+
         $this->validate();
 
         if (! empty($this->truck->id)) {
@@ -97,11 +109,23 @@ trait FormRequest
 
         $this->truck->fill([
             'whse' => $this->activeWarehouse->id,
-            'warehouse_short' => $this->whseShort,
+            'warehouse_short' => $this->activeWarehouse->short,
         ]);
         $truck = $this->truck->save();
+
+        if ($this->truckImage && !is_string($this->truckImage)) {
+            // Clear old media first (optional)
+            $this->truck->clearMediaCollection(Truck::DOCUMENT_COLLECTION);
+
+            $this->truck
+                ->syncFromMediaLibraryRequest($this->truckImage)
+                ->toMediaCollection(Truck::DOCUMENT_COLLECTION);
+
+        }
         $this->alert('success', 'Truck created successfully!');
+
         return redirect()->route('scheduler.truck.show', $this->truck->id);
+
     }
 
     /**
@@ -111,6 +135,12 @@ trait FormRequest
     {
         $this->authorize('update', $this->truck);
         $truck = $this->truck->save();
+        if ($this->truckImage != null || gettype($this->truckImage) == 'array') {
+            $this->truck
+                ->syncFromMediaLibraryRequest($this->truckImage)
+                ->toMediaCollection(Truck::DOCUMENT_COLLECTION);
+
+        }
         $this->editRecord = false;
         $this->alert('success', 'Record updated!');
         return redirect()->route('scheduler.truck.show', $this->truck->id);

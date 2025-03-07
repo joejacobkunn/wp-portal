@@ -3,7 +3,7 @@
     <x-slot:content>
         <ul class="nav nav-pills mb-2">
             <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="{{ route('schedule.calendar.index') }}" wire:navigate><i
+                <a class="nav-link" aria-current="page" href="{{ route('schedule.calendar.index', ['whse' => $this->activeWarehouse->id]) }}" wire:navigate><i
                         class="far fa-calendar-alt"></i>
                     Calendar View</a>
             </li>
@@ -54,7 +54,7 @@
                 <x-slot name="title">Schedule
                     {{ App\Enums\Scheduler\ScheduleEnum::tryFrom($selectedSchedule->type)->label() }}</x-slot>
 
-                <livewire:scheduler.schedule.create lazy wire:key="create"
+                <livewire:scheduler.schedule.schedule-order lazy wire:key="schedule-order"
                 :page="true"
                 :selectedType="$selectedSchedule->type"
                 :selectedSchedule="$selectedSchedule"

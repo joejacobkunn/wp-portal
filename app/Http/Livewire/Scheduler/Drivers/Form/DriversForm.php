@@ -45,16 +45,12 @@ class DriversForm extends Form
         );
 
         unset($validatedData['user_image']);
-        if ($this->user_image && !is_string($this->user_image)) {
-            // Clear old media first (optional)
-            $this->user->clearMediaCollection(User::DOCUMENT_COLLECTION);
-
+        if ($this->user_image != null || gettype($this->user_image) == 'array') {
             $this->user
                 ->syncFromMediaLibraryRequest($this->user_image)
                 ->toMediaCollection(User::DOCUMENT_COLLECTION);
 
         }
-
     }
 
 }

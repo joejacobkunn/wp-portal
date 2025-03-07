@@ -48,7 +48,7 @@ class PeopleVox
             ]);
 
             Mail::send([], [],function (Message $message) {
-                $message->to('jkrefman@wandpmanagement.com')->cc(['jkunnummyalil@wandpmanagement.com'])->subject('Webhook Response PeopleVox Receipt');
+                $message->to('jkrefman@wandpmanagement.com')->subject('Webhook Response PeopleVox Receipt');
                 $message->html('<span><strong>Received Response :</strong> <br><br>'.json_encode($this->payload));
             });
 

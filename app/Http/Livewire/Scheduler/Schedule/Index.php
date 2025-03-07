@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Enums\Scheduler\ScheduleEnum;
+use App\Enums\Scheduler\ScheduleStatusEnum;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\User;
@@ -61,7 +62,15 @@ class Index extends Component
     public $selectedType;
     public $selectedSchedule;
     public $truckReturnInfo;
+    public $selectedScheduleId;
+    public $searchZoneKey;
+    public $activeSearchKey = 'schedule';
+    public $searchZoneData;
 
+    protected $queryString = [
+        'selectedScheduleId' => ['except' => '*', 'as' => 'id'],
+        'activeWarehouseId' => ['except' => '', 'as' => 'whse'],
+    ];
     protected $listeners = [
         'closeModal' => 'closeModal',
         'edit' => 'edit',
@@ -72,6 +81,7 @@ class Index extends Component
         'closeDriverModal' => 'closeDriverModal',
         'fetchDriverSkills' => 'fetchDriverSkills',
         'closeAnnouncementModal' => 'closeAnnouncementModal',
+        'attchQueryParam' => 'attchQueryParam',
     ];
 
     public function getWarehousesProperty()
@@ -103,13 +113,11 @@ class Index extends Component
             ->mapWithKeys(fn($case) => [$case->name => $case->icon().' '.$case->label()])
             ->toArray();
 
-        if (Auth::user()->office_location) {
-            $activeWarehouse = $this->warehouses->firstWhere('title', Auth::user()->office_location);
-
-            $this->setActiveWarehouse($activeWarehouse ? $activeWarehouse->id : $this->warehouses->first()->id);
-        } else {
-            $this->setActiveWarehouse($this->warehouses->first()->id);
+        if (!$this->activeWarehouseId) {
+            $activeWarehouse = $this->warehouses->firstWhere('title', Auth::user()->office_location) ?? $this->warehouses->first();
+            $this->activeWarehouseId = $activeWarehouse->id;
         }
+        $this->setActiveWarehouse($this->activeWarehouseId);
 
         $this->activeType = '';
         $holidays = CalendarHoliday::listAll();
@@ -124,7 +132,12 @@ class Index extends Component
             ];
         })->toArray();
 
-
+        if($this->selectedScheduleId) {
+            $schedule = Schedule::find($this->selectedScheduleId);
+            if($schedule) {
+                $this->handleEventClick($schedule);
+            }
+        }
 
     }
 
@@ -162,6 +175,8 @@ class Index extends Component
         $this->showModal = false;
         $this->showView = false;
         $this->resetValidation();
+        $this->reset('selectedScheduleId');
+        $this->handleDateClick($this->dateSelected);
     }
 
     public function render()
@@ -174,8 +189,10 @@ class Index extends Component
 
         $query = $this->getSchedules();
         $this->schedules =  $query
-        ->orderByRaw('COALESCE(schedules.travel_prio_number, 9999) asc')
-        ->orderByRaw('STR_TO_DATE(schedules.expected_arrival_time, "%h:%i %p") asc')
+        ->orderByRaw("CASE
+        WHEN expected_arrival_time = '' THEN 1
+        WHEN expected_arrival_time IS NULL THEN 1
+        ELSE 0 END, expected_arrival_time ASC")
         ->orderBy('schedules.created_at', 'asc')
         ->get()
         ->map(function ($schedule, $index) {
@@ -201,6 +218,7 @@ class Index extends Component
     public function handleEventClick(Schedule $schedule)
     {
         $this->selectedSchedule = $schedule;
+        $this->selectedScheduleId = $this->selectedSchedule->id;
         $this->orderInfoStrng = uniqid();
         $this->scheduledLineItem = Product::whereRaw('account_id = ? and LOWER(`prod`) = ? LIMIT 1',[1,strtolower($schedule->line_items)])->get()->toArray();
         $this->showModal = true;
@@ -232,7 +250,7 @@ class Index extends Component
 
         $this->eventsData = $query->where('schedule_Date', $date)
         ->orderByRaw('COALESCE(travel_prio_number, 9999) asc')
-        ->orderByRaw('STR_TO_DATE(schedules.expected_arrival_time, "%h:%i %p") asc')
+        ->orderBy('schedules.expected_arrival_time', 'asc')
         ->orderBy('created_at', 'asc')
         ->get()
         ->map(function($schedule){
@@ -246,22 +264,21 @@ class Index extends Component
                 'order_number_suffix' => $schedule->order_number_suffix,
                 'customer_name' => $schedule->order->customer?->name,
                 'sx_customer_number' => $schedule->order->customer?->sx_customer_number,
-                'shipping_info' => $schedule->order->shipping_info,
+                'shipping_info' => $schedule->service_address,
                 'truckName' => $schedule->truckSchedule->truck->truck_name,
                 'zone' => $schedule->truckSchedule->zone->name,
                 'status_color' => $schedule->status_color_class,
                 'expected_time' => $schedule->expected_arrival_time,
                 'travel_prio_number' => $schedule->travel_prio_number,
                 'truck_schedule_id' => $schedule->truck_schedule_id,
-                'latest_comment' => $schedule->comments->last()
+                'latest_comment' => $schedule->comments->last(),
+                'service_address' => $schedule->service_address
             ];
         })
         ->toArray();
         $this->filteredSchedules = $this->getTrucks();
 
-        usort($this->filteredSchedules, function ($a, $b) {
-            return count($b['events']) <=> count($a['events']);
-        });
+        $this->filteredSchedules =  collect($this->filteredSchedules)->sortBy(fn($item) => strtotime($item['start_time']))->values()->all();
         $this->truckReturnInfo = TruckScheduleReturn::where('schedule_date', $date)
         ->where('whse', $this->activeWarehouse->short)
         ->get()
@@ -401,8 +418,8 @@ class Index extends Component
     public function closeSearchModal()
     {
         $this->showSearchModal = false;
-        $this->resetValidation('searchKey');
-        $this->reset(['searchKey', 'searchData']);
+        $this->resetValidation(['searchKey', 'searchZoneKey']);
+        $this->reset(['searchKey', 'searchData', 'searchZoneData', 'searchZoneKey', 'activeSearchKey']);
     }
 
     public function changeZone($zoneId)
@@ -418,9 +435,38 @@ class Index extends Component
         $this->dispatch('calendar-zone-update', !empty($this->activeZone) ? $this->activeZone['name'] : 'All Zones' );
     }
 
+    public function updatedSearchZoneKey($value)
+    {
+        $this->activeSearchKey = 'zone';
+        $this->searchZoneKey = $value;
+        $zipcodePattern = "/^\d{5}$/";
+        if ($this->searchZoneKey == '') {
+            $this->addError('searchZoneKey', 'Search field can\'t be empty');
+            $this->reset('searchZoneData');
+            return;
+        }
+
+        if (!preg_match($zipcodePattern, $this->searchZoneKey)) {
+            $this->addError('searchZoneKey', 'Search key must be a 5-digit number');
+            $this->reset('searchZoneData');
+            return;
+        }
+        $this->resetValidation('searchZoneKey');
+        $this->searchZoneData = Zones::join('zipcode_zone', 'zones.id', '=', 'zipcode_zone.zone_id')
+        ->join('scheduler_zipcodes', 'scheduler_zipcodes.id', '=', 'zipcode_zone.scheduler_zipcode_id')
+        ->where('scheduler_zipcodes.zip_code', $this->searchZoneKey)
+        ->whereNull('zones.deleted_at')
+        ->whereNull('scheduler_zipcodes.deleted_at')
+        ->select(['zones.name', 'zones.id'])
+        ->get()
+        ->toArray();
+
+    }
+
     public function updatedSearchKey($value)
     {
         $this->searchKey = $value;
+        $this->activeSearchKey = 'schedule';
         $ScheduleIDpattern = "/^[A-Za-z]\d{7,}$/";
         if($this->searchKey == '') {
             $this->addError('searchKey', 'search field can\'t be empty');
@@ -514,9 +560,7 @@ class Index extends Component
             $query->where('type', $this->activeType);
         }
         $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
-        ->whereHas('truckSchedule', function ($query) use ($whse) {
-            $query->whereIn('truck_id', Truck::where('whse', $whse->id)->pluck('id')->toArray());
-        });
+        ->where('whse', $whse->short);
 
         if(!empty($this->activeZone)) {
             $zoneId = $this->activeZone['id'];
@@ -614,10 +658,22 @@ class Index extends Component
         $schedulQuery = $this->getSchedules()
             ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()]);
 
+        $schedulQuery = $schedulQuery->with([
+            'latestComment',
+            'user',
+            'confirmedUser',
+            'cancelledUser',
+            'completedUser',
+            'startedUser',
+            'sroLinkedUser'
+        ]);
+        if(!config('sx.mock')) {
+            $schedulQuery = $schedulQuery->with('repairOrder');
+        }
+
         $schedules =  $schedulQuery->get()
             ->map(function ($schedule) {
                 $enumInstance = ScheduleEnum::tryFrom($schedule->type);
-
                 return [
                     'schedule_id' => $schedule->scheduleId(),
                     'sx_ordernumber' => $schedule->sx_ordernumber,
@@ -626,7 +682,7 @@ class Index extends Component
                     'type' => $enumInstance?->label(),
                     'zone' => $schedule->truckSchedule?->zone?->name,
                     'truckName' => $schedule->truckSchedule?->truck?->truck_name,
-                    'status' => $schedule->status,
+                    'status' => ScheduleStatusEnum::tryFrom($schedule->status)->label(),
                     'customer_name' => $schedule->order?->customer?->name,
                     'sx_customer_number' => $schedule->order?->customer?->sx_customer_number,
                     'shipping_address_1' => $schedule->order?->shipping_info['line'] ?? '',
@@ -634,6 +690,24 @@ class Index extends Component
                     'shipping_city' => $schedule->order?->shipping_info['city'] ?? '',
                     'shipping_state' => $schedule->order?->shipping_info['state'] ?? '',
                     'shipping_zip' => $schedule->order?->shipping_info['zip'] ?? '',
+                    'sro_sx_number' => !config('sx.mock') ? $schedule->repairOrder?->sx_repair_order_no ?? '' : '',
+                    'sro_status' => !config('sx.mock') ? $schedule->repairOrder?->status ?? '' : '',
+                    'equipment' => !config('sx.mock') ? $schedule->repairOrder?->brand ?? '' .$schedule->repairOrder?->model ?? '' : '' ,
+                    'serial_number' => $schedule->serial_no ?? '',
+                    'notes' => $schedule->latestComment->comment ?? '',
+                    'eta' => $schedule->expected_arrival_time ?  Carbon::parse($schedule->expected_arrival_time)->format('h:i A') : '',
+                    'created_by' => $schedule->user?->name ?? '',
+                    'created_at' => $schedule->created_at->format('d-m-Y H:i A') ?? '',
+                    'parts_ready_user' => $schedule->confirmedUser->name ?? '',
+                    'parts_ready_timestamp' => $schedule->confirmed_at ? Carbon::parse($schedule->confirmed_at)->format('d-m-Y h:i A') : '',
+                    'completed_user' => $schedule->completedUser->name ?? '',
+                    'completed_at' => $schedule->completed_at ?? '',
+                    'cancelled_by' => $schedule->cancelledUser->name ?? '',
+                    'cancelled_at' => $schedule->cancelled_at ? Carbon::parse($schedule->cancelled_at)->format('d-m-Y h:i A') : '',
+                    'sro_linked_by' => $schedule->sroLinkedUser->name ?? '',
+                    'sro_linked_at' => $schedule->sro_linked_at ? Carbon::parse($schedule->sro_linked_at)->format('d-m-Y h:i A') : '',
+                    'started_by' => $schedule->startedUser->name ?? '',
+                    'started_at' => $schedule->started_at ? Carbon::parse($schedule->started_at)->format('d-m-Y h:i A') : '',
                 ];
             })
             ->toArray();
@@ -687,6 +761,11 @@ class Index extends Component
         $skills = $driver->skills?->skills;
         $skills = $skills ? explode(",", $skills) : null;
         $this->filteredSchedules[$key]['driver_skills'] = $skills;
+    }
+
+    public function attchQueryParam($id)
+    {
+        $this->selectedScheduleId = $id;
     }
 
 }
