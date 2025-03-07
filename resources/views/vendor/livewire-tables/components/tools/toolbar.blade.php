@@ -100,7 +100,10 @@
     }"
     x-init="() => {
         sendEvent(filterComponents);
-    }">
+    },
+    $watch('filterComponents', (data) => {
+        sendEvent(filterComponents);
+    })">
 
     @script
     <script>

@@ -14,6 +14,7 @@
             type="text"
             x-ref="dateRangeInput"
             x-on:click="init"
+            autocomplete="off"
             value="{{ $filter->getDateString(isset($this->appliedFilters[$filterKey]) ? $this->appliedFilters[$filterKey] : '') }}"
             wire:key="{{ $filter->generateWireKey($tableName, 'dateRange') }}"
             id="{{ $tableName }}-filter-dateRange-{{ $filterKey }}"
