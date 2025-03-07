@@ -448,19 +448,20 @@
                         </div>
                         Use Current Address
                     </button>
-                    <button type="submit" class="btn btn-primary {{ !$form->showAddressBox ? 'd-none' : '' }}"
+                    {{-- todo : remove later depend on use --}}
+                    {{-- <button type="submit" class="btn btn-primary {{ !$form->showAddressBox ? 'd-none' : '' }}"
                         wire:click.prevent="useRecommended">
                         <div wire:loading wire:target="useRecommended">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
                         Use Suggested Address
-                    </button>
-                    <button type="submit" class="btn btn-primary {{ $form->showAddressBox ? 'd-none' : '' }}"
+                    </button> --}}
+                    <button type="submit" class="btn btn-primary"
                         wire:click="fixAddress">
                         <div wire:loading wire:target="fixAddress">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
-                        Review Suggested Address
+                        Verify Address
                     </button>
                 </x-slot>
             </x-modal>

@@ -122,6 +122,7 @@ class AuthServiceProvider extends ServiceProvider
             Shifts::class => \App\Policies\Scheduler\ShiftPolicy::class,
             NotificationTemplate::class => \App\Policies\Scheduler\TemplatePolicy::class,
             \App\Models\Scheduler\Truck::class => \App\Policies\Scheduler\TruckPolicy::class,
+            \App\Models\Scheduler\CargoConfigurator::class => \App\Policies\Scheduler\CargoConfiguratorPolicy::class,
             \App\Models\Scheduler\Announcement::class => \App\Policies\Scheduler\Schedule\AnnouncementPolicy::class,
         ];
     }

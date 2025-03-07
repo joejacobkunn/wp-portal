@@ -449,7 +449,7 @@
                     height: 'auto',
                     contentHeight: 'auto',
                     headerToolbar: {
-                        left: 'prev,next today toggleYear exportBtn searchBtn settingsBtn',
+                        left: 'prev,next today nextYear exportBtn searchBtn settingsBtn',
                         center: 'title',
                         right: 'warehouseBtn scheduleBtn zoneBtn dropdownButton'
                     },
@@ -496,16 +496,10 @@
                                 $wire.showSearchModalForm();
                             }
                         },
-                        toggleYear: {
+                        nextYear: {
                             text: 'Next Year',
-                            click: function(buttonEl) {
-                                if (isNextYear) {
-                                    calendar.nextYear();
-                                } else {
-                                    calendar.prevYear();
-                                }
-                                updateButtonText(isNextYear ? 'Prev Year' : 'Next Year');
-                                isNextYear = !isNextYear; // Toggle flag
+                            click: function() {
+                                calendar.incrementDate({ years: 1 });
                             }
                         },
                         settingsBtn: {
@@ -880,9 +874,7 @@
                         cell.classList.remove('bg-light-danger');
                     }
                 });
-                function updateButtonText(newText) {
-                    document.querySelector('.fc-toggleYear-button').textContent = newText;
-                }
+
                 function setZoneInDayCells() {
                     let today = new Date();
                     document.querySelectorAll('.zoneinfo-span').forEach(span => {
