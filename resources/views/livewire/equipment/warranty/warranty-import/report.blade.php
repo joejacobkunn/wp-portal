@@ -15,7 +15,8 @@
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <div class="report-table-wrap">
-                        <livewire:equipment.warranty.warranty-import.report-table >
+                        <livewire:equipment.warranty.warranty-import.report-table
+                            :key="'report-table-'. $refreshKey">
                     </div>
                 </div>
             </div>
@@ -31,7 +32,9 @@
                     const data_serial = btnGroup ? btnGroup.getAttribute('data-serial') : null;
 
                     const btn = e.target.closest('button');
-                    const originalWidth = btn.style.width || 'auto';
+                    if (btn) {
+                        const originalWidth = btn.style.width || 'auto';
+                    }
 
                     const showLoader = () => {
 

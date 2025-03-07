@@ -63,7 +63,6 @@ class ScheduleForm extends Form
     public $reschedule_reason;
     public $unconfirmedAddressTypes;
     public $showAddressModal;
-    public $showAddressBox;
     public $not_purchased_via_weingartz;
     public $addressVerified = false;
     public $addressFromOrder;
@@ -721,7 +720,7 @@ class ScheduleForm extends Form
             'unconfirmedAddressTypes'
         ]);
         $this->showAddressModal = false;
-        $this->showAddressBox = false;
+
         $this->service_address = $recom['result']['address']['formattedAddress'];
         $this->addressVerified =true;
         $this->checkZipcode();

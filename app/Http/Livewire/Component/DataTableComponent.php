@@ -62,4 +62,11 @@ abstract class DataTableComponent extends RappasoftDataTableComponent
     {
         return $this->baseQuery();
     }
+
+    public function updatedFilterComponents()
+    {
+        $tableId = str_replace('.', '-', $this->getName());
+
+        $this->dispatch($tableId . ':table-filter:emit', $this->filterComponents);
+    }
 }

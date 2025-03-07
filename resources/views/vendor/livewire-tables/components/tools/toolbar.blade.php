@@ -100,10 +100,7 @@
     }"
     x-init="() => {
         sendEvent(filterComponents);
-    },
-    $watch('filterComponents', (data) => {
-        sendEvent(filterComponents);
-    })">
+    }">
 
     @script
     <script>
@@ -168,9 +165,11 @@
             }
 
             window.addEventListener('{{ $tableId }}:table-filter:emit', (e) => {
-                if (! document.querySelector('{{ $tableId }} .table-filter-col .ss-main')) {
-                    initSelect(e.detail.value);
-                }
+                setTimeout(() => {
+                    if (! document.querySelector('{{ $tableId }} .table-filter-col .ss-main')) {
+                        initSelect(e.detail.value);
+                    }
+                }, 400)
             })
         })()
     </script>

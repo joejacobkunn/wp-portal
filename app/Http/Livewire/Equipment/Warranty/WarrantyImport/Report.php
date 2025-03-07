@@ -17,6 +17,7 @@ class Report extends Component
 
     public $last_refresh_timestamp;
     public $non_registered_count;
+    public $refreshKey = 1;
 
     protected $listeners = [
         'exportWarrantyRecords' => 'exportWarrantyRecords'
@@ -47,6 +48,7 @@ class Report extends Component
         DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '".date("m/d/y")."' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($serial_no)."' and custno = '".$this->clean($cust_no)."'");
         $record = WarrantyReport::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
         $record->update(['registration_date' => date("m/d/y"), 'registered_by' => auth()->user()->sx_operator_id]);
+        $this->refreshKey++;
         return $record->registration_date;
     }
 
@@ -55,6 +57,7 @@ class Report extends Component
         DB::connection('sx')->statement("UPDATE pub.icses SET user9 = NULL , user4 = '' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($serial_no)."' and custno = '".$this->clean($cust_no)."'");
         $record = WarrantyReport::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
         $record->update(['registration_date' => '', 'registered_by' => '']);
+        $this->refreshKey++;
     }
 
     public function ignore($serial_no, $cust_no)
@@ -62,6 +65,7 @@ class Report extends Component
         DB::connection('sx')->statement("UPDATE pub.icses SET user9 = '2001-01-01' , user4 = '".auth()->user()->sx_operator_id."' where cono = 10 and currstatus = 's' and LTRIM(RTRIM(UPPER(icses.serialno))) = '".$this->clean($serial_no)."' and custno = '".$this->clean($cust_no)."'");
         $record = WarrantyReport::where('serial',$serial_no)->where('cust_no',$cust_no)->first();
         $record->update(['registration_date' => '2001-01-01', 'registered_by' => auth()->user()->sx_operator_id]);
+        $this->refreshKey++;
     }
 
     public function exportWarrantyRecords()
