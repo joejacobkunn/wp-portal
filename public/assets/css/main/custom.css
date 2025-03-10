@@ -330,7 +330,9 @@
 .ss-main .ss-single-selected .placeholder {
     cursor: inherit;
 }
-
+.datatable-div .table-responsive {
+    overflow-x: inherit;
+}
 /** SLIM Select Ends */
 
 

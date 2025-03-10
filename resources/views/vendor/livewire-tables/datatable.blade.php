@@ -3,7 +3,7 @@
     $tableId = str_replace('.', '-', $this->getName());
 @endphp
 
-<div class="{{ $tableId }}">
+<div class="{{ $tableId }} datatable-div">
     <x-livewire-tables::wrapper :component="$this" :tableName="$tableName">
         @if ($this->hasConfigurableAreaFor('before-tools'))
             @include($this->getConfigurableAreaFor('before-tools'), $this->getParametersForConfigurableArea('before-tools'))
