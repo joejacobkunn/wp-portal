@@ -131,6 +131,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('scheduler/trucks', \App\Http\Livewire\Scheduler\Truck\Index::class)->name('scheduler.truck.index');
         Route::get('scheduler/trucks/{truck}/show', \App\Http\Livewire\Scheduler\Truck\Truck\Show::class)->name('scheduler.truck.show');
 
+        Route::get('scheduler/cargo', \App\Http\Livewire\Scheduler\Truck\Cargo\Index::class)->name('scheduler.truck.cargo.index');
         Route::get('scheduler/cargo/{cargoConfigurator}/show', \App\Http\Livewire\Scheduler\Truck\Cargo\Show::class)->name('scheduler.truck.cargo.show');
     });
 
