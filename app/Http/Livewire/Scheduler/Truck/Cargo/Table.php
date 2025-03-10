@@ -11,7 +11,6 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 class Table extends DataTableComponent
 {
     use AuthorizesRequests;
-    public $whseShort;
     public function configure(): void
     {
         $this->setPrimaryKey('id');
@@ -82,6 +81,6 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return CargoConfigurator::query()->where('whse', $this->whseShort);
+        return CargoConfigurator::query();
     }
 }
