@@ -40,10 +40,9 @@ class CargoForm extends Form
         ];
     }
 
-    public function store($whse)
+    public function store()
     {
         $validatedData = $this->validate();
-        $validatedData['whse'] = $whse;
         CargoConfigurator::create($validatedData);
     }
 

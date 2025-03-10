@@ -27,13 +27,18 @@
                 </div>
                 <div class="col-10 col-md-10 col-xxl-10"  wire:key="{{'index' . $activeWarehouse->id}}">
 
-                    <x-tabs :tabs="$tabs" tabId="truck-tabs" :key="'tabs' . $activeWarehouse->id">
-                        <x-slot:tab_content_trucks component="scheduler.truck.truck.index" :warehouseId="$activeWarehouse->id" :key="'truck' . $activeWarehouse->id">
-                        </x-slot>
-
-                        <x-slot:tab_content_cargo component="scheduler.truck.cargo.index" :warehouseId="$activeWarehouse->id" :key="'cargo' . $activeWarehouse->id">
-                        </x-slot>
-                    </x-tabs>
+                    <ul class="nav nav-pills mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="javascript:;">
+                                Truck List</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('scheduler.truck.cargo.index') }}"
+                                wire:navigate>
+                                Cargo Configurator</a>
+                        </li>
+                    </ul>
+                    <livewire:scheduler.truck.truck.index  :warehouseId="$activeWarehouse->id" :key="'truck' . $activeWarehouse->id" />
                 </div>
             </div>
         </x-slot>
