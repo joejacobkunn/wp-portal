@@ -1,7 +1,9 @@
 <?php
  namespace App\Http\Livewire\Scheduler\Truck\Form;
 
+use App\Imports\TruckScheduleAHMImport;
 use App\Imports\TruckScheduleImport;
+use App\Imports\TruckSchedulePickupDeliveyImport;
 use App\Jobs\ProcessTruckScheduleImport;
 use App\Models\Scheduler\Truck;
 use App\Models\Scheduler\Zones;
@@ -53,7 +55,12 @@ class ScheduleImportForm extends Form
     {
         $this->validateOnly('csvFile');
         try {
-            $import = new TruckScheduleImport($this->truck->truck_name, $this->zones);
+            if($this->truck->service_type == 'Delivery / Pickup') {
+
+                $import = new TruckSchedulePickupDeliveyImport($this->truck->truck_name, $this->zones);
+            } else {
+                $import = new TruckScheduleAHMImport($this->truck->truck_name, $this->zones);
+            }
             Excel::import($import, $this->csvFile);
         } catch (\Exception $e) {
             return ['status' => false, 'message' => $e->getMessage()];

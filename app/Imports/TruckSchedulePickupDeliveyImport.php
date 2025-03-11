@@ -5,55 +5,32 @@ namespace App\Imports;
 use App\Rules\ValidTimeslotsforTruckSchedule;
 use App\Rules\ValidTrucksforSchedule;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Validators\Failure;
 
-class TruckScheduleImport implements ToCollection,WithValidation, WithHeadingRow, SkipsOnFailure, WithEvents
+class TruckSchedulePickupDeliveyImport extends TruckScheduleImport
 {
-    use Importable, SkipsFailures;
 
-    public $current_row = [];
-    protected $data = [];
-    protected $failures = [];
-    public $truckName;
-    public $zones;
-
-
-    public function headingRow(): int
+    public function __construct($data, $zones)
     {
-        return 1;
+        $this->truckName = $data;
+        $this->zones = $zones;
     }
+
 
     public function rules(): array
     {
         $rules = [
-
+            'truck' =>  ['required', new ValidTrucksforSchedule($this->truckName)],
+            'date' =>  ['required'],
+            'timeslots' => ['required', new ValidTimeslotsforTruckSchedule()],
+            'slots' => 'required|integer',
+            'zone' => 'required|exists:zones,name',
+            'is_pickup' => 'required| in:Yes,No',
+            'is_delivery' => 'required| in:Yes,No',
         ];
         return $rules;
     }
 
-    public function registerEvents(): array
-    {
-        return [
-            BeforeImport::class => function(BeforeImport $event) {
-                $this->fileBaseValidation($event);
-            },
-        ];
-    }
-
-    public function prepareForValidation($data, $index)
-    {
-        $this->current_row = $data;
-
-        return $data;
-    }
 
     /**
     * @param Collection $collection
@@ -62,34 +39,20 @@ class TruckScheduleImport implements ToCollection,WithValidation, WithHeadingRow
     {
         foreach ($collection as $row) {
             $zoneId = collect($this->zones)->firstWhere('zone', $row['zone'])['id'] ?? null;
-            $this->data[] = array_merge($row->toArray(), ['zone_id' => $zoneId]);
+            $is_pickup = $row['is_pickup'] == 'Yes' ? 1 : 0;
+            $is_delivery = $row['is_delivery'] == 'Yes' ? 1 : 0;
+            $this->data[] = array_merge($row->toArray(), [
+                'zone_id' => $zoneId,
+                'is_pickup' => $is_pickup,
+                'is_delivery' => $is_delivery,
+            ]);
 
         }
     }
 
-    public function onFailure(Failure ...$failures)
-    {
-        $this->failures = array_merge($this->failures, $failures);
-    }
-
-    /**
-     * Get the failures.
-     *
-     * @return array
-     */
-    public function getFailures()
-    {
-        return $this->failures;
-    }
-
-    public function getData()
-    {
-        return $this->data;
-    }
-
     protected function fileBaseValidation(BeforeImport $event)
     {
-        $requiredHeaders = ['Truck', 'Date', 'Timeslots', 'Slots', 'Zone'];
+        $requiredHeaders = ['Truck', 'Date', 'Timeslots', 'Slots', 'Zone', 'Is Pickup', 'Is Delivery'];
 
         $worksheet = $event->reader->getActiveSheet();
         $headerRow = $worksheet->getRowIterator()->current();

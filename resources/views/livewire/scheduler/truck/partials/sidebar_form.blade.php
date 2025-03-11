@@ -76,6 +76,22 @@
                         <x-forms.input type="number" label="Slots" model="form.slots" lazy />
                     </div>
                 </div>
+                @if ($this->truck->service_type == 'Delivery / Pickup')
+                    <div class="col-md-12 mb-2">
+                        <div class="form-group">
+                            <label for=""> Delivery Method</label>
+                            <select class="form-select" wire:model="form.delivery_method">
+                                <option value=""> Select Zone</option>
+                                <option value="pickup" @selected($form->delivery_method == 'pickup')> Pickup</option>
+                                <option value="delivery" @selected($form->delivery_method == 'delivery')> Delivery</option>
+
+                            </select>
+                            @error('form.delivery_method')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
         <div class="modal-footer">

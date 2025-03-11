@@ -1,0 +1,4 @@
+﻿Truck,Date,Timeslots,Slots,Zone,Is Pickup,Is Delivery
+truck1,13-02-2025,9am-1pm,5,AHM Utica 4.A,Yes,No
+truck1,17-02-2025,9am-1pm,55,AHM Utica 4.A,Yes,Yes
+truck1,22-02-2025,9am-1pm,4,AHM Utica 4.A,Yes,Yes

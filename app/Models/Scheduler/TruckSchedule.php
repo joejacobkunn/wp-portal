@@ -19,6 +19,8 @@ class TruckSchedule extends Model
         'start_time',
         'end_time',
         'driver_id',
+        'is_pickup',
+        'is_delivery',
     ];
 
     public function truck()
