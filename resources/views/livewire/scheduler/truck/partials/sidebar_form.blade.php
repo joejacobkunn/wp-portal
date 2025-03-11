@@ -81,7 +81,7 @@
                         <div class="form-group">
                             <label for=""> Delivery Method</label>
                             <select class="form-select" wire:model="form.delivery_method">
-                                <option value=""> Select Zone</option>
+                                <option value=""> Select</option>
                                 <option value="pickup" @selected($form->delivery_method == 'pickup')> Pickup</option>
                                 <option value="delivery" @selected($form->delivery_method == 'delivery')> Delivery</option>
 
