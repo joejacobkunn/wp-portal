@@ -96,7 +96,7 @@ class Table extends DataTableComponent
                     $this->setFilter($key, $value);
                 }
             }else{
-                $this->setFilter('stage_codes', 'open');
+                $this->setFilter('stage_codes', ['open']);
             }
         }
     }
@@ -463,6 +463,7 @@ class Table extends DataTableComponent
                     'quotes' => 'Quotes',
                 ])
                 ->filter(function (Builder $builder, $value) {
+                    $value = is_array($value) ? $value : [$value];
                     $searchKey =[];
                     if(in_array('open', $value)) $searchKey = array_merge($searchKey, [1,2]);
                     if(in_array('closed', $value)) $searchKey = array_merge($searchKey, [3,4,5]);

@@ -26,15 +26,16 @@ class Schedule extends Component
     public $daySchedules;
     public $importIteration = 1245332;
     public $disableImportBtn = false;
+    public $zones;
 
     protected $listeners = [
         'closeImportForm' => 'closeImportForm'
     ];
-    public $zones;
 
     public function mount()
     {
-        $this->zones = Zones::where(['service' => $this->truck->service_type, 'whse_id' => $this->truck->whse])->get();
+        $type = $this->truck->service_type == 'Delivery / Pickup' ? 'Pickup/Delivery' : $this->truck->service_type;
+        $this->zones = Zones::where(['service' => $type, 'whse_id' => $this->truck->whse])->get();
         $this->handleDateClick(Carbon::now());
     }
 
@@ -144,6 +145,9 @@ class Schedule extends Component
     {
         $filePath = public_path(config('scheduler.demo_file_path'));
 
+        if($this->truck->service_type == 'Delivery / Pickup') {
+            $filePath = public_path(config('scheduler.pickup_delivery_demo_file'));
+        }
         if (!file_exists($filePath)) {
             $this->alert('error', 'File not found.');
             return;
