@@ -19,6 +19,7 @@ class ScheduleForm extends Form
     public $timePeriod = 'AM';
     public $timePeriodEnd = 'AM';
     public $slots;
+    public $delivery_method;
 
     protected $validationAttributes = [
         'zone' => 'Zone',
@@ -52,7 +53,9 @@ class ScheduleForm extends Form
                 'schedule_date' => $this->schedule_date,
                 'start_time' => $this->start_time.' '.$this->timePeriod,
                 'end_time' => $this->end_time. ' '.$this->timePeriodEnd,
-                'slots' => $this->slots
+                'slots' => $this->slots,
+                'is_pickup' => $this->delivery_method == 'pickup' ? 1 : 0,
+                'is_delivery' => $this->delivery_method == 'delivery' ? 1 : 0,
             ]
         );
     }
@@ -73,6 +76,7 @@ class ScheduleForm extends Form
         $this->timePeriod = $start[1];
         $this->end_time = $end[0];
         $this->timePeriodEnd = $end[1];
+        $this->delivery_method = $schedule->is_pickup == 1 ? 'pickup' : 'delivery';
     }
 
     public function update(Truck $truck)
@@ -82,7 +86,9 @@ class ScheduleForm extends Form
             'schedule_date' => $this->schedule_date,
             'start_time' => date('h:i',strtotime($this->start_time)).' '.$this->timePeriod,
             'end_time' => date('h:i',strtotime($this->end_time)). ' '.$this->timePeriodEnd,
-            'slots' => $this->slots
+            'slots' => $this->slots,
+            'is_pickup' => $this->delivery_method == 'pickup' ? 1 : 0,
+            'is_delivery' => $this->delivery_method == 'delivery' ? 1 : 0,
         ]);
         $this->truckSchedule->save();
         return $this->truckSchedule;

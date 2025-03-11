@@ -35,6 +35,18 @@ class ProcessTruckScheduleImport implements ShouldQueue
      */
     public function handle(): void
     {
+        if($this->truck->service_type == 'Delivery / Pickup') {
+            $this->updateDeliveryPickupSchedules();
+        }
+        if($this->truck->service_type == 'AHM') {
+            $this->updateAHMSchedules();
+        }
+
+        Notification::send($this->user, new TruckScheduleImportNotification());
+    }
+
+    public function updateDeliveryPickupSchedules()
+    {
         foreach($this->records as $record) {
             $timeslots = explode('-', trim($record['timeslots']));
             $starTime = date("h:i A", strtotime($timeslots[0]));
@@ -48,9 +60,32 @@ class ProcessTruckScheduleImport implements ShouldQueue
                 [
                     'zone_id' => trim($record['zone_id']),
                     'slots' => trim($record['slots']),
+                    'is_pickup' => trim($record['is_pickup']),
+                    'is_delivery' => trim($record['is_delivery']),
                 ]
             );
         }
-        Notification::send($this->user, new TruckScheduleImportNotification());
+    }
+
+    public function updateAHMSchedules()
+    {
+        foreach($this->records as $record) {
+            $timeslots = explode('-', trim($record['timeslots']));
+            $starTime = date("h:i A", strtotime($timeslots[0]));
+            $endTime = date("h:i A", strtotime($timeslots[1]));
+            $this->truck->schedules()->updateOrCreate(
+                [
+                    'schedule_date' => Carbon::parse($record['date'])->format('Y-m-d'),
+                    'start_time' => $starTime,
+                    'end_time' => $endTime
+                ],
+                [
+                    'zone_id' => trim($record['zone_id']),
+                    'slots' => trim($record['slots']),
+                    'is_pickup' => 0,
+                    'is_delivery' => 0,
+                ]
+            );
+        }
     }
 }
