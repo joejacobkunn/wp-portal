@@ -27,6 +27,7 @@ class Show extends Component
         ],
         [
             'title' => 'Cargo',
+            'route_name' => 'scheduler.truck.cargo.index',
         ],
 
     ];
@@ -95,9 +96,8 @@ class Show extends Component
     public function delete()
     {
         $this->authorize('delete', $this->cargoConfigurator);
-        $whse = $this->cargoConfigurator->whse;
         $this->cargoConfigurator->delete();
         $this->alert('success', 'Record deleted!');
-        return redirect()->route('scheduler.truck.index', ['tab' => 'cargo', 'whse' => $whse]);
+        return redirect()->route('scheduler.truck.index', ['tab' => 'cargo']);
     }
 }
