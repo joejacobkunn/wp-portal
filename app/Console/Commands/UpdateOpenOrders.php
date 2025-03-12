@@ -36,9 +36,13 @@ class UpdateOpenOrders extends Command
     {
         $updated_count = 0;
 
+        $updated_open_orders = [];
+
         //query open orders from mysql
 
         $open_orders = Order::openOrders()->get();
+
+        //update existing open orders
 
         foreach($open_orders as $open_order)
         {
@@ -65,10 +69,51 @@ class UpdateOpenOrders extends Command
                 'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
                 'promise_date' => Carbon::parse($sx_order['promisedt'])->format('Y-m-d'),
                 'last_line_added_at' => $this->getLatestEnteredLineDate($line_items,$open_order->enterdt),
-                'shipping_info' => $sx_order->constructAddress($sx_order)
+                'shipping_info' => $sx_order->constructAddress($sx_order),
+                'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
             ]);
-
         }
+
+        //update and create open orders that have suffix greater than 0
+
+        $sx_orders = SXOrder::where('cono', 10)->where('ordersuf', '<>', 0)->openOrders()->select(['cono', 'orderno','ordersuf','takenby', 'enterdt', 'stagecd', 'custno', 'user1', 'shipviaty', 'promisedt', 'stagecd', 'totqtyshp', 'totqtyord', 'whse', 'user6', 'shiptoaddr', 'shiptonm', 'shiptost', 'shiptozip', 'shiptocity', 'shipinstr', 'shipto'])->get();
+
+        foreach($sx_orders as $sx_order)
+        {
+            $line_items = $this->getSxOrderLineItemsProperty($sx_order['orderno'],$sx_order['ordersuf']);
+            $wt_status = $this->checkForWarehouseTransfer($sx_order,$line_items);
+            
+            $portal_order = Order::updateOrCreate(
+                [
+                    'order_number' => $sx_order['orderno'],
+                    'order_number_suffix' => $sx_order['ordersuf'],
+                    'cono' => 10
+                ],
+                [
+                    'whse' => strtolower($sx_order['whse']),
+                    'taken_by' => $sx_order['takenby'],
+                    'order_date' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
+                    'stage_code' => $sx_order['stagecd'],
+                    'sx_customer_number' => $sx_order['custno'],
+                    'is_sro' => $this->isSro($sx_order,$line_items->toArray()),
+                    'ship_via' => strtolower($sx_order['shipviaty']),
+                    'qty_ship' => $sx_order['totqtyshp'],
+                    'qty_ord' => $sx_order['totqtyord'],
+                    'promise_date' => $sx_order['promisedt'],
+                    'line_items' => ['line_items' => $line_items->toArray() ?: []],
+                    'is_sales_order' => $this->isSales($line_items->toArray()),
+                    'is_web_order' => $sx_order['user6'] == '6' ? 1 : 0,
+                    'warehouse_transfer_available' => ($wt_status == 'wt') ? true : false,
+                    'partial_warehouse_transfer_available' => ($wt_status == 'p-wt') ? true : false,
+                    'golf_parts' => $sx_order['user6'] == '6' ? $sx_order->hasGolfParts($line_items) : null,
+                    'non_stock_line_items' => $sx_order->hasNonStockItems($line_items),
+                    'last_line_added_at' => Carbon::parse($sx_order['enterdt'])->format('Y-m-d'),
+                    'status' => 'Pending Review',
+                    'shipping_info' => $sx_order->constructAddress($sx_order)
+                ]
+            );
+        }
+
 
         //store last time in Cache
 
@@ -86,7 +131,7 @@ class UpdateOpenOrders extends Command
             {
                 $backorder_count = intval($line_item->stkqtyord) - intval($line_item->stkqtyship);
 
-                if($backorder_count > 0 && strtolower($line_item->ordertype) != 't')
+                if($backorder_count > 0 && strtolower($line_item->ordertype) != 't' && strtolower($line_item->specnstype) != 'l')
                 {
                     $inventory_levels = $line_item->checkInventoryLevelsInWarehouses(array_diff(['ann','ceda','farm','livo','utic','wate', 'zwhs', 'ecom'], [strtolower($line_item->whse)]));
 
