@@ -19,7 +19,7 @@ class ProcessPurchaseOrderReceipts extends Command
      */
     private $cono = 80;
 
-    protected $signature = 'app:process-purchase-order-receipts {--mode=test} {--po=} {--date=}';
+    protected $signature = 'app:process-purchase-order-receipts {--mode=test} {--po=} {--date=} {--suffix=}';
 
     /**
      * The console command description.
@@ -42,6 +42,10 @@ class ProcessPurchaseOrderReceipts extends Command
         $po_number = $this->option('po') ?? null;
 
         $date = $this->option('date') ?? null;
+
+        $suffix = $this->option('suffix') ?? null;
+
+        if($mode == 'process') $suffix = null;
 
         $this->info('Starting process in mode : '.$mode.'<br>');
 
@@ -86,7 +90,7 @@ class ProcessPurchaseOrderReceipts extends Command
             }
 
 
-            $this->sx_po_line_data = $this->getSxPoData($purchase_order_number);
+            $this->sx_po_line_data = $this->getSxPoData($purchase_order_number, $suffix);
 
             if(!empty($this->sx_po_line_data))
             {
@@ -115,6 +119,9 @@ class ProcessPurchaseOrderReceipts extends Command
                             $this->line_item_totals[strtoupper($item)] += $slot['qty'];
                         }
                     }
+
+                    $purchase_order_ids[] = $purchase_order->id;
+
                 }
 
                 $ineligible_products = $this->checkForIneligibleProducts($products,$this->sx_po_line_data);
@@ -142,35 +149,33 @@ class ProcessPurchaseOrderReceipts extends Command
                 $this->info('PeopleVox Data => '.json_encode($products).'<br><br>');
                 $this->info('PeopleVox Calculated Line Item Totals => '.json_encode($this->line_item_totals).'<br><br>');
     
-                foreach($purchase_orders as $purchase_order)
+
+                $po_suffix = $this->sx_po_line_data[0]->posuf;
+
+                $stage_code = $this->sx_po_line_data[0]->stagecd;
+
+
+                foreach($this->sx_po_line_data as $sx_po_line)
                 {
-
-                    $po_suffix = $this->sx_po_line_data[0]->posuf;
-    
-                    $stage_code = $this->sx_po_line_data[0]->stagecd;
-
-
-                    foreach($this->sx_po_line_data as $sx_po_line)
+                    if($this->itemEligibleForReceipt($sx_po_line->shipprod,$products) && !in_array(strtoupper($sx_po_line->shipprod),$ineligible_products))
                     {
-                        if($this->itemEligibleForReceipt($sx_po_line->shipprod,$products) && !in_array(strtoupper($sx_po_line->shipprod),$ineligible_products))
-                        {
-                            $po_meta_data = $this->getPOMetaDataForItem(strtoupper($sx_po_line->shipprod), $sx_po_line->lineno,$sx_po_line->qtyord,$purchase_order_number,$po_suffix);
-                            
-                            if(!empty($po_meta_data))
-                            {
-                                $line_items[$sx_po_line->lineno] = ['line_no' => $sx_po_line->lineno, 'quantity' => $po_meta_data['qty'], 'amount' => $sx_po_line->price];
-                            }
-                        }
+                        $po_meta_data = $this->getPOMetaDataForItem(strtoupper($sx_po_line->shipprod), $sx_po_line->lineno,$sx_po_line->qtyord,$sx_po_line->pono,$po_suffix);
                         
-                    }    
-
-
-                    $purchase_order_ids[] = $purchase_order->id;
-                }    
+                        if(!empty($po_meta_data))
+                        {
+                            $line_items[$sx_po_line->lineno] = ['line_no' => $sx_po_line->lineno, 'quantity' => $po_meta_data['qty'], 'amount' => $sx_po_line->price];
+                        }
+                    }
+                    
+                }  
+                    
     
-                if(in_array($stage_code,[0,1,2,3,4]))
+                if(in_array($stage_code,[0,1,2,3,4]) || $mode != 'process')
                 {
+
                     $sx_payload = $this->createSXApiPayload($purchase_order_number,$po_suffix,$line_items);
+
+                    $this->info('<br><br>Generated SX Payload => '.json_encode($sx_payload));
     
                     $sx_client = new SX();
 
@@ -198,30 +203,38 @@ class ProcessPurchaseOrderReceipts extends Command
             }
         }
 
-        $this->info('<br>The job is complete');
+        $this->info('<br><br>The job is complete');
     }
 
-    private function getSxPoData($po_number)
+    private function getSxPoData($po_number, $suffix)
     {
-        $last_suffix = DB::connection('sx')->select("SELECT top 1 poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poeh.stagecd
-                                                        FROM pub.poeh
-                                                        LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
-                                                        WHERE poeh.cono = ?
-                                                        AND poeh.pono = ?
-                                                        ORDER BY poeh.posuf DESC
-                                                        WITH(NOLOCK)", [$this->cono,$po_number]);
+        if(is_null($suffix))
+        {
+            $last_suffix = DB::connection('sx')->select("SELECT top 1 poeh.pono,poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poeh.stagecd
+            FROM pub.poeh
+            LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
+            WHERE poeh.cono = ?
+            AND poeh.pono = ?
+            ORDER BY poeh.posuf DESC
+            WITH(NOLOCK)", [$this->cono,$po_number]);
 
-        $this->info('SX Data => Last Suffix => '.$last_suffix[0]->posuf.'<br>');
+            $last_suffix_no = $last_suffix[0]->posuf;
 
-        $po_data = DB::connection('sx')->select("SELECT poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
+        }else{
+            $last_suffix_no = $suffix;
+        }
+
+        $this->info('SX Data => Last Suffix => '.$last_suffix_no.'<br>');
+
+        $po_data = DB::connection('sx')->select("SELECT poeh.pono, poeh.posuf, poel.lineno, poel.shipprod, poel.qtyord, poel.price, poeh.stagecd
                                                 FROM pub.poeh
                                                 LEFT JOIN pub.poel ON poel.cono = poeh.cono AND poel.pono = poeh.pono AND poel.posuf = poeh.posuf
                                                 WHERE poeh.cono = ?
                                                 AND poeh.pono = ?
                                                 AND poeh.posuf = ?
-                                                WITH(NOLOCK)", [$this->cono,$po_number,$last_suffix[0]->posuf]);
+                                                WITH(NOLOCK)", [$this->cono,$po_number,$last_suffix_no]);
 
-        $this->info('SX Data => PO Data => '.json_encode($po_data).'<br><br>');
+        $this->info('PO Data from SX => '.json_encode($po_data).'<br><br>');
 
         return $po_data;
 
@@ -229,7 +242,7 @@ class ProcessPurchaseOrderReceipts extends Command
 
     private function getPOMetaDataForItem($item,$line,$qty,$po_number,$po_suffix)
     {
-        $this->info('Starting item => '.$item);
+        $this->info('Starting item (Line '.$line.') => '.$item);
 
         if($this->line_item_totals[$item] < 1) 
         {
@@ -243,11 +256,13 @@ class ProcessPurchaseOrderReceipts extends Command
 
             if($this->line_item_totals[$item] == $qty)
             {
-                $this->info($item.' => Receipt line item count is same as SX quantity.<br>');
+                $this->info($item.' => Receipt line item count is same as SX quantity('.$qty.').<br>');
 
 
                 if($this->check_if_last_multiple_item($item,$line))
                 {
+                    $this->info('<br>Check if last multiple item for line ('.$line.') : passed with qty => '.$this->line_item_totals[$item]);
+
                     return ['lineno' => $line, 'qty' => $this->line_item_totals[$item]];
                 }else{
 
@@ -261,16 +276,26 @@ class ProcessPurchaseOrderReceipts extends Command
         
         foreach($this->line_item_slots[$item] as $slot)
         {
-            $this->info($item.' => Receipt line item count ('.$this->line_item_totals[$item].') is less than SX quantity.<br>');
 
             if($this->line_item_totals[$item] < $qty)
             {
+                $this->info($item.' => Receipt line item count ('.$this->line_item_totals[$item].') is less than SX quantity('.$qty.').<br>');
+
                 
                 if($this->check_if_last_multiple_item($item,$line))
                 {
-                    return ['lineno' => $line, 'qty' => $this->calculate_multiple_item_qty($item,$line)];
+                    //dd($item,$line);
+
+                    $multiple_qty = $this->calculate_multiple_item_qty($item,$line);
+                    $this->info('<br>Check if last multiple item for line ('.$line.') : passed with qty => '.$multiple_qty);
+                    return ['lineno' => $line, 'qty' => $multiple_qty];
                 }else{
-                    if($this->check_if_multiple_to_one_in_sx($item)) return ['lineno' => $line, 'qty' => $this->calculate_sx_to_one($item)];
+                    if($this->check_if_multiple_to_one_in_sx($item)) 
+                    {
+                        $sx_to_one_qty = $this->calculate_sx_to_one($item);
+                        $this->info('<br>Check if last multiple to one in sx item for line ('.$line.') : passed with qty => '.$sx_to_one_qty);
+                        return ['lineno' => $line, 'qty' => $sx_to_one_qty];
+                    }
 
                     $this->line_item_totals[$item] -= $qty;
 
@@ -290,10 +315,18 @@ class ProcessPurchaseOrderReceipts extends Command
                 
                 if($this->check_if_last_multiple_item($item,$line))
                 {
-                    return ['lineno' => $line, 'qty' => $this->calculate_multiple_item_qty($item,$line)];
+                    $multiple_qty = $this->calculate_multiple_item_qty($item,$line);
+                    $this->info('<br>Check if last multiple item for line ('.$line.') : passed with qty => '.$multiple_qty);
+                    return ['lineno' => $line, 'qty' => $multiple_qty];
                 }else{
 
-                    if($this->check_if_multiple_to_one_in_sx($item)) return ['lineno' => $line, 'qty' => $this->calculate_sx_to_one($item)];
+                    if($this->check_if_multiple_to_one_in_sx($item)) 
+                    {
+                        $sx_to_one_qty = $this->calculate_sx_to_one($item);
+                        $this->info('<br>Check if last multiple to one in sx item for line ('.$line.') : passed with qty => '.$sx_to_one_qty);
+                        return ['lineno' => $line, 'qty' => $sx_to_one_qty];
+
+                    }
 
                     $this->line_item_totals[$item] -= $qty;
 
