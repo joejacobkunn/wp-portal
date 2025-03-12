@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Livewire\Equipment\FloorModelInventory;
+namespace App\Http\Livewire\Equipment\FloorModelInventory\Inventory;
 
 use App\Http\Livewire\Component\DataTableComponent;
 use App\Models\Core\Warehouse;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
 
 class Table extends DataTableComponent
@@ -85,7 +84,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return  '<span title="'.$row->updated_at.'">'.$row->updated_at->diffForHumans().'</span>';
+                return  '<span title="'.$row->updated_at.'">'.$row->updated_at?->diffForHumans().'</span>';
             })
             ->html(),
 
@@ -94,7 +93,7 @@ class Table extends DataTableComponent
             ->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                return  '<span title="'.$row->created_at.'">'.$row->created_at->format(config('app.default_datetime_format')).'</span>';
+                return  '<span title="'.$row->created_at.'">'.$row->created_at?->format(config('app.default_datetime_format')).'</span>';
             })
             ->html()
         ];

@@ -28,7 +28,7 @@
             @endif
             @if ($showBox && !is_null($matchedProduct))
                 <div class="row">
-                    @include('livewire.equipment.floor-model-inventory.partials.product-card', [
+                    @include('livewire.equipment.floor-model-inventory.inventory.partials.product-card', [
                         'product' => config('sx.mock') ? $matchedProduct->prod : $matchedProduct->Prod,
                         'brand' => config('sx.mock') ? $matchedProduct->brand?->name : $matchedProduct->Brand,
                         'description' => config('sx.mock')
