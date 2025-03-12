@@ -61,15 +61,7 @@ class Index extends Component
         $this->resetValidation();
     }
 
-    public function cancel()
-    {
-        $this->addRecord = false;
-        $this->resetValidation();
-        $this->reset(['note']);
-        $this->dispatch('floorModelInventory:updateSubHeading', 'Note List');
-    }
-
-    public function submit()
+    public function store()
     {
         $validated = $this->validate();
 
@@ -82,7 +74,14 @@ class Index extends Component
         $this->cancel();
     }
 
-    public function editNote(FloorModelInventoryNote $note)
+    public function cancel()
+    {
+        $this->reset(['note', 'addRecord']);
+        $this->resetValidation();
+        $this->dispatch('floorModelInventory:updateSubHeading', 'Note List');
+    }
+
+    public function edit(FloorModelInventoryNote $note)
     {
         $this->editInventoryNote = $note;
         $this->note = $note->note;
@@ -93,35 +92,37 @@ class Index extends Component
     {
         $this->authorize('update', $this->editInventoryNote);
 
-        $this->editInventoryNote->note = $this->note;
+        $validated = $this->validateOnly('note');
+        $this->editInventoryNote->note = $validated['note'];
         $this->editInventoryNote->save();
 
         $this->alert('success','Inventory Note Updated');
-        $this->closeUpdate();
+        $this->cancelUpdate();
     }
 
-    public function closeUpdate()
+    public function cancelUpdate()
     {
         $this->reset(['editInventoryNote']);
         $this->showUpdateModel = false;
     }
 
-    public function deleteNote(FloorModelInventoryNote $note)
+    public function delete(FloorModelInventoryNote $note)
     {
+        $this->authorize('delete', $note);
         $this->editInventoryNote = $note;
         $this->showDeleteModel = true;
     }
 
-    public function confirmDelete()
+    public function destroy()
     {
         $this->authorize('delete', $this->editInventoryNote);
 
         $this->editInventoryNote->delete();
         $this->alert('success','Inventory Note Deleted');
-        $this->closeDelete();
+        $this->cancelDelete();
     }
 
-    public function closeDelete()
+    public function cancelDelete()
     {
         $this->reset(['editInventoryNote']);
         $this->showDeleteModel = false;

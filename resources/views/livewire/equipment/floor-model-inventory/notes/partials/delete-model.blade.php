@@ -1,5 +1,5 @@
 <div class="delete-model">
-    <x-modal toggle="showDeleteModel" size="lg" :closeEvent="'closeDelete'">
+    <x-modal toggle="showDeleteModel" size="lg" :closeEvent="'cancelDelete'">
         <x-slot name="title">Delete Note</x-slot>
         <div class="p-2 mb-2">
             <i class="fas fa-exclamation-circle"></i> Are you sure you want to delete ?
@@ -7,7 +7,7 @@
                 <q>{{ $editInventoryNote?->note }}</q>
             </div>
         </div>
-        <form wire:submit.prevent="confirmDelete()">
+        <form wire:submit.prevent="destroy">
             <div class="mt-2 float-start">
                 <button type="submit" class="btn btn-danger">
                     <div wire:loading wire:target="submit">

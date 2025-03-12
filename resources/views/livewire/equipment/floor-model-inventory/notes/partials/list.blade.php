@@ -1,5 +1,16 @@
+<div class="row">
+    <div class="col-md-4 col-sm-12">
+        <div class="form-group x-input">
+            <div class="input-group">
+                <input type="text" class="form-control"
+                    placeholder="Search" wire:model.live.debounce.800ms="searchText">
+            </div>
+        </div>
+    </div>
+</div>
+
 @forelse($notes as $note)
-    <div class="card card-body border">
+    <div class="card card-body border mb-2">
         <div class="row d-block d-sm-flex">
             <div class="col-auto mb-3 mb-sm-0">
                 <div class="avatar avatar-lg bg-primary">
@@ -13,11 +24,11 @@
             </div>
             @can('update', $note)
                 <div class="col-auto float-right">
-                    <button wire:click="editNote({{ $note->id }})" type="button"
+                    <button wire:click="edit({{ $note->id }})" type="button"
                         class="btn btn-outline-primary">
                         <i class="fa fa-pen" aria-hidden="true"></i>
                     </button>
-                    <button wire:click="deleteNote({{ $note->id }})" type="button"
+                    <button wire:click="delete({{ $note->id }})" type="button"
                         class="btn btn-outline-danger">
                         <i class="fa fa-trash" aria-hidden="true"></i>
                     </button>
