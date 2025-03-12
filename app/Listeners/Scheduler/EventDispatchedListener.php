@@ -85,6 +85,11 @@ class EventDispatchedListener implements ShouldQueue
             if(Str::contains($template,'[ServiceEquipment]')) $template = Str::replace('[ServiceEquipment]', array_keys($schedule->line_item)[0], $template);
         }
         if(Str::contains($template,'[DriverName]')) $template = Str::replace('[DriverName]', $schedule->truckSchedule->driver?->name, $template);
+        if(Str::contains($template,'[DriverPhoto]')) {
+            $userImage = $schedule->truckSchedule->driver?->user_image;
+            $imageTag = $userImage ? '<img src="'. $userImage .'" style="max-width: 100px; max-height: 150px; border-radius: 5px;" />' : '';
+            $template = Str::replace('[DriverPhoto]', $imageTag, $template);
+        }
         return $template;
     }
 }
