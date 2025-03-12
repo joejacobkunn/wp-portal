@@ -20,7 +20,7 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Service</h3>
-                            <p class="small pe-4">{{ strtoupper($zone->service) }}</p>
+                            <p class="small pe-4">{{ $zone->service->label() }}</p>
                         </div>
                     </li>
 

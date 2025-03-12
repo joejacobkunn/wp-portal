@@ -12,8 +12,8 @@
                 <div class="col-md-12">
                     <div class="form-group x-input">
                         <div class="form-group">
-                            <x-forms.select label="Service" model="service" :options="['' => 'Please Select', 'ahm' => 'AHM', 'pickup-delivery' => 'Pickup/Delivery']" :selected="$service"
-                                :defaultOption=false :key="'service-' . now()" />
+                            <x-forms.select label="Service" model="service" :options="$serviceOptions" :selected="$service"
+                                :hasAssociativeIndex="true" :defaultOption=false :key="'service-type'" />
 
                         </div>
                     </div>

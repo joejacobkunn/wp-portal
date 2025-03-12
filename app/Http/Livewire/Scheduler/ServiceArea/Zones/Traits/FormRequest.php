@@ -17,6 +17,7 @@ trait FormRequest
     public $service;
     public $is_active = 1;
 
+
     protected $validationAttributes = [
         'name' => 'Zone Name',
         'description' => 'Description',
@@ -54,7 +55,7 @@ trait FormRequest
     {
         $this->name = $zone?->name;
         $this->description = $zone?->description;
-        $this->service = $zone?->service;
+        $this->service = $zone?->service->value;
         $this->is_active = $zone?->is_active;
     }
 
@@ -80,7 +81,7 @@ trait FormRequest
             'service' => $this->service,
             'is_active' => $this->is_active,
         ]);
-        
+
         $this->zone->save();
 
         $this->alert('success', 'Zone updated!');
