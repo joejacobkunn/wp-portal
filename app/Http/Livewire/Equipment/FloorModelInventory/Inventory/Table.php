@@ -13,9 +13,9 @@ class Table extends DataTableComponent
 {
 
     public array $bulkActions = [
+        'updateSelected' => 'Update Selected',
+        'holdSelected' => 'Hold Selected',
         'deleteSelected' => 'Delete Selected',
-        'updateSelected' => 'Update Selected'
-
     ];
 
     public function configure(): void
@@ -200,6 +200,13 @@ class Table extends DataTableComponent
         $this->storeTableStateInSession();
         $this->dispatch('bulkUpdate', $rows);
 
+    }
+
+    public function holdSelected()
+    {
+        $rows = $this->getSelected();
+        $this->storeTableStateInSession();
+        $this->dispatch('bulkHold', $rows);
     }
 
     public function builder(): Builder

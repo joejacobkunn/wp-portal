@@ -93,7 +93,7 @@
                     </div>
                     <div class="mt-2 float-start">
                         <button type="submit" class="btn btn-danger">
-                            <div wire:loading wire:target="submit">
+                            <div wire:loading wire:target="bulkDelete">
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             </div>
                             <i class="fas fa-trash-alt"></i> Confirm Delete
@@ -102,4 +102,33 @@
                 </form>
             </x-modal>
         </div>
+
+        <div class="hold-model">
+            <x-modal toggle="ShowHoldModel" size="lg" :closeEvent="'closeHold'">
+                <x-slot name="title">Hold Records</x-slot>
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> You have selected {{ count($records) }} record(s) to put
+                    on Hold ! Do
+                    you want to continue?
+
+                </div>
+                <form wire:submit.prevent="bulkHold()">
+                    <div class="row w-100">
+                        @include('livewire.equipment.floor-model-inventory.inventory.partials.table', [
+                            'headers' => $headers,
+                            'records' => $records,
+                        ])
+                    </div>
+                    <div class="mt-2 float-start">
+                        <button type="submit" class="btn btn-warning">
+                            <div wire:loading wire:target="bulkHold">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
+                            <i class="fas fa-pause-circle"></i> Put on Hold
+                        </button>
+                    </div>
+                </form>
+            </x-modal>
+        </div>
+
     </div>
