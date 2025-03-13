@@ -11,6 +11,7 @@
                     label-index="title"
                     value-index="short"
                     :key="'filter-warehouse-' . now()"
+                    listener="filter_warehouse:changed"
                     lazy
                 />
             </div>

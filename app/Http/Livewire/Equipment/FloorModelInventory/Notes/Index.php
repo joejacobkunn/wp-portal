@@ -6,6 +6,7 @@ use App\Http\Livewire\Component\Component;
 use App\Models\Core\Warehouse;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventoryNote;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\WithPagination;
 
@@ -13,6 +14,7 @@ class Index extends Component
 {
     use LivewireAlert, WithPagination;
 
+    public ?FloorModelInventoryNote $editInventoryNote;
     public $note;
     public $warehouse_short;
 
@@ -20,9 +22,6 @@ class Index extends Component
     public $showUpdateModal = false;
     public $showDeleteModal = false;
     public $paginationLimit = 10;
-    protected array $paginationTriggers = ['searchText', 'filterWarehouse'];
-
-    public ?FloorModelInventoryNote $editInventoryNote;
     public $warehouses;
     public $userWarehouseShort = '';
 
@@ -65,6 +64,13 @@ class Index extends Component
         ]);
     }
 
+    #[On('filter_warehouse:changed')]
+    public function filterWarehouseChanged($name, $value, $recheckValidation = true)
+    {
+        $this->fieldUpdated($name, $value, $recheckValidation);
+        $this->resetPage();
+    }
+
     public function getNotesProperty()
     {
         return FloorModelInventoryNote::with(['user:id,name,abbreviation,email', 'warehouse:id,short,title'])
@@ -79,11 +85,9 @@ class Index extends Component
             ->paginate($this->paginationLimit);
     }
 
-    public function updated($property, $value)
+    public function updatedSearchText()
     {
-        if (in_array($property, $this->paginationTriggers)) {
-            $this->resetPage();
-        }
+        $this->resetPage();
     }
 
     private function resetForm()
