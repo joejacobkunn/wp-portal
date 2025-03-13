@@ -18,10 +18,12 @@ class Index extends Component
     public $warehouses;
     public $selectedRows;
     public $ShowDeleteModel;
+    public $ShowHoldModel;
 
     protected $listeners = [
         'bulkUpdate' => 'bulkUpdateListner',
         'bulkDelete' => 'bulkDeleteListner',
+        'bulkHold' => 'bulkHoldListener',
         'closeUpdate' => 'closeUpdate',
         'closeDelete' => 'closeDelete',
     ];
@@ -82,6 +84,35 @@ class Index extends Component
         $this->alert('success', 'Bulk Delete Completed');
     }
 
+    public function bulkHoldListener($rows)
+    {
+        $this->selectedRows =$rows;
+        $this->getSelectedRecords();
+        $this->ShowHoldModel = true;
+
+    }
+
+    public function bulkHold()
+    {
+        $floorModel = FloorModelInventory::latest()->first();
+
+        $this->authorize('delete', $floorModel);
+
+        $floor_models = FloorModelInventory::whereIn('id', $this->selectedRows)->get();
+
+        foreach($floor_models as $floor_model)
+        {
+            $floor_model->update(['is_on_hold' => 1]);
+            InventoryDeleted::dispatch($floor_model);
+        }
+
+        $this->reset('selectedRows');
+        $this->ShowHoldModel = false;
+        $this->tableKey = uniqid();
+        $this->alert('success', 'Bulk Hold Completed');
+    }
+
+
     public function bulkUpdateListner($rows)
     {
         $this->selectedRows =$rows;
@@ -108,4 +139,11 @@ class Index extends Component
         $this->ShowDeleteModel =false;
         $this->resetValidation();
     }
+
+    public function closeHold()
+    {
+        $this->ShowHoldModel =false;
+        $this->resetValidation();
+    }
+
 }
