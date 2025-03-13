@@ -51,15 +51,15 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         Route::mediaLibrary();
 
-        Route::get('peoplevox/{mode}/{ponumber}', function (string $mode, string $ponumber) {
+        Route::get('peoplevox/{mode}/{ponumber}/{suffix?}', function (string $mode, string $ponumber) {
 
             $exitCode = Artisan::call('app:process-purchase-order-receipts', [
-                '--mode' => Route::current()->parameter('mode'), '--po' => Route::current()->parameter('ponumber')
+                '--mode' => Route::current()->parameter('mode'), '--po' => Route::current()->parameter('ponumber'), '--suffix' => Route::current()->parameter('suffix')
             ]);
 
             return Artisan::output();
         });
-
+        
         Route::get('dashboard', \App\Http\Livewire\Dashboard\Index::class)->name('core.dashboard.index');
 
         Route::get('users', \App\Http\Livewire\Core\User\Index::class)->name('core.user.index');
@@ -102,7 +102,7 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
         Route::get('equipment/warranty', \App\Http\Livewire\Equipment\Warranty\Index::class)->name('equipment.warranty.index');
         Route::get('equipment/warranty/{warranty}/show', \App\Http\Livewire\Equipment\Warranty\BrandConfigurator\Show::class)->name('equipment.warranty.show');
         Route::get('equipment/floor-model-inventory/', \App\Http\Livewire\Equipment\FloorModelInventory\Index::class)->name('equipment.floor-model-inventory.index');
-        Route::get('equipment/floor-model-inventory/{floorModel}/show', \App\Http\Livewire\Equipment\FloorModelInventory\Show::class)->name('equipment.floor-model-inventory.show');
+        Route::get('equipment/floor-model-inventory/{floorModel}/show', \App\Http\Livewire\Equipment\FloorModelInventory\Inventory\Show::class)->name('equipment.floor-model-inventory.show');
 
 
         Route::get('marketing/sms-marketing/', \App\Http\Livewire\Marketing\SMSMarketing\Index::class)->name('marketing.sms-marketing.index');
