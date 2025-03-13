@@ -653,9 +653,19 @@ class Index extends Component
         if ($errorFlag) {
             return;
         }
+        $schedulQuery = Schedule::with('order.customer')->where('whse', $this->activeWarehouse->short);
 
-        $schedulQuery = $this->getSchedules()
-            ->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()]);
+        if($this->activeType && $this->activeType != '') {
+            $schedulQuery = $schedulQuery->where('type', $this->activeType);
+        }
+
+        if(!empty($this->activeZone)) {
+            $zoneId = $this->activeZone['id'];
+            $schedulQuery = $schedulQuery->whereHas('truckSchedule', function ($query) use ($zoneId) {
+                $query->where('zone_id', $zoneId);
+            });
+        }
+        $schedulQuery = $schedulQuery->whereBetween('schedule_date', [$startDate->toDateString(), $endDate->toDateString()]);
 
         $schedulQuery = $schedulQuery->with([
             'latestComment',
