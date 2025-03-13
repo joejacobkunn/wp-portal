@@ -217,14 +217,20 @@ class ScheduleForm extends Form
         $this->service_address = trim($this->service_address);
         $this->serviceZip = $this->orderInfo?->shipping_info['zip'];
         $this->addressFromOrder = $this->service_address;
-
-        $this->validateAddress($this->service_address, $this->serviceZip);
+        $response = $this->validateAddress($this->service_address, $this->serviceZip);
+        return $response;
     }
 
     public function checkZipcode()
     {
         $this->getDistance();
-        $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->serviceZip)->first();
+        $zipcodeInfo = Zipcode::with(['zones' => function ($query) {
+            $query->where('service', 'at_home_maintenance');
+        }])->where('zip_code', $this->serviceZip)->first();
+
+        if ($zipcodeInfo) {
+            $this->zipcodeInfo = $zipcodeInfo->toArray();
+        }
         $this->reset('alertConfig');
         $this->alertConfig['status'] = true;
         if(!$this->zipcodeInfo) {
@@ -238,6 +244,7 @@ class ScheduleForm extends Form
             $this->reset(['schedule_date', 'schedule_time', 'scheduleType', 'ServiceStatus']);
             return;
         }
+
         $this->checkServiceValidity();
         $this->getEnabledDates(false, $this->orderInfo?->warehouse?->id);
     }
@@ -247,12 +254,12 @@ class ScheduleForm extends Form
         if(!$this->orderInfo ||  !$this->zipcodeInfo) {
             return false;
         }
-        foreach($this->zipcodeInfo?->zones as $zone)
+        foreach($this->zipcodeInfo['zones'] as $zone)
         {
-            if(strtolower($zone->service) == 'ahm' && $value == 'at_home_maintenance' ) {
+            if($zone['service'] == 'at_home_maintenance' && $value == 'at_home_maintenance' ) {
                 return true;
             }
-            if($zone->service == 'Pickup/Delivery' ) {
+            if($zone['service'] == 'pickup_delivery' ) {
                 if($value == 'pickup' || $value == 'delivery') {
                     return true;
                 }
@@ -460,9 +467,9 @@ class ScheduleForm extends Form
 
 
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
-            $zones = Zones::where('is_active',1)->pluck('id');
+            $zones = Zones::where('service' ,'at_home_maintenance')->where('is_active',1)->pluck('id');
         } else {
-            $zones = Zones::whereHas('zipcodes', function ($query) {
+            $zones = Zones::where('service' ,'at_home_maintenance')->whereHas('zipcodes', function ($query) {
                 $query->where('zip_code', $this->serviceZip);
             })->pluck('id');
 
@@ -483,8 +490,9 @@ class ScheduleForm extends Form
 
     public function getEnabledDates($shouldOverride, $whse)
     {
-        $zones = Zones::whereHas('zipcodes', function ($query) {
-                    $query->where('zip_code', $this->serviceZip);
+        $zip = $this->serviceZip;
+        $zones = Zones::where('service', 'at_home_maintenance')->whereHas('zipcodes', function ($query) use($zip) {
+                    $query->where('zip_code', $zip);
                 })->pluck('id');
         if($shouldOverride) {
             if( Auth::user()->can('scheduler.can-schedule-override')) {
@@ -525,6 +533,7 @@ class ScheduleForm extends Form
         ->unique()
         ->values()
         ->toArray();
+
     }
 
     public function getSerialNumbers($orderno, $suffix)
@@ -642,10 +651,17 @@ class ScheduleForm extends Form
     {
         $this->addressKey = uniqid();
         $this->serviceZip = $this->extractZipCode($this->service_address);
-        $this->zipcodeInfo = Zipcode::with('zones')->where('zip_code', $this->serviceZip)->first();
+        $zipcodeInfo = Zipcode::with(['zones' => function ($query) {
+            $query->where('service', 'at_home_maintenance');
+        }])->where('zip_code', $this->serviceZip)->first();
+
+        if ($zipcodeInfo) {
+            $this->zipcodeInfo = $zipcodeInfo->toArray();
+        }
         $this->reset('alertConfig');
         $this->alertConfig['status'] = true;
-        if(!$this->zipcodeInfo) {
+        if(!$zipcodeInfo) {
+            $this->zipcodeInfo = null;
             $this->alertConfig['message'] = 'ZIP Code not configured';
             $this->alertConfig['icon'] = 'fa-times-circle';
             $this->alertConfig['class'] = 'danger';
@@ -682,10 +698,9 @@ class ScheduleForm extends Form
 
         $recom =  $google->addressValidation($address);
         if($recom->status() != 200) {
-
               return [
                 'status' => false,
-                'message' => 'Failed to Validate Address'
+                'message' => 'Address validation failed'
               ];
         }
 

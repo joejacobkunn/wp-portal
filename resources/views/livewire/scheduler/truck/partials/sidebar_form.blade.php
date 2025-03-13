@@ -76,7 +76,7 @@
                         <x-forms.input type="number" label="Slots" model="form.slots" lazy />
                     </div>
                 </div>
-                @if ($this->truck->service_type == 'Delivery / Pickup')
+                @if ($this->truck->service_type->value == 'pickup_delivery')
                     <div class="col-md-12 mb-2">
                         <div class="form-group">
                             <label for=""> Delivery Method</label>

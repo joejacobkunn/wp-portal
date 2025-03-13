@@ -43,7 +43,9 @@
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom @if ($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif"
+                                    <a class="dropdown-item border-bottom @if ($key == 'setup_install' ||
+                                        (Auth::user()->cannot('scheduler.override') && $key != 'at_home_maintenance')
+                                        ) bg-light-secondary  anchor-disabled @endif"
                                         href="#"
                                         wire:click.prevent="create('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
@@ -58,7 +60,9 @@
                                 <a class="dropdown-item border-bottom" href="#"
                                     wire:click.prevent="changeScheduleType('')">All Services</a>
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom  @if ($key != 'at_home_maintenance') bg-light-secondary  anchor-disabled @endif"
+                                    <a class="dropdown-item border-bottom  @if ($key == 'setup_install' ||
+                                        (Auth::user()->cannot('scheduler.override') && $key != 'at_home_maintenance')
+                                        ) bg-light-secondary  anchor-disabled @endif"
                                         href="#"
                                         wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach

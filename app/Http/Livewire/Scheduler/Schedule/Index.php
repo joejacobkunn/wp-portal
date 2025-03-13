@@ -352,7 +352,7 @@ class Index extends Component
                 'trucks.service_type',
                 'trucks.truck_name',
                 'trucks.vin_number',
-                'trucks.whse',
+                'trucks.warehouse_short',
                 'zones.name as zone_name',
                 'users.name as driver_name',
                 'users.title as driver_title',
@@ -369,7 +369,7 @@ class Index extends Component
             ->whereNull('users.deleted_at')
             ->whereNull('user_skills.deleted_at')
             ->whereBetween('truck_schedules.schedule_date', [$this->eventStart, $this->eventEnd])
-            ->where('trucks.whse', $this->activeWarehouse->id);
+            ->where('trucks.warehouse_short', $this->activeWarehouse->short);
 
         if (!empty($this->activeZone)) {
             $truckScheduleQuery->where('truck_schedules.zone_id', $this->activeZone['id']);
@@ -378,7 +378,7 @@ class Index extends Component
         if ($type == 'at_home_maintenance') {
             $truckScheduleQuery->where('trucks.service_type', 'AHM');
         } elseif ($type == 'delivery' || $type == 'pickup') {
-            $truckScheduleQuery->where('trucks.service_type', 'Delivery / Pickup');
+            $truckScheduleQuery->where('trucks.service_type', 'pickup_delivery');
         } elseif ($type == 'setup_install') {
             $truckScheduleQuery->where('trucks.service_type', 'setup_install');
         }
@@ -395,7 +395,6 @@ class Index extends Component
                     'truck_id' => $truck->truck_id,
                     'vin_number' => $truck->vin_number,
                     'spanText' => $truck->zone_name . ' - ' . $truck->truck_name,
-                    'whse' => $truck->whse,
                     'zone' => $truck->zone_name,
                     'zone_id' => $truck->zone_id,
                     'start_time' => $truck->start_time,

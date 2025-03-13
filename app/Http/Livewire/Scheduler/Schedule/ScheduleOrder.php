@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
+use App\Http\Livewire\Scheduler\Schedule\Forms\SchedulePDForm;
 use App\Models\Order\Order;
 use App\Models\Product\Product;
 use App\Models\Scheduler\Schedule;
@@ -18,7 +19,9 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 class ScheduleOrder extends Component
 {
     use LivewireAlert, HasTabs;
-    public ScheduleForm $form;
+    public ScheduleForm $ahmForm;
+    public SchedulePDForm $pdForm;
+    public $form;
 
     public $page;
     public $scheduleOptions;
@@ -60,11 +63,21 @@ class ScheduleOrder extends Component
 
     public function mount()
     {
+        if(in_array($this->selectedType, ['pickup', 'delivery'])) {
+            $this->form = $this->pdForm;
+        }
+        if($this->selectedType == 'at_home_maintenance') {
+            $this->form = $this->ahmForm;
+        }
         $this->form->type = $this->selectedType;
         $this->scheduleOptions = collect(ScheduleEnum::cases())
-        ->filter(fn($case) => $case->name === 'at_home_maintenance')
+        ->filter(fn($case) =>
+            $case->name === 'at_home_maintenance' ||
+            (auth()->user()->can('scheduler.override') && in_array($case->name, ['delivery', 'pickup']))
+        )
         ->mapWithKeys(fn($case) => [$case->name => $case->label()])
         ->toArray();
+
         if($this->page) {
             $this->form->init($this->selectedSchedule);
             $this->sro_number = $this->selectedSchedule->sro_number;
@@ -91,7 +104,15 @@ class ScheduleOrder extends Component
 
     public function typeCheck($field, $value)
     {
+        if(in_array($value, ['pickup', 'delivery'])) {
+            $this->form = $this->pdForm;
+        }
+        if($value == 'at_home_maintenance') {
+            $this->form = $this->ahmForm;
+        }
+        $this->form->reset();
         $this->form->type = $value;
+
         $this->form->checkServiceValidity($value);
         if(!$this->form->ServiceStatus) {
             $this->reset('scheduledTruckInfo');
@@ -138,7 +159,11 @@ class ScheduleOrder extends Component
         if(is_numeric($value))
         {
             $this->validateOnly('form.sx_ordernumber');
-            $this->form->getOrderInfo($value, $this->activeWarehouse->short);
+            $response = $this->form->getOrderInfo($value, $this->activeWarehouse->short);
+            if(!$response['status']) {
+                $this->alert('error', $response['message']);
+                return;
+            }
             $this->dispatch('enable-date-update', enabledDates: $this->form->enabledDates);
         }
     }
@@ -210,9 +235,7 @@ class ScheduleOrder extends Component
     public function scheduleTypeChange($field, $value)
     {
         $this->showTypeLoader = true;
-        if(isset($this->form->Schedule)) {
 
-        }
         $this->form->scheduleType = $value;
         $this->dispatch('scheduleTypeDispatch');
 
@@ -361,7 +384,7 @@ class ScheduleOrder extends Component
     {
         $this->authorize('update', $this->form->schedule);
         $response = $this->form->undoCancel();
-        $this->reset(['actionStatus', 'sro_number', 'sro_verified']);
+        $this->reset(['actionStatus', 'sro_number', 'sro_verified', 'sro_response']);
         $this->EventUpdate($response);
     }
 
