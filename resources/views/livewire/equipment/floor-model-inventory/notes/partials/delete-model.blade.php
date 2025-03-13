@@ -1,5 +1,5 @@
 <div class="delete-model">
-    <x-modal toggle="showDeleteModel" size="lg" :closeEvent="'cancelDelete'">
+    <x-modal toggle="showDeleteModal" size="lg" :closeEvent="'cancelDelete'">
         <x-slot name="title">Delete Note</x-slot>
         <div class="p-2 mb-2">
             <i class="fas fa-exclamation-circle"></i> Are you sure you want to delete ?

@@ -7,28 +7,24 @@ use App\Models\Core\Warehouse;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventoryNote;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\Url;
-use Livewire\Attributes\Validate;
 use Livewire\WithPagination;
 
 class Index extends Component
 {
     use LivewireAlert, WithPagination;
 
+    public $note;
+    public $warehouse_short;
+
     public $addRecord = false;
-    public $showUpdateModel = false;
-    public $showDeleteModel = false;
+    public $showUpdateModal = false;
+    public $showDeleteModal = false;
     public $paginationLimit = 10;
+    protected array $paginationTriggers = ['searchText', 'filterWarehouse'];
 
     public ?FloorModelInventoryNote $editInventoryNote;
     public $warehouses;
     public $userWarehouseShort = '';
-
-
-    #[Validate('required|min:3', 'note')]
-    public $note;
-
-    #[Validate('required', 'warehouse')]
-    public $warehouse_short;
 
     #[Url('warehouse')]
     public $filter_warehouse = '';
@@ -39,6 +35,15 @@ class Index extends Component
     #[Url('order-by')]
     public $orderBy = 'latest';
 
+    protected $rules = [
+        'note' => 'required|min:3',
+        'warehouse_short' => 'required'
+    ];
+
+    protected $validationAttributes = [
+            'warehouse_short' => 'warehouse',
+    ];
+
     public function mount()
     {
         $this->dispatch('floorModelInventory:updateSubHeading', 'Note List');
@@ -47,7 +52,10 @@ class Index extends Component
             ->orderBy('title', 'asc')
             ->get();
 
-        $this->userWarehouseShort = $this->warehouses->firstWhere('title', auth()->user()->office_location)?->short;
+        $userLocation = auth()->user()?->office_location;
+        $this->userWarehouseShort = $userLocation
+            ? $this->warehouses->firstWhere('title', $userLocation)?->short
+            : null;
     }
 
     public function render()
@@ -66,26 +74,31 @@ class Index extends Component
             ->when($this->searchText, fn ($query) =>
                 $query->where('note', 'like', '%' . $this->searchText . '%')
             )
-            ->when(true, function ($q) {
-                return $this->orderBy === 'oldest'
-                    ? $q->oldest()
-                    : $q->latest();
-            })
+            ->when($this->orderBy === 'oldest', fn ($q) => $q->oldest())
+            ->when($this->orderBy !== 'oldest', fn ($q) => $q->latest())
             ->paginate($this->paginationLimit);
     }
 
-    public function updatedSearchText()
+    public function updated($property, $value)
     {
-        $this->resetPage();
+        if (in_array($property, $this->paginationTriggers)) {
+            $this->resetPage();
+        }
+    }
+
+    private function resetForm()
+    {
+        $this->reset(['editInventoryNote', 'note', 'warehouse_short']);
+        $this->resetValidation();
     }
 
     public function create()
     {
-        $this->dispatch('floorModelInventory:updateSubHeading', 'Add New Note');
         $this->authorize('store', FloorModelInventoryNote::class);
+        $this->resetForm();
+        $this->dispatch('floorModelInventory:updateSubHeading', 'Add New Note');
         $this->warehouse_short = $this->userWarehouseShort;
         $this->addRecord = true;
-        $this->resetValidation();
     }
 
     public function store()
@@ -104,17 +117,17 @@ class Index extends Component
 
     public function cancel()
     {
-        $this->reset(['note', 'addRecord', 'warehouse_short']);
-        $this->resetValidation();
+        $this->reset(['addRecord']);
         $this->dispatch('floorModelInventory:updateSubHeading', 'Note List');
     }
 
     public function edit(FloorModelInventoryNote $note)
     {
+        $this->resetForm();
         $this->editInventoryNote = $note;
         $this->note = $note->note;
         $this->warehouse_short = $note->warehouse_short;
-        $this->showUpdateModel = true;
+        $this->showUpdateModal = true;
     }
 
     public function update()
@@ -132,15 +145,14 @@ class Index extends Component
 
     public function cancelUpdate()
     {
-        $this->reset(['editInventoryNote', 'note', 'warehouse_short']);
-        $this->showUpdateModel = false;
+        $this->reset(['showUpdateModal']);
     }
 
     public function delete(FloorModelInventoryNote $note)
     {
         $this->authorize('delete', $note);
         $this->editInventoryNote = $note;
-        $this->showDeleteModel = true;
+        $this->showDeleteModal = true;
     }
 
     public function destroy()
@@ -154,7 +166,6 @@ class Index extends Component
 
     public function cancelDelete()
     {
-        $this->reset(['editInventoryNote']);
-        $this->showDeleteModel = false;
+        $this->reset(['editInventoryNote', 'showDeleteModal']);
     }
 }
