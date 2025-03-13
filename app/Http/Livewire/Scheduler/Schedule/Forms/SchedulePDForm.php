@@ -215,8 +215,10 @@ class SchedulePDForm extends ScheduleForm
             ->whereNull('zones.deleted_at')
             ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
             ->whereNull('trucks.deleted_at')
-            ->leftJoinSub($scheduleCounts, 'sc', function ($join) {
-                $join->on('truck_schedules.id', '=', 'sc.truck_schedule_id');
+            ->when(!$shouldOverride, function($query) use ($scheduleCounts) {
+                return $query->leftJoinSub($scheduleCounts, 'sc', function ($join) {
+                    $join->on('truck_schedules.id', '=', 'sc.truck_schedule_id');
+                });
             })
             ->whereIn('truck_schedules.zone_id', $zones)
             ->whereDate('truck_schedules.schedule_date', '>=', now()->toDateString())

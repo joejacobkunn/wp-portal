@@ -499,40 +499,37 @@ class ScheduleForm extends Form
                 $zones = Zones::where('is_active',1)->pluck('id');
             }
         }
+        // Optimize the schedule counts subquery
         $scheduleCounts = DB::table('schedules')
-        ->where('schedules.status', '!=', 'cancelled')
-        ->whereNull('schedules.deleted_at')
-        ->select('schedules.truck_schedule_id', DB::raw('COUNT(*) as scheduled_count'))
-        ->groupBy('schedules.truck_schedule_id');
+            ->whereNull('deleted_at')
+            ->where('status', '!=', 'cancelled')
+            ->select('truck_schedule_id', DB::raw('COUNT(*) as scheduled_count'))
+            ->groupBy('truck_schedule_id');
 
-        $enabledDatesQuery = DB::table('truck_schedules')
-        ->whereNull('truck_schedules.deleted_at')
-        ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
-        ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
-        ->whereNull('scheduler_zipcodes.deleted_at')
-        ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
-        ->whereNull('zones.deleted_at')
-        ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
-        ->whereNull('trucks.deleted_at')
-        ->leftJoinSub($scheduleCounts, 'schedule_counts', function ($join) {
-            $join->on('truck_schedules.id', '=', 'schedule_counts.truck_schedule_id');
-        })
-        ->whereIn('truck_schedules.zone_id', $zones)
-        ->whereDate('truck_schedules.schedule_date', '>=', now()->toDateString())
-        ->select(
-            'truck_schedules.schedule_date',
-            'truck_schedules.id',
-            'truck_schedules.slots',
-            DB::raw('COALESCE(schedule_counts.scheduled_count, 0) as scheduled_count') // Ensures null becomes 0
-        );
-        if (!$shouldOverride) {
-            $enabledDatesQuery->whereRaw('COALESCE(schedule_counts.scheduled_count, 0) < truck_schedules.slots');
-        }
-        $this->enabledDates = $enabledDatesQuery->get()
-        ->pluck('schedule_date')
-        ->unique()
-        ->values()
-        ->toArray();
+        // Main query with necessary joins preserved
+        $this->enabledDates = DB::table('truck_schedules')
+            ->whereNull('truck_schedules.deleted_at')
+            ->join('zipcode_zone', 'truck_schedules.zone_id', '=', 'zipcode_zone.zone_id')
+            ->join('scheduler_zipcodes', 'zipcode_zone.scheduler_zipcode_id', '=', 'scheduler_zipcodes.id')
+            ->whereNull('scheduler_zipcodes.deleted_at')
+            ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
+            ->whereNull('zones.deleted_at')
+            ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
+            ->whereNull('trucks.deleted_at')
+            ->when(!$shouldOverride, function($query) use ($scheduleCounts) {
+                return $query->leftJoinSub($scheduleCounts, 'sc', function ($join) {
+                    $join->on('truck_schedules.id', '=', 'sc.truck_schedule_id');
+                });
+            })
+            ->whereIn('truck_schedules.zone_id', $zones)
+            ->whereDate('truck_schedules.schedule_date', '>=', now()->toDateString())
+            ->when(!$shouldOverride, function($query) {
+                return $query->whereRaw('COALESCE(sc.scheduled_count, 0) < truck_schedules.slots');
+            })
+            ->select('truck_schedules.schedule_date')
+            ->distinct()
+            ->pluck('schedule_date')
+            ->toArray();
 
     }
 
