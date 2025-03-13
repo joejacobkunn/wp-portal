@@ -38,6 +38,7 @@
                             <span class="list-group-item"><mark>[TimeSlot]</mark> => Time Slot</span>
                             <span class="list-group-item"><mark>[ServiceEquipment]</mark> => Service Equipment</span>
                             <span class="list-group-item"><mark>[DriverName]</mark> => Driver Name</span>
+                            <span class="list-group-item"><mark>[DriverPhoto]</mark> => Driver Photo</span>
                         </div>
                     </div>
                 </div>

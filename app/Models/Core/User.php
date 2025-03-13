@@ -95,6 +95,8 @@ class User extends Authenticatable implements HasMedia
         ],
     ];
 
+    public $userImagUrl;
+
     public function scopeActive($query)
     {
         return $query->where('is_active', 1);
@@ -152,6 +154,15 @@ class User extends Authenticatable implements HasMedia
         $nameString = $this->name && $this->name !="" ? $this->name : $this->email;
 
         return abbreviation($nameString);
+    }
+
+    public function getUserImageAttribute()
+    {
+        if ($this->userImagUrl == null) {
+            $this->userImagUrl =  $this->getMedia(self::DOCUMENT_COLLECTION)->first()?->original_url;
+        }
+
+        return $this->userImagUrl;
     }
 
     public function resolveStatus($value, $cache = true)
