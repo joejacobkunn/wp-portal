@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Livewire\Equipment\FloorModelInventory\Traits;
+namespace App\Http\Livewire\Equipment\FloorModelInventory\Inventory\Traits;
 
 use App\Events\Floormodel\InventoryAdded;
 use App\Events\Floormodel\InventoryDeleted;
@@ -165,7 +165,7 @@ trait FormRequest
     public function bulkQtyUpdate()
     {
         $this->validate();
-        
+
         $floor_models = FloorModelInventory::whereIn('id', $this->selectedRows)->get();
 
         foreach($floor_models as $floor_model)

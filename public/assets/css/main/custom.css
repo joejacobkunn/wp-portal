@@ -1093,3 +1093,23 @@
     background-color: #e6a4ff;
     color: #9E2EC9 ;
 }
+
+/** Floor Model Inventory */
+.inventory-card-list .card-body {
+    padding: 1rem;
+}
+.inventory-card-list .card-footer {
+    padding: 0.5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.inventory-card-list .warehouse-badge {
+    font-size: x-small;
+    background-color: #435ebe;
+}
+
+.inventory-filter-section .ss-main .ss-single-selected {
+    height: 50px !important;
+}
+/** End : Floor Model Inventory */

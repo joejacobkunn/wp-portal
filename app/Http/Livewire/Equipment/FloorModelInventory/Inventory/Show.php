@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Livewire\Equipment\FloorModelInventory;
+namespace App\Http\Livewire\Equipment\FloorModelInventory\Inventory;
 
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Equipment\FloorModelInventory\Traits\FormRequest;
+use App\Http\Livewire\Equipment\FloorModelInventory\Inventory\Traits\FormRequest;
 use App\Models\Equipment\FloorModelInventory\FloorModelInventory;
 use App\Models\SX\Product;
 use App\Traits\HasTabs;
@@ -52,7 +52,7 @@ class Show extends Component
 
     public function render()
     {
-        return $this->renderView('livewire.equipment.floor-model-inventory.show');
+        return $this->renderView('livewire.equipment.floor-model-inventory.inventory.show');
     }
 
     public function mount()
