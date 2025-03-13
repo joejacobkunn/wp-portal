@@ -51,15 +51,15 @@ Route::group(['domain' => '{route_subdomain}.'.config('app.domain'), 'middleware
 
         Route::mediaLibrary();
 
-        Route::get('peoplevox/{mode}/{ponumber}', function (string $mode, string $ponumber) {
+        Route::get('peoplevox/{mode}/{ponumber}/{suffix?}', function (string $mode, string $ponumber) {
 
             $exitCode = Artisan::call('app:process-purchase-order-receipts', [
-                '--mode' => Route::current()->parameter('mode'), '--po' => Route::current()->parameter('ponumber')
+                '--mode' => Route::current()->parameter('mode'), '--po' => Route::current()->parameter('ponumber'), '--suffix' => Route::current()->parameter('suffix')
             ]);
 
             return Artisan::output();
         });
-
+        
         Route::get('dashboard', \App\Http\Livewire\Dashboard\Index::class)->name('core.dashboard.index');
 
         Route::get('users', \App\Http\Livewire\Core\User\Index::class)->name('core.user.index');

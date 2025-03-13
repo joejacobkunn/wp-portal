@@ -23,7 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sx:last-sale-date-sync')->timezone('America/New_York')->dailyAt('21:15');
 
         //task to process peoplvox receipts
-        $schedule->command('app:process-purchase-order-receipts --mode=process')->timezone('America/New_York')->dailyAt('21:30');
+        $schedule->command('app:process-purchase-order-receipts --mode=process')->timezone('America/New_York')->twiceDaily(21, 23);
 
         //task to update dnr orders
         $schedule->command('sx:update-dnr-backorders')->everyThreeHours();
