@@ -36,13 +36,19 @@ class Table extends DataTableComponent
             ->sortable()->searchable()->excludeFromColumnSelect()
             ->format(function ($value, $row)
             {
-                if($row->qty > 0)
-                {
-                    $badge = '<span class="badge bg-light-success float-end"><i class="fas fa-check-circle"></i></span>';
-                }
-                else
+                if($row->is_on_hold)
                 {
                     $badge = '<span class="badge bg-light-warning float-end"><i class="fas fa-pause-circle"></i></span>';
+                }else{
+                    if($row->qty > 0)
+                    {
+                        $badge = '<span class="badge bg-light-success float-end"><i class="fas fa-check-circle"></i></span>';
+                    }
+                    else
+                    {
+                        $badge = '<span class="badge bg-light-secondary float-end"><i class="far fa-eye-slash"></i></span>';
+                    }
+    
                 }
 
                 return '<a href="' . route('equipment.floor-model-inventory.show', ['floorModel' => $row->id]) . '"
@@ -69,6 +75,9 @@ class Table extends DataTableComponent
             ->sortable()
             ->excludeFromColumnSelect()
             ->html(),
+
+            Column::make('On Hold', 'is_on_hold')
+            ->hideIf(1),
 
             Column::make('Last Updated By', 'sx_operator_id')
             ->secondaryHeader($this->getFilterByKey('operator'))
