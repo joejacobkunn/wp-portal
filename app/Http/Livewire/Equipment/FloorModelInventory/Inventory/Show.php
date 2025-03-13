@@ -44,14 +44,28 @@ class Show extends Component
             'listener' => 'deleteRecord',
         ],
     ];
+
+
     protected $listeners = [
         'deleteRecord' => 'delete',
         'closeQtyUpdate' => 'closeQtyUpdate',
-        'qty:changed' => 'updateQuantity'
+        'qty:changed' => 'updateQuantity',
+        'holdInventory' => 'holdInventory'
     ];
 
     public function render()
     {
+        if(!$this->floorModel->is_on_hold)
+        {
+            $this->actionButtons[] = [
+                'icon' => 'fa-pause-circle',
+                'color' => 'warning',
+                'confirm' => true,
+                'confirm_header' => 'Confirm Hold',
+                'listener' => 'holdInventory',
+            ];
+        }
+
         return $this->renderView('livewire.equipment.floor-model-inventory.inventory.show');
     }
 
@@ -63,6 +77,8 @@ class Show extends Component
             ['title' => $this->floorModel->warehouse->title],
             ['title' => $this->floorModel->product]
         ]);
+
+
         $this->formInit();
 
         $this->sxproduct = $this->getProduct();

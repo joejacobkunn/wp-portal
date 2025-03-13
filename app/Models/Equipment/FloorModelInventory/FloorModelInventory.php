@@ -15,7 +15,7 @@ class FloorModelInventory extends Model
 {
     use HasFactory, LogsActivity;
 
-    protected $fillable = ['whse','product','qty','sx_operator_id', 'created_at', 'updated_at'];
+    protected $fillable = ['whse','product','qty','sx_operator_id', 'is_on_hold','created_at', 'updated_at'];
     protected $table = 'floor_model_inventory';
     const LOG_FIELD_MAPS = [
 
@@ -28,8 +28,12 @@ class FloorModelInventory extends Model
         ],
         'qty' => [
             'field_label' => 'Quantity',
+        ],
+        'is_on_hold' => [
+            'field_label' => 'On Hold'
         ]
     ];
+    
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class, 'whse');
