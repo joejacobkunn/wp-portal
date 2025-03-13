@@ -162,6 +162,26 @@ trait FormRequest
         return redirect()->route('equipment.floor-model-inventory.index');
     }
 
+    public function holdInventory()
+    {
+        $this->authorize('delete', $this->floorModel);
+        $this->floorModel->is_on_hold = 1;
+        $this->floorModel->save();
+        InventoryDeleted::dispatch($this->floorModel);
+        $this->alert('success','Inventory is put on Hold');
+    }
+
+    public function removeHold()
+    {
+        $this->authorize('delete', $this->floorModel);
+        $this->floorModel->is_on_hold = 0;
+        $this->floorModel->save();
+        InventoryAdded::dispatch($this->floorModel);
+        $this->alert('success','Inventory Hold removed');
+    }
+
+
+
     public function bulkQtyUpdate()
     {
         $this->validate();
