@@ -17,9 +17,17 @@
         @if ($floorModel->qty == 0 && $floorModel->is_on_hold == 0)
             <div class="alert alert-light-secondary color-secondary">
                 <i class="far fa-eye-slash"></i>
-                This product is not being displayed , update <strong>quantity</strong> to change
+                This inventory is not being displayed , update <strong>quantity</strong> to change
             </div>
         @endif
+
+        @if ($floorModel->qty > 0 && $floorModel->is_on_hold == 0)
+            <div class="alert alert-light-success color-success">
+                <i class="fas fa-check-circle"></i>
+                This inventory is being displayed
+            </div>
+        @endif
+
         <div class="card border-light shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">
                 @can('equipment.floor-model-inventory.manage')
