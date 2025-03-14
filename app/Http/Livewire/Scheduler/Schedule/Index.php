@@ -376,7 +376,7 @@ class Index extends Component
         }
 
         if ($type == 'at_home_maintenance') {
-            $truckScheduleQuery->where('trucks.service_type', 'AHM');
+            $truckScheduleQuery->where('trucks.service_type', 'at_home_maintenance');
         } elseif ($type == 'delivery') {
             $truckScheduleQuery->where('truck_schedules.is_delivery', true);
         } elseif ($type == 'pickup') {
