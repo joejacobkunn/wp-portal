@@ -160,7 +160,7 @@ class ScheduleOrder extends Component
         {
             $this->validateOnly('form.sx_ordernumber');
             $response = $this->form->getOrderInfo($value, $this->activeWarehouse->short);
-            if(!$response['status']) {
+            if(is_array($response) && !$response['status']) {
                 $this->alert('error', $response['message']);
                 return;
             }
