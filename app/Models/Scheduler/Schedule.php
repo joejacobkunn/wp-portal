@@ -47,6 +47,8 @@ class Schedule extends Model
         'sro_linked_by',
         'started_at',
         'started_by',
+        'email',
+        'phone'
     ];
 
     protected $casts = [
