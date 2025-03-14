@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Scheduler\ServiceArea\Zones;
 
+use App\Enums\Scheduler\ScheduleTypeEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\ServiceArea\Zones\Traits\FormRequest;
 use App\Http\Livewire\Scheduler\Zones\Form\ZonesForm;
@@ -14,6 +15,7 @@ class Index extends Component
     public $addRecord =false;
     public $warehouseId;
     public Warehouse $warehouse;
+    public $serviceOptions;
 
 
     public function mount()
@@ -29,7 +31,10 @@ class Index extends Component
             ]];
 
         $this->dispatch('setBreadcrumb', $data);
-        }
+        $this->serviceOptions = collect(ScheduleTypeEnum::cases())
+        ->mapWithKeys(fn($case) => [$case->name => $case->label()])
+        ->toArray();
+    }
 
     public function create()
     {
@@ -46,7 +51,7 @@ class Index extends Component
     {
         $this->addRecord = false;
         $this->resetValidation();
-        $this->reset(['name', 'description', 'days']);
+        $this->reset(['name', 'description']);
     }
 
     public function submit()

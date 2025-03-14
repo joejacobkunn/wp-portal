@@ -2,6 +2,7 @@
 
 namespace App\Models\Scheduler;
 
+use App\Enums\Scheduler\ScheduleTypeEnum;
 use App\Models\Core\Comment;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +22,8 @@ class Zones extends Model
 
     protected $casts = [
         'schedule_days' => 'array',
+        'service' => ScheduleTypeEnum::class,
+
     ];
 
     const LOG_FIELD_MAPS = [

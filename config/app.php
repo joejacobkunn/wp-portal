@@ -212,6 +212,7 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
         \SocialiteProviders\Manager\ServiceProvider::class,
         KoenHendriks\StrAcronym\StrServiceProvider::class,
+        \Eduardokum\LaravelMailAutoEmbed\ServiceProvider::class,
 
     ],
 

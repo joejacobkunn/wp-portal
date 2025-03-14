@@ -34,7 +34,7 @@ class ScheduleImportForm extends Form
     public function init($truck)
     {
         $this->truck = $truck;
-        $this->zones = Zones::where(['whse_id' => $this->truck->whse])->get()
+        $this->zones = Zones::where(['whse_id' => $this->truck->warehouse->id])->get()
                 ->map(function ($zone) {
                     return [
                         'id' => $zone->id,
@@ -55,8 +55,7 @@ class ScheduleImportForm extends Form
     {
         $this->validateOnly('csvFile');
         try {
-            if($this->truck->service_type == 'Delivery / Pickup') {
-
+            if($this->truck->service_type->value == 'pickup_delivery') {
                 $import = new TruckSchedulePickupDeliveyImport($this->truck->truck_name, $this->zones);
             } else {
                 $import = new TruckScheduleAHMImport($this->truck->truck_name, $this->zones);

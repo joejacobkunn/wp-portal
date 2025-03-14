@@ -108,12 +108,14 @@
                                     </div>
                                 @endif
                             @endif
-
-                            <div class="col-md-12 mb-4">
-                                <x-forms.checkbox model="form.not_purchased_via_weingartz"
-                                    label="Equipment not purchased via Weingartz" />
-                            </div>
+                            @if (!in_array($form->type,['pickup', 'delivery']))
+                                <div class="col-md-12 mb-4">
+                                    <x-forms.checkbox model="form.not_purchased_via_weingartz"
+                                        label="Equipment not purchased via Weingartz" />
+                                </div>
+                            @endif
                             {{-- line items --}}
+
                             @if (!empty($form->orderInfo?->line_items['line_items']) && !$form->not_purchased_via_weingartz)
                                 <div class="col-md-12 mb-2">
                                     <ul class="list-group">
@@ -136,8 +138,14 @@
                                                     <span class="badge bg-light-secondary float-end">SN :
                                                         {{ $appendSerial }}</span>
                                                 @endif
-                                                <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
+                                                @if ($form->type == 'at_home_maintenance')
+
+                                                    <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
+                                                        :model="'form.line_item'" />
+                                                @else
+                                                    <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem[]'" :value="$item['shipprod']"
                                                     :model="'form.line_item'" />
+                                                @endif
 
                                             </li>
                                         @endforeach
@@ -150,7 +158,7 @@
                                 </div>
                             @enderror
                             {{-- end of line items --}}
-                            @if ($form->ServiceStatus)
+                            @if ($form->ServiceStatus )
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <x-forms.select label="Scheduling Priority" model="form.scheduleType"
@@ -343,9 +351,9 @@
                 <span class="badge bg-light-warning float-end">
                     @if ($form->zipcodeInfo)
                         <a target="_blank"
-                            href="{{ route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo->id]) }}"><i
+                            href="{{ route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo['id']]) }}"><i
                                 class="fas fa-external-link-alt"></i>
-                            #{{ $form->zipcodeInfo?->zip_code }}</a>
+                            #{{ $form->zipcodeInfo['zip_code'] }}</a>
                     @else
                         <a target="_blank" href="{{ route('service-area.index') }}?tab=zip_code"><i
                                 class="fas fa-external-link-alt"></i>
@@ -357,11 +365,11 @@
             </li>
             @if ($form->zipcodeInfo)
                 <li class="list-group-item"><strong>ZIP Code</strong> <span
-                        class="float-end">{{ $form->zipcodeInfo?->zip_code }}</span></li>
+                        class="float-end">{{ $form->zipcodeInfo['zip_code'] }}</span></li>
                 <li class="list-group-item"><strong>Delivery Rate</strong> <span
-                        class="float-end">${{ $form->zipcodeInfo?->delivery_rate }}</span></li>
+                        class="float-end">${{ $form->zipcodeInfo['delivery_rate'] }}</span></li>
                 <li class="list-group-item"><strong>Pickup Rate</strong> <span
-                        class="float-end">${{ $form->zipcodeInfo?->pickup_rate }}</span></li>
+                        class="float-end">${{ $form->zipcodeInfo['pickup_rate'] }}</span></li>
             @else
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                     <div>
@@ -375,9 +383,9 @@
                 <li class="list-group-item list-group-item-primary">
                     Zones
                 </li>
-                @foreach ($form->zipcodeInfo->zones as $zone)
-                    <li class="list-group-item"><strong>{{ $zone->name }}</strong>
-                        <span class="badge bg-light-warning float-end">{{ strtoupper($zone->service) }}</span>
+                @foreach ($form->zipcodeInfo['zones'] as $zone)
+                    <li class="list-group-item"><strong>{{ $zone['name'] }}</strong>
+                        <span class="badge bg-light-warning float-end">{{ App\Enums\Scheduler\ScheduleTypeEnum::tryFrom($zone['service'])->label() }}</span>
                         <small></small>
                     </li>
                 @endforeach
@@ -476,7 +484,6 @@
                             :key="'service-address' . $form->addressKey" />
                     </div>
                 </div>
-                <hr>
                 <x-slot name="footer">
                     <button type="submit" class="btn btn-primary" wire:click="updateAddress">
                         <div wire:loading wire:target="updateAddress">

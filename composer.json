@@ -14,6 +14,7 @@
         "calebporzio/sushi": "^2.4",
         "dbt/odbc-driver": "^2.1",
         "doctrine/dbal": "^3.9",
+        "eduardokum/laravel-mail-auto-embed": "^2.11",
         "firebase/php-jwt": "^6.4",
         "genealabs/laravel-model-caching": "^11.0",
         "greenlion/php-sql-parser": "^4.6",

@@ -40,7 +40,7 @@ class Table extends DataTableComponent
                 ->sortable()->searchable()->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
-                    return strtoupper($value);
+                    return $value->label();
                 })
                 ->html(),
 

@@ -24,8 +24,8 @@
 
                     <!-- Service Type -->
                     <div class="col-md-6 mb-3">
-                        <x-forms.select label="Service Type" model="truck.service_type" :options="$serviceTypes"
-                            :selected="$truck->service_type ?? null" :hasAssociativeIndex="true" default-selectable
+                        <x-forms.select label="Service Type" model="truck.service_type" :options="$this->serviceTypes"
+                            :selected="$truck->service_type->value ?? null" :hasAssociativeIndex="true" default-selectable
                             default-option-label="- Select Shift -" />
                     </div>
                 </div>

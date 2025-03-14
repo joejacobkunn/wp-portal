@@ -2,6 +2,7 @@
 
 namespace App\Models\Scheduler;
 
+use App\Enums\Scheduler\ScheduleTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Core\Location;
@@ -24,14 +25,16 @@ class Truck extends Model implements HasMedia
         'year',
         'color',
         'notes',
-        'whse',
-        'baseline_date',
         'service_type',
         'shift_type',
         'height',
         'width',
         'length',
         'warehouse_short',
+    ];
+
+    protected $casts = [
+        'service_type' => ScheduleTypeEnum::class,
     ];
 
     const DOCUMENT_COLLECTION = 'truck_image';
