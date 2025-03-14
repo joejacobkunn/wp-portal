@@ -64,6 +64,11 @@
                 "name": "scheduler.can-schedule-override",
                 "label": "Override Schedules",
                 "description": "User can Override schedules"
+            },
+            {
+                "name": "scheduler.override",
+                "label": "Override Schedules (Test)",
+                "description": "user can test delivery/pickup"
             }
         ]
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Scheduler\ServiceArea\Zones;
 
+use App\Enums\Scheduler\ScheduleTypeEnum;
 use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\ServiceArea\Zones\Traits\FormRequest;
 use App\Models\Scheduler\Zones;
@@ -14,6 +15,7 @@ class Show extends Component
     public  Zones $zone;
     public $editRecord = false;
     public $alertConfig = [];
+    public $serviceOptions;
 
     public $breadcrumbs = [];
 
@@ -58,6 +60,9 @@ class Show extends Component
         ['title' => 'Zones'],
         ['title' => $this->zone->name]];
         $this->setAlert();
+        $this->serviceOptions = collect(ScheduleTypeEnum::cases())
+        ->mapWithKeys(fn($case) => [$case->name => $case->label()])
+        ->toArray();
     }
     public function edit()
     {

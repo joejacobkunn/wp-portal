@@ -571,15 +571,15 @@
 
                         <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
-                                <h3 class="h6 mb-1">Equipment</h3>
-                                @if ($form->schedule->line_item)
+                                <h3 class="h6 mb-1">{{ in_array($form->type, ['delivery', 'pickup']) ? 'Equipments' : 'Equipment' }}</h3>
+                                @forelse ($form->schedule->line_item as $key => $item)
                                     <p class="small pe-4">
-                                        {{ head($form->schedule->line_item) }}
-                                        ({{ array_keys($form->schedule->line_item)[0] }})
+                                        {{ $item }}
+                                        ({{ $key }})
                                     </p>
-                                @else
+                                @empty
                                     <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
-                                @endif
+                                @endforelse
                             </div>
                         </li>
                     @endunless
@@ -644,6 +644,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-12 col-md-4 col-xxl-4">
         <div class="card border rounded shadow-sm mb-4">
             <div class="card-header border-gray-300 p-3 mb-4 mb-md-0" :key="'bew'.time()">

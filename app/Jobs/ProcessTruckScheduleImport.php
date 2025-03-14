@@ -35,10 +35,10 @@ class ProcessTruckScheduleImport implements ShouldQueue
      */
     public function handle(): void
     {
-        if($this->truck->service_type == 'Delivery / Pickup') {
+        if($this->truck->service_type->value == 'pickup_delivery') {
             $this->updateDeliveryPickupSchedules();
         }
-        if($this->truck->service_type == 'AHM') {
+        if($this->truck->service_type->value == 'at_home_maintenance') {
             $this->updateAHMSchedules();
         }
 

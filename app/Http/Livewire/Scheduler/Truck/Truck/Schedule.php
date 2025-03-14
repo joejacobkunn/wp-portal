@@ -34,8 +34,7 @@ class Schedule extends Component
 
     public function mount()
     {
-        $type = $this->truck->service_type == 'Delivery / Pickup' ? 'Pickup/Delivery' : $this->truck->service_type;
-        $this->zones = Zones::where(['service' => $type, 'whse_id' => $this->truck->whse])->get();
+        $this->zones = Zones::where(['service' => $this->truck->service_type->value, 'whse_id' => $this->truck->warehouse->id])->get();
         $this->handleDateClick(Carbon::now());
     }
 
@@ -145,7 +144,7 @@ class Schedule extends Component
     {
         $filePath = public_path(config('scheduler.demo_file_path'));
 
-        if($this->truck->service_type == 'Delivery / Pickup') {
+        if($this->truck->service_type->value == 'pickup_delivery') {
             $filePath = public_path(config('scheduler.pickup_delivery_demo_file'));
         }
         if (!file_exists($filePath)) {

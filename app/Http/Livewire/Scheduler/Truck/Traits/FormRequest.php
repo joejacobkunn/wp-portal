@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Livewire\Scheduler\Truck\Traits;
 
+use App\Enums\Scheduler\ScheduleTypeEnum;
 use App\Models\Scheduler\Truck\BrandWarranty;
 use App\Models\Scheduler\Truck;
 use Illuminate\Support\Facades\Auth;
@@ -14,10 +15,6 @@ trait FormRequest
     use LivewireAlert, WithFileUploads;
 
     public $truckImage;
-    public $serviceTypes = [
-        'AHM' => 'AHM',
-        'Delivery / Pickup' => 'Delivery / Pickup'
-    ];
     protected $validationAttributes = [
         'truck.truck_name' => 'Truck Name',
         'truck.vin_number' => 'VIN Number',
@@ -33,6 +30,12 @@ trait FormRequest
         'truckImage' => 'Truck Image',
     ];
 
+    public function getserviceTypesProperty()
+    {
+        return collect(ScheduleTypeEnum::cases())
+        ->mapWithKeys(fn($case) => [$case->name => $case->label()])
+        ->toArray();
+    }
     protected $messages = [
         'vin_number.unique' => 'The VIN number must be unique.',
         'year.numeric' => 'The year must be a valid number.',
@@ -108,7 +111,6 @@ trait FormRequest
 
 
         $this->truck->fill([
-            'whse' => $this->activeWarehouse->id,
             'warehouse_short' => $this->activeWarehouse->short,
         ]);
         $truck = $this->truck->save();
