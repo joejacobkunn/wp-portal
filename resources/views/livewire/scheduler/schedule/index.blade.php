@@ -53,7 +53,9 @@
                             <div id="warehouse-wrap">
                                 @foreach ($this->warehouses as $whse)
                                     <a class="dropdown-item border-bottom " href="#"
-                                        wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}</a>
+                                        onclick="Livewire.dispatch('initiateLoader')"
+                                        wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}
+                                    </a>
                                 @endforeach
                             </div>
                             <div id="type-wrap">
@@ -64,6 +66,7 @@
                                         (Auth::user()->cannot('scheduler.override') && $key != 'at_home_maintenance')
                                         ) bg-light-secondary  anchor-disabled @endif"
                                         href="#"
+                                        onclick="Livewire.dispatch('initiateLoader')"
                                         wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
@@ -72,6 +75,7 @@
                                     wire:click.prevent="changeZone('')">All Zones</a>
                                 @foreach ($this->activeWarehouse->zones->sortBy('name') as $zone)
                                     <a class="dropdown-item border-bottom" href="#"
+                                        onclick="Livewire.dispatch('initiateLoader')"
                                         wire:click.prevent="changeZone('{{ $zone->id }}')">{{ $zone->name }}</a>
                                 @endforeach
                             </div>
@@ -802,6 +806,9 @@
                 }
                 Livewire.on('modalContentLoaded', () => {
                     loader.style.display = 'none';
+                });
+                Livewire.on('initiateLoader', () => {
+                    loader.style.display = 'flex';
                 });
                 Livewire.on('add-event-calendar', (eventData) => {
                     if (eventData.newEvent) {

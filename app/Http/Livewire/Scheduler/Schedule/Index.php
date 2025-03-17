@@ -239,6 +239,7 @@ class Index extends Component
         $this->getTruckData();
         $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-needs-update',  $this->activeWarehouse->title);
+        $this->dispatch('modalContentLoaded');
     }
 
     public function handleDateClick($date)
@@ -312,7 +313,7 @@ class Index extends Component
         $this->getTruckData();
         $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Services' );
-
+        $this->dispatch('modalContentLoaded');
     }
 
     public function getTrucks()
@@ -434,6 +435,8 @@ class Index extends Component
         $this->getTruckData();
         $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-zone-update', !empty($this->activeZone) ? $this->activeZone['name'] : 'All Zones' );
+        $this->dispatch('modalContentLoaded');
+
     }
 
     public function updatedSearchZoneKey($value)
