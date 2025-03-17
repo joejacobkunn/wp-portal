@@ -182,9 +182,12 @@ class ScheduleAHMForm extends ScheduleForm
     public function checkZipcode()
     {
         $this->getDistance();
-        $zipcodeInfo = Zipcode::with(['zones' => function ($query) {
-            $query->where('service', 'at_home_maintenance');
-        }])->where('zip_code', $this->serviceZip)->first();
+        $zipcodeInfo = Zipcode::with([
+            'zones' => function ($query) {
+                $query->where('service', 'at_home_maintenance');
+            },
+            'warehouse:id,title'
+        ])->where('zip_code', $this->serviceZip)->get();
 
         if ($zipcodeInfo) {
             $this->zipcodeInfo = $zipcodeInfo->toArray();
@@ -212,13 +215,10 @@ class ScheduleAHMForm extends ScheduleForm
         if(!$this->orderInfo ||  !$this->zipcodeInfo) {
             return false;
         }
-        foreach($this->zipcodeInfo['zones'] as $zone)
-        {
-            if($zone['service'] == 'at_home_maintenance' && $value == 'at_home_maintenance' ) {
-                return true;
-            }
-            if($zone['service'] == 'pickup_delivery' ) {
-                if($value == 'pickup' || $value == 'delivery') {
+        foreach($this->zipcodeInfo as $zipcode) {
+            foreach($zipcode['zones'] as $zone)
+            {
+                if($zone['service'] == 'at_home_maintenance' && $value == 'at_home_maintenance' ) {
                     return true;
                 }
             }
@@ -425,9 +425,10 @@ class ScheduleAHMForm extends ScheduleForm
                 })->pluck('id');
         if($shouldOverride) {
             if( Auth::user()->can('scheduler.can-schedule-override')) {
-                $zones = Zones::where('is_active',1)->pluck('id');
+                $zones = Zones::where('service', 'at_home_maintenance')->where('is_active',1)->pluck('id');
             }
         }
+
         // Optimize the schedule counts subquery
         $scheduleCounts = DB::table('schedules')
             ->whereNull('deleted_at')
@@ -561,9 +562,12 @@ class ScheduleAHMForm extends ScheduleForm
     {
         $this->addressKey = uniqid();
         $this->serviceZip = $this->extractZipCode($this->service_address);
-        $zipcodeInfo = Zipcode::with(['zones' => function ($query) {
-            $query->where('service', 'at_home_maintenance');
-        }])->where('zip_code', $this->serviceZip)->first();
+        $zipcodeInfo = Zipcode::with([
+            'zones' => function ($query) {
+                $query->where('service', 'at_home_maintenance');
+            },
+            'warehouse:id,title'
+        ])->where('zip_code', $this->serviceZip)->get();
 
         if ($zipcodeInfo) {
             $this->zipcodeInfo = $zipcodeInfo->toArray();

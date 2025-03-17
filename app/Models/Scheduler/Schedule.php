@@ -154,7 +154,7 @@ class Schedule extends Model
     public function scheduleId()
     {
         $unique_id = 1000000 + $this->id;
-        return strtoupper(substr($this->truckSchedule->truck->warehouse->short,0,1)).$unique_id;
+        return strtoupper(substr($this->truckSchedule?->truck?->warehouse?->short,0,1)).$unique_id;
     }
 
     public function getStatusColorAttribute(): string

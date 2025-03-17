@@ -350,48 +350,19 @@
                 </li>
             @endif
         </ul>
-        <ul class="list-group mb-3">
-            <li class="list-group-item list-group-item-primary">
-                <span class="badge bg-light-warning float-end">
-                    @if ($form->zipcodeInfo)
-                        <a target="_blank"
-                            href="{{ route('service-area.zipcode.show', ['zipcode' => $form->zipcodeInfo['id']]) }}"><i
-                                class="fas fa-external-link-alt"></i>
-                            #{{ $form->zipcodeInfo['zip_code'] }}</a>
-                    @else
-                        <a target="_blank" href="{{ route('service-area.index') }}?tab=zip_code"><i
-                                class="fas fa-external-link-alt"></i>
-                            Create New ZIP Code</a>
-                    @endif
-
-                </span>
-                ZIP Code Info
-            </li>
-            @if ($form->zipcodeInfo)
-                <li class="list-group-item"><strong>ZIP Code</strong> <span
-                        class="float-end">{{ $form->zipcodeInfo['zip_code'] }}</span></li>
-                <li class="list-group-item"><strong>Delivery Rate</strong> <span
-                        class="float-end">${{ $form->zipcodeInfo['delivery_rate'] }}</span></li>
-                <li class="list-group-item"><strong>Pickup Rate</strong> <span
-                        class="float-end">${{ $form->zipcodeInfo['pickup_rate'] }}</span></li>
-            @else
-                <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                    <div>
-                        <p class="text-muted ms-1">Need valid zipcode</p>
-                    </div>
-                </li>
-            @endif
-        </ul>
+        @include('livewire.scheduler.schedule.partial.schedule_form_zipcode_info')
         @if (isset($form->zipcodeInfo))
             <ul class="list-group mb-3">
                 <li class="list-group-item list-group-item-primary">
                     Zones
                 </li>
-                @foreach ($form->zipcodeInfo['zones'] as $zone)
-                    <li class="list-group-item"><strong>{{ $zone['name'] }}</strong>
-                        <span class="badge bg-light-warning float-end">{{ App\Enums\Scheduler\ScheduleTypeEnum::tryFrom($zone['service'])->label() }}</span>
-                        <small></small>
-                    </li>
+                @foreach ($form->zipcodeInfo as $zipcode)
+                    @foreach ($zipcode['zones'] as $zone)
+                        <li class="list-group-item"><strong>{{ $zone['name'] }}</strong>
+                            <span class="badge bg-light-warning float-end">{{ App\Enums\Scheduler\ScheduleTypeEnum::tryFrom($zone['service'])->label() }}</span>
+                            <small></small>
+                        </li>
+                    @endforeach
                 @endforeach
             </ul>
         @endif

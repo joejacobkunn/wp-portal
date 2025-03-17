@@ -195,8 +195,13 @@ class SchedulePDForm extends ScheduleForm
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
             $zones = Zones::where('service', 'pickup_delivery')->where('is_active',1)->pluck('id');
         } else {
-            $zones = Zones::where(['service' => 'pickup_delivery', 'whse_id' => $whse])->where('is_active',1)->pluck('id');
-
+            $zonesQuery = Zones::where('is_active', 1)
+                ->where('service', 'pickup_delivery');
+            $zip = $this->serviceZip;
+            $zonesQuery->where('whse_id', $whse)->whereHas('zipcodes', function ($query) use($zip) {
+                $query->where('zip_code', $zip);
+            });
+            $zones = $zonesQuery->pluck('id');
         }
 
         $this->truckSchedules = $truckScheduleQuery->whereIn('truck_schedules.zone_id', $zones)
@@ -217,7 +222,7 @@ class SchedulePDForm extends ScheduleForm
         $zonesQuery = Zones::where('is_active', 1)
             ->where('service', 'pickup_delivery');
         $zip = $this->serviceZip;
-        if (!$shouldOverride || !Auth::user()->can('scheduler.can-schedule-override')) {
+        if (!$shouldOverride) {
             $zonesQuery->where('whse_id', $whse)->whereHas('zipcodes', function ($query) use($zip) {
                 $query->where('zip_code', $zip);
             });
@@ -262,10 +267,19 @@ class SchedulePDForm extends ScheduleForm
         $this->addressKey = uniqid();
         $whse = $this->orderInfo->warehouse->id;
         $this->serviceZip = $this->extractZipCode($this->service_address);
-        $zipcodeInfo = Zipcode::with(['zones' => function ($query) use($whse) {
-            $query->where('service', 'pickup_delivery')->where('whse_id', $whse);
-        }])->where('zip_code', $this->serviceZip)->first();
-        if ($zipcodeInfo) {
+        $zipcodeInfo = Zipcode::with([
+            'zones' => function ($query) use ($whse) {
+                $query->where('whse_id', $whse)->where('service', 'pickup_delivery');
+            },
+            'warehouse:id,title'
+        ])
+        ->where('zip_code', $this->serviceZip)
+        ->whereHas('zones', function ($query) use ($whse) {
+            $query->where('whse_id', $whse)->where('service', 'pickup_delivery');
+        })
+        ->get();
+
+        if ($zipcodeInfo->isNotEmpty()) {
             $this->zipcodeInfo = $zipcodeInfo->toArray();
         }
         $this->reset('alertConfig');
@@ -354,13 +368,22 @@ class SchedulePDForm extends ScheduleForm
     {
         $this->getDistance();
         $whse = $this->orderInfo->warehouse->id;
-        $zipcodeInfo = Zipcode::with(['zones' => function ($query) use($whse) {
-            $query->where('service', 'pickup_delivery')->where('whse_id', $whse);
-        }])->where('zip_code', $this->serviceZip)->first();
+        $zipcodeInfo = Zipcode::with([
+            'zones' => function ($query) use ($whse) {
+                $query->where('whse_id', $whse)->where('service', 'pickup_delivery');
+            },
+            'warehouse:id,title'
+        ])
+        ->where('zip_code', $this->serviceZip)
+        ->whereHas('zones', function ($query) use ($whse) {
+            $query->where('whse_id', $whse)->where('service', 'pickup_delivery');
+        })
+        ->get();
 
-        if ($zipcodeInfo) {
+        if ($zipcodeInfo->isNotEmpty()) {
             $this->zipcodeInfo = $zipcodeInfo->toArray();
         }
+
         $this->reset('alertConfig');
         $this->alertConfig['status'] = true;
         if(!$this->zipcodeInfo) {
@@ -616,14 +639,13 @@ class SchedulePDForm extends ScheduleForm
         if(!$this->orderInfo ||  !$this->zipcodeInfo) {
             return false;
         }
-        foreach($this->zipcodeInfo['zones'] as $zone)
-        {
-            if($zone['service'] == 'at_home_maintenance' && $value == 'at_home_maintenance' ) {
-                return true;
-            }
-            if($zone['service'] == 'pickup_delivery' ) {
-                if($value == 'pickup' || $value == 'delivery') {
-                    return true;
+        foreach($this->zipcodeInfo as $zipcode) {
+            foreach($zipcode['zones'] as $zone)
+            {
+                if($zone['service'] == 'pickup_delivery' ) {
+                    if($value == 'pickup' || $value == 'delivery') {
+                        return true;
+                    }
                 }
             }
         }

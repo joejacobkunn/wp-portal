@@ -459,9 +459,9 @@ class Index extends Component
         ->whereNull('zones.deleted_at')
         ->whereNull('scheduler_zipcodes.deleted_at')
         ->select(['zones.name', 'zones.id'])
+        ->distinct()
         ->get()
         ->toArray();
-
     }
 
     public function updatedSearchKey($value)
