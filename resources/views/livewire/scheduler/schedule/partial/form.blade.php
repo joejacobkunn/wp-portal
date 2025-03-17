@@ -353,11 +353,19 @@
         @include('livewire.scheduler.schedule.partial.schedule_form_zipcode_info')
         @if (isset($form->zipcodeInfo))
             <ul class="list-group mb-3">
-                <li class="list-group-item list-group-item-primary">
-                    Zones
-                </li>
+                @php
+                    $zoneFlag = true;
+                @endphp
                 @foreach ($form->zipcodeInfo as $zipcode)
                     @foreach ($zipcode['zones'] as $zone)
+                        @if($zoneFlag)
+                            <li class="list-group-item list-group-item-primary">
+                                Zones
+                            </li>
+                            @php
+                                $zoneFlag == false;
+                            @endphp
+                        @endif
                         <li class="list-group-item"><strong>{{ $zone['name'] }}</strong>
                             <span class="badge bg-light-warning float-end">{{ App\Enums\Scheduler\ScheduleTypeEnum::tryFrom($zone['service'])->label() }}</span>
                             <small></small>

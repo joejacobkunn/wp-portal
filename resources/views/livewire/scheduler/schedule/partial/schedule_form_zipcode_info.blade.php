@@ -21,10 +21,23 @@
         </ul>
     @endforeach
 @else
-    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-        <div>
-            <p class="text-muted ms-1">Need valid zipcode</p>
-        </div>
-    </li>
+    <ul class="list-group mb-3">
+
+        <li class="list-group-item list-group-item-primary">
+            <span class="badge bg-light-warning float-end">
+
+                <a target="_blank"
+                    href="{{ route('service-area.index', ['tab' => 'zipcode']) }}"><i
+                        class="fas fa-external-link-alt"></i>
+                    #</a>
+            </span>
+            Create Zipcode
+        </li>
+        <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+            <div>
+                <p class="text-muted ms-1">Need valid zipcode</p>
+            </div>
+        </li>
+    </ul>
 @endif
 
