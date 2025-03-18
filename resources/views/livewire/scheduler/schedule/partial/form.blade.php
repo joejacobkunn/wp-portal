@@ -139,7 +139,9 @@
                                                 $cargoString = '';
                                                 if(isset($form->prodDimension)) {
 
-                                                    $cargo = collect($form->prodDimension)->firstWhere('prod', $item['shipprod']);
+                                                    $cargo = collect($form->prodDimension)->firstWhere(
+                                                        fn($dimension) => strtolower($dimension['category']) === strtolower($item['prodcat'])
+                                                    );
                                                     if ($cargo && isset($cargo['length'], $cargo['width'], $cargo['height'])) {
                                                         $cargoString = "({$cargo['length']}ft x {$cargo['width']}ft x {$cargo['height']}ft)";
                                                     }

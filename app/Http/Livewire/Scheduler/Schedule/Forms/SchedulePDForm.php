@@ -155,32 +155,27 @@ class SchedulePDForm extends ScheduleForm
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
         }
-        $shipprodArray = [];
+        $categoryArray = [];
         if(!empty($this->orderInfo?->line_items['line_items'])) {
             foreach ($this->orderInfo->line_items['line_items'] as $item) {
-                $shipprodArray[] = $item['shipprod'];
+                $categoryArray[] = $item['prodcat'];
             }
         }
 
-        if(!empty($shipprodArray)) {
-            $products = Product::select('id', 'prod', 'category_id')
-            ->with(['category' => function($query) {
-                $query->select('id')
-                    ->with(['cargoConfigurator' => function($query) {
-                        $query->select('id', 'product_category_id', 'height', 'width', 'length');
-                    }]);
-            }])
-            ->whereIn('prod', $shipprodArray)
+        if(!empty($categoryArray)) {
+
+            $categories = Category::with('cargoConfigurator')
+            ->whereIn('name', $categoryArray)
             ->get();
-            $this->prodDimension = $products->map(function ($product) {
+
+            $this->prodDimension = $categories->map(function ($category) {
                 return [
-                    'product_id' => $product->id,
-                    'prod' => $product->prod,
-                    'category_id' => $product->category?->id,
-                    'cargo_id' => $product->category?->cargoConfigurator?->id,
-                    'height' => $product->category?->cargoConfigurator?->height,
-                    'width' => $product->category?->cargoConfigurator?->width,
-                    'length' => $product->category?->cargoConfigurator?->length,
+                    'category_id' => $category->id,
+                    'category' => $category->name,
+                    'cargo_id' => $category->cargoConfigurator?->id,
+                    'height' => $category->cargoConfigurator?->height,
+                    'width' => $category->cargoConfigurator?->width,
+                    'length' => $category->cargoConfigurator?->length,
                 ];
             });
         }
