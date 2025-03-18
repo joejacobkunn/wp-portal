@@ -3,15 +3,12 @@
 
 use App\Classes\SX;
 use App\Contracts\DistanceInterface;
-use App\Events\Scheduler\EventCancelled;
-use App\Events\Scheduler\EventComplete;
-use App\Events\Scheduler\EventDispatched;
-use App\Events\Scheduler\EventRescheduled;
-use App\Events\Scheduler\EventScheduled;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
-use App\Models\Scheduler\NotificationTemplate;
+use App\Models\Product\Category;
+use App\Models\Product\Product;
+use App\Models\Scheduler\CargoConfigurator;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\TruckSchedule;
@@ -35,6 +32,7 @@ class SchedulePDForm extends ScheduleForm
 {
 
     public $line_item = [];
+    public $prodDimension = [];
 
     protected $validationAttributes = [
         'type' => 'Schedule Type',
@@ -156,6 +154,35 @@ class SchedulePDForm extends ScheduleForm
         if(is_null($this->orderInfo->shipping_info) || empty($this->orderInfo?->shipping_info['line']) || strlen($this->orderInfo?->shipping_info['line']) < 2) {
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
+        }
+        $shipprodArray = [];
+        if(!empty($this->orderInfo?->line_items['line_items'])) {
+            foreach ($this->orderInfo->line_items['line_items'] as $item) {
+                $shipprodArray[] = $item['shipprod'];
+            }
+        }
+
+        if(!empty($shipprodArray)) {
+            $products = Product::select('id', 'prod', 'category_id')
+            ->with(['category' => function($query) {
+                $query->select('id')
+                    ->with(['cargoConfigurator' => function($query) {
+                        $query->select('id', 'product_category_id', 'height', 'width', 'length');
+                    }]);
+            }])
+            ->whereIn('prod', $shipprodArray)
+            ->get();
+            $this->prodDimension = $products->map(function ($product) {
+                return [
+                    'product_id' => $product->id,
+                    'prod' => $product->prod,
+                    'category_id' => $product->category?->id,
+                    'cargo_id' => $product->category?->cargoConfigurator?->id,
+                    'height' => $product->category?->cargoConfigurator?->height,
+                    'width' => $product->category?->cargoConfigurator?->width,
+                    'length' => $product->category?->cargoConfigurator?->length,
+                ];
+            });
         }
 
         $this->serialNumbers = $this->getSerialNumbers($this->sx_ordernumber, $suffix);

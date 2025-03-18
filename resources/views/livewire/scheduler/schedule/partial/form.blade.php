@@ -136,6 +136,14 @@
                                                 if (isset($serial)) {
                                                     $appendSerial = $serial->serialno;
                                                 }
+                                                $cargoString = '';
+                                                if(isset($form->prodDimension)) {
+
+                                                    $cargo = collect($form->prodDimension)->firstWhere('prod', $item['shipprod']);
+                                                    if ($cargo && isset($cargo['length'], $cargo['width'], $cargo['height'])) {
+                                                        $cargoString = "({$cargo['length']}ft x {$cargo['width']}ft x {$cargo['height']}ft)";
+                                                    }
+                                                }
                                             @endphp
                                             <li class="list-group-item">
                                                 @if (!empty($appendSerial))
@@ -147,7 +155,7 @@
                                                     <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
                                                         :model="'form.line_item'" />
                                                 @else
-                                                    <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem[]'" :value="$item['shipprod']"
+                                                    <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'].')' .$cargoString" :name="'lineitem[]'" :value="$item['shipprod']"
                                                     :model="'form.line_item'" />
                                                 @endif
 
@@ -363,7 +371,7 @@
                                 Zones
                             </li>
                             @php
-                                $zoneFlag == false;
+                                $zoneFlag = false;
                             @endphp
                         @endif
                         <li class="list-group-item"><strong>{{ $zone['name'] }}</strong>

@@ -120,6 +120,9 @@ class Table extends DataTableComponent
                     return $row->truckSchedule?->start_time.' - '.$row->truckSchedule?->end_time;
                 }),
 
+                Column::make('Service Address', 'service_address')
+                ->excludeFromColumnSelect(),
+
                 Column::make('Created By', 'created_by')
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
