@@ -184,7 +184,8 @@ class ScheduleAHMForm extends ScheduleForm
         $this->getDistance();
         $zipcodeInfo = Zipcode::with([
             'zones' => function ($query) {
-                $query->where('service', 'at_home_maintenance');
+                $query->where('service', 'at_home_maintenance')
+                ->distinct();
             },
             'warehouse:id,title'
         ])->where('zip_code', $this->serviceZip)->get();

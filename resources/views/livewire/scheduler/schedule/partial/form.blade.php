@@ -379,7 +379,7 @@
                             @endphp
                         @endif
                         <li class="list-group-item"><strong>{{ $zone['name'] }}</strong>
-                            <span class="badge bg-light-warning float-end">{{ App\Enums\Scheduler\ScheduleTypeEnum::tryFrom($zone['service'])->label() }}</span>
+                            <span class="badge bg-light-warning float-end">{{ App\Enums\Scheduler\ScheduleTypeEnum::tryFrom($zone['service'])->abbreviation() }}</span>
                             <small></small>
                         </li>
                     @endforeach

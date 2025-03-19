@@ -13,6 +13,10 @@ enum ScheduleTypeEnum: string
     {
         return static::getLabel($this);
     }
+    public function abbreviation(): string
+    {
+        return static::getAbbreviation($this);
+    }
 
     public function icon(): string
     {
@@ -24,6 +28,15 @@ enum ScheduleTypeEnum: string
         return match ($value) {
             self::at_home_maintenance => 'At Home Maintenance',
             self::pickup_delivery => 'Pickup / Delivery',
+            default => '-'
+        };
+    }
+
+    public static function getAbbreviation(self $value): string
+    {
+        return match ($value) {
+            self::at_home_maintenance => 'AHM',
+            self::pickup_delivery => 'PD',
             default => '-'
         };
     }
