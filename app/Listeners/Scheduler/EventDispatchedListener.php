@@ -37,15 +37,18 @@ class EventDispatchedListener implements ShouldQueue
         {
             $notification = $this->populateTemplate('ahm-dispatched',$event->schedule);
 
-            if($event->schedule->order->customer->phone)
+            $email = $event->schedule->email ?: $event->schedule->order->customer->email;
+            $phone = $event->schedule->phone ?: $event->schedule->order->customer->phone;
+
+            if($phone)
             {
                 $kenect = new Kenect();
-                $kenect->send($event->schedule->order->customer->phone, $notification['sms'], '18771');
+                $kenect->send($phone, $notification['sms'], '18771');
             }
     
-            if($event->schedule->order->customer->email && filter_var($event->schedule->order->customer->email, FILTER_VALIDATE_EMAIL))
+            if($email && filter_var($email, FILTER_VALIDATE_EMAIL))
             {
-                Notification::route('mail', $event->schedule->order->customer->email)
+                Notification::route('mail', $email)
                 ->notify(new EmailNotification($notification['email_subject'], $notification['email_body']));
     
             }

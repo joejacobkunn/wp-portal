@@ -675,20 +675,21 @@
                                 @php
                                     $phone = $form->phone ?? $form->schedule->order?->customer?->phone;
                                 @endphp
-                                <p class="small pe-4">{{ $phone ? format_phone($phone) : '' }}</p>
+                                <p class="small pe-4 {{$phone ? '' : 'text-danger'}}">{{ $phone ? format_phone($phone) : 'Contact Phone is missing' }}</p>
                             </div>
                         </li>
                     @endif
-                    @if (!empty($form->email) || !empty($form->schedule->order->customer->email))
-                        <li
-                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Email</h3>
-                                <p class="small pe-4">
-                                    {{ $form->email ?? $form->schedule->order->customer->email }}</p>
-                            </div>
-                        </li>
-                    @endif
+                    <li
+                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                        <div>
+                            <h3 class="h6 mb-1">Email</h3>
+                            @php
+                                $email = $form->email ?? $form->schedule->order->customer->email;
+                            @endphp
+                            <p class="small pe-4 {{$email ? '' : 'text-danger'}}">
+                                {{ $email ? $email : 'Email is missing'}} </p>
+                        </div>
+                    </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Address</h3>

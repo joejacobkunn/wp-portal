@@ -514,7 +514,7 @@ class ScheduleOrder extends Component
 
         $this->form->phone = $this->tempPhone;
         $this->form->email = $this->tempEmail;
-
+        $this->form->reset('contactError');
         $this->closeContactModal();
     }
 
@@ -543,6 +543,7 @@ class ScheduleOrder extends Component
         $this->form->email = $this->tempEmail;
         $this->form->updateContact();
         $this->alert('success', 'Contact updated');
+        $this->form->reset('contactError');
         $this->closeContactModal();
     }
 
