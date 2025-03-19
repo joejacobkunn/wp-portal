@@ -33,6 +33,7 @@ class SchedulePDForm extends ScheduleForm
 
     public $line_item = [];
     public $prodDimension = [];
+    public $contactError;
 
     protected $validationAttributes = [
         'type' => 'Schedule Type',
@@ -183,7 +184,12 @@ class SchedulePDForm extends ScheduleForm
         $this->serialNumbers = $this->getSerialNumbers($this->sx_ordernumber, $suffix);
         $this->phone = $this->orderInfo->customer?->phone;
         $this->email = $this->orderInfo->customer?->email;
-
+        $this->contactError = match (true) {
+            !$this->phone && !$this->email => "Contact info is missing.",
+            !$this->phone => "Contact number is missing.",
+            !$this->email => "Contact email is missing.",
+            default => null,
+        };
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
         if (!empty($this->orderInfo?->shipping_info['line2'])) {

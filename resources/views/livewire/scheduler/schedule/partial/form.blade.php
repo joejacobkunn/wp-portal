@@ -46,6 +46,12 @@
                                 </p>
                             </div>
                         @endif
+
+                        @if ($form->contactError)
+                            <p class="text-danger"><i class="fas fa-times-circle"></i>
+                                   {{$form->contactError}}
+                            </p>
+                        @endif
                         @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
                             <div class="col-md-12" wire:loading.remove wire:target="form.suffix">
                                 <div class="alert alert-light-primary color-primary" role="alert">
