@@ -87,7 +87,7 @@ class ListIndex extends Component
 
     public function getTrucksProperty()
     {
-        return Truck::select('id', 'truck_name', 'whse')->limit(100)->get();
+        return Truck::select('id', 'truck_name', 'warehouse_short')->limit(100)->get();
     }
 
     public function indexActiveTabChange($activeTab)

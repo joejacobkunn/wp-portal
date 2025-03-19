@@ -120,6 +120,9 @@ class Table extends DataTableComponent
                     return $row->truckSchedule?->start_time.' - '.$row->truckSchedule?->end_time;
                 }),
 
+                Column::make('Service Address', 'service_address')
+                ->excludeFromColumnSelect(),
+
                 Column::make('Created By', 'created_by')
                 ->excludeFromColumnSelect()
                 ->format(function ($value, $row)
@@ -175,7 +178,7 @@ class Table extends DataTableComponent
 
     public function getTrucksProperty()
     {
-        return Truck::select('id', 'truck_name', 'whse')->limit(100)->get();
+        return Truck::select('id', 'truck_name', 'warehouse_short')->limit(100)->get();
     }
 
     public function getDriversProperty()

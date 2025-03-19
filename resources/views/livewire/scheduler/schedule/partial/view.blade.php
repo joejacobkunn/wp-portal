@@ -572,14 +572,17 @@
                         <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
                                 <h3 class="h6 mb-1">{{ in_array($form->type, ['delivery', 'pickup']) ? 'Equipments' : 'Equipment' }}</h3>
-                                @forelse ($form->schedule->line_item as $key => $item)
-                                    <p class="small pe-4">
-                                        {{ $item }}
-                                        ({{ $key }})
-                                    </p>
-                                @empty
+                                @if ($form->schedule->line_item)
+                                    @foreach ($form->schedule->line_item as $key => $item)
+                                        <p class="small pe-4">
+                                            {{ $item }}
+                                            ({{ $key }})
+                                        </p>
+                                    @endforeach
+                                @else
                                     <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
-                                @endforelse
+
+                                @endif
                             </div>
                         </li>
                     @endunless
@@ -664,22 +667,25 @@
                                 {{ $form->schedule->order->customer?->name }}</p>
                         </div>
                     </li>
-                    @if (!empty($form->schedule->order->customer->phone))
+                    @if (!empty($form->phone) || !empty($form->schedule->order->customer->phone))
                         <li
                             class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
                                 <h3 class="h6 mb-1">Phone</h3>
-                                <p class="small pe-4">{{ format_phone($form->schedule->order->customer->phone) }}</p>
+                                @php
+                                    $phone = $form->phone ?? $form->schedule->order?->customer?->phone;
+                                @endphp
+                                <p class="small pe-4">{{ $phone ? format_phone($phone) : '' }}</p>
                             </div>
                         </li>
                     @endif
-                    @if (!empty($form->schedule->order->customer->email))
+                    @if (!empty($form->email) || !empty($form->schedule->order->customer->email))
                         <li
                             class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
                                 <h3 class="h6 mb-1">Email</h3>
                                 <p class="small pe-4">
-                                    {{ $form->schedule->order->customer->email }}</p>
+                                    {{ $form->email ?? $form->schedule->order->customer->email }}</p>
                             </div>
                         </li>
                     @endif
@@ -690,7 +696,9 @@
                                 {{ $form->schedule->order->customer?->getFullAddress() }}</p>
                         </div>
                     </li>
-
+                    <a href="javascript:void(0)" class="mt-2 link-secondary " wire:click="showEditContactModal">
+                        <i class="fas fa-edit schedule-edit-icon"></i> Edit Contact
+                    </a>
                 </ul>
             </div>
         </div>
@@ -701,5 +709,30 @@
             <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" :key="'schedule-activity'">
             </x-slot>
         </x-tabs>
+        @if ($contactModal)
+            <x-modal toggle="contactModal" size="md" :closeEvent="'closeContactModal'">
+                <x-slot name="title">Update Contact </x-slot>
+                <div class="col-md-12 mb-2">
+                    <div class="form-group">
+                        <x-forms.input type="text" label="Phone" model="tempPhone" />
+
+                    </div>
+                </div>
+                <div class="col-md-12 mb-2">
+                    <div class="form-group">
+                        <x-forms.input type="text" label="Email" model="tempEmail" />
+
+                    </div>
+                </div>
+                <x-slot name="footer">
+                    <button type="submit" class="btn btn-secondary" wire:click="updateContactSchedule">
+                        <div wire:loading wire:target="updateContactSchedule">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Update
+                    </button>
+                </x-slot>
+            </x-modal>
+        @endif
     </div>
 </div>

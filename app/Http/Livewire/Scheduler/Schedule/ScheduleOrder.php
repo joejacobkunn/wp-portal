@@ -4,7 +4,7 @@ namespace App\Http\Livewire\Scheduler\Schedule;
 
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Http\Livewire\Component\Component;
-use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleForm;
+use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleAHMForm;
 use App\Http\Livewire\Scheduler\Schedule\Forms\SchedulePDForm;
 use App\Models\Order\Order;
 use App\Models\Product\Product;
@@ -19,7 +19,7 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 class ScheduleOrder extends Component
 {
     use LivewireAlert, HasTabs;
-    public ScheduleForm $ahmForm;
+    public ScheduleAHMForm $ahmForm;
     public SchedulePDForm $pdForm;
     public $form;
 
@@ -39,6 +39,9 @@ class ScheduleOrder extends Component
     public $startedSchedules;
     public $showConfirmMessage = false;
     public $orderErrorStatus = false;
+    public $contactModal = false;
+    public $tempPhone;
+    public $tempEmail;
     public $schedulePriority = [
         'next_avail' => 'Next Available Date',
         'one_year' => 'One Year from Now',
@@ -153,7 +156,9 @@ class ScheduleOrder extends Component
             'schedule_time',
             'line_item',
             'alertConfig',
-            'ServiceStatus'
+            'ServiceStatus',
+            'phone',
+            'email'
         ]);
         $this->reset('scheduledTruckInfo');
         if(is_numeric($value))
@@ -487,4 +492,59 @@ class ScheduleOrder extends Component
         }
         $this->actionStatus = $status;
     }
+
+    public function showEditContactModal()
+    {
+        $this->tempPhone = $this->form->phone;
+        $this->tempEmail = $this->form->email;
+        $this->contactModal = true;
+    }
+
+    public function updateContact()
+    {
+        $this->validate([
+            'tempEmail' => 'required|email:rfc,dns|max:255',
+            'tempPhone' => 'required|regex:/^\d{10}$/'
+        ], [
+            'tempEmail.required' => 'Email is required.',
+            'tempEmail.email' => 'Enter a valid email address.',
+            'tempPhone.required' => 'Phone number is required.',
+            'tempPhone.regex' => 'Phone number must be exactly 10 digits.'
+        ]);
+
+        $this->form->phone = $this->tempPhone;
+        $this->form->email = $this->tempEmail;
+
+        $this->closeContactModal();
+    }
+
+    public function closeContactModal()
+    {
+        $this->contactModal = false;
+        $this->resetValidation();
+        $this->reset([
+            'tempPhone',
+            'tempEmail'
+        ]);
+    }
+    public function updateContactSchedule()
+    {
+        $this->validate([
+            'tempEmail' => 'required|email:rfc,dns|max:255',
+            'tempPhone' => 'required|regex:/^\d{10}$/'
+        ], [
+            'tempEmail.required' => 'Email is required.',
+            'tempEmail.email' => 'Enter a valid email address.',
+            'tempPhone.required' => 'Phone number is required.',
+            'tempPhone.regex' => 'Phone number must be exactly 10 digits.'
+        ]);
+
+        $this->form->phone = $this->tempPhone;
+        $this->form->email = $this->tempEmail;
+        $this->form->updateContact();
+        $this->alert('success', 'Contact updated');
+        $this->closeContactModal();
+    }
+
+
 }

@@ -239,6 +239,7 @@ class Index extends Component
         $this->getTruckData();
         $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-needs-update',  $this->activeWarehouse->title);
+        $this->dispatch('modalContentLoaded');
     }
 
     public function handleDateClick($date)
@@ -312,7 +313,7 @@ class Index extends Component
         $this->getTruckData();
         $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-type-update', $type != '' ? $this->scheduleOptions[$type] : 'All Services' );
-
+        $this->dispatch('modalContentLoaded');
     }
 
     public function getTrucks()
@@ -376,9 +377,11 @@ class Index extends Component
         }
 
         if ($type == 'at_home_maintenance') {
-            $truckScheduleQuery->where('trucks.service_type', 'AHM');
-        } elseif ($type == 'delivery' || $type == 'pickup') {
-            $truckScheduleQuery->where('trucks.service_type', 'pickup_delivery');
+            $truckScheduleQuery->where('trucks.service_type', 'at_home_maintenance');
+        } elseif ($type == 'delivery') {
+            $truckScheduleQuery->where('truck_schedules.is_delivery', true);
+        } elseif ($type == 'pickup') {
+            $truckScheduleQuery->where('truck_schedules.is_pickup', true);
         } elseif ($type == 'setup_install') {
             $truckScheduleQuery->where('trucks.service_type', 'setup_install');
         }
@@ -432,6 +435,8 @@ class Index extends Component
         $this->getTruckData();
         $this->handleDateClick($this->dateSelected);
         $this->dispatch('calendar-zone-update', !empty($this->activeZone) ? $this->activeZone['name'] : 'All Zones' );
+        $this->dispatch('modalContentLoaded');
+
     }
 
     public function updatedSearchZoneKey($value)
@@ -457,9 +462,9 @@ class Index extends Component
         ->whereNull('zones.deleted_at')
         ->whereNull('scheduler_zipcodes.deleted_at')
         ->select(['zones.name', 'zones.id'])
+        ->distinct()
         ->get()
         ->toArray();
-
     }
 
     public function updatedSearchKey($value)
