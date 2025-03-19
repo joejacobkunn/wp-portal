@@ -524,7 +524,7 @@
                 </div>
             </div>
             <x-slot name="footer">
-                <button type="submit" class="btn btn-secondary" wire:click="updateContact">
+                <button type="submit" class="btn btn-primary" wire:click="updateContact">
                     <div wire:loading wire:target="updateContact">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>

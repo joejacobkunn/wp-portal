@@ -132,28 +132,32 @@
                     <div class="collapse @if ($actionStatus == 'confirm') show @endif p-4" id="confirmCollapse"
                         data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
-                            @if ($orderErrorStatus)
-                                <div class="alert alert-light-danger color-danger"><i class="bi bi-exclamation-triangle"></i>
-                                    The Order associated with SX #{{$sro_response['sx_repair_order_no']}}
+                            @if ($orderErrorStatus && $sro_response)
+                                <div class="alert alert-light-danger color-danger"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    The Order associated with SX #{{ $sro_response['sx_repair_order_no'] }}
                                     is not found.</div>
                             @endif
-                            Confirm this schedule by clicking {{$showConfirmMessage ? 'Proceed' : 'Confirm'}} below.
-                            @if ($showConfirmMessage)
-                                <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
-                                    The warehouse associated with SX #{{$sro_response['sx_repair_order_no']}}
+                            Confirm this schedule by clicking {{ $showConfirmMessage ? 'Proceed' : 'Confirm' }} below.
+                            @if ($showConfirmMessage && $sro_response)
+                                <div class="alert alert-light-warning color-warning"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    The warehouse associated with SX #{{ $sro_response['sx_repair_order_no'] }}
                                     is different from the truck assigned. Do you still want to proceed?.</div>
                             @endif
 
                             <div class="col-md-12">
                                 <div class="mt-4 float-start">
-                                    <button wire:click="confirmedSchedule" class="btn btn-sm btn-primary @if(!$showConfirmMessage) d-none @endif ">
+                                    <button wire:click="confirmedSchedule"
+                                        class="btn btn-sm btn-primary @if (!$showConfirmMessage) d-none @endif ">
                                         <div wire:loading wire:target="confirmedSchedule">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
                                         </div>
                                         <i class="far fa-calendar-check"></i> Proceed
                                     </button>
-                                    <button wire:click="confirmSchedule" class="btn btn-sm btn-primary @if($showConfirmMessage) d-none @endif">
+                                    <button wire:click="confirmSchedule"
+                                        class="btn btn-sm btn-primary @if ($showConfirmMessage) d-none @endif">
                                         <div wire:loading wire:target="confirmSchedule">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
@@ -447,10 +451,10 @@
                     @if ($form->schedule->status == 'completed')
                         <p><i class="far fa-calendar-check"></i> AHM scheduled in
                             <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
-                            class="fas fa-globe"></i>
-                            {{ $form->schedule->truckSchedule->zone->name }}</span>
+                                    class="fas fa-globe"></i>
+                                {{ $form->schedule->truckSchedule->zone->name }}</span>
                             between <strong>{{ $form->schedule->truckSchedule->start_time }} and
-                            {{ $form->schedule->truckSchedule->end_time }}</strong> is Completed
+                                {{ $form->schedule->truckSchedule->end_time }}</strong> is Completed
                         </p>
                         <hr>
                         <p class="mb-0">Completed by <span
@@ -571,7 +575,8 @@
 
                         <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
-                                <h3 class="h6 mb-1">{{ in_array($form->type, ['delivery', 'pickup']) ? 'Equipments' : 'Equipment' }}</h3>
+                                <h3 class="h6 mb-1">
+                                    {{ in_array($form->type, ['delivery', 'pickup']) ? 'Equipments' : 'Equipment' }}</h3>
                                 @if ($form->schedule->line_item)
                                     @foreach ($form->schedule->line_item as $key => $item)
                                         <p class="small pe-4">
@@ -581,7 +586,6 @@
                                     @endforeach
                                 @else
                                     <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
-
                                 @endif
                             </div>
                         </li>
@@ -675,19 +679,20 @@
                                 @php
                                     $phone = $form->phone ?? $form->schedule->order?->customer?->phone;
                                 @endphp
-                                <p class="small pe-4 {{$phone ? '' : 'text-danger'}}">{{ $phone ? format_phone($phone) : 'Contact Phone is missing' }}</p>
+                                <p class="small pe-4 {{ $phone ? '' : 'text-danger' }}">
+                                    {{ $phone ? format_phone($phone) : 'Contact Phone is missing' }}</p>
                             </div>
                         </li>
                     @endif
-                    <li
-                        class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Email</h3>
                             @php
                                 $email = $form->email ?? $form->schedule->order->customer->email;
                             @endphp
-                            <p class="small pe-4 {{$email ? '' : 'text-danger'}}">
-                                {{ $email ? $email : 'Email is missing'}} </p>
+                            <p class="small pe-4 {{ $email ? '' : 'text-danger' }}">
+                                {!! $email ? $email : '<i class="fas fa-exclamation-triangle"></i> Email is missing' !!}
+                            </p>
                         </div>
                     </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
@@ -697,7 +702,7 @@
                                 {{ $form->schedule->order->customer?->getFullAddress() }}</p>
                         </div>
                     </li>
-                    <a href="javascript:void(0)" class="mt-2 link-secondary " wire:click="showEditContactModal">
+                    <a href="javascript:void(0)" class="mt-2 link-primary" wire:click="showEditContactModal">
                         <i class="fas fa-edit schedule-edit-icon"></i> Edit Contact
                     </a>
                 </ul>
@@ -726,7 +731,7 @@
                     </div>
                 </div>
                 <x-slot name="footer">
-                    <button type="submit" class="btn btn-secondary" wire:click="updateContactSchedule">
+                    <button type="submit" class="btn btn-primary" wire:click="updateContactSchedule">
                         <div wire:loading wire:target="updateContactSchedule">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
