@@ -166,7 +166,7 @@ class ScheduleAHMForm extends ScheduleForm
         $this->email = $this->orderInfo->customer?->email;
         $this->contactError = match (true) {
             !$this->phone && !$this->email => "Contact info is missing.",
-            !$this->phone => "Contact number is missing.",
+            !$this->phone => "Contact phone number is missing.",
             !$this->email => "Contact email is missing.",
             default => null,
         };

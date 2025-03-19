@@ -48,8 +48,8 @@
                         @endif
 
                         @if ($form->contactError)
-                            <p class="text-danger"><i class="fas fa-times-circle"></i>
-                                   {{$form->contactError}}
+                            <p class="text-danger"><i class="fas fa-exclamation-triangle"></i>
+                                {{ $form->contactError }}
                             </p>
                         @endif
                         @if ($form->orderInfo && is_array($form->orderInfo->shipping_info))
@@ -57,13 +57,15 @@
                                 <div class="alert alert-light-primary color-primary" role="alert">
                                     <span class="badge bg-light-warning float-end">
                                         <a target="_blank" href="">
-                                            <i class="fas fa-external-link-alt"></i> CustNo #{{ $form->orderInfo?->sx_customer_number }}
+                                            <i class="fas fa-external-link-alt"></i> CustNo
+                                            #{{ $form->orderInfo?->sx_customer_number }}
                                         </a>
                                     </span>
 
                                     <h5 class="alert-heading text-decoration-underline text-muted">Service Address</h5>
                                     <p>
-                                        <a class="float-end link-secondary" href="javascript:void(0)" wire:click="showAddressModal">
+                                        <a class="float-end link-secondary" href="javascript:void(0)"
+                                            wire:click="showAddressModal">
                                             <i class="fas fa-edit schedule-edit-icon"></i> Edit Address
                                         </a>
                                     </p>
@@ -78,7 +80,8 @@
                                             <i class="fa-solid fa-envelope ms-3 me-2"></i>
                                             {{ $form->email ? $form->email : 'n/a' }}
 
-                                            <a href="javascript:void(0)" class="float-end link-secondary" wire:click="showEditContactModal">
+                                            <a href="javascript:void(0)" class="float-end link-secondary"
+                                                wire:click="showEditContactModal">
                                                 <i class="fas fa-edit schedule-edit-icon"></i> Edit Contact
                                             </a>
                                         </div>
@@ -88,10 +91,14 @@
 
                                     <p class="mb-0 text-muted"><strong>Ship To (from SX)</strong></p>
                                     <p class="mb-0">
-                                        {{ $form->orderInfo->shipping_info['line'] . ', ' .
-                                            $form->orderInfo->shipping_info['line2'] . ', ' .
-                                            $form->orderInfo->shipping_info['city'] . ', ' .
-                                            $form->orderInfo->shipping_info['state'] . ', ' .
+                                        {{ $form->orderInfo->shipping_info['line'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['line2'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['city'] .
+                                            ', ' .
+                                            $form->orderInfo->shipping_info['state'] .
+                                            ', ' .
                                             $form->orderInfo->shipping_info['zip'] }}
                                     </p>
                                     <p class="mb-0">Shipping Instructions (from SX) :
@@ -118,7 +125,7 @@
                                     </div>
                                 @endif
                             @endif
-                            @if (!in_array($form->type,['pickup', 'delivery']))
+                            @if (!in_array($form->type, ['pickup', 'delivery']))
                                 <div class="col-md-12 mb-4">
                                     <x-forms.checkbox model="form.not_purchased_via_weingartz"
                                         label="Equipment not purchased via Weingartz" />
@@ -143,12 +150,15 @@
                                                     $appendSerial = $serial->serialno;
                                                 }
                                                 $cargoString = '';
-                                                if(isset($form->prodDimension)) {
-
+                                                if (isset($form->prodDimension)) {
                                                     $cargo = collect($form->prodDimension)->firstWhere(
-                                                        fn($dimension) => strtolower($dimension['category']) === strtolower($item['prodcat'])
+                                                        fn($dimension) => strtolower($dimension['category']) ===
+                                                            strtolower($item['prodcat']),
                                                     );
-                                                    if ($cargo && isset($cargo['length'], $cargo['width'], $cargo['height'])) {
+                                                    if (
+                                                        $cargo &&
+                                                        isset($cargo['length'], $cargo['width'], $cargo['height'])
+                                                    ) {
                                                         $cargoString = "{$cargo['length']}ft x {$cargo['width']}ft x {$cargo['height']}ft";
                                                     }
                                                 }
@@ -158,14 +168,14 @@
                                                     <span class="badge bg-light-secondary float-end">SN :
                                                         {{ $appendSerial }}</span>
                                                 @endif
-                                                <span class="badge bg-light-primary float-end me-1">{{$cargoString}}</span>
+                                                <span
+                                                    class="badge bg-light-primary float-end me-1">{{ $cargoString }}</span>
                                                 @if ($form->type == 'at_home_maintenance')
-
                                                     <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
                                                         :model="'form.line_item'" />
                                                 @else
-                                                    <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'].')'" :name="'lineitem[]'" :value="$item['shipprod']"
-                                                    :model="'form.line_item'" />
+                                                    <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem[]'"
+                                                        :value="$item['shipprod']" :model="'form.line_item'" />
                                                 @endif
 
                                             </li>
@@ -179,7 +189,7 @@
                                 </div>
                             @enderror
                             {{-- end of line items --}}
-                            @if ($form->ServiceStatus )
+                            @if ($form->ServiceStatus)
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <x-forms.select label="Scheduling Priority" model="form.scheduleType"
@@ -367,7 +377,7 @@
                 </li>
             @endif
         </ul>
-        @if ( $form->type !='at_home_maintenance')
+        @if ($form->type != 'at_home_maintenance')
             @include('livewire.scheduler.schedule.partial.schedule_form_zipcode_info')
         @endif
         @if (isset($form->zipcodeInfo))
@@ -377,7 +387,7 @@
                 @endphp
                 @foreach ($form->zipcodeInfo as $zipcode)
                     @foreach ($zipcode['zones'] as $zone)
-                        @if($zoneFlag)
+                        @if ($zoneFlag)
                             <li class="list-group-item list-group-item-primary">
                                 Zones
                             </li>
@@ -386,7 +396,8 @@
                             @endphp
                         @endif
                         <li class="list-group-item"><strong>{{ $zone['name'] }}</strong>
-                            <span class="badge bg-light-warning float-end">{{ App\Enums\Scheduler\ScheduleTypeEnum::tryFrom($zone['service'])->abbreviation() }}</span>
+                            <span
+                                class="badge bg-light-warning float-end">{{ App\Enums\Scheduler\ScheduleTypeEnum::tryFrom($zone['service'])->abbreviation() }}</span>
                             <small></small>
                         </li>
                     @endforeach
@@ -458,8 +469,7 @@
                         </div>
                         Use Current Address
                     </button>
-                    <button type="submit" class="btn btn-primary"
-                        wire:click="fixAddress">
+                    <button type="submit" class="btn btn-primary" wire:click="fixAddress">
                         <div wire:loading wire:target="fixAddress">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
