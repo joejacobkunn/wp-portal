@@ -33,6 +33,7 @@ use Illuminate\Support\Str;
 class ScheduleAHMForm extends ScheduleForm
 {
     public $line_item;
+    public $contactError;
     protected $validationAttributes = [
         'type' => 'Schedule Type',
         'sx_ordernumber' => 'Order Number',
@@ -163,6 +164,12 @@ class ScheduleAHMForm extends ScheduleForm
         $this->serialNumbers = $this->getSerialNumbers($this->sx_ordernumber, $suffix);
         $this->phone = $this->orderInfo->customer?->phone;
         $this->email = $this->orderInfo->customer?->email;
+        $this->contactError = match (true) {
+            !$this->phone && !$this->email => "Contact info is missing.",
+            !$this->phone => "Contact phone number is missing.",
+            !$this->email => "Contact email is missing.",
+            default => null,
+        };
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
         if (!empty($this->orderInfo?->shipping_info['line2'])) {
@@ -184,7 +191,8 @@ class ScheduleAHMForm extends ScheduleForm
         $this->getDistance();
         $zipcodeInfo = Zipcode::with([
             'zones' => function ($query) {
-                $query->where('service', 'at_home_maintenance');
+                $query->where('service', 'at_home_maintenance')
+                ->distinct();
             },
             'warehouse:id,title'
         ])->where('zip_code', $this->serviceZip)->get();
