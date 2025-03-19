@@ -11,7 +11,7 @@
                 <a class="nav-link active" href="javascript:;"><i class="fas fa-list"></i> List View</a>
             </li>
         </ul>
-        <div class="row">
+        <div class="row" wire:poll.60s>
             <div class="col-12">
                 <div class="card border-light shadow-sm schedule-tab">
                     <div class="card-body">
@@ -29,7 +29,7 @@
                             </ul>
                         </div>
 
-                        <x-tabs tabId="schedule-list-index-tabs" class="mb-5" :key="'wh' . $activeWarehouseId">
+                        <x-tabs tabId="schedule-list-index-tabs" class="mb-5" :key="'wh' . $activeWarehouseId.uniqid()">
 
                             <x-slot:tab_header_today>Today <span
                                     class="badge badge-lg {{ $tabs['schedule-list-index-tabs']['active'] == 'today' ? 'text-primary bg-white ml-2' : 'bg-primary' }} ms-2 ml-2">{{ $tabCounts['today'] ?? '0' }}</span></x-slot>

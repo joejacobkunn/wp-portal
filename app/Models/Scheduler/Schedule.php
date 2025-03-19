@@ -47,6 +47,8 @@ class Schedule extends Model
         'sro_linked_by',
         'started_at',
         'started_by',
+        'email',
+        'phone'
     ];
 
     protected $casts = [
@@ -152,7 +154,7 @@ class Schedule extends Model
     public function scheduleId()
     {
         $unique_id = 1000000 + $this->id;
-        return strtoupper(substr($this->truckSchedule->truck->warehouse->short,0,1)).$unique_id;
+        return strtoupper(substr($this->truckSchedule?->truck?->warehouse?->short,0,1)).$unique_id;
     }
 
     public function getStatusColorAttribute(): string

@@ -26,8 +26,8 @@ class SchedulerPickupDeliveryZoneZipSeeder extends Seeder
         $records = $reader->getRecords();
         foreach ($records as $offset => $record) {
             $warehouse = $this->getWarehouse($record['zone']);
-            $zone = Zones::updateOrCreate(['name' => $record['zone']],['service' => 'pickup-delivery', 'whse_id' => $warehouse->id, 'is_active' => 1]);
-            $zip_code = Zipcode::updateOrCreate(['zip_code' => $record['zip']],['whse_id' => $warehouse->id, 'delivery_rate' => str_replace('$','',$record['delivery_rate']), 'pickup_rate' => str_replace('$','',$record['pickup_rate']), 'is_active' => 1]);
+            $zone = Zones::updateOrCreate(['name' => $record['zone']],['service' => 'pickup_delivery', 'whse_id' => $warehouse->id, 'is_active' => 1]);
+            $zip_code = Zipcode::updateOrCreate(['zip_code' => $record['zip'],'whse_id' => $warehouse->id],['delivery_rate' => str_replace('$','',$record['delivery_rate']), 'pickup_rate' => str_replace('$','',$record['pickup_rate']), 'is_active' => 1]);
             $zone->zipcodes()->attach($zip_code->id);
         }
 
