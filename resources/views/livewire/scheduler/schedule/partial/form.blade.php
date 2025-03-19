@@ -143,7 +143,7 @@
                                                         fn($dimension) => strtolower($dimension['category']) === strtolower($item['prodcat'])
                                                     );
                                                     if ($cargo && isset($cargo['length'], $cargo['width'], $cargo['height'])) {
-                                                        $cargoString = "({$cargo['length']}ft x {$cargo['width']}ft x {$cargo['height']}ft)";
+                                                        $cargoString = "{$cargo['length']}ft x {$cargo['width']}ft x {$cargo['height']}ft";
                                                     }
                                                 }
                                             @endphp
@@ -152,12 +152,13 @@
                                                     <span class="badge bg-light-secondary float-end">SN :
                                                         {{ $appendSerial }}</span>
                                                 @endif
+                                                <span class="badge bg-light-primary float-end me-1">{{$cargoString}}</span>
                                                 @if ($form->type == 'at_home_maintenance')
 
                                                     <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
                                                         :model="'form.line_item'" />
                                                 @else
-                                                    <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'].')' .$cargoString" :name="'lineitem[]'" :value="$item['shipprod']"
+                                                    <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'].')'" :name="'lineitem[]'" :value="$item['shipprod']"
                                                     :model="'form.line_item'" />
                                                 @endif
 
