@@ -360,7 +360,9 @@
                 </li>
             @endif
         </ul>
-        @include('livewire.scheduler.schedule.partial.schedule_form_zipcode_info')
+        @if ( $form->type !='at_home_maintenance')
+            @include('livewire.scheduler.schedule.partial.schedule_form_zipcode_info')
+        @endif
         @if (isset($form->zipcodeInfo))
             <ul class="list-group mb-3">
                 @php
