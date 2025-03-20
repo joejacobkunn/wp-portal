@@ -548,12 +548,10 @@ class ScheduleOrder extends Component
     public function updateContactSchedule()
     {
         $this->validate([
-            'tempEmail' => 'required|email:rfc,dns|max:255',
-            'tempPhone' => 'required|regex:/^\d{10}$/'
+            'tempEmail' => 'nullable|email:rfc,dns|max:255',
+            'tempPhone' => 'nullable|regex:/^\d{10}$/'
         ], [
-            'tempEmail.required' => 'Email is required.',
             'tempEmail.email' => 'Enter a valid email address.',
-            'tempPhone.required' => 'Phone number is required.',
             'tempPhone.regex' => 'Phone number must be exactly 10 digits.'
         ]);
 
