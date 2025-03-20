@@ -36,7 +36,7 @@ class EventCompleteListener implements ShouldQueue
      */
     public function handle(EventComplete $event): void
     {
-        if(App::environment() == 'production')
+        if(App::environment() == 'production' && $event->schedule->type == 'at_home_maintenance')
         {
             $notification = $this->populateTemplate('ahm-complete',$event->schedule);
 

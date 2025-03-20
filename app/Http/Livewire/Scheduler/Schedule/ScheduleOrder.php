@@ -88,12 +88,14 @@ class ScheduleOrder extends Component
                 $this->sro_verified = true;
                 $this->sro_response = $this->getSROInfo($this->sro_number);
             }
-            $this->startedSchedules = Schedule::where('status', 'out_for_delivery')
-            ->whereHas('truckSchedule', function ($query) {
-                $query->where('driver_id', $this->form->schedule->truckSchedule->driver_id);
-            })
-            ->count();
-
+            $this->startedSchedules = 0;
+            if (!empty($this->form->schedule->truckSchedule->driver_id)) {
+                $this->startedSchedules = Schedule::where('status', 'out_for_delivery')
+                    ->whereHas('truckSchedule', function ($query) {
+                        $query->where('driver_id', $this->form->schedule->truckSchedule->driver_id);
+                    })
+                    ->count();
+            }
         }
         if (Auth::user()->can('scheduler.can-schedule-override')) {
             $this->schedulePriority = $this->schedulePriority + ['schedule_override' => 'Schedule Override'];
@@ -397,8 +399,24 @@ class ScheduleOrder extends Component
     {
         $this->sro_response = [];
         $this->sro_verified = false;
-
+        $this->reset([
+            'orderErrorStatus',
+            'showConfirmMessage'
+        ]);
         $this->sro_response = strlen($value) > 6 ? $this->getSROInfo($value) : [];
+        if(empty($this->sro_response)) {
+            return;
+        }
+        $order = Order::where('order_number', $this->sro_response['sx_repair_order_no'])->select('id','whse', 'order_number')->first();
+        if(!$order) {
+            $this->orderErrorStatus = true;
+            return;
+        }
+
+        if($order->whse != $this->form->schedule->truckSchedule->truck->warehouse_short) {
+            $this->showConfirmMessage = true;
+            return;
+        }
     }
 
     public function linkSRO()

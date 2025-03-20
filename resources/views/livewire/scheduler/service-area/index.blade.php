@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div class="col-10 col-md-10 col-xxl-10">
-                    <x-tabs :tabs="$tabs" tabId="service-area-tabs" :key="'tabs' . $activeWarehouse->id">
+                    {{-- <x-tabs :tabs="$tabs" tabId="service-area-tabs" :key="'tabs' . $activeWarehouse->id">
                         <x-slot:tab_header_zones> Zones <span class="badge badge-lg bg-primary ml-2":key='now()'>
                                 {{ $this->ZoneBadgeCount }}</span></x-slot>
                         <x-slot:tab_header_zip_code> ZIP Codes <span class="badge badge-lg bg-primary ml-2":key='now()'>
@@ -35,8 +35,9 @@
 
                         <x-slot:tab_content_zip_code component="scheduler.service-area.zip-code.index" :warehouseId="$activeWarehouse->id" :key="'zipcode' . $activeWarehouse->id">
                         </x-slot>
-                    </x-tabs>
-
+                    </x-tabs> --}}
+                    <livewire:scheduler.service-area.zones.index lazy wire:key="{{'zones' . $activeWarehouse->id}}"
+                    warehouseId="{{ $activeWarehouse->id }}">
 
                 </div>
             </div>

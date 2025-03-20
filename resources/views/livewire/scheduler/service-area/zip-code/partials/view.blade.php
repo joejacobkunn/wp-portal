@@ -22,7 +22,7 @@
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Zones</h3>
-                            @foreach ($zipcode->zones as $zone)
+                            @foreach ($zipcode->zones->unique() as $zone)
 
                                 <span class="">{{ $zone->name }}</span><br>
                             @endforeach
