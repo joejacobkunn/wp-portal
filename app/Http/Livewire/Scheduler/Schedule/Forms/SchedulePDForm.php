@@ -3,6 +3,7 @@
 
 use App\Classes\SX;
 use App\Contracts\DistanceInterface;
+use App\Enums\Scheduler\ScheduleEnum;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
@@ -34,6 +35,7 @@ class SchedulePDForm extends ScheduleForm
     public $line_item = [];
     public $prodDimension = [];
     public $contactError;
+    public $tag_number;
 
     protected $validationAttributes = [
         'type' => 'Schedule Type',
@@ -46,6 +48,7 @@ class SchedulePDForm extends ScheduleForm
         'line_item' => 'Line item',
         'service_address' => 'Service Address',
         'cancel_reason' => 'Reason',
+        'tag_number' => 'Tag Number',
     ];
     protected function rules()
     {
@@ -71,7 +74,8 @@ class SchedulePDForm extends ScheduleForm
             'service_address' =>'required',
             'reschedule_reason' =>'nullable|string|max:225',
             'cancel_reason' => 'required|string|max:220',
-            'not_purchased_via_weingartz' => 'nullable'
+            'not_purchased_via_weingartz' => 'nullable',
+            'tag_number' => 'required'
         ];
 
     }
@@ -593,7 +597,12 @@ class SchedulePDForm extends ScheduleForm
 
     public function completeSchedule()
     {
+        if($this->schedule->type == ScheduleEnum::pickup->value) {
+            $this->validateOnly('tag_number');
+            $this->schedule->tag_number = $this->tag_number;
+        }
         $this->schedule->status = 'completed';
+
         $this->schedule->completed_at = Carbon::now();
         $this->schedule->completed_by = Auth::user()->id;
         $this->schedule->save();

@@ -35,7 +35,7 @@ class EventScheduledListener implements ShouldQueue
      */
     public function handle(EventScheduled $event): void
     {
-        if(App::environment() == 'production')
+        if(App::environment() == 'production' && $event->schedule->type == 'at_home_maintenance')
         {
             $email = $event->schedule->email ?: $event->schedule->order->customer->email;
             $phone = $event->schedule->phone ?: $event->schedule->order->customer->phone;

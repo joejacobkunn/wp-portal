@@ -19,6 +19,7 @@ class Table extends DataTableComponent
         $this->setTableAttributes([
             'class' => 'table table-bordered',
         ]);
+        $this->setSearchDebounce(350);
     }
 
 
@@ -28,7 +29,8 @@ class Table extends DataTableComponent
             Column::make('Id', 'id')
                 ->hideIf(1),
             Column::make('Zone', 'name')
-                ->sortable()->searchable()->excludeFromColumnSelect()
+                ->searchable()
+                ->sortable()->excludeFromColumnSelect()
                 ->format(function ($value, $row)
                 {
                     return '<a  href="'.route('service-area.zones.show', $row->id).
@@ -36,8 +38,20 @@ class Table extends DataTableComponent
                         $value.'</a>';
                 })
                 ->html(),
-                Column::make('Service', 'service')
-                ->sortable()->searchable()->excludeFromColumnSelect()
+            Column::make('Service', 'service')
+                ->sortable()->excludeFromColumnSelect()
+                // search of zipcode also added here since we dont have zipcode column
+                ->searchable(function (Builder $query, $search) {
+                    $isZipcode = is_numeric($search);
+
+                    $query->where('zones.service', 'like', '%' . $search . '%');
+
+                    if ($isZipcode) {
+                        $query->orWhereHas('zipcodes', function ($q) use ($search) {
+                            $q->where('scheduler_zipcodes.zip_code', 'like', '%' . $search . '%');
+                        });
+                    }
+                })
                 ->format(function ($value, $row)
                 {
                     return $value->label();
@@ -46,7 +60,6 @@ class Table extends DataTableComponent
 
             Column::make('Description', 'description')
                 ->excludeFromColumnSelect()
-                ->searchable()
                 ->html(),
 
             Column::make('Active', 'is_active')
@@ -63,7 +76,8 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        $query = Zones::where('whse_id', $this->whseId);
-        return $query;
+        return Zones::where('whse_id', $this->whseId)
+        ->with('zipcodes');
+
     }
 }
