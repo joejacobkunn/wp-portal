@@ -42,20 +42,30 @@
             </div>
         </div>
 
-        <div class="card border-light shadow-sm mb-4">
+        <div class="card border-light shadow-sm mb-4" wire:key="zone-zipcodes-{{$zipodesKey}}">
             @php
-                $zipcodes = $zone->zipcodes->sortBy('zip_code');
+                $zoneZipcodes = $this->zone->zipcodes->sortBy('zip_code')->unique('zip_code');
             @endphp
-            <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
-                <h3 class="h5 mb-0"><i class="fas fa-map-marker-alt me-1"></i> Zip Codes</h3>
+            <div class="card-header border-gray-300 p-3 mb-2 mb-md-0">
+                <p class="h5 mb-0"><i class="fas fa-map-marker-alt me-1"></i> Zip Codes
+                    <button type="button" wire:click="showZipcodeZoneForm" class="btn btn-outline-success mb-2 float-end">
+                        <span wire:loading wire:target="showZipcodeZoneForm"
+                            class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <i class="fa fa-plus"></i> Add New Zipcode
+                    </button>
+                </p>
+
             </div>
 
             <div class="card-body">
-                @if($zipcodes->count())
+                @if($zoneZipcodes->count())
                 <ul class="list-group list-group-flush">
-                    @foreach($zipcodes as $zipcode)
+                    @foreach($zoneZipcodes as $zipcode)
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <strong>{{ $zipcode->zip_code }} - {{$zipcode->generalZipcode->city}}, {{$zipcode->generalZipcode->state}}</strong>
+                        <button class="btn btn-outline-danger mb-2 float-end" wire:click="removeZipcode({{ $zipcode->id }})">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </li>
                     @endforeach
                 </ul>
@@ -67,6 +77,22 @@
 
     </div>
     <div class="col-12 col-md-4 col-xxl-4">
+        {{-- <div class="card border-light shadow-sm mb-4">
+            <div class="card-header border-gray-300 p-3 mb-4 mb-md-0">
+                <button wire:click="createZipcode" class="btn btn-primary btn-lg btn-fab"><i class="fas fa-plus"></i></button>
+                <h3 class="h5 mb-0"><i class="fas fa-bars me-1"></i>Zipcodes in {{ $this->zone->warehouse->title }}</h3>
+            </div>
+
+            <div class="card-body">
+                @if ($addZipcodeRecord)
+                    @include('livewire.scheduler.service-area.zip-code.partials.form', [
+                        'button_text' => 'Add ZIP Code',
+                    ])
+                @else
+                    <livewire:scheduler.service-area.zip-code.table wire:key="'zipcode'" whseId="{{ $zone->whse_id }}" lazy>
+                @endif
+            </div>
+        </div> --}}
         <x-tabs :tabs="$tabs" tabId="zones-comment-tabs" activeTabIndex="active">
             <x-slot:tab_content_comments component="x-comments" :entity="$zone" :key="'comments' . time()">
             </x-slot>
@@ -75,4 +101,24 @@
             </x-slot>
         </x-tabs>
     </div>
+    @if ($assignZipcde)
+        <x-modal toggle="assignZipcde" size="md" :closeEvent="'closeZipcodeAssign'">
+            <x-slot name="title">Assign Zipcode </x-slot>
+            <div class="col-md-12 mb-2">
+                <div class="form-group">
+                    <x-forms.select label="Zipcode" model="assignZipcodes" :options="$this->zipcodes" :selected="$assignZipcodes"
+                        :multiple="true" hasAssociativeIndex default-option-label="- None -" :key="'zipcode' . now()" />
+
+                </div>
+            </div>
+            <x-slot name="footer">
+                <button type="submit" class="btn btn-secondary" wire:click="saveZipcode">
+                    <div wire:loading wire:target="saveZipcode">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </div>
+                    Assign
+                </button>
+            </x-slot>
+        </x-modal>
+    @endif
 </div>

@@ -17,15 +17,15 @@ class Index extends Component
     public $activeWarehouse;
     public $whseId;
     public $Titledesc;
-    public $tabs = [
-        'service-area-tabs' => [
-            'active' => 'zones',
-            'links' => [
-                'zip_code' => 'ZIP Codes',
-                'zones' => 'Zones',
-    ]]];
+    // public $tabs = [
+    //     'service-area-tabs' => [
+    //         'active' => 'zones',
+    //         'links' => [
+    //             'zip_code' => 'ZIP Codes',
+    //             'zones' => 'Zones',
+    // ]]];
     protected $queryString = [
-        'tabs.service-area-tabs.active' => ['except' => '', 'as' => 'tab'],
+        // 'tabs.service-area-tabs.active' => ['except' => '', 'as' => 'tab'],
         'whseId' => ['except' => '', 'as' => 'whseId'],
     ];
     protected $listeners = [

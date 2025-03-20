@@ -4,6 +4,7 @@ namespace App\Models\Scheduler;
 
 use App\Enums\Scheduler\ScheduleTypeEnum;
 use App\Models\Core\Comment;
+use App\Models\Core\Warehouse;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -61,5 +62,10 @@ class Zones extends Model
     public function truckSchedules()
     {
         return $this->hasMany(TruckSchedule::class, 'zone_id');
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'whse_id');
     }
 }

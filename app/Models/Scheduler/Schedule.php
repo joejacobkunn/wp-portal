@@ -48,7 +48,8 @@ class Schedule extends Model
         'started_at',
         'started_by',
         'email',
-        'phone'
+        'phone',
+        'tag_number'
     ];
 
     protected $casts = [
@@ -133,6 +134,9 @@ class Schedule extends Model
         ],
         'completed_at' => [
             'field_label' => 'Completed At',
+        ],
+        'tag_number' => [
+            'field_label' => 'Tag Number',
         ],
     ];
 
