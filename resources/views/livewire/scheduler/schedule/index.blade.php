@@ -43,9 +43,7 @@
                         <div id="calendar-dropdown-menu" class="dropdown-menu">
                             <div id="schedule-options">
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom @if ($key == 'setup_install' ||
-                                        (Auth::user()->cannot('scheduler.override') && $key != 'at_home_maintenance')
-                                        ) bg-light-secondary  anchor-disabled @endif"
+                                    <a class="dropdown-item border-bottom @if ($key == 'setup_install' || (Auth::user()->cannot('scheduler.override') && $key != 'at_home_maintenance')) bg-light-secondary  anchor-disabled @endif"
                                         href="#"
                                         wire:click.prevent="create('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
@@ -53,17 +51,17 @@
                             <div id="warehouse-wrap">
                                 @foreach ($this->warehouses as $whse)
                                     <a class="dropdown-item border-bottom " href="#"
-                                        wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}</a>
+                                        onclick="Livewire.dispatch('initiateLoader')"
+                                        wire:click.prevent="changeWarehouse('{{ $whse->id }}')">{{ $whse->title }}
+                                    </a>
                                 @endforeach
                             </div>
                             <div id="type-wrap">
                                 <a class="dropdown-item border-bottom" href="#"
                                     wire:click.prevent="changeScheduleType('')">All Services</a>
                                 @foreach ($scheduleOptions as $key => $value)
-                                    <a class="dropdown-item border-bottom  @if ($key == 'setup_install' ||
-                                        (Auth::user()->cannot('scheduler.override') && $key != 'at_home_maintenance')
-                                        ) bg-light-secondary  anchor-disabled @endif"
-                                        href="#"
+                                    <a class="dropdown-item border-bottom  @if ($key == 'setup_install' || (Auth::user()->cannot('scheduler.override') && $key != 'at_home_maintenance')) bg-light-secondary  anchor-disabled @endif"
+                                        href="#" onclick="Livewire.dispatch('initiateLoader')"
                                         wire:click.prevent="changeScheduleType('{{ $key }}')">{!! $value !!}</a>
                                 @endforeach
                             </div>
@@ -72,6 +70,7 @@
                                     wire:click.prevent="changeZone('')">All Zones</a>
                                 @foreach ($this->activeWarehouse->zones->sortBy('name') as $zone)
                                     <a class="dropdown-item border-bottom" href="#"
+                                        onclick="Livewire.dispatch('initiateLoader')"
                                         wire:click.prevent="changeZone('{{ $zone->id }}')">{{ $zone->name }}</a>
                                 @endforeach
                             </div>
@@ -155,6 +154,13 @@
                                                                     role="status" aria-hidden="true"></span>
                                                             </div>
                                                         </h6>
+
+                                                        @if ($event['status_color'] == 'info')
+                                                            <div class="spinner-grow spinner-grow-sm text-info"
+                                                                role="status">
+                                                                <span class="visually-hidden">.</span>
+                                                            </div>
+                                                        @endif
 
                                                     </div>
                                                     <p class="mb-1">
@@ -428,6 +434,7 @@
                     warehouse: '{{ $this->activeWarehouse->title }}',
                     zone: 'All Zones',
                 };
+                let refreshInterval;
 
                 // Create loader function
                 const createLoader = (className) => {
@@ -503,7 +510,9 @@
                         nextYear: {
                             text: 'Next Year',
                             click: function() {
-                                calendar.incrementDate({ years: 1 });
+                                calendar.incrementDate({
+                                    years: 1
+                                });
                             }
                         },
                         settingsBtn: {
@@ -683,55 +692,7 @@
                         };
                     },
                     datesSet: function(info) {
-
-                        $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {
-                            calendar.removeAllEvents();
-                            calendar.addEventSource($wire.schedules);
-                            calendar.addEventSource($wire.holidays);
-                            setZoneInDayCells();
-                            let currentMonth = info.view.currentStart.getMonth();
-                            let currentYear = info.view.currentStart.getFullYear();
-                            let firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-
-                            const today = new Date();
-
-                            function formatDate(date) {
-                                let year = date.getFullYear();
-                                let month = String(date.getMonth() + 1).padStart(2, '0');
-                                let day = String(date.getDate()).padStart(2, '0');
-                                return `${year}-${month}-${day}`;
-                            }
-
-                            if (today.getMonth() === currentMonth && today.getFullYear() ===
-                                currentYear) {
-                                $wire.handleDateClick(formatDate(today));
-                            } else {
-                                let formattedDate = formatDate(firstDayOfMonth);
-                                const clickedDateCell = document.querySelector(
-                                    `[data-date="${formattedDate}"]`);
-
-                                if (clickedDateCell) {
-                                    clickedDateCell.classList.add('highlighted-date');
-                                }
-                                $wire.handleDateClick(formatDate(firstDayOfMonth));
-                            }
-                            const scheduleButton = document.querySelector(
-                                '.fc-scheduleBtn-button');
-                            const zoneButton = document.querySelector('.fc-zoneBtn-button');
-                            const warehouseButton = document.querySelector(
-                                '.fc-warehouseBtn-button');
-                            scheduleButton.innerHTML = currentButtonTexts.schedule;
-                            zoneButton.textContent = currentButtonTexts.zone;
-                            warehouseButton.textContent = currentButtonTexts.warehouse;
-                            if (warehouseButton) {
-                                const icon = document.createElement('i');
-                                icon.className = 'fas fa-map-marker-alt';
-                                icon.style.marginRight = '4px';
-                                const text = warehouseButton.textContent;
-                                warehouseButton.textContent = text;
-                                warehouseButton.prepend(icon);
-                            }
-                        });
+                        fetchSchedules(info);
                     },
                     dateClick: function(info) {
 
@@ -802,6 +763,9 @@
                 }
                 Livewire.on('modalContentLoaded', () => {
                     loader.style.display = 'none';
+                });
+                Livewire.on('initiateLoader', () => {
+                    loader.style.display = 'flex';
                 });
                 Livewire.on('add-event-calendar', (eventData) => {
                     if (eventData.newEvent) {
@@ -1011,9 +975,94 @@
                     }
                 });
 
+                function refreshCalendarData() {
+                    let calendarApi = calendar.view;
+
+                    if (calendarApi) {
+                        let info = {
+                            startStr: calendarApi.activeStart.toISOString().split('T')[0],
+                            endStr: calendarApi.activeEnd.toISOString().split('T')[0],
+                            view: calendarApi
+                        };
+                        if (!document.hasFocus()) {
+                            return;
+                        }
+
+                        fetchSchedules(info)
+                    }
+                }
+
+                function startPolling() {
+                    if (!refreshInterval) {
+                        refreshInterval = setInterval(refreshCalendarData, 60000);
+                    }
+                }
+                startPolling();
+
+                function fetchSchedules(info) {
+                    $wire.onDateRangeChanges(info.startStr, info.endStr).then(() => {
+                        calendar.removeAllEvents();
+                        calendar.addEventSource($wire.schedules);
+                        calendar.addEventSource($wire.holidays);
+                        setZoneInDayCells();
+
+                        let currentMonth = info.view.currentStart.getMonth();
+                        let currentYear = info.view.currentStart.getFullYear();
+                        let firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+                        let formattedDate;
+                        const today = new Date();
+
+                        function formatDate(date) {
+                            let year = date.getFullYear();
+                            let month = String(date.getMonth() + 1).padStart(2, '0');
+                            let day = String(date.getDate()).padStart(2, '0');
+                            return `${year}-${month}-${day}`;
+                        }
+                        if (today.getMonth() === currentMonth && today.getFullYear() === currentYear) {
+                            formattedDate = formatDate(today);
+                        } else {
+                            formattedDate = formatDate(firstDayOfMonth);
+                        }
+                        const clickedDateCell = document.querySelector(`[data-date="${formattedDate}"]`);
+                        $wire.handleDateClick(formattedDate);
+                        document.querySelectorAll('.highlighted-date').forEach(cell => {
+                            cell.classList.remove('highlighted-date');
+                        });
+                        if (clickedDateCell) {
+                            clickedDateCell.classList.add('highlighted-date');
+                        }
+
+                        // Update button labels
+                        const scheduleButton = document.querySelector('.fc-scheduleBtn-button');
+                        const zoneButton = document.querySelector('.fc-zoneBtn-button');
+                        const warehouseButton = document.querySelector('.fc-warehouseBtn-button');
+
+                        if (scheduleButton) scheduleButton.innerHTML = currentButtonTexts.schedule;
+                        if (zoneButton) zoneButton.textContent = currentButtonTexts.zone;
+                        if (warehouseButton) {
+                            warehouseButton.textContent = currentButtonTexts.warehouse;
+
+                            const icon = document.createElement('i');
+                            icon.className = 'fas fa-map-marker-alt';
+                            icon.style.marginRight = '4px';
+                            warehouseButton.prepend(icon);
+                        }
+                    });
+                }
+
+                function stopPolling() {
+                    if (refreshInterval) {
+                        clearInterval(refreshInterval);
+                        refreshInterval = null;
+                    }
+                }
+                document.addEventListener("livewire:navigating", () => {
+                    stopPolling();
+                });
             };
 
             initializeCalendar();
+
         })();
     </script>
 @endscript

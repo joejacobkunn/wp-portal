@@ -122,4 +122,26 @@ class Fortis
             return $response->json();
     }
 
+    public function sendPaylink($data)
+    {
+        $response = Http::withHeaders($this->headers())
+        ->acceptJson()
+        ->post($this->endpoint.'/v1/paylinks', $data);
+    
+        return $response->json();
+
+    }
+
+    public function viewPaylink($id)
+    {
+        $response = Http::withHeaders($this->headers())
+        ->acceptJson()
+        ->get($this->endpoint.'/v1/paylinks/' . $id);
+    
+        return $response->json();
+
+    }
+
+
+
 }

@@ -3,6 +3,7 @@
 namespace App\Models\Scheduler;
 
 use App\Models\Core\Comment;
+use App\Models\Core\Warehouse;
 use App\Models\ZipCode as GeneralZipcode;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -70,5 +71,10 @@ class Zipcode extends Model
     public function zones()
     {
         return $this->belongsToMany(Zones::class, 'zipcode_zone', 'scheduler_zipcode_id', 'zone_id');
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'whse_id');
     }
 }

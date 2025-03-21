@@ -4,72 +4,12 @@
             <div class="card-body schedule-view">
                 @if ($form->schedule->status != 'completed')
                     <div class="alert alert-light-secondary color-secondary"> Actions
-                        <div class="btn-group mt-n1 mb-3 float-end" role="group" aria-label="Basic example">
-                            @can('scheduler.schedule.manage')
-                                @if ($form->schedule->status != 'cancelled' && $form->schedule->status != 'completed')
-                                    <button type="button" wire:key="cancel-toggle-btn" class="btn btn-sm btn-danger"
-                                        wire:click="changeStatus('cancel')" data-bs-toggle="collapse"
-                                        data-bs-target="#cancelCollapse" aria-expanded="false"
-                                        aria-controls="cancelCollapse"><i class="far fa-calendar-times"></i>
-                                        Cancel</button>
-                                @endif
+                        @if ($form->schedule->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                            @include('livewire.scheduler.schedule.partial.ahm_button_grp')
+                        @else
+                            @include('livewire.scheduler.schedule.partial.pd_button_grp')
+                        @endif
 
-                                @if ($form->schedule->status == 'cancelled')
-                                    <button type="button" class="btn btn-sm btn-warning"
-                                        wire:click="changeStatus('uncacnel')" data-bs-toggle="collapse"
-                                        wire:key="undocancel-toggle-btn" data-bs-target="#undoCancelCollapse"
-                                        aria-expanded="false" aria-controls="undoCancelCollapse"><i class="fas fa-undo"></i>
-                                        Uncancel</button>
-                                @endif
-                                @if ($form->schedule->status == 'scheduled' || $form->schedule->status == 'scheduled_linked')
-                                    <button type="button" class="btn btn-sm btn-warning"
-                                        wire:click="changeStatus('reschedule')" data-bs-toggle="collapse"
-                                        data-bs-target="#rescheduleCollapse" aria-expanded="false"
-                                        wire:key="reschedule-toggle-btn" aria-controls="rescheduleCollapse"><i
-                                            class="fas fa-redo"></i>
-                                        Reschedule</button>
-                                @endif
-                                @if ($form->schedule->status == 'scheduled_linked')
-                                    <button type="button" class="btn btn-sm btn-primary"
-                                        wire:click="changeStatus('confirm')" data-bs-toggle="collapse"
-                                        data-bs-target="#confirmCollapse" aria-expanded="false"
-                                        wire:key="confirm-toggle-btn" aria-controls="confirmCollapse"><i
-                                            class="fas fa-check-double"></i>
-                                        Confirm</button>
-                                    <button type="button" class="btn btn-sm btn-info" wire:click="changeStatus('unlink')"
-                                        data-bs-toggle="collapse" wire:key="unlink-toggle-btn"
-                                        data-bs-target="#unlinkCollapse" aria-expanded="false"
-                                        aria-controls="unlinkCollapse"><i class="fas fa-unlink"></i>
-                                        Unlink SRO</button>
-                                @endif
-                                @if ($form->schedule->status == 'confirmed')
-                                    <button type="button" class="btn btn-sm btn-secondary"
-                                        wire:click="changeStatus('unconfirm')" wire:key="unconfirm-toggle-btn"
-                                        data-bs-toggle="collapse" data-bs-target="#unconfirmCollapse" aria-expanded="false"
-                                        aria-controls="unconfirmCollapse"><i class="fas fa-solid fa-xmark"></i>
-                                        Unconfirm</button>
-                                @endif
-                            @endcan
-                            @canany(['scheduler.can-start-event', 'scheduler.schedule.manage'])
-                                @if ($form->schedule->status == 'confirmed')
-                                    <button type="button" class="btn btn-sm btn-success" wire:click="changeStatus('start')"
-                                        data-bs-toggle="collapse" data-bs-target="#startScheduleCollapse"
-                                        aria-expanded="false" wire:key="start-toggle-btn"
-                                        aria-controls="startScheduleCollapse"><i class="fas fa-check-circle"></i>
-                                        Start</button>
-                                @endif
-                            @endcan
-                            @canany(['scheduler.can-complete-event', 'scheduler.schedule.manage'])
-                                @if ($form->schedule->status == 'out_for_delivery')
-                                    <button type="button" class="btn btn-sm btn-success" wire:key="complete-toggle-btn"
-                                        wire:click="changeStatus('complete')" data-bs-toggle="collapse"
-                                        data-bs-target="#completeCollapse" aria-expanded="false"
-                                        aria-controls="completeCollapse"><i class="fas fa-check-circle"></i>
-                                        Complete</button>
-                                @endif
-                            @endcan
-
-                        </div>
                     </div>
                 @endif
                 <div class="collapse-container" wire:key="actionArea-{{ $form->schedule->status }}">
@@ -112,12 +52,17 @@
                     </div>
                     <div class="collapse @if ($actionStatus == 'complete') show @endif p-4" id="completeCollapse"
                         data-bs-parent=".collapse-container">
-                        <div class="card card-body mb-0 p-0">
+                        <div class="card card-body mb-2 p-0">
                             Click the Complete button below to mark the schedule as complete.
+                            @if ($form->schedule->type == \App\Enums\Scheduler\ScheduleEnum::pickup->value)
+                                <div class="col-md-12">
+                                    <x-forms.input label="Tag Number" model="form.tag_number" />
+                                </div>
+                            @endif
                             <div class="col-md-12 mt-2">
                                 <x-forms.checkbox label="Notify Customer" name="notifyUser" :value="1"
                                     model="form.notifyUser" />
-                                <div class="mt-2 float-start">
+                                <div class="mt-4 float-start">
                                     <button wire:click="completeSchedule" class="btn btn-sm btn-success">
                                         <div wire:loading wire:target="completeSchedule">
                                             <span class="spinner-border spinner-border-sm" role="status"
@@ -132,28 +77,32 @@
                     <div class="collapse @if ($actionStatus == 'confirm') show @endif p-4" id="confirmCollapse"
                         data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
-                            @if ($orderErrorStatus)
-                                <div class="alert alert-light-danger color-danger"><i class="bi bi-exclamation-triangle"></i>
-                                    The Order associated with SX #{{$sro_response['sx_repair_order_no']}}
+                            @if ($orderErrorStatus && $sro_response && $actionStatus == 'confirm')
+                                <div class="alert alert-light-danger color-danger"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    The Order associated with SX #{{ $sro_response['sx_repair_order_no'] }}
                                     is not found.</div>
                             @endif
-                            Confirm this schedule by clicking {{$showConfirmMessage ? 'Proceed' : 'Confirm'}} below.
-                            @if ($showConfirmMessage)
-                                <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
-                                    The warehouse associated with SX #{{$sro_response['sx_repair_order_no']}}
+                            Confirm this schedule by clicking {{ $showConfirmMessage ? 'Proceed' : 'Confirm' }} below.
+                            @if ($showConfirmMessage && $sro_response && $actionStatus == 'confirm')
+                                <div class="alert alert-light-warning color-warning"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    The warehouse associated with SX #{{ $sro_response['sx_repair_order_no'] }}
                                     is different from the truck assigned. Do you still want to proceed?.</div>
                             @endif
 
                             <div class="col-md-12">
                                 <div class="mt-4 float-start">
-                                    <button wire:click="confirmedSchedule" class="btn btn-sm btn-primary @if(!$showConfirmMessage) d-none @endif ">
+                                    <button wire:click="confirmedSchedule"
+                                        class="btn btn-sm btn-primary @if (!$showConfirmMessage) d-none @endif ">
                                         <div wire:loading wire:target="confirmedSchedule">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
                                         </div>
                                         <i class="far fa-calendar-check"></i> Proceed
                                     </button>
-                                    <button wire:click="confirmSchedule" class="btn btn-sm btn-primary @if($showConfirmMessage) d-none @endif">
+                                    <button wire:click="confirmSchedule"
+                                        class="btn btn-sm btn-primary @if ($showConfirmMessage) d-none @endif">
                                         <div wire:loading wire:target="confirmSchedule">
                                             <span class="spinner-border spinner-border-sm" role="status"
                                                 aria-hidden="true"></span>
@@ -447,10 +396,10 @@
                     @if ($form->schedule->status == 'completed')
                         <p><i class="far fa-calendar-check"></i> AHM scheduled in
                             <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
-                            class="fas fa-globe"></i>
-                            {{ $form->schedule->truckSchedule->zone->name }}</span>
+                                    class="fas fa-globe"></i>
+                                {{ $form->schedule->truckSchedule->zone->name }}</span>
                             between <strong>{{ $form->schedule->truckSchedule->start_time }} and
-                            {{ $form->schedule->truckSchedule->end_time }}</strong> is Completed
+                                {{ $form->schedule->truckSchedule->end_time }}</strong> is Completed
                         </p>
                         <hr>
                         <p class="mb-0">Completed by <span
@@ -528,7 +477,10 @@
 
                     </div>
                 @endif
-                @if ($form->schedule->status == 'scheduled' && $form->schedule->sro_number == null)
+                @if (
+                    $form->schedule->status == 'scheduled' &&
+                        $form->schedule->sro_number == null &&
+                        $form->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
                     <div class="col-12 col-md-12 col-xxl-12">
                         Tie this order with a SRO number to proceed with confirming and completing this schedule
                         <x-forms.input label="SRO Number" model="sro_number" live />
@@ -542,8 +494,22 @@
                                         {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
                                         {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
                             </div>
-                            <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
-                                name="sro_verified" :value="1" model="sro_verified" />
+                            @if ($orderErrorStatus)
+                                <div class="alert alert-light-danger color-danger"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    The Order associated with SX #{{ $sro_response['sx_repair_order_no'] }}
+                                    is not found.</div>
+                            @endif
+                            @if ($showConfirmMessage)
+                                <div class="alert alert-light-danger color-danger"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    The warehouse associated with SX #{{ $sro_response['sx_repair_order_no'] }}
+                                    is different from the truck assigned.</div>
+                            @endif
+                            @if (!$orderErrorStatus && !$showConfirmMessage)
+                                <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
+                                    name="sro_verified" :value="1" model="sro_verified" />
+                            @endif
                         @endif
                         <div class="mt-4 mb-4">
                             <button @if (!$sro_verified) disabled @endif wire:click="linkSRO"
@@ -555,6 +521,7 @@
                                 <i class="fas fa-link"></i> Link SRO
                             </button>
                         </div>
+
                     </div>
                 @endif
                 <ul class="list-group list-group-flush">
@@ -571,15 +538,18 @@
 
                         <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
-                                <h3 class="h6 mb-1">{{ in_array($form->type, ['delivery', 'pickup']) ? 'Equipments' : 'Equipment' }}</h3>
-                                @forelse ($form->schedule->line_item as $key => $item)
-                                    <p class="small pe-4">
-                                        {{ $item }}
-                                        ({{ $key }})
-                                    </p>
-                                @empty
+                                <h3 class="h6 mb-1">
+                                    {{ in_array($form->type, ['delivery', 'pickup']) ? 'Equipments' : 'Equipment' }}</h3>
+                                @if ($form->schedule->line_item)
+                                    @foreach ($form->schedule->line_item as $key => $item)
+                                        <p class="small pe-4">
+                                            {{ $item }}
+                                            ({{ $key }})
+                                        </p>
+                                    @endforeach
+                                @else
                                     <p class="small pe-4"><em>Not purchased from Weingartz</em></p>
-                                @endforelse
+                                @endif
                             </div>
                         </li>
                     @endunless
@@ -664,25 +634,30 @@
                                 {{ $form->schedule->order->customer?->name }}</p>
                         </div>
                     </li>
-                    @if (!empty($form->schedule->order->customer->phone))
+                    @if (!empty($form->phone) || !empty($form->schedule->order->customer->phone))
                         <li
                             class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
                                 <h3 class="h6 mb-1">Phone</h3>
-                                <p class="small pe-4">{{ format_phone($form->schedule->order->customer->phone) }}</p>
+                                @php
+                                    $phone = $form->phone ?? $form->schedule->order?->customer?->phone;
+                                @endphp
+                                <p class="small pe-4 {{ $phone ? '' : 'text-danger' }}">
+                                    {{ $phone ? format_phone($phone) : 'Contact Phone is missing' }}</p>
                             </div>
                         </li>
                     @endif
-                    @if (!empty($form->schedule->order->customer->email))
-                        <li
-                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
-                            <div>
-                                <h3 class="h6 mb-1">Email</h3>
-                                <p class="small pe-4">
-                                    {{ $form->schedule->order->customer->email }}</p>
-                            </div>
-                        </li>
-                    @endif
+                    <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                        <div>
+                            <h3 class="h6 mb-1">Email</h3>
+                            @php
+                                $email = $form->email ?? $form->schedule->order->customer->email;
+                            @endphp
+                            <p class="small pe-4 {{ $email ? '' : 'text-danger' }}">
+                                {!! $email ? $email : '<i class="fas fa-exclamation-triangle"></i> Email is missing' !!}
+                            </p>
+                        </div>
+                    </li>
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
                             <h3 class="h6 mb-1">Address</h3>
@@ -690,7 +665,9 @@
                                 {{ $form->schedule->order->customer?->getFullAddress() }}</p>
                         </div>
                     </li>
-
+                    <a href="javascript:void(0)" class="mt-2 link-primary" wire:click="showEditContactModal">
+                        <i class="fas fa-edit schedule-edit-icon"></i> Edit Contact
+                    </a>
                 </ul>
             </div>
         </div>
@@ -701,5 +678,30 @@
             <x-slot:tab_content_activity component="x-activity-log" :entity="$form->schedule" :key="'schedule-activity'">
             </x-slot>
         </x-tabs>
+        @if ($contactModal)
+            <x-modal toggle="contactModal" size="md" :closeEvent="'closeContactModal'">
+                <x-slot name="title">Update Contact </x-slot>
+                <div class="col-md-12 mb-2">
+                    <div class="form-group">
+                        <x-forms.input type="text" label="Phone" model="tempPhone" />
+
+                    </div>
+                </div>
+                <div class="col-md-12 mb-2">
+                    <div class="form-group">
+                        <x-forms.input type="text" label="Email" model="tempEmail" />
+
+                    </div>
+                </div>
+                <x-slot name="footer">
+                    <button type="submit" class="btn btn-primary" wire:click="updateContactSchedule">
+                        <div wire:loading wire:target="updateContactSchedule">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        Update
+                    </button>
+                </x-slot>
+            </x-modal>
+        @endif
     </div>
 </div>

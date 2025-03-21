@@ -3,15 +3,13 @@
 
 use App\Classes\SX;
 use App\Contracts\DistanceInterface;
-use App\Events\Scheduler\EventCancelled;
-use App\Events\Scheduler\EventComplete;
-use App\Events\Scheduler\EventDispatched;
-use App\Events\Scheduler\EventRescheduled;
-use App\Events\Scheduler\EventScheduled;
+use App\Enums\Scheduler\ScheduleEnum;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
-use App\Models\Scheduler\NotificationTemplate;
+use App\Models\Product\Category;
+use App\Models\Product\Product;
+use App\Models\Scheduler\CargoConfigurator;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\Shifts;
 use App\Models\Scheduler\TruckSchedule;
@@ -35,7 +33,23 @@ class SchedulePDForm extends ScheduleForm
 {
 
     public $line_item = [];
+    public $prodDimension = [];
+    public $contactError;
+    public $tag_number;
 
+    protected $validationAttributes = [
+        'type' => 'Schedule Type',
+        'sx_ordernumber' => 'Order Number',
+        'scheduleType' => 'Schedule Type',
+        'schedule_date' => 'Schedule Date',
+        'schedule_time' => 'Time Slot',
+        'suffix' => 'Order Suffix',
+        'notes' => 'Notes',
+        'line_item' => 'Line item',
+        'service_address' => 'Service Address',
+        'cancel_reason' => 'Reason',
+        'tag_number' => 'Tag Number',
+    ];
     protected function rules()
     {
         return [
@@ -60,10 +74,19 @@ class SchedulePDForm extends ScheduleForm
             'service_address' =>'required',
             'reschedule_reason' =>'nullable|string|max:225',
             'cancel_reason' => 'required|string|max:220',
-            'not_purchased_via_weingartz' => 'nullable'
+            'not_purchased_via_weingartz' => 'nullable',
+            'tag_number' => 'required'
         ];
 
     }
+
+    public function messages()
+    {
+        return [
+            'schedule_time.required' => 'Time slot not selected',
+        ];
+    }
+
     public function getOrderInfo($suffix, $aciveWarehouse)
     {
         $this->resetValidation(['sx_ordernumber', 'suffix']);
@@ -98,7 +121,9 @@ class SchedulePDForm extends ScheduleForm
                     'truckSchedules',
                     'scheduleType',
                     'line_item',
-                    'orderInfo'
+                    'orderInfo',
+                    'phone',
+                    'email'
 
                 ]);
                 return;
@@ -122,7 +147,9 @@ class SchedulePDForm extends ScheduleForm
                 'truckSchedules',
                 'scheduleType',
                 'line_item',
-                'orderInfo'
+                'orderInfo',
+                'phone',
+                'email'
 
             ]);
             return;
@@ -133,9 +160,40 @@ class SchedulePDForm extends ScheduleForm
             $this->addError('sx_ordernumber', 'Shipping info missing');
             return;
         }
+        $categoryArray = [];
+        if(!empty($this->orderInfo?->line_items['line_items'])) {
+            foreach ($this->orderInfo->line_items['line_items'] as $item) {
+                $categoryArray[] = $item['prodcat'];
+            }
+        }
+
+        if(!empty($categoryArray)) {
+
+            $categories = Category::with('cargoConfigurator')
+            ->whereIn('name', $categoryArray)
+            ->get();
+
+            $this->prodDimension = $categories->map(function ($category) {
+                return [
+                    'category_id' => $category->id,
+                    'category' => $category->name,
+                    'cargo_id' => $category->cargoConfigurator?->id,
+                    'height' => $category->cargoConfigurator?->height,
+                    'width' => $category->cargoConfigurator?->width,
+                    'length' => $category->cargoConfigurator?->length,
+                ];
+            });
+        }
 
         $this->serialNumbers = $this->getSerialNumbers($this->sx_ordernumber, $suffix);
-
+        $this->phone = $this->orderInfo->customer?->phone;
+        $this->email = $this->orderInfo->customer?->email;
+        $this->contactError = match (true) {
+            !$this->phone && !$this->email => "Contact info is missing.",
+            !$this->phone => "Contact number is missing.",
+            !$this->email => "Contact email is missing.",
+            default => null,
+        };
         $this->service_address =  ($this->orderInfo?->shipping_info['line'] ?? '') . ', ';
 
         if (!empty($this->orderInfo?->shipping_info['line2'])) {
@@ -169,8 +227,13 @@ class SchedulePDForm extends ScheduleForm
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
             $zones = Zones::where('service', 'pickup_delivery')->where('is_active',1)->pluck('id');
         } else {
-            $zones = Zones::where(['service' => 'pickup_delivery', 'whse_id' => $whse])->where('is_active',1)->pluck('id');
-
+            $zonesQuery = Zones::where('is_active', 1)
+                ->where('service', 'pickup_delivery');
+            $zip = $this->serviceZip;
+            $zonesQuery->where('whse_id', $whse)->whereHas('zipcodes', function ($query) use($zip) {
+                $query->where('zip_code', $zip);
+            });
+            $zones = $zonesQuery->pluck('id');
         }
 
         $this->truckSchedules = $truckScheduleQuery->whereIn('truck_schedules.zone_id', $zones)
@@ -191,7 +254,7 @@ class SchedulePDForm extends ScheduleForm
         $zonesQuery = Zones::where('is_active', 1)
             ->where('service', 'pickup_delivery');
         $zip = $this->serviceZip;
-        if (!$shouldOverride || !Auth::user()->can('scheduler.can-schedule-override')) {
+        if (!$shouldOverride) {
             $zonesQuery->where('whse_id', $whse)->whereHas('zipcodes', function ($query) use($zip) {
                 $query->where('zip_code', $zip);
             });
@@ -236,10 +299,19 @@ class SchedulePDForm extends ScheduleForm
         $this->addressKey = uniqid();
         $whse = $this->orderInfo->warehouse->id;
         $this->serviceZip = $this->extractZipCode($this->service_address);
-        $zipcodeInfo = Zipcode::with(['zones' => function ($query) use($whse) {
-            $query->where('service', 'pickup_delivery')->where('whse_id', $whse);
-        }])->where('zip_code', $this->serviceZip)->first();
-        if ($zipcodeInfo) {
+        $zipcodeInfo = Zipcode::with([
+            'zones' => function ($query) use ($whse) {
+                $query->where('whse_id', $whse)->where('service', 'pickup_delivery');
+            },
+            'warehouse:id,title'
+        ])
+        ->where('zip_code', $this->serviceZip)
+        ->whereHas('zones', function ($query) use ($whse) {
+            $query->where('whse_id', $whse)->where('service', 'pickup_delivery');
+        })
+        ->get();
+
+        if ($zipcodeInfo->isNotEmpty()) {
             $this->zipcodeInfo = $zipcodeInfo->toArray();
         }
         $this->reset('alertConfig');
@@ -328,13 +400,22 @@ class SchedulePDForm extends ScheduleForm
     {
         $this->getDistance();
         $whse = $this->orderInfo->warehouse->id;
-        $zipcodeInfo = Zipcode::with(['zones' => function ($query) use($whse) {
-            $query->where('service', 'pickup_delivery')->where('whse_id', $whse);
-        }])->where('zip_code', $this->serviceZip)->first();
+        $zipcodeInfo = Zipcode::with([
+            'zones' => function ($query) use ($whse) {
+                $query->where('whse_id', $whse)->where('service', 'pickup_delivery');
+            },
+            'warehouse:id,title'
+        ])
+        ->where('zip_code', $this->serviceZip)
+        ->whereHas('zones', function ($query) use ($whse) {
+            $query->where('whse_id', $whse)->where('service', 'pickup_delivery');
+        })
+        ->get();
 
-        if ($zipcodeInfo) {
+        if ($zipcodeInfo->isNotEmpty()) {
             $this->zipcodeInfo = $zipcodeInfo->toArray();
         }
+
         $this->reset('alertConfig');
         $this->alertConfig['status'] = true;
         if(!$this->zipcodeInfo) {
@@ -352,6 +433,21 @@ class SchedulePDForm extends ScheduleForm
         $this->getEnabledDates(false, $this->orderInfo?->warehouse?->id);
     }
 
+    public function checkServiceValidity()
+    {
+        $this->ServiceStatus = $this->checkServiceAVailability($this->type);
+        if(!$this->ServiceStatus) {
+            $this->alertConfig['message'] = 'This ZIP Code is not eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
+            $this->alertConfig['icon'] = 'fa-times-circle';
+            $this->alertConfig['class'] = 'danger';
+            $this->reset(['schedule_date', 'schedule_time', 'scheduleType']);
+            return;
+        }
+        $this->alertConfig['message'] = 'This ZIP Code is eligible for <strong>'.Str::of($this->type)->replace('_', ' ')->title().'</strong>';
+        $this->alertConfig['icon'] = 'fa-check-circle';
+        $this->alertConfig['class'] = 'success';
+
+    }
     public function store()
     {
         $validatedData = $this->validate(collect($this->rules())->only([
@@ -388,6 +484,8 @@ class SchedulePDForm extends ScheduleForm
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['schedule_type'] = $this->scheduleType;
         $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
+        $validatedData['phone'] = $this->phone;
+        $validatedData['email'] = $this->email;
 
         $itemDesc = collect($this->orderInfo->line_items['line_items'])
         ->whereIn('shipprod', (array) $this->line_item) // Convert to array if not already
@@ -410,10 +508,185 @@ class SchedulePDForm extends ScheduleForm
             $schedule->truckSchedule->save();
         }
         if($this->notifyUser) {
-            EventScheduled::dispatch($schedule);
+            //EventScheduled::dispatch($schedule);
         }
 
         return ['status' =>true, 'class'=> 'success', 'message' =>'New schedule Created', 'schedule' => $schedule];
     }
 
+
+    public function linkSRONumber($sro)
+    {
+        $this->schedule->status = 'scheduled_linked';
+        $this->schedule->sro_linked_by = Auth::user()->id;
+        $this->schedule->sro_linked_at = Carbon::now();
+        $this->schedule->sro_number = $sro;
+        $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'SRO number successfully linked', 'schedule' => $this->schedule];
+    }
+
+    public function confirmSchedule()
+    {
+        $this->schedule->status = 'confirmed';
+        $this->schedule->confirmed_by = Auth::user()->id;
+        $this->schedule->confirmed_at = Carbon::now();
+        $this->schedule->save();
+        if($this->schedule->schedule_date->format('Y-m-d') == Carbon::now()->format('Y-m-d')) {
+            Artisan::call('app:route-finder');
+        }
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule confirmed successfully', 'schedule' => $this->schedule];
+    }
+
+    public function unConfirm()
+    {
+        $this->schedule->status = 'scheduled_linked';
+        $this->schedule->expected_arrival_time = null;
+        $this->schedule->travel_prio_number = null;
+        $this->schedule->save();
+        if($this->schedule->schedule_date->format('Y-m-d') == Carbon::now()->format('Y-m-d')) {
+            Artisan::call('app:route-finder');
+        }
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Schedule Unconfirmed', 'schedule' => $this->schedule];
+    }
+
+    public function unlinkSro()
+    {
+        $this->schedule->status = 'scheduled';
+        $this->schedule->sro_number = null;
+        $this->schedule->save();
+        return ['status' =>true, 'class'=> 'success', 'message' =>'SRO Number Unlinked', 'schedule' => $this->schedule];
+    }
+
+    public function cancelSchedule()
+    {
+        $this->validateOnly('cancel_reason');
+        $this->schedule->status = 'cancelled';
+        $this->schedule->cancel_reason = $this->cancel_reason;
+        $this->schedule->cancelled_at = Carbon::now();
+        $this->schedule->cancelled_by = Auth::user()->id;
+        $this->schedule->save();
+        if($this->notifyUser) {
+            //EventCancelled::dispatch($this->schedule);
+        }
+
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule cancelled', 'schedule' => $this->schedule];
+    }
+
+    public function undoCancel()
+    {
+        $this->schedule->status = 'scheduled';
+        $this->schedule->sro_number = null;
+        $this->schedule->cancel_reason = null;
+        $this->schedule->save();
+        $this->fill($this->schedule);
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule Uncancelled', 'schedule' => $this->schedule];
+    }
+
+    public function startSchedule()
+    {
+        $this->schedule->status = 'out_for_delivery';
+        $this->schedule->started_by = Auth::user()->id;
+        $this->schedule->started_at = Carbon::now();
+        $this->schedule->save();
+        $this->fill($this->schedule);
+        if($this->notifyUser) {
+            //EventDispatched::dispatch($this->schedule);
+        }
+        return ['status' =>true, 'class'=> 'success', 'message' =>'Delivery initiated', 'schedule' => $this->schedule];
+    }
+
+    public function completeSchedule()
+    {
+        if($this->schedule->type == ScheduleEnum::pickup->value) {
+            $this->validateOnly('tag_number');
+            $this->schedule->tag_number = $this->tag_number;
+        }
+        $this->schedule->status = 'completed';
+
+        $this->schedule->completed_at = Carbon::now();
+        $this->schedule->completed_by = Auth::user()->id;
+        $this->schedule->save();
+        if($this->notifyUser) {
+            //EventComplete::dispatch($this->schedule);
+        }
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule completed', 'schedule' => $this->schedule];
+
+    }
+
+
+
+    public function init(Schedule $schedule)
+    {
+        $this->schedule = $schedule;
+        $this->fill($schedule->toArray());
+        $this->phone = $this->phone ? $this->phone : $this->schedule->order->customer?->phone;
+        $this->email = $this->email ? $this->email : $this->schedule->order->customer?->email;
+        $this->line_item = $schedule->line_item ? key($schedule->line_item): null;
+        $this->reset(['schedule_date']);
+        $this->suffix = $schedule->order_number_suffix;
+        $this->serviceZip = $this->extractZipCode($this->service_address);
+
+        $this->getTruckSchedules($this->schedule->warehouse->id);
+        $holidays = CalendarHoliday::listAll();
+        $this->disabledDates = array_column($holidays, 'date');
+    }
+
+    public function update()
+    {
+        $validatedData = $this->validate(collect($this->rules())->only([
+            'scheduleType',
+            'schedule_date',
+            'schedule_time',
+            'reschedule_reason'
+        ])->toArray());
+        $existingSchedules = Schedule::where('sx_ordernumber', $this->sx_ordernumber)
+        ->whereNotIn('status', ['cancelled', 'completed'])
+        ->where('id', '!=', $this->schedule->id)
+        ->whereBetween('schedule_date', [
+            Carbon::parse($this->schedule_date)->subMonths(6),
+            Carbon::parse($this->schedule_date)->addMonths(6)
+        ])
+        ->get();
+        if($existingSchedules->count() >=1 ) {
+            $this->addError('schedule_date', 'Order number already scheduled within six months');
+            return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
+        }
+        $validatedData['truck_schedule_id'] = $this->schedule_time;
+        $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
+
+        $this->schedule->fill($validatedData);
+        $this->schedule->save();
+        $this->selectedTruckSchedule = $this->selectedTruckSchedule->fresh();
+        if($this->scheduleType == 'schedule_override' && $this->selectedTruckSchedule->schedule_count > $this->selectedTruckSchedule->slots) {
+            $this->selectedTruckSchedule->slots = $this->selectedTruckSchedule->slots + 1;
+            $this->selectedTruckSchedule->save();
+
+        }
+        $this->scheduleType = null;
+        $this->schedule_date = null;
+        $this->schedule_time = null;
+        if($this->notifyUser) {
+            //EventRescheduled::dispatch($this->schedule);
+        }
+
+        return ['status' =>true, 'class'=> 'success', 'message' =>'schedule updated', 'schedule' => $this->schedule];
+    }
+    public function checkServiceAVailability($value)
+    {
+        if(!$this->orderInfo ||  !$this->zipcodeInfo) {
+            return false;
+        }
+        foreach($this->zipcodeInfo as $zipcode) {
+            foreach($zipcode['zones'] as $zone)
+            {
+                if($zone['service'] == 'pickup_delivery' ) {
+                    if($value == 'pickup' || $value == 'delivery') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
 }

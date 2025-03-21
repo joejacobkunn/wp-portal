@@ -47,6 +47,9 @@ class Schedule extends Model
         'sro_linked_by',
         'started_at',
         'started_by',
+        'email',
+        'phone',
+        'tag_number'
     ];
 
     protected $casts = [
@@ -132,6 +135,9 @@ class Schedule extends Model
         'completed_at' => [
             'field_label' => 'Completed At',
         ],
+        'tag_number' => [
+            'field_label' => 'Tag Number',
+        ],
     ];
 
     public function user()
@@ -152,7 +158,7 @@ class Schedule extends Model
     public function scheduleId()
     {
         $unique_id = 1000000 + $this->id;
-        return strtoupper(substr($this->truckSchedule->truck->warehouse->short,0,1)).$unique_id;
+        return strtoupper(substr($this->truckSchedule?->truck?->warehouse?->short,0,1)).$unique_id;
     }
 
     public function getStatusColorAttribute(): string
