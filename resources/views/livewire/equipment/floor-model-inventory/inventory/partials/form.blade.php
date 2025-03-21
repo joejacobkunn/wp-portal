@@ -41,19 +41,17 @@
                 <div class="col-md-12 mb-3">
                     <div class="form-group">
                         <x-forms.select label="Quantity" model="qty" :options="['Please Select', '0', '1', '2', '3']" :selected="$qty"
-                            :defaultOption=false :key="'qty-' . now()" />
+                            :defaultOption=false />
                     </div>
                 </div>
             </div>
             <hr>
             <div class="mt-2 float-start">
-
-                <button type="submit" class="btn btn-primary">
-                    <div wire:loading wire:target="submit">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </div>
-                    {{ $button_text }}
-                </button>
+                <x-button-submit
+                    class="btn-primary"
+                    method="submit"
+                    no-icon
+                    :text="$button_text" />
 
                 <button type="button" wire:click="cancel" class="btn btn-light-secondary">Cancel</button>
             </div>
