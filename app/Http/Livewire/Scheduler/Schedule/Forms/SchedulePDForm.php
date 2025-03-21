@@ -75,7 +75,12 @@ class SchedulePDForm extends ScheduleForm
             'reschedule_reason' =>'nullable|string|max:225',
             'cancel_reason' => 'required|string|max:220',
             'not_purchased_via_weingartz' => 'nullable',
-            'tag_number' => 'required'
+            'tag_number' => [
+                'nullable',
+                'digits:4',
+                'integer',
+                'required_if:type,pickup',
+            ],
         ];
 
     }
@@ -597,10 +602,8 @@ class SchedulePDForm extends ScheduleForm
 
     public function completeSchedule()
     {
-        if($this->schedule->type == ScheduleEnum::pickup->value) {
-            $this->validateOnly('tag_number');
-            $this->schedule->tag_number = $this->tag_number;
-        }
+        $this->validateOnly('tag_number');
+        $this->schedule->tag_number = $this->tag_number;
         $this->schedule->status = 'completed';
 
         $this->schedule->completed_at = Carbon::now();

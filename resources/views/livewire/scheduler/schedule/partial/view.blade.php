@@ -55,7 +55,7 @@
                         data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             Click the Complete button below to mark the schedule as complete.
-                            @if($form->schedule->type == \App\Enums\Scheduler\ScheduleEnum::pickup->value)
+                            @if($form->schedule->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
                                 <div class="col-md-12">
                                     <x-forms.input label="Tag Number" model="form.tag_number"/>
                                 </div>
