@@ -174,7 +174,21 @@
                                                             {{ str($event['latest_comment']->comment)->limit(30, ' ...') }}
                                                         </div>
                                                     @endif
-                                                    @if ($event['travel_prio_number'] && in_array($event['status'], ['confirmed', 'out_for_delivery']))
+                                                    @php
+                                                        if($truck['service_type'] == \App\Enums\Scheduler\ScheduleTypeEnum::at_home_maintenance->value) {
+                                                            $statusArray = [
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::confirmed->value,
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::out_for_delivery->value,
+                                                            ];
+
+                                                        }
+                                                        if($truck['service_type'] == \App\Enums\Scheduler\ScheduleTypeEnum::pickup_delivery->value) {
+                                                            $statusArray = [
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::scheduled->value,
+                                                            ];
+                                                        }
+                                                    @endphp
+                                                    @if ($event['travel_prio_number'] && in_array($event['status'], $statusArray))
                                                         <p class="font-small"><span class="badge bg-light-info">
                                                                 <i class="far fa-clock"></i> ETA :
                                                                 {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}
