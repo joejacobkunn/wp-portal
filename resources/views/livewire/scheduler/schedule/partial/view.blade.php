@@ -8,7 +8,6 @@
                             @include('livewire.scheduler.schedule.partial.ahm_button_grp')
                         @else
                             @include('livewire.scheduler.schedule.partial.pd_button_grp')
-
                         @endif
 
                     </div>
@@ -53,17 +52,17 @@
                     </div>
                     <div class="collapse @if ($actionStatus == 'complete') show @endif p-4" id="completeCollapse"
                         data-bs-parent=".collapse-container">
-                        <div class="card card-body mb-0 p-0">
+                        <div class="card card-body mb-2 p-0">
                             Click the Complete button below to mark the schedule as complete.
-                            @if($form->schedule->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                            @if ($form->schedule->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
                                 <div class="col-md-12">
-                                    <x-forms.input label="Tag Number" model="form.tag_number"/>
+                                    <x-forms.input label="Tag Number" model="form.tag_number" />
                                 </div>
                             @endif
                             <div class="col-md-12 mt-2">
                                 <x-forms.checkbox label="Notify Customer" name="notifyUser" :value="1"
                                     model="form.notifyUser" />
-                                <div class="mt-2 float-start">
+                                <div class="mt-4 float-start">
                                     <button wire:click="completeSchedule" class="btn btn-sm btn-success">
                                         <div wire:loading wire:target="completeSchedule">
                                             <span class="spinner-border spinner-border-sm" role="status"
@@ -478,7 +477,10 @@
 
                     </div>
                 @endif
-                @if ($form->schedule->status == 'scheduled' && $form->schedule->sro_number == null && $form->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                @if (
+                    $form->schedule->status == 'scheduled' &&
+                        $form->schedule->sro_number == null &&
+                        $form->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
                     <div class="col-12 col-md-12 col-xxl-12">
                         Tie this order with a SRO number to proceed with confirming and completing this schedule
                         <x-forms.input label="SRO Number" model="sro_number" live />
@@ -493,19 +495,20 @@
                                         {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
                             </div>
                             @if ($orderErrorStatus)
-                                <div class="alert alert-light-danger color-danger"><i class="bi bi-exclamation-triangle"></i>
-                                    The Order associated with SX #{{$sro_response['sx_repair_order_no']}}
+                                <div class="alert alert-light-danger color-danger"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    The Order associated with SX #{{ $sro_response['sx_repair_order_no'] }}
                                     is not found.</div>
                             @endif
                             @if ($showConfirmMessage)
-                                <div class="alert alert-light-danger color-danger"><i class="bi bi-exclamation-triangle"></i>
-                                    The warehouse associated with SX #{{$sro_response['sx_repair_order_no']}}
+                                <div class="alert alert-light-danger color-danger"><i
+                                        class="bi bi-exclamation-triangle"></i>
+                                    The warehouse associated with SX #{{ $sro_response['sx_repair_order_no'] }}
                                     is different from the truck assigned.</div>
                             @endif
-                            @if(!$orderErrorStatus && !$showConfirmMessage)
-
-                            <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
-                                name="sro_verified" :value="1" model="sro_verified" />
+                            @if (!$orderErrorStatus && !$showConfirmMessage)
+                                <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
+                                    name="sro_verified" :value="1" model="sro_verified" />
                             @endif
                         @endif
                         <div class="mt-4 mb-4">

@@ -33,7 +33,7 @@ class EventCancelledListener implements ShouldQueue
      */
     public function handle(EventCancelled $event): void
     {
-        if(App::environment() == 'production')
+        if(App::environment() == 'production' && $event->schedule->type == 'at_home_maintenance')
         {
             $notification = $this->populateTemplate('ahm-cancelled',$event->schedule);
 
