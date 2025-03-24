@@ -228,7 +228,6 @@ class SchedulePDForm extends ScheduleForm
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
         ->whereNull('trucks.deleted_at');
 
-
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
             $zones = Zones::where('service', 'pickup_delivery')->where('is_active',1)->pluck('id');
         } else {
@@ -248,6 +247,9 @@ class SchedulePDForm extends ScheduleForm
             'zones.name as zone_name',
             'trucks.id as truck_id',
             'trucks.truck_name',
+            'trucks.height as truck_height',
+            'trucks.width as truck_width',
+            'trucks.length as truck_length',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
         )
         ->distinct()
@@ -624,7 +626,7 @@ class SchedulePDForm extends ScheduleForm
         $this->fill($schedule->toArray());
         $this->phone = $this->phone ? $this->phone : $this->schedule->order->customer?->phone;
         $this->email = $this->email ? $this->email : $this->schedule->order->customer?->email;
-        $this->line_item = $schedule->line_item ? key($schedule->line_item): null;
+        $this->line_item = $schedule->line_item;
         $this->reset(['schedule_date']);
         $this->suffix = $schedule->order_number_suffix;
         $this->serviceZip = $this->extractZipCode($this->service_address);

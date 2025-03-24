@@ -297,6 +297,8 @@
                                                         {{ $schedule->zone_name }} => <i
                                                             class="fas fa-truck"></i>{{ $schedule->truck_name }}
                                                     </p>
+                                                    <span class="badge bg-{{ $schedule->storageStatus? 'success' : 'danger' }}"><i
+                                                        class="fas fa-truck"></i> {{$schedule->storageStatus ? 'cargo space available' : 'cargo space not available' }}</span>
                                                 </div>
                                             </a>
                                         @empty

@@ -204,6 +204,7 @@ class ScheduleOrder extends Component
 
         $this->form->getTruckSchedules($whse);
         $this->form->schedule_time = null;
+        $this->checkCargoSpace();
     }
 
     public function closeAddressValidation()
@@ -563,5 +564,124 @@ class ScheduleOrder extends Component
         $this->closeContactModal();
     }
 
+    public function checkCargoSpace()
+    {
+        $productArray  = [];
+        foreach($this->form->truckSchedules as $truckSchedule) {
+            $schedules = Schedule::where('truck_schedule_id', $truckSchedule->id)->get();
+            if($schedules) {
+                foreach($schedules as $schedule ) {
+                    if($schedule->lineitem) {
+                        foreach ($schedule->lineitem as $key => $item) {
+                            $productArray[] = $key;
+                        }
+                    }
 
+                }
+            }
+            if($this->form->type == ScheduleEnum::at_home_maintenance->value) {
+                $productArray[] =  $this->form->line_item;
+            }
+            if($this->form->type == ScheduleEnum::pickup->value || $this->form->type == ScheduleEnum::delivery->value) {
+                $productArray = array_merge($productArray, $this->form->line_item);
+            }
+
+            $products = Product::with('category.cargoConfigurator')->whereIn('prod', $productArray)
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'prod' => $product->prod,
+                    'length' => $product->category->cargoConfigurator->length ?? null,
+                    'width' => $product->category->cargoConfigurator->width ?? null,
+                    'height' => $product->category->cargoConfigurator->height ?? null,
+                ];
+            })
+            ->toArray();
+
+            $scheduledItems = [];
+            foreach($productArray as $item) {
+                foreach ($products as $product) {
+                    if ($item == $product['prod']) {
+                        $scheduledItems[] = $product;
+                    }
+                }
+            }
+            //truck
+            $truckHeight = $truckSchedule->truck_height;
+            $truckWidth = $truckSchedule->truck_width;
+            $truckLength = $truckSchedule->truck_length;
+            $status = $this->checkSpace($scheduledItems,$truckHeight, $truckWidth, $truckLength);
+            $truckSchedule->storageStatus = false;
+            if($status) {
+                $truckSchedule->storageStatus = true;
+            }
+        }
+    }
+
+    public function checkSpace($scheduledItems, $truckHeight, $truckWidth, $truckLength)
+    {
+
+        $totalItems = 0;
+        if(empty($scheduledItems)) {
+            return true;
+        }
+
+        usort($scheduledItems, function ($a, $b) {
+            return min($a['length'], $a['width']) <=> min($b['length'], $b['width']);
+        });
+
+        $occupiedSpace = array_fill(0, $truckWidth, array_fill(0, $truckLength, false));
+        foreach ($scheduledItems as $item) {
+            $itemFits = false;
+            if ($item['height'] > $truckHeight) {
+                return false;
+            }
+            // Try placing item normally (L x W) or rotated (W x L)
+            $possibleOrientations = [
+                ['length' => $item['length'], 'width' => $item['width']],  // Normal
+                ['length' => $item['width'], 'width' => $item['length']]   // Rotated
+            ];
+
+            foreach ($possibleOrientations as $orientation) {
+                $itemLength = $orientation['length'];
+                $itemWidth = $orientation['width'];
+                for ($y = 0; $y <= $truckWidth - $itemWidth; $y++) {
+                    for ($x = 0; $x <= $truckLength - $itemLength; $x++) {
+                        // Check if the item fits in the current space
+                        if ($this->canPlaceItem($occupiedSpace, $x, $y, $itemLength, $itemWidth)) {
+                            // Mark space as occupied
+                            $this->markOccupied($occupiedSpace, $x, $y, $itemLength, $itemWidth);
+                            $itemFits = true;
+                            break 2;
+                        }
+                    }
+                }
+            }
+            if (!$itemFits) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    private function canPlaceItem($occupiedSpace, $x, $y, $length, $width) {
+        for ($i = $y; $i < $y + $width; $i++) {
+            for ($j = $x; $j < $x + $length; $j++) {
+                if ($occupiedSpace[$i][$j]) {
+                    return false; // Space is already occupied
+                }
+            }
+        }
+        return true;
+    }
+
+    // Helper private function: Mark space as occupied
+    private function markOccupied(&$occupiedSpace, $x, $y, $length, $width) {
+        for ($i = $y; $i < $y + $width; $i++) {
+            for ($j = $x; $j < $x + $length; $j++) {
+                $occupiedSpace[$i][$j] = true;
+            }
+        }
+    }
 }

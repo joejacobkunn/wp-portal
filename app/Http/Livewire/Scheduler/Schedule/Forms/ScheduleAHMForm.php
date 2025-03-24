@@ -309,7 +309,6 @@ class ScheduleAHMForm extends ScheduleForm
         $this->fill($schedule->toArray());
         $this->phone = $this->phone ? $this->phone : $this->schedule->order->customer?->phone;
         $this->email = $this->email ? $this->email : $this->schedule->order->customer?->email;
-        $this->line_item = $schedule->line_item ? key($schedule->line_item): null;
         $this->reset(['schedule_date']);
         $this->suffix = $schedule->order_number_suffix;
         $this->serviceZip = $this->extractZipCode($this->service_address);
@@ -419,6 +418,9 @@ class ScheduleAHMForm extends ScheduleForm
             'zones.name as zone_name',
             'trucks.id as truck_id',
             'trucks.truck_name',
+            'trucks.height as truck_height',
+            'trucks.width as truck_width',
+            'trucks.length as truck_length',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
         )
         ->distinct()
