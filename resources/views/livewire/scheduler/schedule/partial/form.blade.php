@@ -279,10 +279,18 @@
                                     <div class="d-flex flex-column gap-2">
 
                                         @forelse($this->form->truckSchedules as $schedule)
+                                        @if ($form->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
                                             <a href="javascript:void(0)"
                                                 wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                 class="list-group-item list-group-item-action
-                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none disabled text-muted time-slot-full @endif">
+                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif">
+                                        @else
+                                            <a href="javascript:void(0)"
+                                                wire:click.prevent="selectSlot({{ $schedule->id }})"
+                                                class="list-group-item list-group-item-action
+                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif
+                                                @if (!$schedule->storageStatus)  disabled text-muted time-slot-full @endif">
+                                        @endif
                                                 <div
                                                     class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                     {{ $schedule->start_time . ' - ' . $schedule->end_time }}
@@ -297,8 +305,9 @@
                                                         {{ $schedule->zone_name }} => <i
                                                             class="fas fa-truck"></i>{{ $schedule->truck_name }}
                                                     </p>
-                                                    <span class="badge bg-{{ $schedule->storageStatus? 'success' : 'danger' }}"><i
-                                                        class="fas fa-truck"></i> {{$schedule->storageStatus ? 'cargo space available' : 'cargo space not available' }}</span>
+                                                    @if ($form->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                                                        <small class="text-{{ $schedule->storageStatus? 'success' : 'danger' }}">{{$schedule->storageStatus ? 'Space available' : 'Space not available' }}</small>
+                                                    @endif
                                                 </div>
                                             </a>
                                         @empty
@@ -422,13 +431,38 @@
                         {{ $scheduledTruckInfo['year'] }}</span></li>
                 <li class="list-group-item"><strong>Shift type</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['shiftType'] }}</span></li>
+                @if($scheduledTruckInfo['height']!= null && $scheduledTruckInfo['length']!= null && $scheduledTruckInfo['width'])
+                    <li class="list-group-item"><strong> Cargo Dimension</strong>
+                        <span
+                        class="badge bg-light-secondary float-end">{{ $scheduledTruckInfo['length'].'ft X '
+                    .$scheduledTruckInfo['width'].'ft x '.$scheduledTruckInfo['height'].'ft' }}</span>
+                    </li>
+                @endif
                 <li class="list-group-item"><strong>{{ $scheduledTruckInfo['notes'] }}</strong> </li>
-
             </ul>
+            @if ($form->type != App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                <ul class="list-group mb-3">
+                    <li class="list-group-item list-group-item-primary">
+                        Cargo Info
+                    </li>
+                    @foreach ($scheduledTruckInfo['cargoInfo'] as $item)
+                    @php
+                        $itemstring = "{$item['length']}ft x {$item['width']}ft x {$item['height']}ft";
+                    @endphp
+                        <li class="list-group-item"><strong> {{$item['desc']}} </strong>
+                            <span
+                                class="badge bg-light-secondary float-end">{{ $itemstring }}</span>
+                        </li>
+                    @endforeach
+
+                </ul>
+            @endif
         @endif
 
-        {{-- address validation modal --}}
-        @if ($form->showAddressModal)
+    </div>
+    {{-- end of sidebar --}}
+            {{-- address validation modal --}}
+            @if ($form->showAddressModal)
             <x-modal toggle="form.showAddressModal" size="md" :closeEvent="'closeAddressValidation'">
                 <x-slot name="title"> Address Verification Failed </x-slot>
                 <div class="mb-4">
@@ -507,9 +541,6 @@
                 </x-slot>
             </x-modal>
         @endif
-
-    </div>
-    {{-- end of sidebar --}}
     @if ($contactModal)
         <x-modal toggle="contactModal" size="md" :closeEvent="'closeContactModal'">
             <x-slot name="title">Update Contact </x-slot>

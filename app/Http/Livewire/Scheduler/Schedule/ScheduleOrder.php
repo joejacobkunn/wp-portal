@@ -7,6 +7,7 @@ use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleAHMForm;
 use App\Http\Livewire\Scheduler\Schedule\Forms\SchedulePDForm;
 use App\Models\Order\Order;
+use App\Models\Product\Category;
 use App\Models\Product\Product;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\TruckSchedule;
@@ -204,7 +205,11 @@ class ScheduleOrder extends Component
 
         $this->form->getTruckSchedules($whse);
         $this->form->schedule_time = null;
-        $this->checkCargoSpace();
+
+        if($this->form->type != ScheduleEnum::at_home_maintenance->value) {
+            $this->checkCargoSpace();
+        }
+        $this->reset('scheduledTruckInfo');
     }
 
     public function closeAddressValidation()
@@ -338,8 +343,10 @@ class ScheduleOrder extends Component
     public function selectSlot($scheduleId)
     {
         $schedule = TruckSchedule::find($scheduleId);
-        $this->form->schedule_time = $schedule->id;
+        $this->form->schedule_time = $schedule->id; // to get scheduled truck time slot
         $this->form->selectedTruckSchedule = $schedule;
+        $cargoInfo = $this->form->truckSchedules->where('id', $schedule->id)->first();
+        $this->reset('scheduledTruckInfo');
         $this->scheduledTruckInfo = [
             'truck_name' => $schedule->truck->truck_name,
             'vin_number' => $schedule->truck->vin_number,
@@ -348,6 +355,10 @@ class ScheduleOrder extends Component
             'year' => $schedule->truck->year,
             'shiftType' => $schedule->truck->shift_type,
             'notes' => $schedule->truck->notes,
+            'height' => $schedule->truck->height,
+            'width' => $schedule->truck->width,
+            'length' => $schedule->truck->length,
+            'cargoInfo' => $cargoInfo->cargoItems ?? null,
         ];
         $this->resetValidation(['form.schedule_time']);
     }
@@ -566,59 +577,74 @@ class ScheduleOrder extends Component
 
     public function checkCargoSpace()
     {
-        $productArray  = [];
+
         foreach($this->form->truckSchedules as $truckSchedule) {
+            $orderArray  = [];
+            $productArray  = [];
             $schedules = Schedule::where('truck_schedule_id', $truckSchedule->id)->get();
             if($schedules) {
                 foreach($schedules as $schedule ) {
-                    if($schedule->lineitem) {
-                        foreach ($schedule->lineitem as $key => $item) {
-                            $productArray[] = $key;
+                    $orderArray[] = $schedule->sx_ordernumber;
+                    if($schedule->line_item) {
+                        foreach ($schedule->line_item as $key => $item) {
+                            $productArray[] = ['prod' => $key];
                         }
                     }
-
                 }
             }
-            if($this->form->type == ScheduleEnum::at_home_maintenance->value) {
-                $productArray[] =  $this->form->line_item;
+            $orderArray[] = $this->form->sx_ordernumber;
+            if($this->form->line_item) {
+                foreach($this->form->line_item as $key => $item) {
+                    if($this->page) {
+                        $productArray[] = ['prod' => $key];
+                    } else {
+                        $productArray[] = ['prod' => $item];
+                    }
+                }
             }
-            if($this->form->type == ScheduleEnum::pickup->value || $this->form->type == ScheduleEnum::delivery->value) {
-                $productArray = array_merge($productArray, $this->form->line_item);
-            }
-
-            $products = Product::with('category.cargoConfigurator')->whereIn('prod', $productArray)
-            ->get()
-            ->map(function ($product) {
+            $orders = Order::whereIn('order_number', $orderArray)->get()
+            ->map(function ($order) {
                 return [
-                    'prod' => $product->prod,
-                    'length' => $product->category->cargoConfigurator->length ?? null,
-                    'width' => $product->category->cargoConfigurator->width ?? null,
-                    'height' => $product->category->cargoConfigurator->height ?? null,
+                    'id' => $order->id,
+                    'line_items' => $order->line_items ?? null,
                 ];
             })
             ->toArray();
-
-            $scheduledItems = [];
-            foreach($productArray as $item) {
-                foreach ($products as $product) {
-                    if ($item == $product['prod']) {
-                        $scheduledItems[] = $product;
+            foreach($productArray as $key => $product) {
+                foreach ($orders as $item) {
+                    foreach ($item['line_items']['line_items'] as $lineItem) {
+                        if ($lineItem['shipprod'] === $product['prod']) {
+                            $productArray[$key]['cat'] = strtoupper($lineItem['prodcat']);
+                            $productArray[$key]['desc'] = strtoupper($lineItem['descrip']);
+                            break 2;
+                        }
                     }
                 }
             }
+            $categoryArray = array_column($productArray, 'cat');
+            $categories = Category::with('cargoConfigurator')->whereIn('name', $categoryArray)->get();
+            foreach($productArray as $key =>  $item) {
+                $category = $categories->where('name', $item['cat'])->first();
+                $productArray[$key]['height'] = $category->cargoconfigurator?->height;
+                $productArray[$key]['length'] = $category->cargoconfigurator?->length;
+                $productArray[$key]['width'] = $category->cargoconfigurator?->width;
+            }
+
+
             //truck
             $truckHeight = $truckSchedule->truck_height;
             $truckWidth = $truckSchedule->truck_width;
             $truckLength = $truckSchedule->truck_length;
-            $status = $this->checkSpace($scheduledItems,$truckHeight, $truckWidth, $truckLength);
+            $status = $this->checkSpaceArrangement($productArray, $truckHeight, $truckWidth, $truckLength);
             $truckSchedule->storageStatus = false;
             if($status) {
                 $truckSchedule->storageStatus = true;
+                $truckSchedule->cargoItems = $productArray;
             }
         }
     }
 
-    public function checkSpace($scheduledItems, $truckHeight, $truckWidth, $truckLength)
+    public function checkSpaceArrangement($scheduledItems, $truckHeight, $truckWidth, $truckLength)
     {
 
         $totalItems = 0;

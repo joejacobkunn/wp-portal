@@ -283,10 +283,19 @@
                                             <div class="d-flex flex-column gap-2">
 
                                                 @forelse($this->form->truckSchedules as $schedule)
+                                                @if ($form->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
                                                     <a href="javascript:void(0)"
                                                         wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                         class="list-group-item list-group-item-action
-                                                        @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none disabled text-muted time-slot-full @endif">
+                                                        @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif">
+                                                @else
+                                                <a href="javascript:void(0)"
+                                                    wire:click.prevent="selectSlot({{ $schedule->id }})"
+                                                    class="list-group-item list-group-item-action
+                                                    @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif
+                                                    @if (!$schedule->storageStatus)  disabled text-muted time-slot-full @endif">
+                                                @endif
+
                                                         <div
                                                             class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
                                                             {{ $schedule->start_time . ' - ' . $schedule->end_time }}
@@ -303,8 +312,9 @@
                                                                 {{ $schedule->zone_name }} => <i
                                                                     class="fas fa-truck"></i>{{ $schedule->truck_name }}
                                                             </p>
-                                                            <span class="badge bg-{{ $schedule->storageStatus? 'success' : 'danger' }}"><i
-                                                                class="fas fa-truck"></i> {{$schedule->storageStatus ? 'cargo space available' : 'cargo space not available' }}</span>
+                                                            @if ($form->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                                                                <small class="text-{{ $schedule->storageStatus? 'success' : 'danger' }}">{{$schedule->storageStatus ? 'Space available' : 'Space not available' }}</small>
+                                                            @endif
                                                         </div>
                                                     </a>
                                                 @empty
