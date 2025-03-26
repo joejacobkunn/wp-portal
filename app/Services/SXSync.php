@@ -356,6 +356,7 @@ class SXSync
         })
         ->where('oeel.orderno', $order_number)->where('oeel.ordersuf', $order_suffix)
         ->where('oeel.cono', $cono)
+        ->where('oeel.specnstype', '<>', 'l')
         ->orderBy('oeel.lineno', 'asc')
         ->get();
     }

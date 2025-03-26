@@ -327,6 +327,7 @@ class Show extends Component
         })
         ->where('oeel.orderno', $this->order_number)->where('oeel.ordersuf', $this->order_suffix)
         ->where('oeel.cono', auth()->user()->account->sx_company_number)
+        ->where('oeel.specnstype', '<>', 'l')
         ->orderBy('oeel.lineno', 'asc')
         ->get();
     }
