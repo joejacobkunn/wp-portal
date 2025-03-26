@@ -277,7 +277,7 @@ class Index extends Component
                 'travel_prio_number' => $schedule->travel_prio_number,
                 'truck_schedule_id' => $schedule->truck_schedule_id,
                 'latest_comment' => $schedule->comments->last(),
-                'service_address' => $schedule->service_address
+                'service_address' => $schedule->service_address,
             ];
         })
         ->toArray();
@@ -418,6 +418,7 @@ class Index extends Component
                     'id' => $truck->id,
                     'schedule_date' => $truck->schedule_date,
                     'service_type' => $truck->service_type,
+                    'schedule_type' => $truck->scheduleType(),
                     'truck_name' => $truck->truck_name,
                     'truck_id' => $truck->truck_id,
                     'vin_number' => $truck->vin_number,

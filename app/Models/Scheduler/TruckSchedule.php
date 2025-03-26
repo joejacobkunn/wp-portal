@@ -48,4 +48,11 @@ class TruckSchedule extends Model
         return $this->belongsTo(User::class, 'driver_id');
     }
 
+    public function scheduleType()
+    {
+        if($this->is_pickup) return 'pickup';
+        if($this->is_delivery) return 'delivery';
+        else return 'at_home_maintenance';
+    }
+
 }

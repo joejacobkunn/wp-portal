@@ -108,8 +108,8 @@
                         <div class="card border-light shadow-sm schedule-tab">
                             <div class="card-body">
                                 <p class="fs-6 fw-bold" style="margin;margin-bottom: 3px;">
-                                    <span
-                                        class="badge bg-primary rounded-pill float-end">{{ $truck['scheduled_count'] }}
+                                    <span class="badge bg-primary rounded-pill float-end">
+                                        {{ $truck['scheduled_count'] }}
                                         /
                                         {{ $truck['slots'] }}</span>
                                     <i class="fas fa-globe"></i> {{ $truck['zone'] }} =>
@@ -125,11 +125,6 @@
                                     <i class="fa-solid fa-user"></i>
                                     {!! $truck['driverName'] ?? '<span class="text-warning">Not Assigned</span>' !!}
                                 </span>
-                                @if ($truck['service_type'] == \App\Enums\Scheduler\ScheduleTypeEnum::pickup_delivery->value)
-                                    <a href="#" wire:click.prevent="showCargoModal({{$truck['id']}})"><span class="badge bg-light-primary float-end">
-                                        view cargo</span></a>
-
-                                @endif
 
                                 @if (!empty($truck['events']) && $truck['events'][0]['travel_prio_number'])
                                     <div class="mb-1 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
@@ -182,16 +177,26 @@
                                                         </div>
                                                     @endif
                                                     @php
-                                                        if($truck['service_type'] == \App\Enums\Scheduler\ScheduleTypeEnum::at_home_maintenance->value) {
+                                                        if (
+                                                            $truck['service_type'] ==
+                                                            \App\Enums\Scheduler\ScheduleTypeEnum::at_home_maintenance
+                                                                ->value
+                                                        ) {
                                                             $statusArray = [
-                                                                App\Enums\Scheduler\ScheduleStatusEnum::confirmed->value,
-                                                                App\Enums\Scheduler\ScheduleStatusEnum::out_for_delivery->value,
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::confirmed
+                                                                    ->value,
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::out_for_delivery
+                                                                    ->value,
                                                             ];
-
                                                         }
-                                                        if($truck['service_type'] == \App\Enums\Scheduler\ScheduleTypeEnum::pickup_delivery->value) {
+                                                        if (
+                                                            $truck['service_type'] ==
+                                                            \App\Enums\Scheduler\ScheduleTypeEnum::pickup_delivery
+                                                                ->value
+                                                        ) {
                                                             $statusArray = [
-                                                                App\Enums\Scheduler\ScheduleStatusEnum::scheduled->value,
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::scheduled
+                                                                    ->value,
                                                             ];
                                                         }
                                                     @endphp
@@ -237,6 +242,17 @@
 
                                     </ul>
                                 </div>
+
+                                @if (
+                                    $truck['service_type'] == \App\Enums\Scheduler\ScheduleTypeEnum::pickup_delivery->value &&
+                                        count($truck['events']) > 0)
+                                    <div class="mt-2 p-1 bg-light-primary text-primary"><a href="#"
+                                            wire:click.prevent="showCargoModal({{ $truck['id'] }})"
+                                            class="link-underline-primary float-end"><u>Cargo Sorting</u></a> <i
+                                            class="fas fa-box-open"></i> Cargo
+                                        Capacity
+                                        at <strong>x%</strong></div>
+                                @endif
 
                             </div>
                         </div>
@@ -285,26 +301,27 @@
             <x-modal toggle="cargoSorting" size="md" :closeEvent="'closeCargoModal'">
                 <x-slot name="title"> Cargo Sorted List </x-slot>
 
-                    <div class="list-group">
-                        @foreach ($cargoItems as $scheduleitems)
-                            @foreach ($scheduleitems as $key => $item)
-                                <div class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">
-                                            {{ $item }} ({{$key}})
-                                        </h5>
-                                    </div>
-                                </div>
+                <div class="alert alert-light-info color-info"></i> Please load items as listed below
+                </div>
 
-                            @endforeach
+                <div class="list-group">
+                    @foreach ($cargoItems as $scheduleitems)
+                        @foreach ($scheduleitems as $key => $item)
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        {{ $item }} ({{ $key }})
+                                    </h6>
+                                </div>
+                            </div>
                         @endforeach
+                    @endforeach
+                </div>
+                @if (isset($cargoError['status']) && $cargoError['status'])
+                    <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+                        {{ $cargoError['message'] }}
                     </div>
-                    @if (isset($cargoError['status']) &&  $cargoError['status'])
-                        <div class="alert alert-light-warning color-warning"><i
-                            class="bi bi-exclamation-triangle"></i>
-                            {{$cargoError['message']}}
-                        </div>
-                    @endif
+                @endif
             </x-modal>
         @endif
 
