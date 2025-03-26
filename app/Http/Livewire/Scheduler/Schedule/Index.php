@@ -66,6 +66,9 @@ class Index extends Component
     public $searchZoneKey;
     public $activeSearchKey = 'schedule';
     public $searchZoneData;
+    public $cargoSorting = false;
+    public $cargoItems;
+    public $cargoError =[];
 
     protected $queryString = [
         'selectedScheduleId' => ['except' => '*', 'as' => 'id'],
@@ -782,4 +785,33 @@ class Index extends Component
         $this->selectedScheduleId = $id;
     }
 
+    public function showCargoModal($truckScheduleId)
+    {
+        $this->cargoSorting = true;
+        $truckschedule = TruckSchedule::with('orderSchedule')->find($truckScheduleId);
+        if(!$truckschedule) {
+            $this->cargoError = ['status' => true, 'message' => ' schedule not found'];
+            return;
+        }
+
+        $this->cargoItems = $truckschedule->orderSchedule
+            ->sortByDesc(function ($schedule) {
+                return strtotime($schedule->expected_arrival_time);
+            })
+            ->pluck('line_item')
+            ->toArray();
+        if(empty($this->cargoItems)) {
+            $this->cargoError = ['status' => true, 'message' => 'No cargo items found'];
+            return;
+        }
+    }
+
+    public function closeCargoModal()
+    {
+        $this->cargoSorting = false;
+        $this->reset([
+            'cargoItems',
+            'cargoError'
+        ]);
+    }
 }

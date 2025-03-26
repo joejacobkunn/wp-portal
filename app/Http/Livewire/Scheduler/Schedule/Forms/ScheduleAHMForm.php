@@ -8,6 +8,7 @@ use App\Events\Scheduler\EventComplete;
 use App\Events\Scheduler\EventDispatched;
 use App\Events\Scheduler\EventRescheduled;
 use App\Events\Scheduler\EventScheduled;
+use App\Http\Livewire\Component\ActivityLog;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
@@ -338,11 +339,28 @@ class ScheduleAHMForm extends ScheduleForm
             $this->addError('schedule_date', 'Order number already scheduled within six months');
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
+        $oldDate = $this->schedule->schedule_date;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
-
         $this->schedule->fill($validatedData);
+        $this->schedule->rescheduled_by = Auth::user()->id;
+        $this->schedule->rescheduled_at = Carbon::now();
         $this->schedule->save();
+        activity()
+        ->performedOn($this->schedule)
+        ->event('updated')
+        ->causedBy(Auth::user())
+        ->withProperties([
+            'old' => [
+                'schedule_date' => $oldDate,
+            ],
+            'attributes' => [
+                'schedule_date' => $this->schedule->schedule_date,
+            ]
+        ])
+        ->log("Rescheduled from {$oldDate} to {$this->schedule->schedule_date} by " . Auth::user()->name);
+
+
         $this->selectedTruckSchedule = $this->selectedTruckSchedule->fresh();
         if($this->scheduleType == 'schedule_override' && $this->selectedTruckSchedule->schedule_count > $this->selectedTruckSchedule->slots) {
             $this->selectedTruckSchedule->slots = $this->selectedTruckSchedule->slots + 1;

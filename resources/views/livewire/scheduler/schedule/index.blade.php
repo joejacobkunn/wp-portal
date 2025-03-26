@@ -103,7 +103,6 @@
                 @endif
 
                 <h5 class="card-title mb-2">Active Trucks and Zones</h5>
-
                 @if (count($this->filteredSchedules) > 0)
                     @foreach ($this->filteredSchedules as $truck)
                         <div class="card border-light shadow-sm schedule-tab">
@@ -126,6 +125,12 @@
                                     <i class="fa-solid fa-user"></i>
                                     {!! $truck['driverName'] ?? '<span class="text-warning">Not Assigned</span>' !!}
                                 </span>
+                                @if ($truck['service_type'] == \App\Enums\Scheduler\ScheduleTypeEnum::pickup_delivery->value)
+                                    <a href="#" wire:click.prevent="showCargoModal({{$truck['id']}})"><span class="badge bg-light-primary float-end">
+                                        view cargo</span></a>
+
+                                @endif
+
                                 @if (!empty($truck['events']) && $truck['events'][0]['travel_prio_number'])
                                     <div class="mb-1 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
                                         Showing
@@ -224,7 +229,6 @@
                                                     </a>
                                                 </li>
                                             @endif
-
                                         @empty
                                             <li class="list-group-item list-group-item-warning">
                                                 <em>No events scheduled</em>
@@ -277,6 +281,33 @@
             </x-modal>
         @endif
 
+        @if ($cargoSorting)
+            <x-modal toggle="cargoSorting" size="md" :closeEvent="'closeCargoModal'">
+                <x-slot name="title"> Cargo Sorted List </x-slot>
+
+                    <div class="list-group">
+                        @foreach ($cargoItems as $scheduleitems)
+                            @foreach ($scheduleitems as $key => $item)
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">
+                                            {{ $item }} ({{$key}})
+                                        </h5>
+                                    </div>
+                                </div>
+
+                            @endforeach
+                        @endforeach
+                    </div>
+                    @if (isset($cargoError['status']) &&  $cargoError['status'])
+                        <div class="alert alert-light-warning color-warning"><i
+                            class="bi bi-exclamation-triangle"></i>
+                            {{$cargoError['message']}}
+                        </div>
+                    @endif
+            </x-modal>
+        @endif
+
         {{-- search modal --}}
         @if ($showSearchModal)
             <x-modal toggle="showSearchModal" size="md" :closeEvent="'closeSearchModal'">
@@ -320,7 +351,7 @@
                                                 Showing results for {{ $searchKey }}</div>
                                         @endif
                                         @forelse ($searchData as $event)
-                                            <a h ref="#" class="list-group-item list-group-item-action"
+                                            <a href="#" class="list-group-item list-group-item-action"
                                                 wire:click.prevent="handleEventClick({{ $event['id'] }})">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1">Order

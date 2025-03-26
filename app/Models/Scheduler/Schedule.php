@@ -49,7 +49,9 @@ class Schedule extends Model
         'started_by',
         'email',
         'phone',
-        'tag_number'
+        'tag_number',
+        'rescheduled_by',
+        'rescheduled_at'
     ];
 
     protected $casts = [
@@ -138,6 +140,13 @@ class Schedule extends Model
         'tag_number' => [
             'field_label' => 'Tag Number',
         ],
+        'rescheduled_by' => [
+            'field_label' => 'Rescheduled By',
+            'resolve' => 'resolveRescheduledUser'
+        ],
+        'rescheduled_at' => [
+            'field_label' => 'Rescheduled At',
+        ],
     ];
 
     public function user()
@@ -189,9 +198,15 @@ class Schedule extends Model
     {
         return $this->belongsTo(User::class, 'started_by');
     }
+
     public function sroLinkedUser()
     {
         return $this->belongsTo(User::class, 'sro_linked_by');
+    }
+
+    public function rescheduledUser()
+    {
+        return $this->belongsTo(User::class, 'rescheduled_by');
     }
 
     public function comments()
@@ -207,6 +222,10 @@ class Schedule extends Model
     public function resolveLineItem($value)
     {
         return reset($value);
+    }
+    public function resolveRescheduledUser($value)
+    {
+        return User::find($value)->name ?? $value;
     }
 
     public function warehouse()
