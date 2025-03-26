@@ -306,7 +306,7 @@
                                                             class="fas fa-truck"></i>{{ $schedule->truck_name }}
                                                     </p>
                                                     @if ($form->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
-                                                        <small class="text-{{ $schedule->storageStatus? 'success' : 'danger' }}">{{$schedule->storageStatus ? 'Space available' : 'Space not available' }}</small>
+                                                        <small class="text-{{ $schedule->storageStatus? 'success' : 'danger' }}">{{$schedule->storageStatus ? 'Space available('.$schedule->availableSpace.'%)' : 'Space not available' }}</small>
                                                     @endif
                                                 </div>
                                             </a>

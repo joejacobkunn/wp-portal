@@ -581,7 +581,7 @@ class ScheduleOrder extends Component
         foreach($this->form->truckSchedules as $truckSchedule) {
             $orderArray  = [];
             $productArray  = [];
-            $schedules = Schedule::where('truck_schedule_id', $truckSchedule->id)->get();
+            $schedules = Schedule::where('truck_schedule_id', $truckSchedule->id)->whereIn('status', ['scheduled', 'out_for_delivery'])->get();
             if($schedules) {
                 foreach($schedules as $schedule ) {
                     $orderArray[] = $schedule->sx_ordernumber;
@@ -639,9 +639,22 @@ class ScheduleOrder extends Component
             $truckSchedule->storageStatus = false;
             if($status) {
                 $truckSchedule->storageStatus = true;
+                $spaceAvailableAfter = $this->calculateOccupiedSpace($productArray, $truckLength, $truckWidth);
                 $truckSchedule->cargoItems = $productArray;
+                $truckSchedule->availableSpace = $spaceAvailableAfter;
             }
         }
+    }
+    private function calculateOccupiedSpace($productArray, $truckLength, $truckWidth)
+    {
+        $totalArea = array_reduce($productArray, function ($carry, $item) {
+            return $carry + ($item['length'] * $item['width']);
+        }, 0);
+
+        $truckArea = $truckLength * $truckWidth;
+        $usedPercentage = ($totalArea / $truckArea) * 100;
+        $availablePercentage = 100 - $usedPercentage;
+        return round($availablePercentage, 2);
     }
 
     public function checkSpaceArrangement($scheduledItems, $truckHeight, $truckWidth, $truckLength)
