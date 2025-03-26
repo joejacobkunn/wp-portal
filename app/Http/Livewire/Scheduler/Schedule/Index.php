@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Enums\Scheduler\ScheduleStatusEnum;
+use App\Enums\Scheduler\ScheduleTypeEnum;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\User;
@@ -379,14 +380,34 @@ class Index extends Component
             $truckScheduleQuery->where('truck_schedules.zone_id', $this->activeZone['id']);
         }
 
-        if ($type == 'at_home_maintenance') {
-            $truckScheduleQuery->where('trucks.service_type', 'at_home_maintenance');
-        } elseif ($type == 'delivery') {
-            $truckScheduleQuery->where('truck_schedules.is_delivery', true);
-        } elseif ($type == 'pickup') {
-            $truckScheduleQuery->where('truck_schedules.is_pickup', true);
-        } elseif ($type == 'setup_install') {
-            $truckScheduleQuery->where('trucks.service_type', 'setup_install');
+        $typeArray = [];
+
+        switch ($type) {
+            case ScheduleEnum::at_home_maintenance->value:
+                $truckScheduleQuery->where('trucks.service_type', $type);
+                break;
+
+            case ScheduleEnum::delivery->value:
+                $truckScheduleQuery->where('truck_schedules.is_delivery', true);
+                break;
+
+            case ScheduleEnum::pickup->value:
+                $truckScheduleQuery->where('truck_schedules.is_pickup', true);
+                break;
+
+            case ScheduleEnum::setup_install->value:
+                $truckScheduleQuery->where('trucks.service_type', 'setup_install');
+                break;
+
+            case '':
+                $typeArray[] = ScheduleTypeEnum::at_home_maintenance->value;
+
+                if (Auth::user()->can('scheduler.override')) {
+                    $typeArray[] = ScheduleTypeEnum::pickup_delivery->value;
+                }
+
+                $truckScheduleQuery->whereIn('trucks.service_type', $typeArray);
+                break;
         }
 
         $this->truckInfo = $truckScheduleQuery
@@ -563,7 +584,16 @@ class Index extends Component
     {
         $whse = $this->activeWarehouse;
         $query = Schedule::with('order.customer');
-        if($this->activeType && $this->activeType != '') {
+        if($this->activeType == "") {
+            $typeArray = [ScheduleEnum::at_home_maintenance->value];
+            if(Auth::user()->can('scheduler.override')) {
+                $typeArray = array_merge($typeArray, [
+                    ScheduleEnum::delivery->value,
+                    ScheduleEnum::pickup->value,
+                ]);
+            }
+            $query->whereIn('type', $typeArray);
+        } else {
             $query->where('type', $this->activeType);
         }
         $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
