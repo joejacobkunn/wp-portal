@@ -92,6 +92,16 @@
                                         </div>
                                     </li>
 
+                                    @if (!empty($this->sx_order->shipviaty))
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <div>
+                                                <h3 class="h6 mb-1">Ship Via</h3>
+                                                <p class="small pe-4">{{ strtoupper($this->sx_order->shipviaty) }}</p>
+                                            </div>
+                                        </li>
+                                    @endif
+
+
                                     @if (!empty($this->sx_order->shipinstr))
                                         <li class="list-group-item d-flex align-items-center justify-content-between px-0">
                                             <div>
@@ -100,6 +110,16 @@
                                             </div>
                                         </li>
                                     @endif
+
+                                    @if (!empty($this->sx_order->approvty))
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <div>
+                                                <h3 class="h6 mb-1">Approval Type</h3>
+                                                <p class="small pe-4">{{ strtoupper($this->sx_order->approvty) }}</p>
+                                            </div>
+                                        </li>
+                                    @endif
+
 
                                     @if (!empty($this->sx_order->refer))
                                         <li class="list-group-item d-flex align-items-center justify-content-between px-0">
@@ -144,6 +164,14 @@
 
                                 @unless (config('sx.mock'))
                                     <ul class="list-group list-group-flush">
+                                        <li
+                                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                                            <div>
+                                                <h3 class="h6 mb-1">Ship Via</h3>
+                                                <p class="small pe-4">{{ $this->shipping->shipviaty }}</p>
+                                            </div>
+                                            <div>
+                                        </li>
 
 
                                         <li

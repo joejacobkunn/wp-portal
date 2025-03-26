@@ -98,7 +98,7 @@ class GenerateWarrantyReport extends Command
             AND icses.currstatus = 's'
             AND icses.invno <> 0
             AND icses.invoicedt IS NOT NULL
-            AND icses.invoicedt > '".Carbon::now()->subMonth(20)->format('Y-m-d')."' WITH(NOLOCK)";
+            AND icses.invoicedt > '".Carbon::now()->subMonth(15)->format('Y-m-d')."' WITH(NOLOCK)";
     }
 
 }

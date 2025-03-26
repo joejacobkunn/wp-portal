@@ -145,13 +145,17 @@ class Order extends Model
 
         foreach($line_items as $line_item)
         {
+            if(strtolower($line_item->specnstype) != 'l')
+            {
                 $wprod = DB::connection('sx')->select("SELECT top 1 arpvendno FROM pub.icsw 
-                                            WHERE cono = ? AND whse = ? AND prod = ? with(nolock) ", [$line_item->cono,$line_item->whse, $line_item->shipprod]);
+                WHERE cono = ? AND whse = ? AND prod = ? with(nolock) ", [$line_item->cono,$line_item->whse, $line_item->shipprod]);
 
                 if(!empty($wprod))
                 {
                     if($wprod[0]->arpvendno == '68878') $golf_parts[] = $line_item->shipprod;
                 }
+
+            }
         }
 
         return (!empty($golf_parts)) ? $golf_parts : null;

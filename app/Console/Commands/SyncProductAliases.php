@@ -32,6 +32,7 @@ class SyncProductAliases extends Command
         $recordsRemaining = true;
         $lookupsCompleted = 0;
         $chunkSize = 1000;
+        $count = 0;
 
         while($recordsRemaining){
             $aliases = DB::connection('sx')->select($this->fetchAliasQuery($chunkSize,$chunkSize*$lookupsCompleted));
@@ -42,17 +43,29 @@ class SyncProductAliases extends Command
 
             foreach($aliases as $alias)
             {
+                $count++;
+                echo "alias count is ".$count;
                 $product = Product::where('prod', trim($alias->altprod))->first();
 
                 if($product)
                 {
+                    echo "Product found ".trim($alias->altprod);
                     $product_aliases = $product->aliases;
 
-                    array_push($product_aliases,$alias->prod);
+                    if(!is_null($product_aliases))
+                    {
+                        array_push($product_aliases,$alias->prod);
 
-                    $product->update(['aliases' => array_unique($product_aliases)]);
+                        $product->update(['aliases' => array_unique($product_aliases)]);
+    
+                    }
+
+                }else{
+                    echo "Product not found ".trim($alias->altprod);
                 }
             }
+
+            $lookupsCompleted++;
     
     
         }
