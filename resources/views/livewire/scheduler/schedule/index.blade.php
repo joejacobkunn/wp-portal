@@ -251,7 +251,7 @@
                                             class="link-underline-primary float-end"><u>Cargo Sorting</u></a> <i
                                             class="fas fa-box-open"></i> Cargo
                                         Capacity
-                                        at <strong>x%</strong></div>
+                                        at <strong>{{$truck['totalAreaUsed']}}%</strong></div>
                                 @endif
 
                             </div>

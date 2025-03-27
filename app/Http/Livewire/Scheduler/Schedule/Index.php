@@ -18,6 +18,7 @@ use App\Models\SRO\RepairOrders;
 use App\Models\Scheduler\Schedule;
 use App\Exports\Scheduler\OrderScheduleExport;
 use App\Http\Livewire\Scheduler\Schedule\Forms\AnnouncementForm;
+use App\Models\Product\Category;
 use App\Models\Scheduler\Announcement;
 use App\Models\Scheduler\NotificationTemplate;
 use Illuminate\Support\Facades\Auth;
@@ -301,6 +302,59 @@ class Index extends Component
             ];
         })
         ->toArray();
+        foreach($this->filteredSchedules as $key =>$truckSchedule) {
+            $items = [];
+            if($truckSchedule['service_type'] == ScheduleTypeEnum::pickup_delivery->value) {
+                $truckScheduleInfo = TruckSchedule::with(['orderSchedule.order', 'truck'])->find($truckSchedule['id']);
+                if(!$truckScheduleInfo || count($truckSchedule['events']) <= 0) {
+                    continue;
+                }
+
+                $cargoItems = $truckScheduleInfo->orderSchedule
+                ->map(function ($schedule) {
+                    return [
+                        'line_item' => $schedule->line_item,
+                        'order_line_items' => $schedule->order->line_items ?? [],
+                    ];
+                })
+                ->toArray();
+                $lineItems = [];
+                $prodcats = collect($cargoItems)
+                ->flatMap(fn($cargo) => array_map('strtoupper', array_column($cargo['order_line_items']['line_items'] ?? [], 'prodcat')))
+                ->unique()
+                ->filter()
+                ->values();
+                $categories = Category::with('cargoConfigurator')
+                ->whereIn('name', $prodcats)
+                ->get()
+                ->keyBy('name');
+                foreach ($cargoItems as $cargo) {
+                    foreach ($cargo['line_item'] as $prod => $desc) {
+                        // find the matching line item by shipprod
+                        $matched = collect($cargo['order_line_items']['line_items'] ?? [])
+                            ->firstWhere('shipprod', $prod);
+                            $prodcat = strtoupper($matched['prodcat'] ?? '');
+
+                            $category = $categories[$prodcat] ?? null;
+
+                            $lineItems[] = [
+                                'prod' => $prod,
+                                'desc' => $desc,
+                                'prodcat' => $prodcat ?: null,
+                                'height' => $category?->cargoConfigurator?->height,
+                                'length' => $category?->cargoConfigurator?->length,
+                                'width' => $category?->cargoConfigurator?->width,
+                                'area' => $category?->cargoConfigurator?->width * $category?->cargoConfigurator?->length,
+                            ];
+                    }
+                }
+                $truckArea = $truckScheduleInfo->truck->length * $truckScheduleInfo->truck->width;
+                $totalUsedArea = collect($lineItems)->sum('area');
+                $usedAreaPercentage = $truckArea > 0 ? ($totalUsedArea / $truckArea) * 100 : 0;
+                $usedAreaPercentage = round($usedAreaPercentage, 2);
+                $this->filteredSchedules[$key]['totalAreaUsed'] = $usedAreaPercentage;
+            }
+        }
     }
 
     public function onDateRangeChanges($start, $end)
@@ -362,7 +416,10 @@ class Index extends Component
                 'zones.name as zone_name',
                 'users.name as driver_name',
                 'users.title as driver_title',
-                'user_skills.skills as driver_skills'
+                'user_skills.skills as driver_skills',
+                'trucks.height as truck_height',
+                'trucks.length as truck_length',
+                'trucks.width as truck_width'
             ])
             ->with('orderSchedule')
             ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
