@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "name": "Tiller, Chipper, Vacuum"
+  },
+  {
+    "id": 2,
+    "name": "Commercial Walk-Behind or Stand-On"
+  },
+  {
+    "id": 3,
+    "name": "Blower"
+  },
+  {
+    "id": 4,
+    "name": "Other Riding Equipment"
+  },
+  {
+    "id": 5,
+    "name": "Snowblower"
+  },
+  {
+    "id": 6,
+    "name": "Truck Mounted Plow or Salter"
+  },
+  {
+    "id": 7,
+    "name": "Lawnmower"
+  },
+  {
+    "id": 8,
+    "name": "Compact Utility Loader"
+  },
+  {
+    "id": 9,
+    "name": "Edger"
+  },
+  {
+    "id": 10,
+    "name": "Trimmer"
+  },
+  {
+    "id": 11,
+    "name": "Pressure Washer"
+  },
+  {
+    "id": 12,
+    "name": "Other Hand Held or Walk Behind Equipment"
+  },
+  {
+    "id": 13,
+    "name": "Lawn & Garden Tractor"
+  },
+  {
+    "id": 14,
+    "name": "Utility Vehicle"
+  },
+  {
+    "id": 15,
+    "name": "Electric Riding Equipment"
+  },
+  {
+    "id": 16,
+    "name": "Commercial Zero-Turn Rider"
+  },
+  {
+    "id": 17,
+    "name": "Chainsaw"
+  },
+  {
+    "id": 18,
+    "name": "Hedge Trimmer"
+  },
+  {
+    "id": 19,
+    "name": "Generator or Pump"
+  },
+  {
+    "id": 20,
+    "name": "Compact Utility Tractor"
+  },
+  {
+    "id": 21,
+    "name": "Electric Hand Held or Walk Behind Equipment"
+  },
+  {
+    "id": 22,
+    "name": "Residential Zero-Turn Rider"
+  },
+  {
+    "id": 26,
+    "name": "Multi-Attachment Tool"
+  },
+  {
+    "id": 27,
+    "name": "Parts (Blades, Tires, Chains, Recoils, etc.)"
+  }
+]

@@ -174,8 +174,9 @@
                                                 <span
                                                     class="badge bg-light-primary float-end me-1">{{ $cargoString }}</span>
                                                 @if ($disableItem)
-                                                <span
-                                                    class="badge bg-light-warning float-end me-1">Category not configured </span>
+                                                    <span
+                                                        class="badge bg-light-warning float-end me-1">{{ $item['prodcat'] }}
+                                                        not configured </span>
                                                 @endif
 
                                                 @if ($form->type == 'at_home_maintenance')
@@ -183,7 +184,7 @@
                                                         :model="'form.line_item'" />
                                                 @else
                                                     <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem[]'"
-                                                        :value="$item['shipprod']" :model="'form.line_item'" :disabled="$disableItem"  />
+                                                        :value="$item['shipprod']" :model="'form.line_item'" :disabled="$disableItem" />
                                                 @endif
 
                                             </li>

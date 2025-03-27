@@ -301,9 +301,18 @@
             <x-modal toggle="cargoSorting" size="md" :closeEvent="'closeCargoModal'">
                 <x-slot name="title"> Cargo Sorted List </x-slot>
 
-                <div class="alert alert-light-info color-info"></i> Please load items on the truck in the order listed
+                <div class="alert alert-light-info color-info"> Please load items on the truck in the order listed
                     below
                 </div>
+
+                @php $truck = App\Models\Scheduler\Truck::find($cargoItems[0]['truck_id']);  @endphp
+
+                <div class="alert alert-light-secondary color-secondar">
+                    Cargo Dimensions : {{ $truck->length }}Lx{{ $truck->width }}Wx{{ $truck->height }}H
+                    ({{ $truck->length * $truck->width }} SqFt)
+                </div>
+
+
 
                 <div class="list-group">
                     @php

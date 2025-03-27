@@ -903,6 +903,7 @@ class Index extends Component
                 'sx_ordernumber' => $schedule->sx_ordernumber,
                 'order_number_suffix' => $schedule->order_number_suffix,
                 'line_item' => $schedule->line_item,
+                'truck_id' => $schedule->truckSchedule->truck_id
             ];
         })
         ->toArray();

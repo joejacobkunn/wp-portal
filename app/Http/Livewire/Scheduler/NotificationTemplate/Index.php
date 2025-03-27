@@ -26,11 +26,7 @@ class Index extends Component
     ];
 
     public function mount()
-    {
-        $openai = new OpenAI();
-        echo '<img src="'.json_decode($openai->generateImage('generate a picture of a Gooseneck Trailer with cargo dimensions of 30 ft x7.5 ft x20 ft. Make sure all text are in english', '1024x1024'))->data[0]->url.'" />';
-        exit;
-        
+    {        
         $this->authorize('viewAny', NotificationTemplate::class);
     }
 
