@@ -305,17 +305,20 @@
                 </div>
 
                     <div class="list-group">
+                        @php
+                            $index = 1;
+                        @endphp
                         @foreach ($cargoItems as $scheduleitem)
                         <div class="list-group-item list-group-item-action active">
-                            #{{ $scheduleitem['schedule_id'] }} - OE
+                            {{$index++}}. #{{ $scheduleitem['schedule_id'] }} - OE
                             #{{ $scheduleitem['sx_ordernumber'] }}-{{ $scheduleitem['order_number_suffix'] }}
                         </div>
                             @foreach ($scheduleitem['line_item'] as $key => $item)
                                 <div class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">
+                                        <p class="mb-1">
                                             {{ $item }} ({{$key}})
-                                        </h5>
+                                        </p>
                                     </div>
                                 </div>
 

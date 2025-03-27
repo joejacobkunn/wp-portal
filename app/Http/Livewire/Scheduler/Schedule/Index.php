@@ -305,7 +305,13 @@ class Index extends Component
         foreach($this->filteredSchedules as $key =>$truckSchedule) {
             $items = [];
             if($truckSchedule['service_type'] == ScheduleTypeEnum::pickup_delivery->value) {
-                $truckScheduleInfo = TruckSchedule::with(['orderSchedule.order', 'truck'])->find($truckSchedule['id']);
+                $truckScheduleInfo = TruckSchedule::with([
+                    'orderSchedule' => function ($q) {
+                        $q->where('status', '!=', ScheduleStatusEnum::cancelled->value);
+                    },
+                    'orderSchedule.order',
+                    'truck'
+                ])->find($truckSchedule['id']);
                 if(!$truckScheduleInfo || count($truckSchedule['events']) <= 0) {
                     continue;
                 }
