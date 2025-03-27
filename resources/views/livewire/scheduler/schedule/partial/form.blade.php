@@ -142,6 +142,7 @@
                                         @foreach ($form->orderInfo->line_items['line_items'] ?? [] as $item)
                                             @php
                                                 $appendSerial = '';
+                                                $disableItem = null;
                                                 $serial = collect($form->serialNumbers)->firstWhere(
                                                     'prod',
                                                     $item['shipprod'],

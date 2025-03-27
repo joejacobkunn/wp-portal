@@ -4,12 +4,7 @@
             <div class="card-body schedule-view">
                 @if ($form->schedule->status != 'completed')
                     <div class="alert alert-light-secondary color-secondary"> Actions
-                        @if ($form->schedule->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
-                            @include('livewire.scheduler.schedule.partial.ahm_button_grp')
-                        @else
-                            @include('livewire.scheduler.schedule.partial.pd_button_grp')
-                        @endif
-
+                        @include('livewire.scheduler.schedule.partial.pd_button_grp')
                     </div>
                 @endif
                 <div class="collapse-container" wire:key="actionArea-{{ $form->schedule->status }}">
@@ -54,11 +49,10 @@
                         data-bs-parent=".collapse-container">
                         <div class="card card-body mb-2 p-0">
                             Click the Complete button below to mark the schedule as complete.
-                            @if ($form->schedule->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
-                                <div class="col-md-12">
-                                    <x-forms.input label="Tag Number" model="form.tag_number" />
-                                </div>
-                            @endif
+                            <div class="col-md-12">
+                                <x-forms.input label="Tag Number" model="form.tag_number" />
+                            </div>
+
                             <div class="col-md-12 mt-2">
                                 <x-forms.checkbox label="Notify Customer" name="notifyUser" :value="1"
                                     model="form.notifyUser" />
@@ -74,7 +68,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse @if ($actionStatus == 'confirm') show @endif p-4" id="confirmCollapse"
+                    {{-- <div class="collapse @if ($actionStatus == 'confirm') show @endif p-4" id="confirmCollapse"
                         data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             @if ($orderErrorStatus && $sro_response && $actionStatus == 'confirm')
@@ -112,8 +106,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="collapse @if ($actionStatus == 'unlink') show @endif p-4" id="unlinkCollapse"
+                    </div> --}}
+                    {{-- <div class="collapse @if ($actionStatus == 'unlink') show @endif p-4" id="unlinkCollapse"
                         data-bs-parent=".collapse-container" wire:key="unlinksro-section">
                         <div class="card card-body mb-0 p-0">
                             You are about to unlink SRO Number. Click below unlink button to confirm.
@@ -129,8 +123,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="collapse @if ($actionStatus == 'unconfirm') show @endif p-4" id="unconfirmCollapse"
+                    </div> --}}
+                    {{-- <div class="collapse @if ($actionStatus == 'unconfirm') show @endif p-4" id="unconfirmCollapse"
                         data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
                             Unconfirm this schedule and unlink the SRO# by clicking unconfirm below.
@@ -146,7 +140,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="collapse @if ($actionStatus == 'start') show @endif p-4"
                         id="startScheduleCollapse" data-bs-parent=".collapse-container">
                         <div class="card card-body mb-0 p-0">
@@ -283,40 +277,32 @@
                                             <div class="d-flex flex-column gap-2">
 
                                                 @forelse($this->form->truckSchedules as $schedule)
-                                                @if ($form->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
                                                     <a href="javascript:void(0)"
                                                         wire:click.prevent="selectSlot({{ $schedule->id }})"
                                                         class="list-group-item list-group-item-action
-                                                        @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif">
-                                                @else
-                                                <a href="javascript:void(0)"
-                                                    wire:click.prevent="selectSlot({{ $schedule->id }})"
-                                                    class="list-group-item list-group-item-action
-                                                    @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif
-                                                    @if (!$schedule->storageStatus)  disabled text-muted time-slot-full @endif">
-                                                @endif
-
-                                                        <div
-                                                            class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
-                                                            {{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                                            @if ($form->scheduleType != 'schedule_override')
-                                                                <span
-                                                                    class="badge bg-secondary badge-pill badge-round ms-1 float-end">
-                                                                    {{ $schedule->schedule_count }} /
-                                                                    {{ $schedule->slots }}
-                                                                </span>
-                                                            @endif
-                                                            <p class="me-2 fst-italic text-muted"
-                                                                style="font-size: smaller;"><i
-                                                                    class="fas fa-globe"></i>
-                                                                {{ $schedule->zone_name }} => <i
-                                                                    class="fas fa-truck"></i>{{ $schedule->truck_name }}
-                                                            </p>
-                                                            @if ($form->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
-                                                                <small class="text-{{ $schedule->storageStatus? 'success' : 'danger' }}">{{$schedule->storageStatus ? 'Space available' : 'Space not available' }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </a>
+                                                        @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif
+                                                        @if (!$schedule->storageStatus)  disabled text-muted time-slot-full @endif">
+                                                            <div
+                                                                class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
+                                                                {{ $schedule->start_time . ' - ' . $schedule->end_time }}
+                                                                @if ($form->scheduleType != 'schedule_override')
+                                                                    <span
+                                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                                                        {{ $schedule->schedule_count }} /
+                                                                        {{ $schedule->slots }}
+                                                                    </span>
+                                                                @endif
+                                                                <p class="me-2 fst-italic text-muted"
+                                                                    style="font-size: smaller;"><i
+                                                                        class="fas fa-globe"></i>
+                                                                    {{ $schedule->zone_name }} => <i
+                                                                        class="fas fa-truck"></i>{{ $schedule->truck_name }}
+                                                                </p>
+                                                                @if ($form->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                                                                    <small class="text-{{ $schedule->storageStatus? 'success' : 'danger' }}">{{$schedule->storageStatus ? 'Space Available (' . $schedule->availableSpace . '%)' : 'Space not available' }}</small>
+                                                                @endif
+                                                            </div>
+                                                        </a>
                                                 @empty
                                                     <div class="p-3 bg-light rounded border">
                                                         <button type="button"
@@ -368,7 +354,7 @@
                     role="alert">
                     <h4 class="alert-heading">Schedule #{{ $form->schedule->scheduleId() }}</h4>
                     @if ($form->schedule->status == 'cancelled')
-                        <p><i class="far fa-calendar-check"></i> AHM was <strong>Cancelled</strong> by
+                        <p><i class="far fa-calendar-check"></i> PD was <strong>Cancelled</strong> by
                             {{ $form->schedule->cancelledUser->name }} at
                             {{ \Carbon\Carbon::parse($form->schedule->cancelled_at)->toFormattedDayDateString() }}
                         </p>
@@ -378,11 +364,9 @@
                         </p>
                     @endif
                     @if (
-                        $form->schedule->status == 'scheduled' ||
-                            $form->schedule->status == 'confirmed' ||
-                            $form->schedule->status == 'scheduled_linked')
+                        $form->schedule->status == 'scheduled')
                         <p><i class="far fa-calendar-check"></i>
-                            {{ $form->schedule->status == 'scheduled_linked' ? 'AHM has been' : 'AHM is' }}
+                            PD is
                             {{ App\Enums\Scheduler\ScheduleStatusEnum::tryFrom($form->schedule->status)->label() }} for
                             <strong>{{ $form->schedule->schedule_date->toFormattedDayDateString() }}</strong> between
                             <strong>{{ $form->schedule->truckSchedule->start_time }} and
@@ -406,7 +390,7 @@
                         @endif
                     @endif
                     @if ($form->schedule->status == 'completed')
-                        <p><i class="far fa-calendar-check"></i> AHM scheduled in
+                        <p><i class="far fa-calendar-check"></i> PD scheduled in
                             <span class="badge bg-{{ $form->schedule->status_color_class }}"><i
                                     class="fas fa-globe"></i>
                                 {{ $form->schedule->truckSchedule->zone->name }}</span>
@@ -489,53 +473,7 @@
 
                     </div>
                 @endif
-                @if (
-                    $form->schedule->status == 'scheduled' &&
-                        $form->schedule->sro_number == null &&
-                        $form->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
-                    <div class="col-12 col-md-12 col-xxl-12">
-                        Tie this order with a SRO number to proceed with confirming and completing this schedule
-                        <x-forms.input label="SRO Number" model="sro_number" live />
-                        @if (!empty($sro_response))
-                            <div class="alert alert-secondary">
-                                <h4 class="alert-heading"><i class="fas fa-check-circle"></i>
-                                    {{ $sro_response['first_name'] }} {{ $sro_response['last_name'] }}</h4>
-                                <p><span class="badge bg-light-secondary"><i class="fas fa-tractor"></i>
-                                        {{ $sro_response['brand'] }} {{ $sro_response['model'] }}</span></p>
-                                <p><span class="badge bg-light-secondary"><i class="fas fa-map-marker-alt"></i>
-                                        {{ $sro_response['address'] }}, {{ $sro_response['city'] }},
-                                        {{ $sro_response['state'] }}, {{ $sro_response['zip'] }}</span></p>
-                            </div>
-                            @if ($orderErrorStatus)
-                                <div class="alert alert-light-danger color-danger"><i
-                                        class="bi bi-exclamation-triangle"></i>
-                                    The Order associated with SX #{{ $sro_response['sx_repair_order_no'] }}
-                                    is not found.</div>
-                            @endif
-                            @if ($showConfirmMessage)
-                                <div class="alert alert-light-danger color-danger"><i
-                                        class="bi bi-exclamation-triangle"></i>
-                                    The warehouse associated with SX #{{ $sro_response['sx_repair_order_no'] }}
-                                    is different from the truck assigned.</div>
-                            @endif
-                            @if (!$orderErrorStatus && !$showConfirmMessage)
-                                <x-forms.checkbox label="SRO Info matches this scheduled AHM appointment"
-                                    name="sro_verified" :value="1" model="sro_verified" />
-                            @endif
-                        @endif
-                        <div class="mt-4 mb-4">
-                            <button @if (!$sro_verified) disabled @endif wire:click="linkSRO"
-                                class="btn btn-sm btn-success">
-                                <div wire:loading wire:target="linkSRO">
-                                    <span class="spinner-border spinner-border-sm" role="status"
-                                        aria-hidden="true"></span>
-                                </div>
-                                <i class="fas fa-link"></i> Link SRO
-                            </button>
-                        </div>
 
-                    </div>
-                @endif
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                         <div>
@@ -550,8 +488,7 @@
 
                         <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
-                                <h3 class="h6 mb-1">
-                                    {{ in_array($form->type, ['delivery', 'pickup']) ? 'Equipments' : 'Equipment' }}</h3>
+                                <h3 class="h6 mb-1"> Equipments</h3>
                                 @if ($form->schedule->line_item)
                                     @foreach ($form->schedule->line_item as $key => $item)
                                         <p class="small pe-4">
