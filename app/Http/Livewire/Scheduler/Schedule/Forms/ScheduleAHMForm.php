@@ -8,6 +8,7 @@ use App\Events\Scheduler\EventComplete;
 use App\Events\Scheduler\EventDispatched;
 use App\Events\Scheduler\EventRescheduled;
 use App\Events\Scheduler\EventScheduled;
+use App\Http\Livewire\Component\ActivityLog;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\Warehouse;
 use App\Models\Order\Order;
@@ -309,7 +310,6 @@ class ScheduleAHMForm extends ScheduleForm
         $this->fill($schedule->toArray());
         $this->phone = $this->phone ? $this->phone : $this->schedule->order->customer?->phone;
         $this->email = $this->email ? $this->email : $this->schedule->order->customer?->email;
-        $this->line_item = $schedule->line_item ? key($schedule->line_item): null;
         $this->reset(['schedule_date']);
         $this->suffix = $schedule->order_number_suffix;
         $this->serviceZip = $this->extractZipCode($this->service_address);
@@ -339,11 +339,28 @@ class ScheduleAHMForm extends ScheduleForm
             $this->addError('schedule_date', 'Order number already scheduled within six months');
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
+        $oldDate = $this->schedule->schedule_date;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
-
         $this->schedule->fill($validatedData);
+        $this->schedule->rescheduled_by = Auth::user()->id;
+        $this->schedule->rescheduled_at = Carbon::now();
         $this->schedule->save();
+        activity()
+        ->performedOn($this->schedule)
+        ->event('updated')
+        ->causedBy(Auth::user())
+        ->withProperties([
+            'old' => [
+                'schedule_date' => $oldDate,
+            ],
+            'attributes' => [
+                'schedule_date' => $this->schedule->schedule_date,
+            ]
+        ])
+        ->log("Rescheduled from {$oldDate} to {$this->schedule->schedule_date} by " . Auth::user()->name);
+
+
         $this->selectedTruckSchedule = $this->selectedTruckSchedule->fresh();
         if($this->scheduleType == 'schedule_override' && $this->selectedTruckSchedule->schedule_count > $this->selectedTruckSchedule->slots) {
             $this->selectedTruckSchedule->slots = $this->selectedTruckSchedule->slots + 1;
@@ -419,6 +436,9 @@ class ScheduleAHMForm extends ScheduleForm
             'zones.name as zone_name',
             'trucks.id as truck_id',
             'trucks.truck_name',
+            'trucks.height as truck_height',
+            'trucks.width as truck_width',
+            'trucks.length as truck_length',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
         )
         ->distinct()

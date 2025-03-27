@@ -103,14 +103,13 @@
                 @endif
 
                 <h5 class="card-title mb-2">Active Trucks and Zones</h5>
-
                 @if (count($this->filteredSchedules) > 0)
                     @foreach ($this->filteredSchedules as $truck)
                         <div class="card border-light shadow-sm schedule-tab">
                             <div class="card-body">
                                 <p class="fs-6 fw-bold" style="margin;margin-bottom: 3px;">
-                                    <span
-                                        class="badge bg-primary rounded-pill float-end">{{ $truck['scheduled_count'] }}
+                                    <span class="badge bg-primary rounded-pill float-end">
+                                        {{ $truck['scheduled_count'] }}
                                         /
                                         {{ $truck['slots'] }}</span>
                                     <i class="fas fa-globe"></i> {{ $truck['zone'] }} =>
@@ -126,6 +125,7 @@
                                     <i class="fa-solid fa-user"></i>
                                     {!! $truck['driverName'] ?? '<span class="text-warning">Not Assigned</span>' !!}
                                 </span>
+
                                 @if (!empty($truck['events']) && $truck['events'][0]['travel_prio_number'])
                                     <div class="mb-1 p-1 bg-light-info text-primary"><i class="fas fa-route"></i>
                                         Showing
@@ -176,7 +176,31 @@
                                                             {{ str($event['latest_comment']->comment)->limit(30, ' ...') }}
                                                         </div>
                                                     @endif
-                                                    @if ($event['travel_prio_number'] && in_array($event['status'], ['confirmed', 'out_for_delivery']))
+                                                    @php
+                                                        if (
+                                                            $truck['service_type'] ==
+                                                            \App\Enums\Scheduler\ScheduleTypeEnum::at_home_maintenance
+                                                                ->value
+                                                        ) {
+                                                            $statusArray = [
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::confirmed
+                                                                    ->value,
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::out_for_delivery
+                                                                    ->value,
+                                                            ];
+                                                        }
+                                                        if (
+                                                            $truck['service_type'] ==
+                                                            \App\Enums\Scheduler\ScheduleTypeEnum::pickup_delivery
+                                                                ->value
+                                                        ) {
+                                                            $statusArray = [
+                                                                App\Enums\Scheduler\ScheduleStatusEnum::scheduled
+                                                                    ->value,
+                                                            ];
+                                                        }
+                                                    @endphp
+                                                    @if ($event['travel_prio_number'] && in_array($event['status'], $statusArray))
                                                         <p class="font-small"><span class="badge bg-light-info">
                                                                 <i class="far fa-clock"></i> ETA :
                                                                 {{ Carbon\Carbon::parse($event['expected_time'])->format('h:i A') }}
@@ -210,7 +234,6 @@
                                                     </a>
                                                 </li>
                                             @endif
-
                                         @empty
                                             <li class="list-group-item list-group-item-warning">
                                                 <em>No events scheduled</em>
@@ -219,6 +242,17 @@
 
                                     </ul>
                                 </div>
+
+                                @if (
+                                    $truck['service_type'] == \App\Enums\Scheduler\ScheduleTypeEnum::pickup_delivery->value &&
+                                        count($truck['events']) > 0)
+                                    <div class="mt-2 p-1 bg-light-primary text-primary"><a href="#"
+                                            wire:click.prevent="showCargoModal({{ $truck['id'] }})"
+                                            class="link-underline-primary float-end"><u>Cargo Sorting</u></a> <i
+                                            class="fas fa-box-open"></i> Cargo
+                                        Capacity
+                                        at <strong>{{$truck['totalAreaUsed']}}%</strong></div>
+                                @endif
 
                             </div>
                         </div>
@@ -260,6 +294,43 @@
                         Create Announcement
                     </button>
                 </x-slot>
+            </x-modal>
+        @endif
+
+        @if ($cargoSorting)
+            <x-modal toggle="cargoSorting" size="md" :closeEvent="'closeCargoModal'">
+                <x-slot name="title"> Cargo Sorted List </x-slot>
+
+                <div class="alert alert-light-info color-info"></i> Please load items as listed below
+                </div>
+
+                    <div class="list-group">
+                        @php
+                            $index = 1;
+                        @endphp
+                        @foreach ($cargoItems as $scheduleitem)
+                        <div class="list-group-item list-group-item-action active">
+                            {{$index++}}. #{{ $scheduleitem['schedule_id'] }} - OE
+                            #{{ $scheduleitem['sx_ordernumber'] }}-{{ $scheduleitem['order_number_suffix'] }}
+                        </div>
+                            @foreach ($scheduleitem['line_item'] as $key => $item)
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <p class="mb-1">
+                                            {{ $item }} ({{$key}})
+                                        </p>
+                                    </div>
+                                </div>
+
+                            @endforeach
+                        @endforeach
+                    </div>
+                    @if (isset($cargoError['status']) &&  $cargoError['status'])
+                        <div class="alert alert-light-warning color-warning"><i
+                            class="bi bi-exclamation-triangle"></i>
+                            {{$cargoError['message']}}
+                        </div>
+                    @endif
             </x-modal>
         @endif
 
@@ -306,7 +377,7 @@
                                                 Showing results for {{ $searchKey }}</div>
                                         @endif
                                         @forelse ($searchData as $event)
-                                            <a h ref="#" class="list-group-item list-group-item-action"
+                                            <a href="#" class="list-group-item list-group-item-action"
                                                 wire:click.prevent="handleEventClick({{ $event['id'] }})">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1">Order

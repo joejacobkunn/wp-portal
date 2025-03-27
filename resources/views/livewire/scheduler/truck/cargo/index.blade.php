@@ -16,8 +16,7 @@
                         Truck List</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="javascript:;"
-                        wire:navigate>
+                    <a class="nav-link active" href="javascript:;">
                         Cargo Configurator</a>
                 </li>
             </ul>
