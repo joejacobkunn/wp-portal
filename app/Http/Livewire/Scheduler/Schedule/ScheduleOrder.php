@@ -587,7 +587,7 @@ class ScheduleOrder extends Component
                     $orderArray[] = $schedule->sx_ordernumber;
                     if($schedule->line_item) {
                         foreach ($schedule->line_item as $key => $item) {
-                            $productArray[] = ['prod' => $key];
+                            $productArray[] = ['prod' => $key,'scheduled' =>true];
                         }
                     }
                 }
@@ -648,7 +648,10 @@ class ScheduleOrder extends Component
     private function calculateOccupiedSpace($productArray, $truckLength, $truckWidth)
     {
         $totalArea = array_reduce($productArray, function ($carry, $item) {
-            return $carry + ($item['length'] * $item['width']);
+            if ( isset($item['scheduled']) && !empty($item['scheduled'])) {
+                return $carry + ($item['length'] * $item['width']);
+            }
+            return $carry;
         }, 0);
 
         $truckArea = $truckLength * $truckWidth;
@@ -659,7 +662,6 @@ class ScheduleOrder extends Component
 
     public function checkSpaceArrangement($scheduledItems, $truckHeight, $truckWidth, $truckLength)
     {
-
         $totalItems = 0;
         if(empty($scheduledItems)) {
             return true;
@@ -668,7 +670,6 @@ class ScheduleOrder extends Component
         usort($scheduledItems, function ($a, $b) {
             return min($a['length'], $a['width']) <=> min($b['length'], $b['width']);
         });
-
         $occupiedSpace = array_fill(0, $truckWidth, array_fill(0, $truckLength, false));
         foreach ($scheduledItems as $item) {
             $itemFits = false;
@@ -691,7 +692,7 @@ class ScheduleOrder extends Component
                             // Mark space as occupied
                             $this->markOccupied($occupiedSpace, $x, $y, $itemLength, $itemWidth);
                             $itemFits = true;
-                            break 2;
+                            break 3;
                         }
                     }
                 }
