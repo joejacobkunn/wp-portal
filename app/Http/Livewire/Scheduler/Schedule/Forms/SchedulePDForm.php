@@ -75,7 +75,12 @@ class SchedulePDForm extends ScheduleForm
             'reschedule_reason' =>'nullable|string|max:225',
             'cancel_reason' => 'required|string|max:220',
             'not_purchased_via_weingartz' => 'nullable',
-            'tag_number' => 'required'
+            'tag_number' => [
+                'nullable',
+                'digits:4',
+                'integer',
+                'required_if:type,pickup',
+            ],
         ];
 
     }
@@ -221,9 +226,13 @@ class SchedulePDForm extends ScheduleForm
         ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
         ->whereNull('zones.deleted_at')
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
-        ->whereNull('trucks.deleted_at');
-
-
+        ->whereNull('trucks.deleted_at')
+        ->when($this->type == ScheduleEnum::delivery->value, function($query) {
+            return $query->where('is_delivery', 1);
+        })
+        ->when($this->type == ScheduleEnum::pickup->value, function($query) {
+            return $query->where('is_pickup', 1);
+        });
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
             $zones = Zones::where('service', 'pickup_delivery')->where('is_active',1)->pluck('id');
         } else {
@@ -243,6 +252,9 @@ class SchedulePDForm extends ScheduleForm
             'zones.name as zone_name',
             'trucks.id as truck_id',
             'trucks.truck_name',
+            'trucks.height as truck_height',
+            'trucks.width as truck_width',
+            'trucks.length as truck_length',
             DB::raw('(SELECT COUNT(*) FROM schedules WHERE truck_schedule_id = truck_schedules.id and status <> "cancelled") as schedule_count')
         )
         ->distinct()
@@ -283,7 +295,14 @@ class SchedulePDForm extends ScheduleForm
                     $join->on('truck_schedules.id', '=', 'sc.truck_schedule_id');
                 });
             })
+            ->when($this->type == ScheduleEnum::delivery->value, function($query) {
+                return $query->where('is_delivery', 1);
+            })
+            ->when($this->type == ScheduleEnum::pickup->value, function($query) {
+                return $query->where('is_pickup', 1);
+            })
             ->whereIn('truck_schedules.zone_id', $zones)
+
             ->whereDate('truck_schedules.schedule_date', '>=', now()->toDateString())
             ->when(!$shouldOverride, function($query) {
                 return $query->whereRaw('COALESCE(sc.scheduled_count, 0) < truck_schedules.slots');
@@ -597,10 +616,8 @@ class SchedulePDForm extends ScheduleForm
 
     public function completeSchedule()
     {
-        if($this->schedule->type == ScheduleEnum::pickup->value) {
-            $this->validateOnly('tag_number');
-            $this->schedule->tag_number = $this->tag_number;
-        }
+        $this->validateOnly('tag_number');
+        $this->schedule->tag_number = $this->tag_number;
         $this->schedule->status = 'completed';
 
         $this->schedule->completed_at = Carbon::now();
@@ -621,7 +638,7 @@ class SchedulePDForm extends ScheduleForm
         $this->fill($schedule->toArray());
         $this->phone = $this->phone ? $this->phone : $this->schedule->order->customer?->phone;
         $this->email = $this->email ? $this->email : $this->schedule->order->customer?->email;
-        $this->line_item = $schedule->line_item ? key($schedule->line_item): null;
+        $this->line_item = $schedule->line_item;
         $this->reset(['schedule_date']);
         $this->suffix = $schedule->order_number_suffix;
         $this->serviceZip = $this->extractZipCode($this->service_address);
@@ -651,11 +668,25 @@ class SchedulePDForm extends ScheduleForm
             $this->addError('schedule_date', 'Order number already scheduled within six months');
             return ['status' =>false, 'class'=> 'error', 'message' =>'Failed to save'];
         }
+        $oldDate = $this->schedule->schedule_date;
         $validatedData['truck_schedule_id'] = $this->schedule_time;
         $validatedData['whse'] = $this->selectedTruckSchedule->truck->warehouse_short;
 
         $this->schedule->fill($validatedData);
         $this->schedule->save();
+        activity()
+        ->performedOn($this->schedule)
+        ->event('updated')
+        ->causedBy(Auth::user())
+        ->withProperties([
+            'old' => [
+                'schedule_date' => $oldDate,
+            ],
+            'attributes' => [
+                'schedule_date' => $this->schedule->schedule_date,
+            ]
+        ])
+        ->log("Rescheduled from {$oldDate} to {$this->schedule->schedule_date} by " . Auth::user()->name);
         $this->selectedTruckSchedule = $this->selectedTruckSchedule->fresh();
         if($this->scheduleType == 'schedule_override' && $this->selectedTruckSchedule->schedule_count > $this->selectedTruckSchedule->slots) {
             $this->selectedTruckSchedule->slots = $this->selectedTruckSchedule->slots + 1;

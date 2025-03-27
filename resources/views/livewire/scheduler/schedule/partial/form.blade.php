@@ -142,6 +142,7 @@
                                         @foreach ($form->orderInfo->line_items['line_items'] ?? [] as $item)
                                             @php
                                                 $appendSerial = '';
+                                                $disableItem = null;
                                                 $serial = collect($form->serialNumbers)->firstWhere(
                                                     'prod',
                                                     $item['shipprod'],
@@ -155,10 +156,12 @@
                                                         fn($dimension) => strtolower($dimension['category']) ===
                                                             strtolower($item['prodcat']),
                                                     );
+                                                    $disableItem = true;
                                                     if (
                                                         $cargo &&
                                                         isset($cargo['length'], $cargo['width'], $cargo['height'])
                                                     ) {
+                                                        $disableItem = false;
                                                         $cargoString = "{$cargo['length']}ft x {$cargo['width']}ft x {$cargo['height']}ft";
                                                     }
                                                 }
@@ -170,12 +173,17 @@
                                                 @endif
                                                 <span
                                                     class="badge bg-light-primary float-end me-1">{{ $cargoString }}</span>
+                                                @if ($disableItem)
+                                                <span
+                                                    class="badge bg-light-warning float-end me-1">Category not configured </span>
+                                                @endif
+
                                                 @if ($form->type == 'at_home_maintenance')
                                                     <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
                                                         :model="'form.line_item'" />
                                                 @else
                                                     <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem[]'"
-                                                        :value="$item['shipprod']" :model="'form.line_item'" />
+                                                        :value="$item['shipprod']" :model="'form.line_item'" :disabled="$disableItem"  />
                                                 @endif
 
                                             </li>
@@ -279,25 +287,37 @@
                                     <div class="d-flex flex-column gap-2">
 
                                         @forelse($this->form->truckSchedules as $schedule)
-                                            <a href="javascript:void(0)"
-                                                wire:click.prevent="selectSlot({{ $schedule->id }})"
-                                                class="list-group-item list-group-item-action
-                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none disabled text-muted time-slot-full @endif">
-                                                <div
-                                                    class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
-                                                    {{ $schedule->start_time . ' - ' . $schedule->end_time }}
-                                                    @if ($form->scheduleType != 'schedule_override')
-                                                        <span
-                                                            class="badge bg-secondary badge-pill badge-round ms-1 float-end">
-                                                            {{ $schedule->schedule_count }} / {{ $schedule->slots }}
-                                                        </span>
-                                                    @endif
-                                                    <p class="me-2 fst-italic text-muted" style="font-size: smaller;">
-                                                        <i class="fas fa-globe"></i>
-                                                        {{ $schedule->zone_name }} => <i
-                                                            class="fas fa-truck"></i>{{ $schedule->truck_name }}
-                                                    </p>
-                                                </div>
+                                            @if ($form->type == \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                                                <a href="javascript:void(0)"
+                                                    wire:click.prevent="selectSlot({{ $schedule->id }})"
+                                                    class="list-group-item list-group-item-action
+                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif">
+                                                @else
+                                                    <a href="javascript:void(0)"
+                                                        wire:click.prevent="selectSlot({{ $schedule->id }})"
+                                                        class="list-group-item list-group-item-action
+                                                @if ($schedule->schedule_count >= $schedule->slots && $form->scheduleType != 'schedule_override') d-none @endif
+                                                @if (!$schedule->storageStatus) disabled text-muted time-slot-full @endif">
+                                            @endif
+                                            <div
+                                                class="p-3 bg-light rounded border @if ($schedule->id == $form->schedule_time) border-3 border-primary @endif">
+                                                {{ $schedule->start_time . ' - ' . $schedule->end_time }}
+                                                @if ($form->scheduleType != 'schedule_override')
+                                                    <span
+                                                        class="badge bg-secondary badge-pill badge-round ms-1 float-end">
+                                                        {{ $schedule->schedule_count }} / {{ $schedule->slots }}
+                                                    </span>
+                                                @endif
+                                                <p class="me-2 fst-italic text-muted" style="font-size: smaller;">
+                                                    <i class="fas fa-globe"></i>
+                                                    {{ $schedule->zone_name }} => <i
+                                                        class="fas fa-truck"></i>{{ $schedule->truck_name }}
+                                                </p>
+                                                @if ($form->type != \App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                                                    <small
+                                                        class="text-{{ $schedule->storageStatus ? 'success' : 'danger' }}">{{ $schedule->storageStatus ? 'Space Available (' . $schedule->availableSpace . '%)' : 'Space not available' }}</small>
+                                                @endif
+                                            </div>
                                             </a>
                                         @empty
                                             <div class="p-3 bg-light rounded border">
@@ -420,94 +440,118 @@
                         {{ $scheduledTruckInfo['year'] }}</span></li>
                 <li class="list-group-item"><strong>Shift type</strong> <span
                         class="float-end">{{ $scheduledTruckInfo['shiftType'] }}</span></li>
+                @if ($scheduledTruckInfo['height'] != null && $scheduledTruckInfo['length'] != null && $scheduledTruckInfo['width'])
+                    <li class="list-group-item"><strong> Cargo Dimension</strong>
+                        <span
+                            class="badge bg-light-secondary float-end">{{ $scheduledTruckInfo['length'] .
+                                'ft X ' .
+                                $scheduledTruckInfo['width'] .
+                                'ft x ' .
+                                $scheduledTruckInfo['height'] .
+                                'ft' }}</span>
+                    </li>
+                @endif
                 <li class="list-group-item"><strong>{{ $scheduledTruckInfo['notes'] }}</strong> </li>
-
             </ul>
-        @endif
-
-        {{-- address validation modal --}}
-        @if ($form->showAddressModal)
-            <x-modal toggle="form.showAddressModal" size="md" :closeEvent="'closeAddressValidation'">
-                <x-slot name="title"> Address Verification Failed </x-slot>
-                <div class="mb-4">
-                    <h6 class="text-primary">Current Address</h6>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            {{ $form->service_address }}
+            @if ($form->type != App\Enums\Scheduler\ScheduleEnum::at_home_maintenance->value)
+                <ul class="list-group mb-3">
+                    <li class="list-group-item list-group-item-primary">
+                        Cargo Info
+                    </li>
+                    @foreach ($scheduledTruckInfo['cargoInfo'] as $item)
+                        @php
+                            $itemstring = "{$item['length']}ft x {$item['width']}ft x {$item['height']}ft";
+                        @endphp
+                        <li class="list-group-item"><strong> {{ $item['desc'] }} </strong>
+                            <span class="badge bg-light-secondary float-end">{{ $itemstring }}</span>
                         </li>
-                    </ul>
+                    @endforeach
 
-                </div>
-                <div class="mb-4">
-                    <h6 class="text-primary">Suggested Address</h6>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            {{ $form->recommendedAddress }}
-                        </li>
-                    </ul>
-
-                </div>
-
-                <div>
-                    <h6 class="text-danger">Issues Found via Google</h6>
-                    <div class="alert alert-light-warning color-warning">
-                        @foreach ($form->unconfirmedAddressTypes as $type)
-                            <p> <i class="bi bi-exclamation-triangle"></i><strong>
-                                    {{ Str::title(str_replace('_', ' ', $type)) }}
-                                </strong> is Missing/Incorrect</p>
-                        @endforeach
-                    </div>
-                    <div class="form-group">
-                        <x-forms.textarea label="Service Address" model="form.recommendedAddress" :hint="'Showing verified address from google. Make necessary changes and verify'"
-                            :key="'fix-service-address'" />
-                    </div>
-                </div>
-                <x-slot name="footer">
-                    <button type="submit" class="btn btn-light-secondary" wire:click="useCurrentAddress">
-                        <div wire:loading wire:target="useCurrentAddress">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-                        Use Current Address
-                    </button>
-                    <button type="submit" class="btn btn-primary" wire:click="fixAddress">
-                        <div wire:loading wire:target="fixAddress">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-                        Verify Address
-                    </button>
-                </x-slot>
-            </x-modal>
-        @endif
-        {{-- service address modal  --}}
-        @if ($serviceAddressModal)
-            <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
-                <x-slot name="title">Update Address </x-slot>
-                <div class="col-md-12 mb-2">
-                    <div class="form-group">
-                        <x-forms.textarea label="Service Address" model="form.service_address_temp"
-                            :key="'service-address' . $form->addressKey" />
-                    </div>
-                </div>
-                <x-slot name="footer">
-                    <button type="submit" class="btn btn-primary" wire:click="updateAddress">
-                        <div wire:loading wire:target="updateAddress">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-                        Update Address
-                    </button>
-                    <button type="submit" class="btn btn-secondary"
-                        @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif wire:click="revertAddress">
-                        <div wire:loading wire:target="revertAddress">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </div>
-                        Reset Address
-                    </button>
-                </x-slot>
-            </x-modal>
+                </ul>
+            @endif
         @endif
 
     </div>
     {{-- end of sidebar --}}
+    {{-- address validation modal --}}
+    @if ($form->showAddressModal)
+        <x-modal toggle="form.showAddressModal" size="md" :closeEvent="'closeAddressValidation'">
+            <x-slot name="title"> Address Verification Failed </x-slot>
+            <div class="mb-4">
+                <h6 class="text-primary">Current Address</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        {{ $form->service_address }}
+                    </li>
+                </ul>
+
+            </div>
+            <div class="mb-4">
+                <h6 class="text-primary">Suggested Address</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        {{ $form->recommendedAddress }}
+                    </li>
+                </ul>
+
+            </div>
+
+            <div>
+                <h6 class="text-danger">Issues Found via Google</h6>
+                <div class="alert alert-light-warning color-warning">
+                    @foreach ($form->unconfirmedAddressTypes as $type)
+                        <p> <i class="bi bi-exclamation-triangle"></i><strong>
+                                {{ Str::title(str_replace('_', ' ', $type)) }}
+                            </strong> is Missing/Incorrect</p>
+                    @endforeach
+                </div>
+                <div class="form-group">
+                    <x-forms.textarea label="Service Address" model="form.recommendedAddress" :hint="'Showing verified address from google. Make necessary changes and verify'"
+                        :key="'fix-service-address'" />
+                </div>
+            </div>
+            <x-slot name="footer">
+                <button type="submit" class="btn btn-light-secondary" wire:click="useCurrentAddress">
+                    <div wire:loading wire:target="useCurrentAddress">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </div>
+                    Use Current Address
+                </button>
+                <button type="submit" class="btn btn-primary" wire:click="fixAddress">
+                    <div wire:loading wire:target="fixAddress">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </div>
+                    Verify Address
+                </button>
+            </x-slot>
+        </x-modal>
+    @endif
+    {{-- service address modal  --}}
+    @if ($serviceAddressModal)
+        <x-modal toggle="serviceAddressModal" size="md" :closeEvent="'closeServiceAddressModal'">
+            <x-slot name="title">Update Address </x-slot>
+            <div class="col-md-12 mb-2">
+                <div class="form-group">
+                    <x-forms.textarea label="Service Address" model="form.service_address_temp" :key="'service-address' . $form->addressKey" />
+                </div>
+            </div>
+            <x-slot name="footer">
+                <button type="submit" class="btn btn-primary" wire:click="updateAddress">
+                    <div wire:loading wire:target="updateAddress">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </div>
+                    Update Address
+                </button>
+                <button type="submit" class="btn btn-secondary" @if ($form->addressFromOrder == $form->service_address_temp) disabled @endif
+                    wire:click="revertAddress">
+                    <div wire:loading wire:target="revertAddress">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </div>
+                    Reset Address
+                </button>
+            </x-slot>
+        </x-modal>
+    @endif
     @if ($contactModal)
         <x-modal toggle="contactModal" size="md" :closeEvent="'closeContactModal'">
             <x-slot name="title">Update Contact </x-slot>

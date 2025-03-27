@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Contracts\DistanceInterface;
+use App\Enums\Scheduler\ScheduleEnum;
+use App\Enums\Scheduler\ScheduleStatusEnum;
+use App\Enums\Scheduler\ScheduleTypeEnum;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\TruckSchedule;
 use App\Models\Scheduler\TruckScheduleReturn;
@@ -97,9 +100,15 @@ class RouteFinder extends Command
         $currentTime = null;
         $lastExpectedTime =null;
         foreach ($schedules as $key => $schedule) {
-            $confirmedOrders = $schedule->orderSchedule()
-                ->where('status', 'confirmed')
-                ->orderBy('id')
+            $truckScheduleQuery = $schedule->orderSchedule();
+            if($schedule->type == ScheduleTypeEnum::at_home_maintenance->value) {
+                $truckScheduleQuery->where('status', ScheduleStatusEnum::confirmed->value);
+            }
+
+            if($schedule->type == ScheduleTypeEnum::pickup_delivery->value) {
+                $truckScheduleQuery->where('status', ScheduleStatusEnum::scheduled->value);
+            }
+            $confirmedOrders = $truckScheduleQuery->orderBy('id')
                 ->get();
 
             if($currentTime == null) {

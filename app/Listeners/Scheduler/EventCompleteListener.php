@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\App;
 use App\Classes\SX;
+use App\Classes\klaviyo;
 
 
 class EventCompleteListener implements ShouldQueue
@@ -59,6 +60,12 @@ class EventCompleteListener implements ShouldQueue
             $sx_client = new SX();
             $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been completed by '.$event->schedule->completedUser->name.' on '.$event->schedule->completed_at->toFormattedDayDateString(), $event->schedule->sx_ordernumber);
 
+            //send user to klaviyo lists
+            if($email && filter_var($email, FILTER_VALIDATE_EMAIL))
+            {
+                $this->sendToKlaviyo($email,$event->schedule->type);
+            }
+
     
         }
     }
@@ -93,5 +100,12 @@ class EventCompleteListener implements ShouldQueue
         if(Str::contains($template,'[DriverName]')) $template = Str::replace('[DriverName]', $schedule->truckSchedule->driver?->name, $template);
         return $template;
     }
+
+    private function sendToKlaviyo($email,$type)
+    {
+        $klaviyo = new Klaviyo();
+
+        if($type == 'at_home_maintenance') $klaviyo->addToList($email, config('klaviyo.ahm-list-id'));
+    } 
 
 }

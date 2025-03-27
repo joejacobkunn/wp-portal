@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\App;
 use App\Classes\SX;
+use App\Classes\Klaviyo;
 
 
 

@@ -7,6 +7,7 @@ use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Schedule\Forms\ScheduleAHMForm;
 use App\Http\Livewire\Scheduler\Schedule\Forms\SchedulePDForm;
 use App\Models\Order\Order;
+use App\Models\Product\Category;
 use App\Models\Product\Product;
 use App\Models\Scheduler\Schedule;
 use App\Models\Scheduler\TruckSchedule;
@@ -197,6 +198,19 @@ class ScheduleOrder extends Component
         $this->form->updatedAddress();
     }
 
+    public function updated($field, $value)
+    {
+        if (str_starts_with($field, 'form.line_item') && $this->form->type != ScheduleEnum::at_home_maintenance->value) {
+
+            $this->form->reset([
+                'scheduleType',
+                'schedule_date',
+                'schedule_time',
+            ]);
+            $this->reset('scheduledTruckInfo');
+        }
+    }
+
     public function updateFormScheduleDate($date)
     {
         $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
@@ -204,6 +218,11 @@ class ScheduleOrder extends Component
 
         $this->form->getTruckSchedules($whse);
         $this->form->schedule_time = null;
+
+        if($this->form->type != ScheduleEnum::at_home_maintenance->value) {
+            $this->checkCargoSpace();
+        }
+        $this->reset('scheduledTruckInfo');
     }
 
     public function closeAddressValidation()
@@ -337,8 +356,10 @@ class ScheduleOrder extends Component
     public function selectSlot($scheduleId)
     {
         $schedule = TruckSchedule::find($scheduleId);
-        $this->form->schedule_time = $schedule->id;
+        $this->form->schedule_time = $schedule->id; // to get scheduled truck time slot
         $this->form->selectedTruckSchedule = $schedule;
+        $cargoInfo = $this->form->truckSchedules->where('id', $schedule->id)->first();
+        $this->reset('scheduledTruckInfo');
         $this->scheduledTruckInfo = [
             'truck_name' => $schedule->truck->truck_name,
             'vin_number' => $schedule->truck->vin_number,
@@ -347,6 +368,10 @@ class ScheduleOrder extends Component
             'year' => $schedule->truck->year,
             'shiftType' => $schedule->truck->shift_type,
             'notes' => $schedule->truck->notes,
+            'height' => $schedule->truck->height,
+            'width' => $schedule->truck->width,
+            'length' => $schedule->truck->length,
+            'cargoInfo' => $cargoInfo->cargoItems ?? null,
         ];
         $this->resetValidation(['form.schedule_time']);
     }
@@ -563,5 +588,153 @@ class ScheduleOrder extends Component
         $this->closeContactModal();
     }
 
+    public function checkCargoSpace()
+    {
 
+        foreach($this->form->truckSchedules as $truckSchedule) {
+            $orderArray  = [];
+            $productArray  = [];
+            $schedules = Schedule::where('truck_schedule_id', $truckSchedule->id)->whereIn('status', ['scheduled', 'out_for_delivery'])->get();
+            if($schedules) {
+                foreach($schedules as $schedule ) {
+                    $orderArray[] = $schedule->sx_ordernumber;
+                    if($schedule->line_item) {
+                        foreach ($schedule->line_item as $key => $item) {
+                            $productArray[] = ['prod' => $key,'scheduled' =>true];
+                        }
+                    }
+                }
+            }
+            $orderArray[] = $this->form->sx_ordernumber;
+            if($this->form->line_item) {
+                foreach($this->form->line_item as $key => $item) {
+                    if($this->page) {
+                        $productArray[] = ['prod' => $key];
+                    } else {
+                        $productArray[] = ['prod' => $item];
+                    }
+                }
+            }
+            $orders = Order::whereIn('order_number', $orderArray)->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'line_items' => $order->line_items ?? null,
+                ];
+            })
+            ->toArray();
+            foreach($productArray as $key => $product) {
+                foreach ($orders as $item) {
+                    foreach ($item['line_items']['line_items'] as $lineItem) {
+                        if ($lineItem['shipprod'] === $product['prod']) {
+                            $productArray[$key]['cat'] = strtoupper($lineItem['prodcat']);
+                            $productArray[$key]['desc'] = strtoupper($lineItem['descrip']);
+                            break 2;
+                        }
+                    }
+                }
+            }
+            $categoryArray = array_column($productArray, 'cat');
+            $categories = Category::with('cargoConfigurator')->whereIn('name', $categoryArray)->get();
+            foreach($productArray as $key =>  $item) {
+                $category = $categories->where('name', $item['cat'])->first();
+                $productArray[$key]['height'] = $category->cargoconfigurator?->height;
+                $productArray[$key]['length'] = $category->cargoconfigurator?->length;
+                $productArray[$key]['width'] = $category->cargoconfigurator?->width;
+            }
+
+
+            //truck
+            $truckHeight = $truckSchedule->truck_height;
+            $truckWidth = $truckSchedule->truck_width;
+            $truckLength = $truckSchedule->truck_length;
+            $status = $this->checkSpaceArrangement($productArray, $truckHeight, $truckWidth, $truckLength);
+            $truckSchedule->storageStatus = false;
+            if($status) {
+                $truckSchedule->storageStatus = true;
+                $spaceAvailableAfter = $this->calculateOccupiedSpace($productArray, $truckLength, $truckWidth);
+                $truckSchedule->cargoItems = $productArray;
+                $truckSchedule->availableSpace = $spaceAvailableAfter;
+            }
+        }
+    }
+    private function calculateOccupiedSpace($productArray, $truckLength, $truckWidth)
+    {
+        $totalArea = array_reduce($productArray, function ($carry, $item) {
+            if ( isset($item['scheduled']) && !empty($item['scheduled'])) {
+                return $carry + ($item['length'] * $item['width']);
+            }
+            return $carry;
+        }, 0);
+
+        $truckArea = $truckLength * $truckWidth;
+        $usedPercentage = ($totalArea / $truckArea) * 100;
+        $availablePercentage = 100 - $usedPercentage;
+        return round($availablePercentage, 2);
+    }
+
+    public function checkSpaceArrangement($scheduledItems, $truckHeight, $truckWidth, $truckLength)
+    {
+        $totalItems = 0;
+        if(empty($scheduledItems)) {
+            return true;
+        }
+
+        usort($scheduledItems, function ($a, $b) {
+            return min($a['length'], $a['width']) <=> min($b['length'], $b['width']);
+        });
+        $occupiedSpace = array_fill(0, $truckWidth, array_fill(0, $truckLength, false));
+        foreach ($scheduledItems as $item) {
+            $itemFits = false;
+            if ($item['height'] > $truckHeight) {
+                return false;
+            }
+            // Try placing item normally (L x W) or rotated (W x L)
+            $possibleOrientations = [
+                ['length' => $item['length'], 'width' => $item['width']],  // Normal
+                ['length' => $item['width'], 'width' => $item['length']]   // Rotated
+            ];
+
+            foreach ($possibleOrientations as $orientation) {
+                $itemLength = $orientation['length'];
+                $itemWidth = $orientation['width'];
+                for ($y = 0; $y <= $truckWidth - $itemWidth; $y++) {
+                    for ($x = 0; $x <= $truckLength - $itemLength; $x++) {
+                        // Check if the item fits in the current space
+                        if ($this->canPlaceItem($occupiedSpace, $x, $y, $itemLength, $itemWidth)) {
+                            // Mark space as occupied
+                            $this->markOccupied($occupiedSpace, $x, $y, $itemLength, $itemWidth);
+                            $itemFits = true;
+                            break 3;
+                        }
+                    }
+                }
+            }
+            if (!$itemFits) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    private function canPlaceItem($occupiedSpace, $x, $y, $length, $width) {
+        for ($i = $y; $i < $y + $width; $i++) {
+            for ($j = $x; $j < $x + $length; $j++) {
+                if ($occupiedSpace[$i][$j]) {
+                    return false; // Space is already occupied
+                }
+            }
+        }
+        return true;
+    }
+
+    // Helper private function: Mark space as occupied
+    private function markOccupied(&$occupiedSpace, $x, $y, $length, $width) {
+        for ($i = $y; $i < $y + $width; $i++) {
+            for ($j = $x; $j < $x + $length; $j++) {
+                $occupiedSpace[$i][$j] = true;
+            }
+        }
+    }
 }

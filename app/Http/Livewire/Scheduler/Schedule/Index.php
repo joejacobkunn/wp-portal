@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Enums\Scheduler\ScheduleEnum;
 use App\Enums\Scheduler\ScheduleStatusEnum;
+use App\Enums\Scheduler\ScheduleTypeEnum;
 use App\Http\Livewire\Component\Component;
 use App\Models\Core\CalendarHoliday;
 use App\Models\Core\User;
@@ -17,6 +18,7 @@ use App\Models\SRO\RepairOrders;
 use App\Models\Scheduler\Schedule;
 use App\Exports\Scheduler\OrderScheduleExport;
 use App\Http\Livewire\Scheduler\Schedule\Forms\AnnouncementForm;
+use App\Models\Product\Category;
 use App\Models\Scheduler\Announcement;
 use App\Models\Scheduler\NotificationTemplate;
 use Illuminate\Support\Facades\Auth;
@@ -66,6 +68,9 @@ class Index extends Component
     public $searchZoneKey;
     public $activeSearchKey = 'schedule';
     public $searchZoneData;
+    public $cargoSorting = false;
+    public $cargoItems;
+    public $cargoError =[];
 
     protected $queryString = [
         'selectedScheduleId' => ['except' => '*', 'as' => 'id'],
@@ -273,7 +278,8 @@ class Index extends Component
                 'travel_prio_number' => $schedule->travel_prio_number,
                 'truck_schedule_id' => $schedule->truck_schedule_id,
                 'latest_comment' => $schedule->comments->last(),
-                'service_address' => $schedule->service_address
+                'service_address' => $schedule->service_address,
+                'line_item' => $schedule->line_item
             ];
         })
         ->toArray();
@@ -296,6 +302,65 @@ class Index extends Component
             ];
         })
         ->toArray();
+        foreach($this->filteredSchedules as $key =>$truckSchedule) {
+            $items = [];
+            if($truckSchedule['service_type'] == ScheduleTypeEnum::pickup_delivery->value) {
+                $truckScheduleInfo = TruckSchedule::with([
+                    'orderSchedule' => function ($q) {
+                        $q->where('status', '!=', ScheduleStatusEnum::cancelled->value);
+                    },
+                    'orderSchedule.order',
+                    'truck'
+                ])->find($truckSchedule['id']);
+                if(!$truckScheduleInfo || count($truckSchedule['events']) <= 0) {
+                    continue;
+                }
+
+                $cargoItems = $truckScheduleInfo->orderSchedule
+                ->map(function ($schedule) {
+                    return [
+                        'line_item' => $schedule->line_item,
+                        'order_line_items' => $schedule->order->line_items ?? [],
+                    ];
+                })
+                ->toArray();
+                $lineItems = [];
+                $prodcats = collect($cargoItems)
+                ->flatMap(fn($cargo) => array_map('strtoupper', array_column($cargo['order_line_items']['line_items'] ?? [], 'prodcat')))
+                ->unique()
+                ->filter()
+                ->values();
+                $categories = Category::with('cargoConfigurator')
+                ->whereIn('name', $prodcats)
+                ->get()
+                ->keyBy('name');
+                foreach ($cargoItems as $cargo) {
+                    foreach ($cargo['line_item'] as $prod => $desc) {
+                        // find the matching line item by shipprod
+                        $matched = collect($cargo['order_line_items']['line_items'] ?? [])
+                            ->firstWhere('shipprod', $prod);
+                            $prodcat = strtoupper($matched['prodcat'] ?? '');
+
+                            $category = $categories[$prodcat] ?? null;
+
+                            $lineItems[] = [
+                                'prod' => $prod,
+                                'desc' => $desc,
+                                'prodcat' => $prodcat ?: null,
+                                'height' => $category?->cargoConfigurator?->height,
+                                'length' => $category?->cargoConfigurator?->length,
+                                'width' => $category?->cargoConfigurator?->width,
+                                'area' => $category?->cargoConfigurator?->width * $category?->cargoConfigurator?->length,
+                            ];
+                    }
+                }
+                $truckArea = $truckScheduleInfo->truck->length * $truckScheduleInfo->truck->width;
+                $totalUsedArea = collect($lineItems)->sum('area');
+                $usedAreaPercentage = $truckArea > 0 ? ($totalUsedArea / $truckArea) * 100 : 0;
+                $usedAreaPercentage = round($usedAreaPercentage, 2);
+                $this->filteredSchedules[$key]['totalAreaUsed'] = $usedAreaPercentage;
+            }
+        }
     }
 
     public function onDateRangeChanges($start, $end)
@@ -357,7 +422,10 @@ class Index extends Component
                 'zones.name as zone_name',
                 'users.name as driver_name',
                 'users.title as driver_title',
-                'user_skills.skills as driver_skills'
+                'user_skills.skills as driver_skills',
+                'trucks.height as truck_height',
+                'trucks.length as truck_length',
+                'trucks.width as truck_width'
             ])
             ->with('orderSchedule')
             ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
@@ -376,14 +444,34 @@ class Index extends Component
             $truckScheduleQuery->where('truck_schedules.zone_id', $this->activeZone['id']);
         }
 
-        if ($type == 'at_home_maintenance') {
-            $truckScheduleQuery->where('trucks.service_type', 'at_home_maintenance');
-        } elseif ($type == 'delivery') {
-            $truckScheduleQuery->where('truck_schedules.is_delivery', true);
-        } elseif ($type == 'pickup') {
-            $truckScheduleQuery->where('truck_schedules.is_pickup', true);
-        } elseif ($type == 'setup_install') {
-            $truckScheduleQuery->where('trucks.service_type', 'setup_install');
+        $typeArray = [];
+
+        switch ($type) {
+            case ScheduleEnum::at_home_maintenance->value:
+                $truckScheduleQuery->where('trucks.service_type', $type);
+                break;
+
+            case ScheduleEnum::delivery->value:
+                $truckScheduleQuery->where('truck_schedules.is_delivery', true);
+                break;
+
+            case ScheduleEnum::pickup->value:
+                $truckScheduleQuery->where('truck_schedules.is_pickup', true);
+                break;
+
+            case ScheduleEnum::setup_install->value:
+                $truckScheduleQuery->where('trucks.service_type', 'setup_install');
+                break;
+
+            case '':
+                $typeArray[] = ScheduleTypeEnum::at_home_maintenance->value;
+
+                if (Auth::user()->can('scheduler.override')) {
+                    $typeArray[] = ScheduleTypeEnum::pickup_delivery->value;
+                }
+
+                $truckScheduleQuery->whereIn('trucks.service_type', $typeArray);
+                break;
         }
 
         $this->truckInfo = $truckScheduleQuery
@@ -394,6 +482,7 @@ class Index extends Component
                     'id' => $truck->id,
                     'schedule_date' => $truck->schedule_date,
                     'service_type' => $truck->service_type,
+                    'schedule_type' => $truck->scheduleType(),
                     'truck_name' => $truck->truck_name,
                     'truck_id' => $truck->truck_id,
                     'vin_number' => $truck->vin_number,
@@ -560,7 +649,16 @@ class Index extends Component
     {
         $whse = $this->activeWarehouse;
         $query = Schedule::with('order.customer');
-        if($this->activeType && $this->activeType != '') {
+        if($this->activeType == "") {
+            $typeArray = [ScheduleEnum::at_home_maintenance->value];
+            if(Auth::user()->can('scheduler.override')) {
+                $typeArray = array_merge($typeArray, [
+                    ScheduleEnum::delivery->value,
+                    ScheduleEnum::pickup->value,
+                ]);
+            }
+            $query->whereIn('type', $typeArray);
+        } else {
             $query->where('type', $this->activeType);
         }
         $query->whereBetween('schedule_date', [$this->eventStart, $this->eventEnd])
@@ -782,4 +880,45 @@ class Index extends Component
         $this->selectedScheduleId = $id;
     }
 
+    public function showCargoModal($truckScheduleId)
+    {
+        $this->cargoSorting = true;
+        $this->reset([
+            'cargoItems',
+            'cargoError'
+        ]);
+        $truckschedule = TruckSchedule::with('orderSchedule')->find($truckScheduleId);
+        if(!$truckschedule) {
+            $this->cargoError = ['status' => true, 'message' => ' schedule not found'];
+            return;
+        }
+
+        $this->cargoItems = $truckschedule->orderSchedule
+        ->sortByDesc(function ($schedule) {
+            return strtotime($schedule->expected_arrival_time);
+        })
+        ->map(function ($schedule) {
+            return [
+                'schedule_id' => $schedule->scheduleId(),
+                'sx_ordernumber' => $schedule->sx_ordernumber,
+                'order_number_suffix' => $schedule->order_number_suffix,
+                'line_item' => $schedule->line_item,
+            ];
+        })
+        ->toArray();
+
+        if(empty($this->cargoItems)) {
+            $this->cargoError = ['status' => true, 'message' => 'No cargo items found'];
+            return;
+        }
+    }
+
+    public function closeCargoModal()
+    {
+        $this->cargoSorting = false;
+        $this->reset([
+            'cargoItems',
+            'cargoError'
+        ]);
+    }
 }
