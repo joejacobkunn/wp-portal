@@ -251,7 +251,7 @@
                                             class="link-underline-primary float-end"><u>Cargo Sorting</u></a> <i
                                             class="fas fa-box-open"></i> Cargo
                                         Capacity
-                                        at <strong>{{$truck['totalAreaUsed']}}%</strong></div>
+                                        at <strong>{{ $truck['totalAreaUsed'] }}%</strong></div>
                                 @endif
 
                             </div>
@@ -301,36 +301,36 @@
             <x-modal toggle="cargoSorting" size="md" :closeEvent="'closeCargoModal'">
                 <x-slot name="title"> Cargo Sorted List </x-slot>
 
-                <div class="alert alert-light-info color-info"></i> Please load items as listed below
+                <div class="alert alert-light-info color-info"></i> Please load items on the truck in the order listed
+                    below
                 </div>
 
-                    <div class="list-group">
-                        @php
-                            $index = 1;
-                        @endphp
-                        @foreach ($cargoItems as $scheduleitem)
-                        <div class="list-group-item list-group-item-action active">
-                            {{$index++}}. #{{ $scheduleitem['schedule_id'] }} - OE
-                            #{{ $scheduleitem['sx_ordernumber'] }}-{{ $scheduleitem['order_number_suffix'] }}
+                <div class="list-group">
+                    @php
+                        $index = 1;
+                    @endphp
+                    @foreach ($cargoItems as $scheduleitem)
+                        <div class="list-group-item list-group-item-action list-group-item-primary">
+                            <span class="badge bg-secondary float-end">OE
+                                #{{ $scheduleitem['sx_ordernumber'] }}-{{ $scheduleitem['order_number_suffix'] }}</span>
+                            <strong>{{ ordinal($index++) }} Load </strong>
                         </div>
-                            @foreach ($scheduleitem['line_item'] as $key => $item)
-                                <div class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <p class="mb-1">
-                                            {{ $item }} ({{$key}})
-                                        </p>
-                                    </div>
+                        @foreach ($scheduleitem['line_item'] as $key => $item)
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <p class="mb-1">
+                                        {{ $item }} ({{ $key }})
+                                    </p>
                                 </div>
-
-                            @endforeach
+                            </div>
                         @endforeach
+                    @endforeach
+                </div>
+                @if (isset($cargoError['status']) && $cargoError['status'])
+                    <div class="alert alert-light-warning color-warning"><i class="bi bi-exclamation-triangle"></i>
+                        {{ $cargoError['message'] }}
                     </div>
-                    @if (isset($cargoError['status']) &&  $cargoError['status'])
-                        <div class="alert alert-light-warning color-warning"><i
-                            class="bi bi-exclamation-triangle"></i>
-                            {{$cargoError['message']}}
-                        </div>
-                    @endif
+                @endif
             </x-modal>
         @endif
 
