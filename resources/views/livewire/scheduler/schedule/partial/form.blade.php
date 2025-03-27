@@ -155,10 +155,12 @@
                                                         fn($dimension) => strtolower($dimension['category']) ===
                                                             strtolower($item['prodcat']),
                                                     );
+                                                    $disableItem = true;
                                                     if (
                                                         $cargo &&
                                                         isset($cargo['length'], $cargo['width'], $cargo['height'])
                                                     ) {
+                                                        $disableItem = false;
                                                         $cargoString = "{$cargo['length']}ft x {$cargo['width']}ft x {$cargo['height']}ft";
                                                     }
                                                 }
@@ -170,12 +172,17 @@
                                                 @endif
                                                 <span
                                                     class="badge bg-light-primary float-end me-1">{{ $cargoString }}</span>
+                                                @if ($disableItem)
+                                                <span
+                                                    class="badge bg-light-warning float-end me-1">Category not configured </span>
+                                                @endif
+
                                                 @if ($form->type == 'at_home_maintenance')
                                                     <x-forms.radio :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem'" :value="$item['shipprod']"
                                                         :model="'form.line_item'" />
                                                 @else
                                                     <x-forms.checkbox :label="$item['descrip'] . '(' . $item['shipprod'] . ')'" :name="'lineitem[]'"
-                                                        :value="$item['shipprod']" :model="'form.line_item'" />
+                                                        :value="$item['shipprod']" :model="'form.line_item'" :disabled="$disableItem"  />
                                                 @endif
 
                                             </li>

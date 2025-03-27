@@ -198,6 +198,19 @@ class ScheduleOrder extends Component
         $this->form->updatedAddress();
     }
 
+    public function updated($field, $value)
+    {
+        if (str_starts_with($field, 'form.line_item') && $this->form->type != ScheduleEnum::at_home_maintenance->value) {
+
+            $this->form->reset([
+                'scheduleType',
+                'schedule_date',
+                'schedule_time',
+            ]);
+            $this->reset('scheduledTruckInfo');
+        }
+    }
+
     public function updateFormScheduleDate($date)
     {
         $this->form->schedule_date = Carbon::parse($date)->format('Y-m-d');
