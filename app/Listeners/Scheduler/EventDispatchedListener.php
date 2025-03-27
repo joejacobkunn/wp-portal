@@ -54,7 +54,7 @@ class EventDispatchedListener implements ShouldQueue
             }
 
             $sx_client = new SX();
-            $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been dispatched with technician '.$event->schedule->truckSchedule->driver->name, $event->schedule->sx_ordernumber);
+            $sx_response = $sx_client->create_order_note('AHM #'.$event->schedule->scheduleId().' has been dispatched with technician '.$event->schedule->truckSchedule->driver?->name, $event->schedule->sx_ordernumber);
 
     
         }

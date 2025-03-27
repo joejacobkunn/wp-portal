@@ -419,6 +419,7 @@ class Index extends Component
                     'id' => $truck->id,
                     'schedule_date' => $truck->schedule_date,
                     'service_type' => $truck->service_type,
+                    'schedule_type' => $truck->scheduleType(),
                     'truck_name' => $truck->truck_name,
                     'truck_id' => $truck->truck_id,
                     'vin_number' => $truck->vin_number,
