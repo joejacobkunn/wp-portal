@@ -226,8 +226,13 @@ class SchedulePDForm extends ScheduleForm
         ->join('zones', 'zipcode_zone.zone_id', '=', 'zones.id')
         ->whereNull('zones.deleted_at')
         ->join('trucks', 'truck_schedules.truck_id', '=', 'trucks.id')
-        ->whereNull('trucks.deleted_at');
-
+        ->whereNull('trucks.deleted_at')
+        ->when($this->type == ScheduleEnum::delivery->value, function($query) {
+            return $query->where('is_delivery', 1);
+        })
+        ->when($this->type == ScheduleEnum::pickup->value, function($query) {
+            return $query->where('is_pickup', 1);
+        });
         if($this->scheduleType == 'schedule_override' && Auth::user()->can('scheduler.can-schedule-override')) {
             $zones = Zones::where('service', 'pickup_delivery')->where('is_active',1)->pluck('id');
         } else {
@@ -290,7 +295,14 @@ class SchedulePDForm extends ScheduleForm
                     $join->on('truck_schedules.id', '=', 'sc.truck_schedule_id');
                 });
             })
+            ->when($this->type == ScheduleEnum::delivery->value, function($query) {
+                return $query->where('is_delivery', 1);
+            })
+            ->when($this->type == ScheduleEnum::pickup->value, function($query) {
+                return $query->where('is_pickup', 1);
+            })
             ->whereIn('truck_schedules.zone_id', $zones)
+
             ->whereDate('truck_schedules.schedule_date', '>=', now()->toDateString())
             ->when(!$shouldOverride, function($query) {
                 return $query->whereRaw('COALESCE(sc.scheduled_count, 0) < truck_schedules.slots');

@@ -277,7 +277,8 @@ class Index extends Component
                 'travel_prio_number' => $schedule->travel_prio_number,
                 'truck_schedule_id' => $schedule->truck_schedule_id,
                 'latest_comment' => $schedule->comments->last(),
-                'service_address' => $schedule->service_address
+                'service_address' => $schedule->service_address,
+                'line_item' => $schedule->line_item
             ];
         })
         ->toArray();
@@ -818,6 +819,10 @@ class Index extends Component
     public function showCargoModal($truckScheduleId)
     {
         $this->cargoSorting = true;
+        $this->reset([
+            'cargoItems',
+            'cargoError'
+        ]);
         $truckschedule = TruckSchedule::with('orderSchedule')->find($truckScheduleId);
         if(!$truckschedule) {
             $this->cargoError = ['status' => true, 'message' => ' schedule not found'];
@@ -825,11 +830,19 @@ class Index extends Component
         }
 
         $this->cargoItems = $truckschedule->orderSchedule
-            ->sortByDesc(function ($schedule) {
-                return strtotime($schedule->expected_arrival_time);
-            })
-            ->pluck('line_item')
-            ->toArray();
+        ->sortByDesc(function ($schedule) {
+            return strtotime($schedule->expected_arrival_time);
+        })
+        ->map(function ($schedule) {
+            return [
+                'schedule_id' => $schedule->scheduleId(),
+                'sx_ordernumber' => $schedule->sx_ordernumber,
+                'order_number_suffix' => $schedule->order_number_suffix,
+                'line_item' => $schedule->line_item,
+            ];
+        })
+        ->toArray();
+
         if(empty($this->cargoItems)) {
             $this->cargoError = ['status' => true, 'message' => 'No cargo items found'];
             return;

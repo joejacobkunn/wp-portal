@@ -286,8 +286,12 @@
                 <x-slot name="title"> Cargo Sorted List </x-slot>
 
                     <div class="list-group">
-                        @foreach ($cargoItems as $scheduleitems)
-                            @foreach ($scheduleitems as $key => $item)
+                        @foreach ($cargoItems as $scheduleitem)
+                        <div class="list-group-item list-group-item-action active">
+                            #{{ $scheduleitem['schedule_id'] }} - OE
+                            #{{ $scheduleitem['sx_ordernumber'] }}-{{ $scheduleitem['order_number_suffix'] }}
+                        </div>
+                            @foreach ($scheduleitem['line_item'] as $key => $item)
                                 <div class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1">
