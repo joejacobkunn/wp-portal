@@ -305,11 +305,9 @@
                     below
                 </div>
 
-                @php $truck = App\Models\Scheduler\Truck::find($cargoItems[0]['truck_id']);  @endphp
-
                 <div class="alert alert-light-secondary color-secondar">
-                    Cargo Dimensions : {{ $truck->length }}Lx{{ $truck->width }}Wx{{ $truck->height }}H
-                    ({{ $truck->length * $truck->width }} SqFt)
+                    Cargo Dimensions : {{ $cargoItems['truck_length'] }}Lx{{ $cargoItems['truck_width']}}Wx{{ $cargoItems['truck_height'] }}H
+                    ({{ $cargoItems['truck_length'] * $cargoItems['truck_width' ]}} SqFt)
                 </div>
 
 
@@ -318,18 +316,20 @@
                     @php
                         $index = 1;
                     @endphp
-                    @foreach ($cargoItems as $scheduleitem)
+                    @foreach ($cargoItems['items'] as $scheduleitem)
                         <div class="list-group-item list-group-item-action list-group-item-primary">
                             <span class="badge bg-secondary float-end">OE
                                 #{{ $scheduleitem['sx_ordernumber'] }}-{{ $scheduleitem['order_number_suffix'] }}</span>
                             <strong>{{ ordinal($index++) }} Load </strong>
                         </div>
-                        @foreach ($scheduleitem['line_item'] as $key => $item)
+                        @foreach ($scheduleitem['line_items'] as $key => $item)
                             <div class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
                                     <p class="mb-1">
-                                        {{ $item }} ({{ $key }})
+                                        {{ $item['desc'] }} ({{ $item['prod'] }})
                                     </p>
+                                    <span class="badge bg-light-secondary float-end">
+                                        {{ $item['length'] }}Lx{{ $item['width']}}Wx{{ $item['height'] }}H</span>
                                 </div>
                             </div>
                         @endforeach

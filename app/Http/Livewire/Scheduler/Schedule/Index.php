@@ -887,13 +887,13 @@ class Index extends Component
             'cargoItems',
             'cargoError'
         ]);
-        $truckschedule = TruckSchedule::with('orderSchedule')->find($truckScheduleId);
+        $truckschedule = TruckSchedule::with('orderSchedule.order')->find($truckScheduleId);
         if(!$truckschedule) {
             $this->cargoError = ['status' => true, 'message' => ' schedule not found'];
             return;
         }
 
-        $this->cargoItems = $truckschedule->orderSchedule
+        $cargoItems = $truckschedule->orderSchedule
         ->sortByDesc(function ($schedule) {
             return strtotime($schedule->expected_arrival_time);
         })
@@ -903,15 +903,80 @@ class Index extends Component
                 'sx_ordernumber' => $schedule->sx_ordernumber,
                 'order_number_suffix' => $schedule->order_number_suffix,
                 'line_item' => $schedule->line_item,
-                'truck_id' => $schedule->truckSchedule->truck_id
+                'truck_id' => $schedule?->truckSchedule?->truck_id,
+                'order_line_items' => $schedule?->order?->line_items,
             ];
         })
         ->toArray();
 
-        if(empty($this->cargoItems)) {
+        if(empty($cargoItems)) {
             $this->cargoError = ['status' => true, 'message' => 'No cargo items found'];
             return;
         }
+        //dd($cargoItems);
+        $lineItems = [];
+        $prodcats = collect($cargoItems)
+        ->flatMap(fn($cargo) => array_map('strtoupper', array_column($cargo['order_line_items']['line_items'] ?? [], 'prodcat')))
+        ->unique()
+        ->filter()
+        ->values();
+        $categories = Category::with('cargoConfigurator')
+        ->whereIn('name', $prodcats)
+        ->get()
+        ->keyBy('name');
+        foreach ($cargoItems as $cargo) {
+            foreach ($cargo['line_item'] as $prod => $desc) {
+                // find the matching line item by shipprod
+                $matched = collect($cargo['order_line_items']['line_items'] ?? [])
+                    ->firstWhere('shipprod', $prod);
+                    $prodcat = strtoupper($matched['prodcat'] ?? '');
+
+                    $category = $categories[$prodcat] ?? null;
+
+                    $lineItems[] = [
+                        'prod' => $prod,
+                        'desc' => $desc,
+                        'prodcat' => $prodcat ?: null,
+                        'height' => $category?->cargoConfigurator?->height,
+                        'length' => $category?->cargoConfigurator?->length,
+                        'width' => $category?->cargoConfigurator?->width,
+                    ];
+            }
+        }
+        $updatedCargoItems = [];
+
+        foreach ($cargoItems as $cargo) {
+            $updatedLineItems = [];
+
+            foreach ($cargo['line_item'] as $prod => $desc) {
+                $matched = collect($lineItems)->firstWhere('prod', $prod);
+
+                $updatedLineItems[] = [
+                    'prod' => $prod,
+                    'desc' => $desc,
+                    'prodcat' => $matched['prodcat'] ?? null,
+                    'height' => $matched['height'] ?? null,
+                    'length' => $matched['length'] ?? null,
+                    'width' => $matched['width'] ?? null,
+                ];
+            }
+            $updatedCargoItems[] = [
+                'schedule_id' => $cargo['schedule_id'],
+                'sx_ordernumber' => $cargo['sx_ordernumber'],
+                'order_number_suffix' => $cargo['order_number_suffix'],
+                'truck_id' => $cargo['truck_id'],
+                'line_items' => $updatedLineItems, // Updated structure
+            ];
+        }
+        $this->cargoItems = [
+            'truck_schedule_id' =>  $truckschedule->id,
+            'truck_length' => $truckschedule?->truck?->length,
+            'truck_width'  => $truckschedule?->truck?->width,
+            'truck_height' => $truckschedule?->truck?->height,
+            'items' => $updatedCargoItems
+        ];
+
+
     }
 
     public function closeCargoModal()
