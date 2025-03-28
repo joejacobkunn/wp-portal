@@ -6,6 +6,7 @@ use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Truck\Form\CargoForm;
 use App\Models\Product\Category;
 use App\Models\Scheduler\CargoConfigurator;
+use App\Models\Scheduler\SroEquipmentCategory;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
@@ -16,6 +17,7 @@ class Show extends Component
     public CargoConfigurator $cargoConfigurator;
     public CargoForm $cargoForm;
     public $productCategories;
+    public $equipmentCategories = [];
     public $editRecord = false;
     public $breadcrumbs = [
         [
@@ -61,6 +63,8 @@ class Show extends Component
             ]
         ]);
         $this->productCategories = Category::orderBy('name', 'asc')->pluck('name', 'id');
+        $this->equipmentCategories = SroEquipmentCategory::orderBy('name', 'asc')->pluck('name', 'id');
+
     }
 
     public function edit()
@@ -88,7 +92,7 @@ class Show extends Component
         $this->authorize('update', $this->cargoConfigurator);
 
         $this->cargoForm->update();
-        $this->cargoConfigurator = $this->cargoForm->cargoConfigurator;
+        $this->cargoConfigurator->refresh();
         $this->alert('success', 'cargo config updated');
         $this->cancel();
     }

@@ -6,6 +6,7 @@ use App\Http\Livewire\Component\Component;
 use App\Http\Livewire\Scheduler\Truck\Form\CargoForm;
 use App\Models\Product\Category;
 use App\Models\Scheduler\CargoConfigurator;
+use App\Models\Scheduler\SroEquipmentCategory;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Index extends Component
@@ -14,6 +15,7 @@ class Index extends Component
     public CargoForm $cargoForm;
     public $addRecord;
     public $productCategories = [];
+    public $equipmentCategories = [];
     public $breadcrumbs = [
         [
             'title' => 'Scheduler',
@@ -34,6 +36,7 @@ class Index extends Component
         $this->authorize('viewAny', CargoConfigurator::class);
 
         $this->productCategories = Category::orderBy('name', 'asc')->pluck('name', 'id');
+        $this->equipmentCategories = SroEquipmentCategory::orderBy('name', 'asc')->pluck('name', 'id');
     }
 
     public function render()

@@ -42,6 +42,14 @@ class Table extends DataTableComponent
                 })
                 ->excludeFromColumnSelect()
                 ->html(),
+            Column::make('SRO Equipment Category', 'sroEquipment.name')
+                ->sortable()
+                ->searchable()
+                ->format(function ($value, $row) {
+                    return $value;
+                })
+                ->excludeFromColumnSelect()
+                ->html(),
             Column::make('Height', 'height')
                 ->sortable()
                 ->searchable()
@@ -81,6 +89,6 @@ class Table extends DataTableComponent
 
     public function builder(): Builder
     {
-        return CargoConfigurator::query();
+        return CargoConfigurator::query()->with(['sroEquipment', 'productCategory']);
     }
 }

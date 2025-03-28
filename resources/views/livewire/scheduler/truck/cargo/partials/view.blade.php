@@ -20,6 +20,13 @@
                         <li
                             class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
                             <div>
+                                <h3 class="h6 mb-1">SRO Equipment Category</h3>
+                                <p class="small pe-4">{{ $cargoConfigurator->sroEquipment?->name ?? '----' }}</p>
+                            </div>
+                        </li>
+                        <li
+                            class="list-group-item d-flex align-items-center justify-content-between px-0 border-bottom">
+                            <div>
                                 <h3 class="h6 mb-1">Height</h3>
                                 <p class="small pe-4">{{ $cargoConfigurator->height }} ft</p>
                             </div>

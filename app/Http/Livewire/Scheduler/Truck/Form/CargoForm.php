@@ -16,6 +16,7 @@ class CargoForm extends Form
     public $length;
     public $width;
     public $weight;
+    public $sro_equipment_category_id;
 
     protected $validationAttributes = [
         'product_category_id' => 'Product Category',
@@ -23,6 +24,7 @@ class CargoForm extends Form
         'length' => 'Length',
         'width' => 'Width',
         'weight' => 'Weight',
+        'sro_equipment_category_id' => 'SRO Equipment Category',
     ];
 
     protected function rules()
@@ -37,6 +39,7 @@ class CargoForm extends Form
             'length' => 'required',
             'width' => 'required',
             'weight' => 'required',
+            'sro_equipment_category_id' => 'nullable|exists:sro_equipment_categories,id',
         ];
     }
 

@@ -20,7 +20,8 @@ class CargoConfigurator extends Model
         'length',
         'width',
         'height',
-        'weight'
+        'weight',
+        'sro_equipment_category_id'
     ];
 
     public function productCategory()
@@ -31,6 +32,11 @@ class CargoConfigurator extends Model
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class, 'whse', 'short');
+    }
+
+    public function sroEquipment()
+    {
+        return $this->belongsTo(SroEquipmentCategory::class, 'sro_equipment_category_id');
     }
 
 }
